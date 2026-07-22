@@ -1,0 +1,699 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>NF Naseem Fitness™ | Genuine Protein, Creatine & Gym Supplements — Mumbai</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Anton&family=Inter:wght@400;500;600;700;800&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink-black:#0A0806;
+    --steel:#17130D;
+    --iron:#241D13;
+    --iron-light:#3A2E1A;
+    --paper:#F5EEDD;
+    --paper-dim:#B8AD95;
+    --teal:#FFD24A;
+    --teal-dim:#4A3A0E;
+    --amber:#FFE27A;
+    --gold-light:#FFF2B5;
+    --line: rgba(255,210,74,0.18);
+  }
+  *{margin:0;padding:0;box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+  body{
+    background:var(--ink-black);
+    color:var(--paper);
+    font-family:'Inter',sans-serif;
+    line-height:1.5;
+    -webkit-font-smoothing:antialiased;
+  }
+  img{max-width:100%;display:block;}
+  a{color:inherit;text-decoration:none;}
+  .wrap{max-width:1200px;margin:0 auto;padding:0 28px;}
+  h1,h2,h3{font-family:'Anton',sans-serif;font-weight:400;text-transform:uppercase;letter-spacing:0.5px;line-height:1.02;}
+  .eyebrow{
+    font-family:'Space Mono',monospace;
+    font-size:12px;
+    letter-spacing:2.5px;
+    text-transform:uppercase;
+    color:var(--teal);
+    display:flex;align-items:center;gap:10px;
+  }
+  .eyebrow::before{content:'';width:22px;height:1px;background:var(--teal);}
+  :focus-visible{outline:2px solid var(--teal);outline-offset:3px;}
+
+  /* ===== HEADER ===== */
+  header{
+    position:sticky;top:0;z-index:50;
+    background:rgba(11,12,14,0.88);
+    backdrop-filter:blur(10px);
+    border-bottom:1px solid var(--line);
+  }
+  .topbar{
+    background:var(--teal-dim);
+    color:var(--paper);
+    font-family:'Space Mono',monospace;
+    font-size:12px;
+    letter-spacing:1px;
+    text-align:center;
+    padding:7px 12px;
+  }
+  nav.wrap{
+    display:flex;align-items:center;justify-content:space-between;
+    padding-top:14px;padding-bottom:14px;
+    gap:24px;
+  }
+  .brand{display:flex;align-items:center;gap:12px;}
+  .brand img{height:42px;width:auto;border-radius:6px;}
+  .brand-name{font-family:'Anton',sans-serif;font-size:19px;letter-spacing:0.5px;text-transform:uppercase;line-height:1.1;}
+  .brand-name span{color:var(--teal);}
+  .brand-tag{display:block;font-family:'Space Mono',monospace;font-size:9px;letter-spacing:2px;color:var(--paper-dim);text-transform:uppercase;margin-top:2px;}
+  .nav-links{display:flex;gap:30px;font-size:14px;font-weight:600;}
+  .nav-links a{opacity:0.85;transition:opacity .2s;}
+  .nav-links a:hover{opacity:1;color:var(--teal);}
+  .nav-cta{
+    display:flex;align-items:center;gap:14px;
+  }
+  .btn{
+    display:inline-flex;align-items:center;justify-content:center;gap:8px;
+    padding:12px 22px;
+    font-weight:700;font-size:14px;
+    border-radius:3px;
+    border:1px solid transparent;
+    cursor:pointer;
+    transition:transform .15s ease, background .2s ease;
+    white-space:nowrap;
+  }
+  .btn:hover{transform:translateY(-2px);}
+  .btn-primary{background:var(--teal);color:var(--ink-black);}
+  .btn-primary:hover{background:#FFF2B5;}
+  .btn-ghost{border-color:var(--line);color:var(--paper);}
+  .btn-ghost:hover{border-color:var(--teal);}
+  .btn-wa{background:#25D366;color:#06210F;}
+  @media (max-width:860px){ .nav-links{display:none;} .nav-cta{display:none;} }
+
+  /* ===== MOBILE MENU ===== */
+  .nav-toggle-input{display:none;}
+  .hamburger-btn{display:none;flex-direction:column;gap:5px;cursor:pointer;width:28px;padding:6px 0;}
+  .hamburger-btn span{display:block;height:2px;width:100%;background:var(--paper);border-radius:2px;transition:transform .2s ease, opacity .2s ease;}
+  .mobile-menu{
+    display:none;flex-direction:column;
+    background:var(--ink-black);border-top:1px solid var(--line);
+    padding:8px 28px 24px;
+  }
+  .mobile-menu a{
+    padding:14px 0;font-size:15px;font-weight:600;
+    border-bottom:1px solid var(--line);
+  }
+  .mobile-menu .mobile-cta{display:flex;flex-direction:column;gap:12px;margin-top:16px;}
+  @media (max-width:860px){
+    .hamburger-btn{display:flex;}
+    .nav-toggle-input:checked ~ .mobile-menu{display:flex;}
+  }
+
+  /* ===== HERO ===== */
+  .hero{
+    position:relative;
+    overflow:hidden;
+    border-bottom:1px solid var(--line);
+    background:
+      radial-gradient(ellipse 900px 500px at 78% -10%, rgba(255,210,74,0.20), transparent 60%),
+      radial-gradient(ellipse 700px 500px at 10% 110%, rgba(255,226,122,0.10), transparent 60%);
+  }
+  .hero-grid{
+    display:grid;grid-template-columns:0.75fr 1.25fr;gap:36px;align-items:start;
+    padding:76px 0 64px;
+  }
+  .hero h1{font-size:clamp(40px,5.6vw,78px);}
+  .hero h1 .accent{color:var(--teal);}
+  .hero p.lead{
+    margin-top:22px;max-width:480px;color:var(--paper-dim);font-size:17px;
+  }
+  .hero-cta{display:flex;gap:14px;margin-top:34px;flex-wrap:wrap;}
+  .hero-stats{
+    display:flex;gap:34px;margin-top:52px;
+    font-family:'Space Mono',monospace;
+  }
+  .hero-stats div strong{display:block;font-family:'Anton',sans-serif;font-size:26px;color:var(--teal);}
+  .hero-stats div span{font-size:11px;letter-spacing:1px;color:var(--paper-dim);text-transform:uppercase;}
+
+  /* seal */
+  .seal-wrap{position:relative;display:flex;flex-direction:column;align-items:center;justify-content:center;}
+  .seal{
+    width:280px;height:280px;border-radius:50%;
+    background:conic-gradient(from 0deg, var(--iron), var(--steel) 40%, var(--iron));
+    border:2px dashed rgba(255,210,74,0.6);
+    display:flex;align-items:center;justify-content:center;
+    animation:spin 26s linear infinite;
+    position:relative;
+  }
+  .seal::after{
+    content:'';position:absolute;inset:14px;border-radius:50%;
+    border:1px solid rgba(244,242,237,0.15);
+  }
+  .seal-core{
+    width:190px;height:190px;border-radius:50%;background:var(--ink-black);
+    border:2px solid var(--teal);
+    display:flex;flex-direction:column;align-items:center;justify-content:center;
+    text-align:center;animation:spin-rev 26s linear infinite;
+  }
+  .seal-core strong{font-family:'Anton',sans-serif;font-size:22px;letter-spacing:1px;color:var(--paper);}
+  .seal-core span{font-family:'Space Mono',monospace;font-size:10px;color:var(--teal);letter-spacing:2px;margin-top:6px;}
+  @keyframes spin{to{transform:rotate(360deg);}}
+  @keyframes spin-rev{to{transform:rotate(-360deg);}}
+  @media (prefers-reduced-motion: reduce){ .seal,.seal-core{animation:none;} }
+  .video-frame{position:relative;}
+  .hero-video{
+    width:100%;aspect-ratio:1304/704;height:auto;border-radius:16px;
+    border:1px solid rgba(255,210,74,0.4);
+    box-shadow:0 0 70px rgba(255,210,74,0.22), 0 25px 60px rgba(0,0,0,0.55);
+    display:block;object-fit:cover;
+  }
+  .verified-chip{
+    position:absolute;top:16px;right:16px;
+    background:linear-gradient(135deg, var(--teal), var(--amber));
+    color:var(--ink-black);font-family:'Space Mono',monospace;font-weight:700;
+    font-size:11px;letter-spacing:1px;padding:8px 14px;border-radius:30px;
+    display:flex;align-items:center;gap:6px;
+    box-shadow:0 8px 22px rgba(255,210,74,0.35);
+  }
+  .verified-chip svg{width:14px;height:14px;}
+  .seal-wrap{width:100%;}
+  .hero-mini-trust{
+    display:grid;grid-template-columns:repeat(4,1fr);gap:14px;
+    margin-top:22px;
+  }
+  .mini-item{
+    background:linear-gradient(160deg, var(--steel) 0%, var(--iron) 130%);
+    border:1px solid var(--line);border-radius:12px;
+    padding:28px 18px;text-align:center;min-height:190px;
+    display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;
+    transition:transform .2s ease, border-color .2s ease, box-shadow .2s ease;
+    position:relative;overflow:hidden;
+  }
+  .mini-item::before{
+    content:'';position:absolute;top:0;left:-60%;width:50%;height:100%;
+    background:linear-gradient(100deg, transparent, rgba(255,226,122,0.35), transparent);
+    transform:skewX(-20deg);
+    animation:shine 3.2s ease-in-out infinite;
+  }
+  .mini-item:nth-child(2)::before{animation-delay:0.4s;}
+  .mini-item:nth-child(3)::before{animation-delay:0.8s;}
+  .mini-item:nth-child(4)::before{animation-delay:1.2s;}
+  @keyframes shine{
+    0%{left:-60%;}
+    35%{left:130%;}
+    100%{left:130%;}
+  }
+  @media (prefers-reduced-motion: reduce){ .mini-item::before{animation:none;} }
+  .mini-item:hover{
+    transform:translateY(-4px);
+    border-color:rgba(255,210,74,0.5);
+    box-shadow:0 12px 28px rgba(0,0,0,0.4);
+  }
+  .mini-icon{
+    width:64px;height:64px;border-radius:50%;
+    background:linear-gradient(150deg, rgba(255,210,74,0.18), rgba(255,210,74,0.04));
+    border:1px solid rgba(255,210,74,0.3);
+    display:flex;align-items:center;justify-content:center;
+    box-shadow:0 0 18px rgba(255,210,74,0.25);
+    position:relative;z-index:1;
+  }
+  .mini-item svg{width:30px;height:30px;color:var(--teal);}
+  .mini-item span{font-size:14px;font-weight:600;color:var(--paper-dim);line-height:1.4;}
+  @media (max-width:860px){
+    .hero-mini-trust{grid-template-columns:repeat(2,1fr);}
+  }
+  @media (max-width:860px){
+    .hero-grid{grid-template-columns:1fr;padding-top:48px;}
+    .seal-wrap{order:-1;margin-bottom:8px;}
+  }
+
+  /* ===== TRUST BAR ===== */
+  .trust{
+    border-bottom:1px solid var(--line);
+    background:var(--steel);
+  }
+  .trust .wrap{
+    display:grid;grid-template-columns:repeat(5,1fr);
+    padding:26px 28px;gap:18px;
+  }
+  .trust-item{display:flex;align-items:center;gap:12px;font-size:13px;font-weight:600;color:var(--paper-dim);}
+  .trust-item .dot{width:8px;height:8px;border-radius:50%;background:var(--teal);flex:none;}
+  @media (max-width:860px){ .trust .wrap{grid-template-columns:repeat(2,1fr);} }
+
+  section{padding:96px 0;}
+  @media (max-width:860px){ section{padding:64px 0;} .wrap{padding:0 20px;} }
+  @media (max-width:480px){
+    .cat-grid{grid-template-columns:1fr;}
+    .foot-grid{grid-template-columns:1fr;}
+    .hero-mini-trust{grid-template-columns:1fr;}
+    .trust .wrap{grid-template-columns:1fr;}
+  }
+  .section-head{display:flex;justify-content:space-between;align-items:flex-end;gap:24px;margin-bottom:48px;flex-wrap:wrap;}
+  .section-head h2{font-size:clamp(30px,3.6vw,46px);margin-top:14px;}
+  .section-head p{color:var(--paper-dim);max-width:420px;font-size:15px;}
+
+  /* ===== CATEGORIES ===== */
+  .cat-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:18px;}
+  .cat-card{
+    background:var(--steel);border:1px solid var(--line);border-radius:8px;
+    padding:28px 22px;position:relative;overflow:hidden;
+    transition:border-color .2s, transform .2s;
+  }
+  .cat-card:hover{border-color:var(--teal);transform:translateY(-4px);}
+  .cat-card .num{font-family:'Space Mono',monospace;font-size:12px;color:var(--teal);}
+  .cat-card h3{font-size:22px;margin-top:34px;}
+  .cat-card p{font-size:13px;color:var(--paper-dim);margin-top:8px;}
+  @media (max-width:860px){ .cat-grid{grid-template-columns:repeat(2,1fr);} }
+
+  /* ===== PRODUCTS ===== */
+  .prod-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:22px;}
+  .prod-card{
+    background:var(--steel);border:1px solid var(--line);border-radius:10px;
+    overflow:hidden;transition:transform .2s, border-color .2s;
+  }
+  .prod-card:hover{transform:translateY(-5px);border-color:var(--iron-light);}
+  .prod-photo{
+    aspect-ratio:1/1;background:
+      linear-gradient(135deg, var(--iron) 0%, var(--steel) 60%);
+    display:flex;align-items:center;justify-content:center;position:relative;
+    border-bottom:1px solid var(--line);
+  }
+  .prod-photo .ph-label{
+    font-family:'Space Mono',monospace;font-size:11px;color:var(--paper-dim);
+    text-align:center;padding:0 20px;letter-spacing:0.5px;
+  }
+  .prod-photo svg{width:56px;height:56px;opacity:0.5;margin-bottom:10px;}
+  .badge-genuine{
+    position:absolute;top:10px;right:10px;
+    background:rgba(255,210,74,0.16);border:1px solid var(--teal);color:var(--teal);
+    font-family:'Space Mono',monospace;font-size:9px;letter-spacing:1px;
+    padding:4px 8px;border-radius:20px;
+  }
+  .prod-body{padding:18px 18px 20px;}
+  .prod-body .cat-tag{font-family:'Space Mono',monospace;font-size:10px;color:var(--amber);letter-spacing:1.5px;text-transform:uppercase;}
+  .prod-body h4{font-size:16px;font-weight:700;margin-top:8px;font-family:'Inter',sans-serif;text-transform:none;}
+  .prod-body .price-row{display:flex;justify-content:space-between;align-items:center;margin-top:14px;}
+  .prod-body .price{font-family:'Space Mono',monospace;font-size:15px;color:var(--paper);}
+  .prod-body .price small{color:var(--paper-dim);font-size:11px;}
+  .add-btn{
+    width:34px;height:34px;border-radius:50%;background:var(--teal);color:var(--ink-black);
+    display:flex;align-items:center;justify-content:center;font-size:18px;font-weight:700;
+    border:none;cursor:pointer;transition:background .2s;
+  }
+  .add-btn:hover{background:#FFF2B5;}
+  @media (max-width:860px){ .prod-grid{grid-template-columns:repeat(2,1fr);} }
+
+  /* ===== AUTHENTICITY STORY ===== */
+  .authentic{
+    background:var(--steel);border-top:1px solid var(--line);border-bottom:1px solid var(--line);
+  }
+  .auth-grid{display:grid;grid-template-columns:1fr 1fr;gap:56px;align-items:center;}
+  .auth-copy p{color:var(--paper-dim);margin-top:18px;font-size:15px;max-width:460px;}
+  .auth-list{margin-top:28px;display:flex;flex-direction:column;gap:16px;}
+  .auth-list li{list-style:none;display:flex;gap:14px;align-items:flex-start;font-size:14px;}
+  .auth-list .idx{font-family:'Space Mono',monospace;color:var(--teal);font-size:13px;flex:none;padding-top:1px;}
+  .code-panel{
+    background:var(--ink-black);border:1px solid var(--line);border-radius:10px;padding:32px;
+    font-family:'Space Mono',monospace;
+  }
+  .code-panel .code-head{display:flex;justify-content:space-between;color:var(--paper-dim);font-size:11px;letter-spacing:1px;text-transform:uppercase;margin-bottom:18px;}
+  .code-line{display:flex;justify-content:space-between;padding:12px 0;border-bottom:1px dashed var(--line);font-size:13px;}
+  .code-line span:first-child{color:var(--paper-dim);}
+  .code-line .ok{color:var(--teal);}
+  @media (max-width:860px){ .auth-grid{grid-template-columns:1fr;} }
+
+  /* ===== TESTIMONIALS ===== */
+  .testi-track{display:grid;grid-template-columns:repeat(3,1fr);gap:22px;}
+  .testi-card{
+    background:var(--steel);border:1px solid var(--line);border-radius:10px;padding:26px;
+  }
+  .testi-card .stars{color:var(--amber);font-size:13px;letter-spacing:2px;}
+  .testi-card p{margin-top:14px;font-size:14px;color:var(--paper-dim);}
+  .testi-card .who{margin-top:18px;font-size:13px;font-weight:700;font-family:'Space Mono',monospace;color:var(--paper);}
+  @media (max-width:860px){ .testi-track{grid-template-columns:1fr;} }
+
+  /* ===== VISIT / CONTACT ===== */
+  .visit{
+    display:grid;grid-template-columns:1fr 1fr;gap:0;
+    border:1px solid var(--line);border-radius:12px;overflow:hidden;
+  }
+  .visit-info{padding:52px;background:var(--steel);}
+  .visit-info h2{font-size:34px;}
+  .visit-info .row{display:flex;gap:14px;margin-top:22px;font-size:14px;color:var(--paper-dim);}
+  .visit-info .row strong{color:var(--paper);display:block;font-family:'Inter';font-weight:700;font-size:13px;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:2px;}
+  .visit-map{
+    background:
+      repeating-linear-gradient(45deg, var(--iron), var(--iron) 12px, var(--steel) 12px, var(--steel) 24px);
+    display:flex;align-items:center;justify-content:center;min-height:300px;
+    position:relative;
+  }
+  .visit-map .pin{
+    background:var(--ink-black);border:1px solid var(--teal);color:var(--teal);
+    padding:12px 20px;border-radius:8px;font-family:'Space Mono',monospace;font-size:12px;text-align:center;
+  }
+  @media (max-width:860px){ .visit{grid-template-columns:1fr;} .visit-info{padding:36px 24px;} }
+
+  /* ===== FOOTER ===== */
+  footer{border-top:1px solid var(--line);padding:60px 0 28px;background:var(--ink-black);}
+  .foot-grid{display:grid;grid-template-columns:1.4fr 1fr 1fr 1fr;gap:40px;}
+  .foot-grid h5{font-size:12px;letter-spacing:1.5px;text-transform:uppercase;color:var(--paper-dim);margin-bottom:16px;}
+  .foot-grid ul{list-style:none;display:flex;flex-direction:column;gap:10px;font-size:14px;}
+  .foot-grid a:hover{color:var(--teal);}
+  .foot-bottom{
+    margin-top:56px;padding-top:24px;border-top:1px solid var(--line);
+    display:flex;justify-content:space-between;color:var(--paper-dim);font-size:12px;flex-wrap:wrap;gap:10px;
+  }
+  @media (max-width:860px){ .foot-grid{grid-template-columns:1fr 1fr;} }
+
+  ::selection{background:var(--teal);color:var(--ink-black);}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="topbar">100% GENUINE STOCK · VERIFY EVERY BATCH · FREE SHIPPING ACROSS MUMBAI ON ORDERS ₹999+</div>
+  <input type="checkbox" id="nav-toggle" class="nav-toggle-input">
+  <nav class="wrap">
+    <a class="brand" href="#top">
+      <img src="https://nfsupplementstore.com/api/assets/985c9e40-47f9-4bba-b053-d1c7176096fc/4a066dca2b5f7f07ecec5fed1fdbf29d" alt="NF Naseem Fitness logo">
+      <div>
+        <span class="brand-name">NF NASEEM<span> FITNESS</span></span>
+        <span class="brand-tag">Strength · Discipline · Results</span>
+      </div>
+    </a>
+    <div class="nav-links">
+      <a href="#top">Home</a>
+      <a href="#categories">Shop</a>
+      <a href="#products">Bestsellers</a>
+      <a href="#authenticity">Verify Product</a>
+      <a href="#visit">Visit Store</a>
+    </div>
+    <div class="nav-cta">
+      <a class="btn btn-wa" href="https://wa.me/917738242258?text=Hi%20NF%20Naseem%20Fitness" target="_blank" rel="noopener">WhatsApp Us</a>
+      <a class="btn btn-primary" href="#products">Shop Now</a>
+    </div>
+    <label for="nav-toggle" class="hamburger-btn" aria-label="Open menu">
+      <span></span><span></span><span></span>
+    </label>
+  </nav>
+  <div class="mobile-menu">
+    <a href="#top">Home</a>
+    <a href="#categories">Shop</a>
+    <a href="#products">Bestsellers</a>
+    <a href="#authenticity">Verify Product</a>
+    <a href="#visit">Visit Store</a>
+    <div class="mobile-cta">
+      <a class="btn btn-wa" href="https://wa.me/917738242258?text=Hi%20NF%20Naseem%20Fitness" target="_blank" rel="noopener">WhatsApp Us</a>
+      <a class="btn btn-primary" href="#products">Shop Now</a>
+    </div>
+  </div>
+</header>
+
+<main id="top">
+  <!-- HERO -->
+  <section class="hero" style="padding:0;">
+    <div class="wrap hero-grid">
+      <div class="hero-top">
+        <div class="eyebrow">Mumbai's Verified Supplement Store</div>
+        <h1>REAL GAINS START<br>WITH <span class="accent">REAL STOCK.</span></h1>
+        <p class="lead">Every tub sold at NF Naseem Fitness is batch-verified before it reaches your hands — genuine whey protein, creatine, pre-workouts and multivitamins, no exceptions, no fakes.</p>
+        <div class="hero-cta">
+          <a class="btn btn-primary" href="#products">Shop Bestsellers</a>
+          <a class="btn btn-ghost" href="#authenticity">Verify My Product →</a>
+        </div>
+        <div class="hero-stats">
+          <div><strong>100%</strong><span>Genuine Stock</span></div>
+          <div><strong>2,000+</strong><span>Members Served</span></div>
+          <div><strong>24H</strong><span>Mumbai Dispatch</span></div>
+        </div>
+      </div>
+      <div class="seal-wrap">
+        <div class="video-frame">
+          <video class="hero-video" autoplay muted loop playsinline poster="">
+            <source src="assets/hero-video.mp4" type="video/mp4">
+          </video>
+        </div>
+        <div class="hero-mini-trust">
+          <div class="mini-item">
+            <div class="mini-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M12 2l8 4v6c0 5-3.5 8.5-8 10-4.5-1.5-8-5-8-10V6l8-4z"/></svg></div>
+            <span>100% Original<br>Supplements</span>
+          </div>
+          <div class="mini-item">
+            <div class="mini-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M12 17.3l-6.2 3.3 1.2-6.9L2 8.8l7-1L12 1.5l3 6.3 7 1-5 4.9 1.2 6.9z"/></svg></div>
+            <span>Best Quality<br>Guaranteed</span>
+          </div>
+          <div class="mini-item">
+            <div class="mini-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="1" y="6" width="15" height="12" rx="2"/><path d="M16 10h4l3 4v4h-7z"/><circle cx="6" cy="19" r="1.8"/><circle cx="18" cy="19" r="1.8"/></svg></div>
+            <span>Fast &amp; Safe<br>Delivery</span>
+          </div>
+          <div class="mini-item">
+            <div class="mini-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M9 12l2 2 4-4"/><circle cx="12" cy="12" r="10"/></svg></div>
+            <span>FSSAI Licensed<br>Store</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- TRUST BAR -->
+  <div class="trust">
+    <div class="wrap">
+      <div class="trust-item"><span class="dot"></span>100% Original Supplements</div>
+      <div class="trust-item"><span class="dot"></span>Best Quality</div>
+      <div class="trust-item"><span class="dot"></span>Best Price</div>
+      <div class="trust-item"><span class="dot"></span>Fast Delivery</div>
+      <div class="trust-item"><span class="dot"></span>FSSAI Licensed Store</div>
+    </div>
+  </div>
+
+  <!-- CATEGORIES -->
+  <section id="categories">
+    <div class="wrap">
+      <div class="section-head">
+        <div>
+          <div class="eyebrow">Shop by category</div>
+          <h2>Built for every stage of training</h2>
+        </div>
+        <p>From your first protein shake to a serious pre-workout stack — pick a category and we'll show verified stock only.</p>
+      </div>
+      <div class="cat-grid">
+        <div class="cat-card"><div class="num">01</div><h3>Protein</h3><p>Whey, isolate & mass gainers</p></div>
+        <div class="cat-card"><div class="num">02</div><h3>Creatine</h3><p>Micronised monohydrate</p></div>
+        <div class="cat-card"><div class="num">03</div><h3>Pre-Workout</h3><p>Energy & focus blends</p></div>
+        <div class="cat-card"><div class="num">04</div><h3>Multivitamins</h3><p>Daily health & recovery</p></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- PRODUCTS -->
+  <section id="products" style="padding-top:0;">
+    <div class="wrap">
+      <div class="section-head">
+        <div>
+          <div class="eyebrow">Bestsellers this month</div>
+          <h2>Straight from the shop floor</h2>
+        </div>
+        <p>Placeholder cards — drop in real product photos and prices and these go live as-is.</p>
+      </div>
+      <div class="prod-grid">
+
+        <div class="prod-card">
+          <div class="prod-photo">
+            <div>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="6" y="3" width="12" height="18" rx="2"/><path d="M9 3v3h6V3"/></svg>
+              <div class="ph-label">PRODUCT PHOTO<br>GOES HERE</div>
+            </div>
+            <span class="badge-genuine">✓ GENUINE</span>
+          </div>
+          <div class="prod-body">
+            <div class="cat-tag">Protein</div>
+            <h4>Whey Protein — Chocolate</h4>
+            <div class="price-row">
+              <span class="price">₹2,499 <small>/ 1kg</small></span>
+              <button class="add-btn" aria-label="Add to cart">+</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="prod-card">
+          <div class="prod-photo">
+            <div>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="6" y="3" width="12" height="18" rx="2"/><path d="M9 3v3h6V3"/></svg>
+              <div class="ph-label">PRODUCT PHOTO<br>GOES HERE</div>
+            </div>
+            <span class="badge-genuine">✓ GENUINE</span>
+          </div>
+          <div class="prod-body">
+            <div class="cat-tag">Creatine</div>
+            <h4>Creatine Monohydrate</h4>
+            <div class="price-row">
+              <span class="price">₹1,199 <small>/ 250g</small></span>
+              <button class="add-btn" aria-label="Add to cart">+</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="prod-card">
+          <div class="prod-photo">
+            <div>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="6" y="3" width="12" height="18" rx="2"/><path d="M9 3v3h6V3"/></svg>
+              <div class="ph-label">PRODUCT PHOTO<br>GOES HERE</div>
+            </div>
+            <span class="badge-genuine">✓ GENUINE</span>
+          </div>
+          <div class="prod-body">
+            <div class="cat-tag">Pre-Workout</div>
+            <h4>Pre-Workout — Watermelon</h4>
+            <div class="price-row">
+              <span class="price">₹1,899 <small>/ 300g</small></span>
+              <button class="add-btn" aria-label="Add to cart">+</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="prod-card">
+          <div class="prod-photo">
+            <div>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="6" y="3" width="12" height="18" rx="2"/><path d="M9 3v3h6V3"/></svg>
+              <div class="ph-label">PRODUCT PHOTO<br>GOES HERE</div>
+            </div>
+            <span class="badge-genuine">✓ GENUINE</span>
+          </div>
+          <div class="prod-body">
+            <div class="cat-tag">Multivitamin</div>
+            <h4>Daily Multivitamin — 60 caps</h4>
+            <div class="price-row">
+              <span class="price">₹899</span>
+              <button class="add-btn" aria-label="Add to cart">+</button>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- AUTHENTICITY STORY -->
+  <section id="authenticity" class="authentic">
+    <div class="wrap auth-grid">
+      <div class="auth-copy">
+        <div class="eyebrow">Why it matters</div>
+        <h2>The supplement market<br>is full of fakes.<br>We're the exception.</h2>
+        <p>Every product that leaves our Mumbai store is sourced directly, sealed, and batch-tracked — so what's on the label is what's actually inside the tub.</p>
+        <ul class="auth-list">
+          <li><span class="idx">→</span>Sourced only from authorised distributors, never grey-market imports.</li>
+          <li><span class="idx">→</span>Every batch carries a traceable code you can check before you drink.</li>
+          <li><span class="idx">→</span>Sealed in-store, photographed, and dispatched the same day.</li>
+        </ul>
+      </div>
+      <div class="code-panel">
+        <div class="code-head"><span>Batch Verification</span><span>NF-MUM</span></div>
+        <div class="code-line"><span>Product</span><span>Whey Protein — Chocolate</span></div>
+        <div class="code-line"><span>Batch Code</span><span>NF-2601-A7</span></div>
+        <div class="code-line"><span>Sourced</span><span>Authorised Distributor</span></div>
+        <div class="code-line"><span>Status</span><span class="ok">✓ VERIFIED GENUINE</span></div>
+        <div class="code-line" style="border-bottom:none;"><span>Dispatch</span><span>Mumbai, Same-Day</span></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- TESTIMONIALS -->
+  <section>
+    <div class="wrap">
+      <div class="section-head">
+        <div>
+          <div class="eyebrow">From the shop's regulars</div>
+          <h2>What Mumbai lifters say</h2>
+        </div>
+      </div>
+      <div class="testi-track">
+        <div class="testi-card">
+          <div class="stars">★★★★★</div>
+          <p>"Ordered whey twice now, both times sealed and exactly as described. Finally a store I trust in the area."</p>
+          <div class="who">— Regular Customer</div>
+        </div>
+        <div class="testi-card">
+          <div class="stars">★★★★★</div>
+          <p>"Walked in for creatine, walked out with a full stack. Staff actually know what they're talking about."</p>
+          <div class="who">— Gym Member, Nakapada</div>
+        </div>
+        <div class="testi-card">
+          <div class="stars">★★★★★</div>
+          <p>"Same-day delivery within Mumbai as promised. No fake packaging worries anymore."</p>
+          <div class="who">— Verified Buyer</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- VISIT -->
+  <section id="visit">
+    <div class="wrap">
+      <div class="visit">
+        <div class="visit-info">
+          <div class="eyebrow">Visit the store</div>
+          <h2>Come see the shelf<br>for yourself.</h2>
+          <div class="row"><div><strong>Address</strong>Ground Floor, Shop 2, Kajipura Haji Kasam Chawl No. 23, Maulana Azad Road, Nakapada, Two Tank, Mumbai, Maharashtra 400008</div></div>
+          <div class="row"><div><strong>Phone / WhatsApp</strong>+91 77382 42258</div></div>
+          <div class="row"><div><strong>Hours</strong>Mon–Sun, 10:00 AM – 9:30 PM</div></div>
+          <div class="hero-cta" style="margin-top:30px;">
+            <a class="btn btn-primary" href="https://wa.me/917738242258?text=Hi%20NF%20Naseem%20Fitness" target="_blank" rel="noopener">Message on WhatsApp</a>
+          </div>
+        </div>
+        <div class="visit-map">
+          <div class="pin">📍 Nakapada, Mumbai<br>[Embed Google Map here]</div>
+        </div>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <div class="wrap">
+    <div class="foot-grid">
+      <div>
+        <a class="brand" href="#top" style="margin-bottom:12px;">
+          <img src="https://nfsupplementstore.com/api/assets/985c9e40-47f9-4bba-b053-d1c7176096fc/4a066dca2b5f7f07ecec5fed1fdbf29d" alt="NF Naseem Fitness logo" style="height:36px;">
+        </a>
+        <p style="color:var(--paper-dim);font-size:13px;max-width:280px;margin-top:14px;">Mumbai's batch-verified supplement store. Genuine protein, creatine, pre-workout and multivitamins — every time.</p>
+      </div>
+      <div>
+        <h5>Shop</h5>
+        <ul>
+          <li><a href="#products">Protein</a></li>
+          <li><a href="#products">Creatine</a></li>
+          <li><a href="#products">Pre-Workout</a></li>
+          <li><a href="#products">Multivitamins</a></li>
+        </ul>
+      </div>
+      <div>
+        <h5>Store</h5>
+        <ul>
+          <li><a href="#authenticity">Verify Product</a></li>
+          <li><a href="#visit">Visit Us</a></li>
+          <li><a href="#">Shipping Policy</a></li>
+          <li><a href="#">Refund Policy</a></li>
+        </ul>
+      </div>
+      <div>
+        <h5>Contact</h5>
+        <ul>
+          <li>+91 77382 42258</li>
+          <li>Nakapada, Mumbai 400008</li>
+          <li><a href="https://wa.me/917738242258" target="_blank" rel="noopener">WhatsApp Us</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="foot-bottom">
+      <span>© 2026 NF Naseem Fitness™. All rights reserved.</span>
+      <span>Genuine supplements, Mumbai-verified.</span>
+    </div>
+  </div>
+</footer>
+
+</body>
+</html>
