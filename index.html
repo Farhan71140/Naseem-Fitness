@@ -370,6 +370,54 @@
   @media (max-width:860px){ .foot-grid{grid-template-columns:1fr 1fr;} }
 
   ::selection{background:var(--teal);color:var(--ink-black);}
+
+  /* ===== CART & CHECKOUT ===== */
+  .cart-btn{position:relative;display:inline-flex;align-items:center;justify-content:center;width:44px;height:44px;border-radius:3px;border:1px solid var(--line);background:transparent;color:var(--paper);cursor:pointer;}
+  .cart-btn:hover{border-color:var(--teal);}
+  .cart-btn svg{width:19px;height:19px;}
+  .cart-count{position:absolute;top:-6px;right:-6px;background:var(--teal);color:var(--ink-black);font-family:'Space Mono',monospace;font-size:10px;font-weight:700;min-width:18px;height:18px;border-radius:9px;display:flex;align-items:center;justify-content:center;padding:0 4px;}
+  .prod-loading, .prod-empty{grid-column:1/-1;text-align:center;padding:50px 20px;color:var(--paper-dim);font-size:14px;}
+
+  .drawer-overlay{display:none;position:fixed;inset:0;background:rgba(10,8,6,0.7);backdrop-filter:blur(3px);z-index:200;}
+  .drawer-overlay.active{display:block;}
+  .drawer{
+    position:fixed;top:0;right:0;height:100vh;width:100%;max-width:420px;
+    background:var(--steel);border-left:1px solid var(--line);z-index:201;
+    display:flex;flex-direction:column;transform:translateX(100%);transition:transform .28s ease;
+  }
+  .drawer-overlay.active .drawer{transform:translateX(0);}
+  .drawer-head{display:flex;align-items:center;justify-content:space-between;padding:22px 24px;border-bottom:1px solid var(--line);}
+  .drawer-head h3{font-size:18px;}
+  .drawer-close{background:transparent;border:none;color:var(--paper-dim);cursor:pointer;width:34px;height:34px;font-size:18px;}
+  .drawer-close:hover{color:var(--teal);}
+  .drawer-body{flex:1;overflow-y:auto;padding:18px 24px;}
+  .drawer-foot{padding:20px 24px;border-top:1px solid var(--line);}
+  .cart-line{display:flex;gap:12px;align-items:center;padding:14px 0;border-bottom:1px solid var(--line);}
+  .cart-line-info{flex:1;min-width:0;}
+  .cart-line-info h5{font-size:13.5px;font-weight:700;margin-bottom:3px;}
+  .cart-line-info span{font-size:12px;color:var(--paper-dim);font-family:'Space Mono',monospace;}
+  .qty-ctrl{display:flex;align-items:center;gap:8px;}
+  .qty-ctrl button{width:26px;height:26px;border-radius:50%;border:1px solid var(--line);background:transparent;color:var(--paper);cursor:pointer;font-size:14px;line-height:1;}
+  .qty-ctrl button:hover{border-color:var(--teal);color:var(--teal);}
+  .qty-ctrl span{font-family:'Space Mono',monospace;font-size:13px;min-width:16px;text-align:center;}
+  .cart-line-remove{background:transparent;border:none;color:var(--paper-dim);cursor:pointer;font-size:16px;padding:0 4px;}
+  .cart-line-remove:hover{color:var(--bad);}
+  .cart-total-row{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;font-size:15px;}
+  .cart-total-row strong{font-family:'Space Mono',monospace;font-size:19px;color:var(--teal);}
+  .cart-empty{text-align:center;padding:60px 10px;color:var(--paper-dim);font-size:13.5px;}
+
+  .checkout-field{margin-bottom:14px;}
+  .checkout-field label{display:block;font-family:'Space Mono',monospace;font-size:11px;letter-spacing:1px;text-transform:uppercase;color:var(--paper-dim);margin-bottom:6px;}
+  .checkout-field input, .checkout-field textarea{
+    width:100%;background:var(--ink-black);border:1px solid var(--line);color:var(--paper);
+    border-radius:6px;padding:11px 12px;font-size:14px;font-family:'Inter',sans-serif;
+  }
+  .checkout-field input:focus, .checkout-field textarea:focus{outline:none;border-color:var(--teal);}
+  .checkout-success{text-align:center;padding:40px 10px;}
+  .checkout-success svg{width:48px;height:48px;color:var(--teal);margin-bottom:16px;}
+  .checkout-success h4{font-size:18px;margin-bottom:8px;}
+  .checkout-success p{color:var(--paper-dim);font-size:13.5px;}
+  .checkout-error{background:rgba(255,107,107,0.1);border:1px solid rgba(255,107,107,0.3);color:#FF9B9B;font-size:13px;padding:10px 12px;border-radius:6px;margin-bottom:14px;display:none;}
 </style>
 </head>
 <body>
@@ -394,7 +442,10 @@
     </div>
     <div class="nav-cta">
       <a class="btn btn-wa" href="https://wa.me/917738242258?text=Hi%20NF%20Naseem%20Fitness" target="_blank" rel="noopener">WhatsApp Us</a>
-      <a class="btn btn-primary" href="#products">Shop Now</a>
+      <button class="cart-btn" aria-label="Open cart" onclick="openCart()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><circle cx="9" cy="21" r="1.4"/><circle cx="19" cy="21" r="1.4"/><path d="M2.5 3h2l2.7 12.6a2 2 0 0 0 2 1.6h8.2a2 2 0 0 0 2-1.6L21 8H6"/></svg>
+        <span class="cart-count" id="cart-count-desktop" style="display:none;">0</span>
+      </button>
     </div>
     <label for="nav-toggle" class="hamburger-btn" aria-label="Open menu">
       <span></span><span></span><span></span>
@@ -408,7 +459,7 @@
     <a href="#visit">Visit Store</a>
     <div class="mobile-cta">
       <a class="btn btn-wa" href="https://wa.me/917738242258?text=Hi%20NF%20Naseem%20Fitness" target="_blank" rel="noopener">WhatsApp Us</a>
-      <a class="btn btn-primary" href="#products">Shop Now</a>
+      <button class="btn btn-primary" style="justify-content:center;" onclick="openCart()">View Cart <span class="mono" id="cart-count-mobile">(0)</span></button>
     </div>
   </div>
 </header>
@@ -497,82 +548,10 @@
           <div class="eyebrow">Bestsellers this month</div>
           <h2>Straight from the shop floor</h2>
         </div>
-        <p>Placeholder cards — drop in real product photos and prices and these go live as-is.</p>
+        <p>Live stock from the shop floor — updated by us in real time.</p>
       </div>
-      <div class="prod-grid">
-
-        <div class="prod-card">
-          <div class="prod-photo">
-            <div>
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="6" y="3" width="12" height="18" rx="2"/><path d="M9 3v3h6V3"/></svg>
-              <div class="ph-label">PRODUCT PHOTO<br>GOES HERE</div>
-            </div>
-            <span class="badge-genuine">✓ GENUINE</span>
-          </div>
-          <div class="prod-body">
-            <div class="cat-tag">Protein</div>
-            <h4>Whey Protein — Chocolate</h4>
-            <div class="price-row">
-              <span class="price">₹2,499 <small>/ 1kg</small></span>
-              <button class="add-btn" aria-label="Add to cart">+</button>
-            </div>
-          </div>
-        </div>
-
-        <div class="prod-card">
-          <div class="prod-photo">
-            <div>
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="6" y="3" width="12" height="18" rx="2"/><path d="M9 3v3h6V3"/></svg>
-              <div class="ph-label">PRODUCT PHOTO<br>GOES HERE</div>
-            </div>
-            <span class="badge-genuine">✓ GENUINE</span>
-          </div>
-          <div class="prod-body">
-            <div class="cat-tag">Creatine</div>
-            <h4>Creatine Monohydrate</h4>
-            <div class="price-row">
-              <span class="price">₹1,199 <small>/ 250g</small></span>
-              <button class="add-btn" aria-label="Add to cart">+</button>
-            </div>
-          </div>
-        </div>
-
-        <div class="prod-card">
-          <div class="prod-photo">
-            <div>
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="6" y="3" width="12" height="18" rx="2"/><path d="M9 3v3h6V3"/></svg>
-              <div class="ph-label">PRODUCT PHOTO<br>GOES HERE</div>
-            </div>
-            <span class="badge-genuine">✓ GENUINE</span>
-          </div>
-          <div class="prod-body">
-            <div class="cat-tag">Pre-Workout</div>
-            <h4>Pre-Workout — Watermelon</h4>
-            <div class="price-row">
-              <span class="price">₹1,899 <small>/ 300g</small></span>
-              <button class="add-btn" aria-label="Add to cart">+</button>
-            </div>
-          </div>
-        </div>
-
-        <div class="prod-card">
-          <div class="prod-photo">
-            <div>
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="6" y="3" width="12" height="18" rx="2"/><path d="M9 3v3h6V3"/></svg>
-              <div class="ph-label">PRODUCT PHOTO<br>GOES HERE</div>
-            </div>
-            <span class="badge-genuine">✓ GENUINE</span>
-          </div>
-          <div class="prod-body">
-            <div class="cat-tag">Multivitamin</div>
-            <h4>Daily Multivitamin — 60 caps</h4>
-            <div class="price-row">
-              <span class="price">₹899</span>
-              <button class="add-btn" aria-label="Add to cart">+</button>
-            </div>
-          </div>
-        </div>
-
+      <div class="prod-grid" id="products-grid">
+        <div class="prod-loading">Loading products…</div>
       </div>
     </div>
   </section>
@@ -694,6 +673,227 @@
     </div>
   </div>
 </footer>
+
+<!-- CART DRAWER -->
+<div class="drawer-overlay" id="cart-overlay">
+  <div class="drawer">
+    <div class="drawer-head">
+      <h3>Your Cart</h3>
+      <button class="drawer-close" onclick="closeCart()">✕</button>
+    </div>
+    <div class="drawer-body" id="cart-body"></div>
+    <div class="drawer-foot" id="cart-foot" style="display:none;">
+      <div class="cart-total-row"><span>Total</span><strong id="cart-total">₹0</strong></div>
+      <button class="btn btn-primary" style="width:100%;justify-content:center;" onclick="openCheckout()">Checkout →</button>
+    </div>
+  </div>
+</div>
+
+<!-- CHECKOUT DRAWER -->
+<div class="drawer-overlay" id="checkout-overlay">
+  <div class="drawer">
+    <div class="drawer-head">
+      <h3>Checkout</h3>
+      <button class="drawer-close" onclick="closeCheckout()">✕</button>
+    </div>
+    <div class="drawer-body" id="checkout-body">
+      <div class="checkout-error" id="checkout-error"></div>
+      <div class="checkout-field">
+        <label for="chk-name">Full Name</label>
+        <input type="text" id="chk-name" placeholder="Your name">
+      </div>
+      <div class="checkout-field">
+        <label for="chk-phone">Phone Number</label>
+        <input type="tel" id="chk-phone" placeholder="Your phone number">
+      </div>
+      <div class="checkout-field">
+        <label for="chk-address">Delivery Address</label>
+        <textarea id="chk-address" rows="3" placeholder="Where should we deliver this?"></textarea>
+      </div>
+      <div class="cart-total-row"><span>Order Total</span><strong id="checkout-total">₹0</strong></div>
+    </div>
+    <div class="drawer-foot">
+      <button class="btn btn-primary" id="checkout-submit-btn" style="width:100%;justify-content:center;" onclick="submitOrder()">Place Order</button>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+/* ============================================================
+   NF NASEEM FITNESS — live products + cart + checkout (Supabase)
+   ============================================================ */
+
+// ---- FILL THESE IN: Project Settings → API in your Supabase dashboard ----
+const SUPABASE_URL = 'https://rzibqgnhzphlmjkzwota.supabase.co';        // e.g. https://abcdxyz.supabase.co
+const SUPABASE_ANON_KEY = 'sb_publishable_CQawBi0OPWWHKBIUnHr1Dg_OK4cuKIh';
+// ---------------------------------------------------------------------------
+
+const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+let PRODUCTS = [];
+let CART = []; // [{id, name, price, unit, qty}]
+
+function escapeHtml(str){
+  return String(str ?? '').replace(/[&<>"']/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+}
+
+/* ---------- load products ---------- */
+async function loadProducts(){
+  const grid = document.getElementById('products-grid');
+  const { data, error } = await sb.from('products').select('*').order('created_at', { ascending:false });
+  if(error){
+    grid.innerHTML = `<div class="prod-empty">Couldn't load products right now. Please refresh, or reach us on WhatsApp.</div>`;
+    return;
+  }
+  PRODUCTS = data || [];
+  if(PRODUCTS.length===0){
+    grid.innerHTML = `<div class="prod-empty">New stock coming soon — check back shortly.</div>`;
+    return;
+  }
+  grid.innerHTML = PRODUCTS.map(p=>`
+    <div class="prod-card">
+      <div class="prod-photo">
+        ${p.image_url
+          ? `<img src="${escapeHtml(p.image_url)}" alt="${escapeHtml(p.name)}" style="width:100%;height:100%;object-fit:cover;" onerror="this.parentElement.innerHTML='<div><svg viewBox=\\'0 0 24 24\\' fill=\\'none\\' stroke=\\'currentColor\\' stroke-width=\\'1.5\\'><rect x=\\'6\\' y=\\'3\\' width=\\'12\\' height=\\'18\\' rx=\\'2\\'/></svg><div class=\\'ph-label\\'>IMAGE UNAVAILABLE</div></div>'">`
+          : `<div>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="6" y="3" width="12" height="18" rx="2"/><path d="M9 3v3h6V3"/></svg>
+              <div class="ph-label">PRODUCT PHOTO<br>GOES HERE</div>
+            </div>`}
+        <span class="badge-genuine">✓ GENUINE</span>
+      </div>
+      <div class="prod-body">
+        <div class="cat-tag">${escapeHtml(p.category)}</div>
+        <h4>${escapeHtml(p.name)}</h4>
+        <div class="price-row">
+          <span class="price">₹${Number(p.price).toLocaleString('en-IN')} ${p.unit ? `<small>/ ${escapeHtml(p.unit)}</small>` : ''}</span>
+          <button class="add-btn" aria-label="Add to cart" onclick="addToCart('${p.id}')">+</button>
+        </div>
+      </div>
+    </div>
+  `).join('');
+}
+
+/* ---------- cart ---------- */
+function addToCart(id){
+  const p = PRODUCTS.find(x=>x.id===id);
+  if(!p) return;
+  const line = CART.find(x=>x.id===id);
+  if(line) line.qty += 1;
+  else CART.push({ id:p.id, name:p.name, price:Number(p.price), unit:p.unit, qty:1 });
+  renderCart();
+  openCart();
+}
+function changeQty(id, delta){
+  const line = CART.find(x=>x.id===id);
+  if(!line) return;
+  line.qty += delta;
+  if(line.qty<=0) CART = CART.filter(x=>x.id!==id);
+  renderCart();
+}
+function removeLine(id){
+  CART = CART.filter(x=>x.id!==id);
+  renderCart();
+}
+function cartTotal(){
+  return CART.reduce((s,l)=> s + l.price*l.qty, 0);
+}
+function renderCart(){
+  const count = CART.reduce((s,l)=>s+l.qty,0);
+  document.getElementById('cart-count-desktop').style.display = count>0 ? 'flex' : 'none';
+  document.getElementById('cart-count-desktop').textContent = count;
+  document.getElementById('cart-count-mobile').textContent = '('+count+')';
+
+  const body = document.getElementById('cart-body');
+  const foot = document.getElementById('cart-foot');
+  if(CART.length===0){
+    body.innerHTML = `<div class="cart-empty">Your cart is empty.<br>Add something from the shop.</div>`;
+    foot.style.display = 'none';
+    return;
+  }
+  foot.style.display = 'block';
+  body.innerHTML = CART.map(l=>`
+    <div class="cart-line">
+      <div class="cart-line-info">
+        <h5>${escapeHtml(l.name)}</h5>
+        <span>₹${l.price.toLocaleString('en-IN')} ${l.unit ? '/ '+escapeHtml(l.unit) : ''}</span>
+      </div>
+      <div class="qty-ctrl">
+        <button onclick="changeQty('${l.id}',-1)">−</button>
+        <span>${l.qty}</span>
+        <button onclick="changeQty('${l.id}',1)">+</button>
+      </div>
+      <button class="cart-line-remove" onclick="removeLine('${l.id}')" aria-label="Remove">✕</button>
+    </div>
+  `).join('');
+  document.getElementById('cart-total').textContent = '₹'+cartTotal().toLocaleString('en-IN');
+}
+
+function openCart(){ document.getElementById('cart-overlay').classList.add('active'); }
+function closeCart(){ document.getElementById('cart-overlay').classList.remove('active'); }
+
+/* ---------- checkout ---------- */
+function openCheckout(){
+  if(CART.length===0) return;
+  closeCart();
+  document.getElementById('checkout-total').textContent = '₹'+cartTotal().toLocaleString('en-IN');
+  document.getElementById('checkout-error').style.display='none';
+  document.getElementById('checkout-overlay').classList.add('active');
+}
+function closeCheckout(){ document.getElementById('checkout-overlay').classList.remove('active'); }
+
+async function submitOrder(){
+  const name = document.getElementById('chk-name').value.trim();
+  const phone = document.getElementById('chk-phone').value.trim();
+  const address = document.getElementById('chk-address').value.trim();
+  const errBox = document.getElementById('checkout-error');
+  const btn = document.getElementById('checkout-submit-btn');
+
+  if(!name || !phone){
+    errBox.textContent = 'Please enter your name and phone number.';
+    errBox.style.display = 'block';
+    return;
+  }
+  if(CART.length===0) return;
+
+  btn.disabled = true; btn.textContent = 'Placing order…';
+  const items = CART.map(l=>({ name:l.name, price:l.price, qty:l.qty }));
+  const amount = cartTotal();
+
+  const { error } = await sb.from('orders').insert({
+    customer_name: name,
+    phone,
+    address,
+    items,
+    amount,
+    status: 'pending'
+  });
+
+  btn.disabled = false; btn.textContent = 'Place Order';
+
+  if(error){
+    errBox.textContent = "Something went wrong placing your order. Please try again or message us on WhatsApp.";
+    errBox.style.display = 'block';
+    return;
+  }
+
+  CART = [];
+  renderCart();
+  document.getElementById('checkout-body').innerHTML = `
+    <div class="checkout-success">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><path d="M22 4L12 14.01l-3-3"/></svg>
+      <h4>Order placed!</h4>
+      <p>Thanks, ${escapeHtml(name)} — we've received your order and will confirm it shortly. You can also message us on WhatsApp to speed things up.</p>
+    </div>`;
+  document.querySelector('#checkout-overlay .drawer-foot').style.display = 'none';
+}
+
+document.querySelectorAll('.drawer-overlay').forEach(ov=>{
+  ov.addEventListener('click', e=>{ if(e.target===ov) ov.classList.remove('active'); });
+});
+
+loadProducts();
+</script>
 
 </body>
 </html>
