@@ -472,7 +472,7 @@
           <label for="product-category">Category</label>
           <select id="product-category">
             <option>Supplements</option>
-            <option>Protein</option>
+            <option>Whey Protein</option>
             <option>Creatine</option>
             <option>Pre-Workout</option>
             <option>Multivitamin</option>
@@ -495,8 +495,14 @@
         </div>
       </div>
       <div class="field">
-        <label for="product-image">Image URL (optional)</label>
-        <input type="text" id="product-image" placeholder="https://...">
+        <label for="product-image-file">Product Photo</label>
+        <input type="file" id="product-image-file" accept="image/*" onchange="uploadProductImage(this.files[0])">
+        <div id="upload-status" style="font-size:12px;color:var(--paper-dim);margin-top:6px;"></div>
+        <img id="image-preview" style="display:none;max-width:120px;max-height:120px;border-radius:8px;margin-top:10px;border:1px solid var(--line);object-fit:cover;">
+      </div>
+      <div class="field">
+        <label for="product-image">Image URL (auto-filled after upload — or paste your own link)</label>
+        <input type="text" id="product-image" placeholder="https://..." oninput="previewImageUrl(this.value)">
       </div>
       <div class="field">
         <label for="product-desc">Description (shown to customers)</label>
@@ -797,6 +803,31 @@ function formatDate(iso){
   return new Date(iso).toLocaleDateString('en-IN', { day:'2-digit', month:'short', year:'numeric' });
 }
 
+/* ---------- product image upload ---------- */
+const PRODUCT_IMAGE_BUCKET = 'product-images';
+function previewImageUrl(url){
+  const img = document.getElementById('image-preview');
+  if(!url){ img.style.display='none'; return; }
+  img.src = url;
+  img.style.display = 'block';
+}
+async function uploadProductImage(file){
+  if(!file) return;
+  const statusEl = document.getElementById('upload-status');
+  statusEl.textContent = 'Uploading…';
+  const safeName = file.name.toLowerCase().replace(/[^a-z0-9.]+/g, '-').replace(/-+/g,'-');
+  const path = `products/${Date.now()}-${safeName}`;
+  const { error: uploadError } = await sb.storage.from(PRODUCT_IMAGE_BUCKET).upload(path, file, { upsert:false });
+  if(uploadError){
+    statusEl.innerHTML = `Upload failed: ${escapeHtml(uploadError.message)}. Make sure a public Storage bucket named "${PRODUCT_IMAGE_BUCKET}" exists in your Supabase project (Storage → New bucket → Public), then try again.`;
+    return;
+  }
+  const { data } = sb.storage.from(PRODUCT_IMAGE_BUCKET).getPublicUrl(path);
+  document.getElementById('product-image').value = data.publicUrl;
+  previewImageUrl(data.publicUrl);
+  statusEl.textContent = 'Uploaded ✓';
+}
+
 /* ---------- product CRUD ---------- */
 let allProductsCache = [];
 async function openProductModal(){
@@ -809,6 +840,9 @@ async function openProductModal(){
   document.getElementById('product-price').value = '';
   document.getElementById('product-compare-price').value = '';
   document.getElementById('product-image').value = '';
+  document.getElementById('product-image-file').value = '';
+  document.getElementById('upload-status').textContent = '';
+  document.getElementById('image-preview').style.display = 'none';
   document.getElementById('product-desc').value = '';
   document.getElementById('product-modal').classList.add('active');
 }
@@ -825,6 +859,9 @@ async function editProduct(id){
   document.getElementById('product-price').value = p.price;
   document.getElementById('product-compare-price').value = p.compare_price || '';
   document.getElementById('product-image').value = p.image_url || '';
+  document.getElementById('product-image-file').value = '';
+  document.getElementById('upload-status').textContent = '';
+  previewImageUrl(p.image_url || '');
   document.getElementById('product-desc').value = p.description || '';
   document.getElementById('product-modal').classList.add('active');
 }
