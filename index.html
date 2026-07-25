@@ -105,7 +105,26 @@
   .btn-ghost{border-color:var(--line);color:var(--paper);}
   .btn-ghost:hover{border-color:var(--teal);}
   .btn-wa{background:#25D366;color:#06210F;}
-  @media (max-width:860px){ .nav-links{display:none;} .nav-cta{display:none;} }
+  .nav-search{
+    display:flex;align-items:center;gap:8px;
+    background:var(--iron);border:1px solid var(--line);border-radius:30px;
+    padding:9px 16px;flex:0 1 220px;min-width:0;
+    transition:border-color .2s ease, background .2s ease;
+  }
+  .nav-search:focus-within{border-color:var(--teal);background:var(--steel);}
+  .nav-search svg{width:16px;height:16px;color:var(--paper-dim);flex:none;}
+  .nav-search input{
+    background:transparent;border:none;outline:none;color:var(--paper);
+    font-size:13px;font-weight:500;width:100%;min-width:0;
+  }
+  .nav-search input::placeholder{color:var(--paper-dim);}
+  .nav-search input::-webkit-search-cancel-button{filter:invert(1);opacity:0.6;cursor:pointer;}
+  .nav-search-mobile{display:none;}
+  @media (max-width:860px){
+    .nav-links{display:none;} .nav-cta{display:none;}
+    .nav-search{display:none;}
+    .nav-search-mobile{display:flex;margin:14px 0 6px;flex:none;}
+  }
 
   /* ===== MOBILE MENU ===== */
   .nav-toggle-input{display:none;}
@@ -237,7 +256,8 @@
   .mini-item svg{width:30px;height:30px;color:var(--teal);}
   .mini-item span{font-size:14px;font-weight:600;color:var(--paper-dim);line-height:1.4;}
   @media (max-width:860px){
-    .hero-mini-trust{grid-template-columns:repeat(2,1fr);}
+    .hero-mini-trust{grid-template-columns:repeat(2,1fr);gap:12px;}
+    .mini-item{padding:20px 14px;min-height:160px;}
   }
   @media (max-width:860px){
     .hero-grid{grid-template-columns:1fr;padding-top:48px;}
@@ -262,7 +282,11 @@
   @media (max-width:480px){
     .cat-grid{grid-template-columns:1fr;}
     .foot-grid{grid-template-columns:1fr;}
-    .hero-mini-trust{grid-template-columns:1fr;}
+    .hero-mini-trust{grid-template-columns:repeat(2,1fr);gap:10px;}
+    .mini-item{padding:18px 10px;min-height:140px;gap:10px;}
+    .mini-icon{width:48px;height:48px;}
+    .mini-item svg{width:22px;height:22px;}
+    .mini-item span{font-size:12px;}
     .trust .wrap{grid-template-columns:1fr;}
   }
   .section-head{display:flex;justify-content:space-between;align-items:flex-end;gap:24px;margin-bottom:48px;flex-wrap:wrap;}
@@ -507,6 +531,17 @@
       <a href="#authenticity">Verify Product</a>
       <a href="#visit">Visit Store</a>
     </div>
+    <div class="nav-search">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
+      <input
+        type="search"
+        id="search-input-desktop"
+        placeholder="Search products…"
+        aria-label="Search products"
+        oninput="handleSearchInput(this.value)"
+        onfocus="goToProducts()"
+        onkeydown="if(event.key==='Enter'){goToProducts();this.blur();}">
+    </div>
     <div class="nav-cta">
       <a class="btn btn-wa" href="https://wa.me/917738242258?text=Hi%20NF%20Naseem%20Fitness" target="_blank" rel="noopener">WhatsApp Us</a>
       <button class="cart-btn" aria-label="Open cart" onclick="openCart()">
@@ -519,6 +554,16 @@
     </label>
   </nav>
   <div class="mobile-menu">
+    <div class="nav-search nav-search-mobile">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
+      <input
+        type="search"
+        id="search-input-mobile"
+        placeholder="Search products…"
+        aria-label="Search products"
+        oninput="handleSearchInput(this.value)"
+        onkeydown="if(event.key==='Enter'){document.getElementById('nav-toggle').checked=false;goToProducts();this.blur();}">
+    </div>
     <a href="#top">Home</a>
     <a href="#categories">Shop</a>
     <a href="#products">Bestsellers</a>
@@ -867,7 +912,16 @@ async function loadProducts(){
     grid.innerHTML = `<div class="prod-empty">New stock coming soon — check back shortly.</div>`;
     return;
   }
-  grid.innerHTML = PRODUCTS.map(p=>{
+  renderProducts(PRODUCTS);
+}
+
+function renderProducts(list){
+  const grid = document.getElementById('products-grid');
+  if(list.length===0){
+    grid.innerHTML = `<div class="prod-empty">No products match your search. Try a different name or brand.</div>`;
+    return;
+  }
+  grid.innerHTML = list.map(p=>{
     const comparePrice = Number(p.compare_price || 0);
     const price = Number(p.price);
     const hasDiscount = comparePrice > price;
@@ -897,6 +951,25 @@ async function loadProducts(){
       </div>
     </div>
   `;}).join('');
+}
+
+/* ---------- search ---------- */
+function filterProducts(query){
+  const q = query.trim().toLowerCase();
+  const list = !q ? PRODUCTS : PRODUCTS.filter(p=>{
+    return (p.name && p.name.toLowerCase().includes(q))
+        || (p.brand && p.brand.toLowerCase().includes(q))
+        || (p.category && p.category.toLowerCase().includes(q));
+  });
+  renderProducts(list);
+}
+function handleSearchInput(value){
+  document.getElementById('search-input-desktop').value = value;
+  document.getElementById('search-input-mobile').value = value;
+  filterProducts(value);
+}
+function goToProducts(){
+  document.getElementById('products').scrollIntoView({behavior:'smooth'});
 }
 
 /* ---------- cart ---------- */
