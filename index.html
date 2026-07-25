@@ -330,6 +330,31 @@
   }
   .add-btn:hover{background:#FFF2B5;}
   @media (max-width:860px){ .prod-grid{grid-template-columns:repeat(2,1fr);} }
+  .prod-card{cursor:pointer;}
+  .prod-body .brand-tag{display:block;font-family:'Space Mono',monospace;font-size:10px;color:var(--paper-dim);letter-spacing:1px;text-transform:uppercase;margin-top:6px;}
+  .price-wrap{display:flex;align-items:baseline;gap:7px;flex-wrap:wrap;}
+  .price-compare{font-family:'Space Mono',monospace;font-size:11.5px;color:var(--paper-dim);text-decoration:line-through;}
+  .discount-pill{font-family:'Space Mono',monospace;font-size:10px;color:var(--teal);background:rgba(255,210,74,0.14);border:1px solid var(--line);padding:2px 6px;border-radius:10px;white-space:nowrap;}
+
+  /* ===== QUICK VIEW ===== */
+  .qv-photo{aspect-ratio:1/1;background:linear-gradient(135deg, var(--iron) 0%, var(--steel) 60%);border-radius:10px;border:1px solid var(--line);display:flex;align-items:center;justify-content:center;position:relative;overflow:hidden;margin-bottom:20px;}
+  .qv-photo img{width:100%;height:100%;object-fit:cover;display:block;}
+  .qv-photo .ph-label{font-family:'Space Mono',monospace;font-size:11px;color:var(--paper-dim);text-align:center;padding:0 20px;letter-spacing:0.5px;}
+  .qv-cat{font-family:'Space Mono',monospace;font-size:10px;color:var(--amber);letter-spacing:1.5px;text-transform:uppercase;}
+  .qv-brand{font-family:'Space Mono',monospace;font-size:11px;color:var(--paper-dim);letter-spacing:1px;text-transform:uppercase;margin-top:8px;}
+  .qv-title{font-family:'Anton',sans-serif;font-size:25px;text-transform:none;margin-top:6px;letter-spacing:0.2px;line-height:1.15;}
+  .qv-price-row{display:flex;align-items:baseline;gap:10px;margin-top:14px;flex-wrap:wrap;}
+  .qv-price{font-family:'Space Mono',monospace;font-size:22px;color:var(--teal);}
+  .qv-compare{font-family:'Space Mono',monospace;font-size:14px;color:var(--paper-dim);text-decoration:line-through;}
+  .qv-stock{display:flex;align-items:center;gap:8px;margin-top:14px;font-size:13px;color:var(--paper-dim);}
+  .qv-stock .dot{width:8px;height:8px;border-radius:50%;background:#4ADE80;}
+  .qv-desc{margin-top:22px;font-size:14px;color:var(--paper-dim);line-height:1.7;}
+  .qv-desc p{margin-bottom:10px;}
+  .qv-desc ul{padding-left:0;list-style:none;margin-top:6px;}
+  .qv-desc li{padding:7px 0;border-bottom:1px solid var(--line);padding-left:22px;position:relative;}
+  .qv-desc li::before{content:'✓';position:absolute;left:0;color:var(--teal);font-weight:700;}
+  .qv-qty-row{display:flex;align-items:center;justify-content:space-between;margin-top:24px;padding-top:20px;border-top:1px solid var(--line);}
+  .qv-qty-row .qty-ctrl button{width:32px;height:32px;font-size:16px;}
 
   /* ===== AUTHENTICITY STORY ===== */
   .authentic{
@@ -770,6 +795,27 @@
   </div>
 </div>
 
+<!-- PRODUCT QUICK VIEW DRAWER -->
+<div class="drawer-overlay" id="quickview-overlay">
+  <div class="drawer">
+    <div class="drawer-head">
+      <h3>Product Details</h3>
+      <button class="drawer-close" onclick="closeQuickView()">✕</button>
+    </div>
+    <div class="drawer-body" id="quickview-body"></div>
+    <div class="drawer-foot" id="quickview-foot">
+      <div class="qv-qty-row">
+        <div class="qty-ctrl">
+          <button onclick="qvChangeQty(-1)">−</button>
+          <span id="qv-qty">1</span>
+          <button onclick="qvChangeQty(1)">+</button>
+        </div>
+        <button class="btn btn-primary" id="quickview-add-btn" onclick="qvAddToCart()">Add to Cart</button>
+      </div>
+    </div>
+  </div>
+</div>
+
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
 /* ============================================================
@@ -803,8 +849,13 @@ async function loadProducts(){
     grid.innerHTML = `<div class="prod-empty">New stock coming soon — check back shortly.</div>`;
     return;
   }
-  grid.innerHTML = PRODUCTS.map(p=>`
-    <div class="prod-card">
+  grid.innerHTML = PRODUCTS.map(p=>{
+    const comparePrice = Number(p.compare_price || 0);
+    const price = Number(p.price);
+    const hasDiscount = comparePrice > price;
+    const pct = hasDiscount ? Math.round((1 - price/comparePrice)*100) : 0;
+    return `
+    <div class="prod-card" onclick="openQuickView('${p.id}')">
       <div class="prod-photo">
         ${p.image_url
           ? `<img src="${escapeHtml(p.image_url)}" alt="${escapeHtml(p.name)}" style="width:100%;height:100%;object-fit:cover;" onerror="this.parentElement.innerHTML='<div><svg viewBox=\\'0 0 24 24\\' fill=\\'none\\' stroke=\\'currentColor\\' stroke-width=\\'1.5\\'><rect x=\\'6\\' y=\\'3\\' width=\\'12\\' height=\\'18\\' rx=\\'2\\'/></svg><div class=\\'ph-label\\'>IMAGE UNAVAILABLE</div></div>'">`
@@ -817,13 +868,17 @@ async function loadProducts(){
       <div class="prod-body">
         <div class="cat-tag">${escapeHtml(p.category)}</div>
         <h4>${escapeHtml(p.name)}</h4>
+        ${p.brand ? `<span class="brand-tag">${escapeHtml(p.brand)}</span>` : ''}
         <div class="price-row">
-          <span class="price">₹${Number(p.price).toLocaleString('en-IN')} ${p.unit ? `<small>/ ${escapeHtml(p.unit)}</small>` : ''}</span>
-          <button class="add-btn" aria-label="Add to cart" onclick="addToCart('${p.id}')">+</button>
+          <div class="price-wrap">
+            <span class="price">₹${price.toLocaleString('en-IN')} ${p.unit ? `<small>/ ${escapeHtml(p.unit)}</small>` : ''}</span>
+            ${hasDiscount ? `<span class="price-compare">₹${comparePrice.toLocaleString('en-IN')}</span><span class="discount-pill">-${pct}%</span>` : ''}
+          </div>
+          <button class="add-btn" aria-label="Add to cart" onclick="event.stopPropagation();addToCart('${p.id}')">+</button>
         </div>
       </div>
     </div>
-  `).join('');
+  `;}).join('');
 }
 
 /* ---------- cart ---------- */
@@ -883,6 +938,70 @@ function renderCart(){
 
 function openCart(){ document.getElementById('cart-overlay').classList.add('active'); }
 function closeCart(){ document.getElementById('cart-overlay').classList.remove('active'); }
+
+/* ---------- product quick view ---------- */
+let QV_PRODUCT_ID = null;
+let QV_QTY = 1;
+
+function openQuickView(id){
+  const p = PRODUCTS.find(x=>x.id===id);
+  if(!p) return;
+  QV_PRODUCT_ID = id;
+  QV_QTY = 1;
+  document.getElementById('qv-qty').textContent = QV_QTY;
+
+  const comparePrice = Number(p.compare_price || 0);
+  const price = Number(p.price);
+  const hasDiscount = comparePrice > price;
+  const pct = hasDiscount ? Math.round((1 - price/comparePrice)*100) : 0;
+
+  // description: turn each non-empty line into a checklist item; if only one line, show as plain paragraph
+  const descLines = (p.description || '').split('\n').map(l=>l.trim()).filter(Boolean);
+  let descHtml = '';
+  if(descLines.length > 1){
+    descHtml = `<ul>${descLines.map(l=>`<li>${escapeHtml(l)}</li>`).join('')}</ul>`;
+  } else if(descLines.length === 1){
+    descHtml = `<p>${escapeHtml(descLines[0])}</p>`;
+  }
+
+  document.getElementById('quickview-body').innerHTML = `
+    <div class="qv-photo">
+      ${p.image_url
+        ? `<img src="${escapeHtml(p.image_url)}" alt="${escapeHtml(p.name)}" onerror="this.parentElement.innerHTML='<div><svg viewBox=\\'0 0 24 24\\' fill=\\'none\\' stroke=\\'currentColor\\' stroke-width=\\'1.5\\'><rect x=\\'6\\' y=\\'3\\' width=\\'12\\' height=\\'18\\' rx=\\'2\\'/></svg><div class=\\'ph-label\\'>IMAGE UNAVAILABLE</div></div>'">`
+        : `<div>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="6" y="3" width="12" height="18" rx="2"/><path d="M9 3v3h6V3"/></svg>
+            <div class="ph-label">PRODUCT PHOTO<br>GOES HERE</div>
+          </div>`}
+    </div>
+    <div class="qv-cat">${escapeHtml(p.category)}</div>
+    ${p.brand ? `<div class="qv-brand">${escapeHtml(p.brand)}</div>` : ''}
+    <h2 class="qv-title">${escapeHtml(p.name)}</h2>
+    <div class="qv-price-row">
+      <span class="qv-price">₹${price.toLocaleString('en-IN')}</span>
+      ${hasDiscount ? `<span class="qv-compare">₹${comparePrice.toLocaleString('en-IN')}</span><span class="discount-pill">-${pct}%</span>` : ''}
+      ${p.unit ? `<span style="font-family:'Space Mono',monospace;font-size:12px;color:var(--paper-dim);">/ ${escapeHtml(p.unit)}</span>` : ''}
+    </div>
+    <div class="qv-stock"><span class="dot"></span>In stock</div>
+    ${descHtml ? `<div class="qv-desc">${descHtml}</div>` : ''}
+  `;
+  document.getElementById('quickview-overlay').classList.add('active');
+}
+function closeQuickView(){ document.getElementById('quickview-overlay').classList.remove('active'); }
+function qvChangeQty(delta){
+  QV_QTY = Math.max(1, QV_QTY + delta);
+  document.getElementById('qv-qty').textContent = QV_QTY;
+}
+function qvAddToCart(){
+  if(!QV_PRODUCT_ID) return;
+  const p = PRODUCTS.find(x=>x.id===QV_PRODUCT_ID);
+  if(!p) return;
+  const line = CART.find(x=>x.id===p.id);
+  if(line) line.qty += QV_QTY;
+  else CART.push({ id:p.id, name:p.name, price:Number(p.price), unit:p.unit, qty:QV_QTY });
+  renderCart();
+  closeQuickView();
+  openCart();
+}
 
 /* ---------- checkout ---------- */
 function openCheckout(){
