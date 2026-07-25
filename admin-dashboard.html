@@ -463,10 +463,15 @@
         <label for="product-name">Product Name</label>
         <input type="text" id="product-name" placeholder="e.g. Whey Protein — Chocolate">
       </div>
+      <div class="field">
+        <label for="product-brand">Brand (optional)</label>
+        <input type="text" id="product-brand" placeholder="e.g. Mars Nutrition">
+      </div>
       <div class="field-row">
         <div class="field">
           <label for="product-category">Category</label>
           <select id="product-category">
+            <option>Supplements</option>
             <option>Protein</option>
             <option>Creatine</option>
             <option>Pre-Workout</option>
@@ -479,17 +484,23 @@
           <input type="text" id="product-unit" placeholder="e.g. 1kg">
         </div>
       </div>
-      <div class="field">
-        <label for="product-price">Price (₹)</label>
-        <input type="number" id="product-price" placeholder="e.g. 2499" min="0">
+      <div class="field-row">
+        <div class="field">
+          <label for="product-price">Selling Price (₹)</label>
+          <input type="number" id="product-price" placeholder="e.g. 699" min="0">
+        </div>
+        <div class="field">
+          <label for="product-compare-price">MRP / Original Price (optional)</label>
+          <input type="number" id="product-compare-price" placeholder="e.g. 1399" min="0">
+        </div>
       </div>
       <div class="field">
         <label for="product-image">Image URL (optional)</label>
         <input type="text" id="product-image" placeholder="https://...">
       </div>
       <div class="field">
-        <label for="product-desc">Notes (optional)</label>
-        <textarea id="product-desc" rows="2" placeholder="Internal notes about this product"></textarea>
+        <label for="product-desc">Description (shown to customers)</label>
+        <textarea id="product-desc" rows="4" placeholder="One point per line, e.g.&#10;Supports daily energy metabolism&#10;Helps maintain immunity&#10;Supports overall health and wellness"></textarea>
       </div>
     </div>
     <div class="modal-foot">
@@ -700,7 +711,11 @@ async function renderProducts(){
       <div class="prod-admin-body">
         <div class="prod-admin-cat">${escapeHtml(p.category)}</div>
         <h4>${escapeHtml(p.name)}</h4>
-        <div class="prod-admin-price"><strong>₹${Number(p.price).toLocaleString('en-IN')}</strong> ${p.unit ? '/ '+escapeHtml(p.unit) : ''}</div>
+        ${p.brand ? `<div style="font-family:'Space Mono',monospace;font-size:10px;color:var(--paper-dim);letter-spacing:1px;text-transform:uppercase;margin-top:2px;">${escapeHtml(p.brand)}</div>` : ''}
+        <div class="prod-admin-price">
+          <strong>₹${Number(p.price).toLocaleString('en-IN')}</strong> ${p.unit ? '/ '+escapeHtml(p.unit) : ''}
+          ${p.compare_price && Number(p.compare_price) > Number(p.price) ? ` <span style="text-decoration:line-through;opacity:0.6;">₹${Number(p.compare_price).toLocaleString('en-IN')}</span>` : ''}
+        </div>
         <div class="prod-admin-actions">
           <button class="icon-btn" title="Edit" onclick="editProduct('${p.id}')">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 20h9M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
@@ -788,9 +803,11 @@ async function openProductModal(){
   document.getElementById('product-modal-title').textContent = 'Add Product';
   document.getElementById('product-id').value = '';
   document.getElementById('product-name').value = '';
-  document.getElementById('product-category').value = 'Protein';
+  document.getElementById('product-brand').value = '';
+  document.getElementById('product-category').value = 'Supplements';
   document.getElementById('product-unit').value = '';
   document.getElementById('product-price').value = '';
+  document.getElementById('product-compare-price').value = '';
   document.getElementById('product-image').value = '';
   document.getElementById('product-desc').value = '';
   document.getElementById('product-modal').classList.add('active');
@@ -802,9 +819,11 @@ async function editProduct(id){
   document.getElementById('product-modal-title').textContent = 'Edit Product';
   document.getElementById('product-id').value = p.id;
   document.getElementById('product-name').value = p.name;
+  document.getElementById('product-brand').value = p.brand || '';
   document.getElementById('product-category').value = p.category;
   document.getElementById('product-unit').value = p.unit || '';
   document.getElementById('product-price').value = p.price;
+  document.getElementById('product-compare-price').value = p.compare_price || '';
   document.getElementById('product-image').value = p.image_url || '';
   document.getElementById('product-desc').value = p.description || '';
   document.getElementById('product-modal').classList.add('active');
@@ -814,11 +833,14 @@ async function saveProduct(){
   const price = document.getElementById('product-price').value;
   if(!name || price===''){ showToast('Name and price are required'); return; }
   const id = document.getElementById('product-id').value;
+  const comparePrice = document.getElementById('product-compare-price').value;
   const payload = {
     name,
+    brand: document.getElementById('product-brand').value.trim(),
     category: document.getElementById('product-category').value,
     unit: document.getElementById('product-unit').value.trim(),
     price: Number(price),
+    compare_price: comparePrice === '' ? null : Number(comparePrice),
     image_url: document.getElementById('product-image').value.trim(),
     description: document.getElementById('product-desc').value.trim()
   };
