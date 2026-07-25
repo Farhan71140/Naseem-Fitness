@@ -120,10 +120,29 @@
   .nav-search input::placeholder{color:var(--paper-dim);}
   .nav-search input::-webkit-search-cancel-button{filter:invert(1);opacity:0.6;cursor:pointer;}
   .nav-search-mobile{display:none;}
+  .mobile-icons{display:none;}
+  .icon-btn{
+    display:inline-flex;align-items:center;justify-content:center;
+    width:40px;height:40px;border-radius:50%;
+    border:1px solid var(--line);background:transparent;color:var(--paper);
+    cursor:pointer;position:relative;flex:none;
+  }
+  .icon-btn svg{width:18px;height:18px;}
+  .mobile-search-bar{display:none;padding:0 20px 16px;border-top:1px solid var(--line);align-items:center;gap:12px;background:var(--ink-black);}
+  .mobile-search-bar .nav-search{flex:1 1 auto;margin-top:14px;}
+  .search-close-btn{
+    display:none;margin-top:14px;color:var(--paper-dim);font-size:18px;cursor:pointer;flex:none;
+  }
+  #search-toggle:checked ~ nav .mobile-icons{ } /* keep icon row visible while search is open */
+  @media (max-width:860px){
+    #search-toggle:checked ~ .mobile-search-bar{display:flex;}
+  }
   @media (max-width:860px){
     .nav-links{display:none;} .nav-cta{display:none;}
     .nav-search{display:none;}
-    .nav-search-mobile{display:flex;margin:14px 0 6px;flex:none;}
+    .mobile-icons{display:flex;gap:10px;align-items:center;}
+    .search-close-btn{display:block;}
+    .mobile-search-bar .nav-search{display:flex;}
   }
 
   /* ===== MOBILE MENU ===== */
@@ -516,6 +535,7 @@
 <header>
   <div class="topbar">100% GENUINE STOCK · VERIFY EVERY BATCH · FREE SHIPPING ACROSS MUMBAI ON ORDERS ₹999+</div>
   <input type="checkbox" id="nav-toggle" class="nav-toggle-input">
+  <input type="checkbox" id="search-toggle" class="nav-toggle-input" onchange="if(this.checked){setTimeout(()=>document.getElementById('search-input-mobile-bar').focus(),80)}">
   <nav class="wrap">
     <a class="brand" href="#top">
       <img src="https://nfsupplementstore.com/api/assets/985c9e40-47f9-4bba-b053-d1c7176096fc/4a066dca2b5f7f07ecec5fed1fdbf29d" alt="NF Naseem Fitness logo">
@@ -549,21 +569,33 @@
         <span class="cart-count" id="cart-count-desktop" style="display:none;">0</span>
       </button>
     </div>
+    <div class="mobile-icons">
+      <label for="search-toggle" class="icon-btn" aria-label="Search products">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
+      </label>
+      <button class="icon-btn" aria-label="Open cart" onclick="openCart()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><circle cx="9" cy="21" r="1.4"/><circle cx="19" cy="21" r="1.4"/><path d="M2.5 3h2l2.7 12.6a2 2 0 0 0 2 1.6h8.2a2 2 0 0 0 2-1.6L21 8H6"/></svg>
+        <span class="cart-count" id="cart-count-icon" style="display:none;">0</span>
+      </button>
+    </div>
     <label for="nav-toggle" class="hamburger-btn" aria-label="Open menu">
       <span></span><span></span><span></span>
     </label>
   </nav>
-  <div class="mobile-menu">
-    <div class="nav-search nav-search-mobile">
+  <div class="mobile-search-bar">
+    <div class="nav-search">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
       <input
         type="search"
-        id="search-input-mobile"
+        id="search-input-mobile-bar"
         placeholder="Search products…"
         aria-label="Search products"
         oninput="handleSearchInput(this.value)"
-        onkeydown="if(event.key==='Enter'){document.getElementById('nav-toggle').checked=false;goToProducts();this.blur();}">
+        onkeydown="if(event.key==='Enter'){goToProducts();this.blur();document.getElementById('search-toggle').checked=false;}">
     </div>
+    <label for="search-toggle" class="search-close-btn" aria-label="Close search">✕</label>
+  </div>
+  <div class="mobile-menu">
     <a href="#top">Home</a>
     <a href="#categories">Shop</a>
     <a href="#products">Bestsellers</a>
@@ -965,7 +997,7 @@ function filterProducts(query){
 }
 function handleSearchInput(value){
   document.getElementById('search-input-desktop').value = value;
-  document.getElementById('search-input-mobile').value = value;
+  document.getElementById('search-input-mobile-bar').value = value;
   filterProducts(value);
 }
 function goToProducts(){
@@ -1000,6 +1032,8 @@ function renderCart(){
   const count = CART.reduce((s,l)=>s+l.qty,0);
   document.getElementById('cart-count-desktop').style.display = count>0 ? 'flex' : 'none';
   document.getElementById('cart-count-desktop').textContent = count;
+  document.getElementById('cart-count-icon').style.display = count>0 ? 'flex' : 'none';
+  document.getElementById('cart-count-icon').textContent = count;
   document.getElementById('cart-count-mobile').textContent = '('+count+')';
 
   const body = document.getElementById('cart-body');
