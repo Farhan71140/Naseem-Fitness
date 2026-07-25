@@ -269,6 +269,30 @@
   .cat-card p{font-size:13px;color:var(--paper-dim);margin-top:8px;}
   @media (max-width:860px){ .cat-grid{grid-template-columns:repeat(2,1fr);} }
 
+  /* ===== CATEGORY IMAGE CARDS ===== */
+  .cat-img-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:18px;}
+  @media (max-width:860px){ .cat-img-grid{grid-template-columns:repeat(2,1fr);} }
+  @media (max-width:480px){ .cat-img-grid{grid-template-columns:1fr;} }
+  .cat-card-img{
+    display:block;background:var(--steel);border:1px solid var(--line);border-radius:12px;
+    overflow:hidden;transition:border-color .2s, transform .2s;
+  }
+  .cat-card-img:hover{border-color:var(--teal);transform:translateY(-4px);}
+  .cat-img-wrap{
+    width:100%;aspect-ratio:4/5;background:var(--iron);position:relative;overflow:hidden;
+  }
+  .cat-img-wrap img{width:100%;height:100%;object-fit:cover;display:block;}
+  .cat-img-wrap .cat-img-fallback{
+    position:absolute;inset:0;display:flex;align-items:center;justify-content:center;
+    text-align:center;font-family:'Space Mono',monospace;font-size:11px;letter-spacing:1px;
+    color:var(--paper-dim);padding:14px;
+  }
+  .cat-label{
+    display:flex;align-items:center;gap:10px;padding:16px 18px;
+    font-family:'Anton',sans-serif;font-size:18px;text-transform:uppercase;letter-spacing:0.4px;
+  }
+  .cat-label .cat-icon{font-size:20px;line-height:1;}
+
   /* ===== PRODUCTS ===== */
   .prod-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:22px;}
   .prod-card{
@@ -531,11 +555,39 @@
         </div>
         <p>From your first protein shake to a serious pre-workout stack — pick a category and we'll show verified stock only.</p>
       </div>
-      <div class="cat-grid">
-        <div class="cat-card"><div class="num">01</div><h3>Protein</h3><p>Whey, isolate & mass gainers</p></div>
-        <div class="cat-card"><div class="num">02</div><h3>Creatine</h3><p>Micronised monohydrate</p></div>
-        <div class="cat-card"><div class="num">03</div><h3>Pre-Workout</h3><p>Energy & focus blends</p></div>
-        <div class="cat-card"><div class="num">04</div><h3>Multivitamins</h3><p>Daily health & recovery</p></div>
+      <div class="cat-img-grid">
+        <a href="#products" class="cat-card-img">
+          <div class="cat-img-wrap">
+            <img src="assets/categories/supplements.jpg" alt="Supplements"
+              onerror="this.style.display='none';this.nextElementSibling.style.display='flex';">
+            <div class="cat-img-fallback" style="display:none;">SUPPLEMENTS<br>PHOTO GOES HERE</div>
+          </div>
+          <div class="cat-label"><span class="cat-icon">🛡️</span> Supplements</div>
+        </a>
+        <a href="#products" class="cat-card-img">
+          <div class="cat-img-wrap">
+            <img src="assets/categories/whey-protein.jpg" alt="Whey Protein"
+              onerror="this.style.display='none';this.nextElementSibling.style.display='flex';">
+            <div class="cat-img-fallback" style="display:none;">WHEY PROTEIN<br>PHOTO GOES HERE</div>
+          </div>
+          <div class="cat-label"><span class="cat-icon">🥛</span> Whey Protein</div>
+        </a>
+        <a href="#products" class="cat-card-img">
+          <div class="cat-img-wrap">
+            <img src="assets/categories/creatine.jpg" alt="Creatine"
+              onerror="this.style.display='none';this.nextElementSibling.style.display='flex';">
+            <div class="cat-img-fallback" style="display:none;">CREATINE<br>PHOTO GOES HERE</div>
+          </div>
+          <div class="cat-label"><span class="cat-icon">💪</span> Creatine</div>
+        </a>
+        <a href="#products" class="cat-card-img">
+          <div class="cat-img-wrap">
+            <img src="assets/categories/pre-workout.jpg" alt="Pre-Workout"
+              onerror="this.style.display='none';this.nextElementSibling.style.display='flex';">
+            <div class="cat-img-fallback" style="display:none;">PRE-WORKOUT<br>PHOTO GOES HERE</div>
+          </div>
+          <div class="cat-label"><span class="cat-icon">⚡</span> Pre-Workout</div>
+        </a>
       </div>
     </div>
   </section>
