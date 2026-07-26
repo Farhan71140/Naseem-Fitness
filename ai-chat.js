@@ -136,7 +136,7 @@ Guidelines:
       transform: scale(1.05);
       box-shadow: 0 8px 30px rgba(255,210,74,0.5);
     }
-    #nf-chat-toggle .toggle-icon { font-size: 20px; line-height: 1; }
+    #nf-chat-toggle .toggle-icon { width: 26px; height: 26px; border-radius: 50%; object-fit: cover; display: block; flex-shrink: 0; }
     #nf-chat-toggle .toggle-label {
       color: #0A0806;
       font-size: 12.5px;
@@ -197,9 +197,13 @@ Guidelines:
       border-radius: 50%;
       background: linear-gradient(135deg, var(--teal, #FFD24A), var(--amber, #FFE27A));
       display: flex; align-items: center; justify-content: center;
-      font-size: 19px;
+      overflow: hidden;
       flex-shrink: 0;
       box-shadow: 0 0 12px rgba(255,210,74,0.35);
+    }
+    .nf-chat-avatar img {
+      width: 100%; height: 100%;
+      object-fit: cover;
     }
     .nf-chat-header-info strong {
       display: block;
@@ -365,9 +369,9 @@ Guidelines:
         border-radius: 50%;
       }
       #nf-chat-toggle .toggle-label { display: none; }
-      #nf-chat-toggle .toggle-icon { font-size: 22px; }
+      #nf-chat-toggle .toggle-icon { width: 24px; height: 24px; }
       .nf-chat-header { padding: 12px 14px; }
-      .nf-chat-avatar { width: 36px; height: 36px; font-size: 17px; }
+      .nf-chat-avatar { width: 36px; height: 36px; }
       .nf-chat-header-info strong { font-size: 13.5px; }
       .nf-chat-header-info span { font-size: 11px; }
       .nf-chat-messages { padding: 12px; gap: 10px; }
@@ -390,7 +394,7 @@ Guidelines:
   widget.innerHTML = `
     <div id="nf-chat-box">
       <div class="nf-chat-header">
-        <div class="nf-chat-avatar">💪</div>
+        <div class="nf-chat-avatar"><img src="assets/chat-bot-icon.webp" alt="Merlin AI"></div>
         <div class="nf-chat-header-info">
           <strong>Merlin — NF Assistant</strong>
           <span>Online now</span>
@@ -416,7 +420,7 @@ Guidelines:
     </div>
 
     <button id="nf-chat-toggle" aria-label="Open AI Chat">
-      <span class="toggle-icon">✨</span>
+      <img class="toggle-icon" src="assets/chat-bot-icon.webp" alt="AI Assistant">
       <span class="toggle-label">Ask Merlin</span>
       <span class="chat-notif"></span>
     </button>
