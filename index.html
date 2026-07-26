@@ -583,6 +583,133 @@
   .checkout-success h4{font-size:18px;margin-bottom:8px;}
   .checkout-success p{color:var(--paper-dim);font-size:13.5px;}
   .checkout-error{background:rgba(255,107,107,0.1);border:1px solid rgba(255,107,107,0.3);color:#FF9B9B;font-size:13px;padding:10px 12px;border-radius:6px;margin-bottom:14px;display:none;}
+
+  /* ============ FAQ — PREMIUM ACCORDION ============ */
+  .faq-section{
+    position:relative;
+    padding:110px 0 120px;
+    overflow:hidden;
+  }
+  .faq-section::before{
+    content:'';
+    position:absolute; inset:0;
+    background:
+      radial-gradient(ellipse 800px 460px at 85% 10%, rgba(255,210,74,0.14), transparent 60%),
+      radial-gradient(ellipse 600px 460px at 5% 90%, rgba(255,226,122,0.08), transparent 60%);
+    pointer-events:none;
+  }
+  .faq-section .section-head{position:relative;z-index:1;}
+  .faq-badge{
+    display:inline-flex;align-items:center;gap:8px;
+    padding:6px 14px;border-radius:30px;
+    border:1px solid var(--line);
+    background:rgba(255,210,74,0.06);
+    font-family:'Space Mono',monospace;
+    font-size:11px;letter-spacing:2px;text-transform:uppercase;
+    color:var(--teal);
+    margin-bottom:18px;
+  }
+  .faq-badge::before{content:'';width:6px;height:6px;border-radius:50%;background:var(--teal);box-shadow:0 0 8px var(--teal);}
+  .faq-grid{
+    position:relative;z-index:1;
+    display:grid;
+    grid-template-columns:0.85fr 1.15fr;
+    gap:60px;
+    margin-top:48px;
+    align-items:start;
+  }
+  .faq-side{position:sticky;top:110px;}
+  .faq-side h2{font-size:clamp(30px,3.4vw,44px);line-height:1.1;margin-bottom:18px;}
+  .faq-side h2 .accent{color:var(--teal);}
+  .faq-side p{color:var(--paper-dim);font-size:15px;line-height:1.7;max-width:400px;margin-bottom:28px;}
+  .faq-side .btn{width:fit-content;}
+  .faq-list{display:flex;flex-direction:column;gap:14px;}
+  .faq-item{
+    border:1px solid var(--line);
+    border-radius:14px;
+    background:linear-gradient(160deg, var(--steel) 0%, var(--iron) 130%);
+    overflow:hidden;
+    transition:border-color .25s ease, box-shadow .25s ease, transform .25s ease;
+  }
+  .faq-item:hover{border-color:rgba(255,210,74,0.4);}
+  .faq-item.open{
+    border-color:var(--teal);
+    box-shadow:0 12px 34px rgba(255,210,74,0.10);
+  }
+  .faq-q{
+    width:100%;
+    display:flex;align-items:center;gap:18px;
+    background:none;border:none;cursor:pointer;
+    padding:22px 24px;
+    text-align:left;
+    color:var(--paper);
+    font-family:inherit;
+  }
+  .faq-num{
+    font-family:'Space Mono',monospace;
+    font-size:12px;letter-spacing:1px;
+    color:var(--paper-dim);
+    flex:none;
+    transition:color .25s ease;
+    padding-top:2px;
+  }
+  .faq-item.open .faq-num{color:var(--teal);}
+  .faq-q-text{
+    flex:1;
+    font-family:'Anton',sans-serif;
+    font-weight:400;
+    font-size:16px;
+    letter-spacing:0.3px;
+    line-height:1.35;
+  }
+  .faq-icon{
+    flex:none;
+    width:34px;height:34px;
+    border-radius:50%;
+    border:1px solid var(--line);
+    display:flex;align-items:center;justify-content:center;
+    position:relative;
+    transition:background .25s ease, border-color .25s ease, transform .35s cubic-bezier(.4,0,.2,1);
+  }
+  .faq-icon::before,.faq-icon::after{
+    content:'';position:absolute;background:var(--paper-dim);
+    transition:background .25s ease, transform .3s ease;
+  }
+  .faq-icon::before{width:12px;height:1.5px;}
+  .faq-icon::after{width:1.5px;height:12px;}
+  .faq-item.open .faq-icon{background:var(--teal);border-color:var(--teal);transform:rotate(180deg);}
+  .faq-item.open .faq-icon::before,.faq-item.open .faq-icon::after{background:var(--ink-black);}
+  .faq-item.open .faq-icon::after{transform:scaleY(0);}
+  .faq-a{
+    display:grid;
+    grid-template-rows:0fr;
+    transition:grid-template-rows .4s cubic-bezier(.4,0,.2,1);
+  }
+  .faq-item.open .faq-a{grid-template-rows:1fr;}
+  .faq-a-inner{overflow:hidden;}
+  .faq-a-inner p{
+    padding:0 24px 24px 58px;
+    color:var(--paper-dim);
+    font-size:14.5px;
+    line-height:1.75;
+    max-width:560px;
+  }
+  .faq-a-inner p a{color:var(--teal);text-decoration:underline;text-underline-offset:3px;}
+  @media (max-width:980px){
+    .faq-grid{grid-template-columns:1fr;gap:34px;}
+    .faq-side{position:static;}
+    .faq-side p{max-width:none;}
+  }
+  @media (max-width:640px){
+    .faq-section{padding:70px 0 80px;}
+    .faq-q{padding:18px 16px;gap:12px;}
+    .faq-q-text{font-size:14.5px;}
+    .faq-num{font-size:11px;}
+    .faq-icon{width:28px;height:28px;}
+    .faq-icon::before{width:10px;}
+    .faq-icon::after{height:10px;}
+    .faq-a-inner p{padding:0 16px 20px 46px;font-size:13.5px;}
+  }
 </style>
 </head>
 <body>
@@ -877,6 +1004,82 @@
       </div>
       <div class="reviews-track" id="reviews-track">
         <div class="prod-loading">Loading reviews…</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- FAQ -->
+  <section id="faq" class="faq-section">
+    <div class="wrap">
+      <div class="faq-grid">
+        <div class="faq-side">
+          <span class="faq-badge">FAQ</span>
+          <h2>Questions,<br>answered <span class="accent">straight.</span></h2>
+          <p>Everything customers usually ask us before ordering — stock, delivery, authenticity and the shop itself. Can't find yours? Message us directly.</p>
+          <a class="btn btn-primary" href="https://wa.me/917738242258?text=Hi%20NF%20Naseem%20Fitness%2C%20I%20have%20a%20question" target="_blank" rel="noopener">Ask on WhatsApp</a>
+        </div>
+        <div class="faq-list" id="faq-list">
+          <div class="faq-item open">
+            <button class="faq-q" aria-expanded="true">
+              <span class="faq-num">01</span>
+              <span class="faq-q-text">Where is NF Naseem Fitness located?</span>
+              <span class="faq-icon"></span>
+            </button>
+            <div class="faq-a"><div class="faq-a-inner">
+              <p>Ground Floor, Shop 2, Kajipura Haji Kasam Chawl No. 23, Maulana Azad Road, Nagpada, Two Tank, Mumbai, Maharashtra 400008. See the map and photos in the <a href="#visit">Visit the Store</a> section above.</p>
+            </div></div>
+          </div>
+          <div class="faq-item">
+            <button class="faq-q" aria-expanded="false">
+              <span class="faq-num">02</span>
+              <span class="faq-q-text">What are your opening hours?</span>
+              <span class="faq-icon"></span>
+            </button>
+            <div class="faq-a"><div class="faq-a-inner">
+              <p>We're open Mon–Sun, 10:00 AM – 9:30 PM, including weekends — walk in anytime during these hours.</p>
+            </div></div>
+          </div>
+          <div class="faq-item">
+            <button class="faq-q" aria-expanded="false">
+              <span class="faq-num">03</span>
+              <span class="faq-q-text">How do I know your stock is genuine?</span>
+              <span class="faq-icon"></span>
+            </button>
+            <div class="faq-a"><div class="faq-a-inner">
+              <p>Every tub sold is batch-verified before it reaches you. Use the <a href="#authenticity">Verify Product</a> section to check your batch code directly, no exceptions, no fakes.</p>
+            </div></div>
+          </div>
+          <div class="faq-item">
+            <button class="faq-q" aria-expanded="false">
+              <span class="faq-num">04</span>
+              <span class="faq-q-text">Do you deliver across Mumbai?</span>
+              <span class="faq-icon"></span>
+            </button>
+            <div class="faq-a"><div class="faq-a-inner">
+              <p>Yes — we offer free shipping across Mumbai on orders ₹999 and above, with same-day delivery as promised to our regulars.</p>
+            </div></div>
+          </div>
+          <div class="faq-item">
+            <button class="faq-q" aria-expanded="false">
+              <span class="faq-num">05</span>
+              <span class="faq-q-text">How do I contact NF Naseem Fitness?</span>
+              <span class="faq-icon"></span>
+            </button>
+            <div class="faq-a"><div class="faq-a-inner">
+              <p>Call or WhatsApp us anytime at <a href="https://wa.me/917738242258" target="_blank" rel="noopener">+91 77382 42258</a>, or order directly on this page.</p>
+            </div></div>
+          </div>
+          <div class="faq-item">
+            <button class="faq-q" aria-expanded="false">
+              <span class="faq-num">06</span>
+              <span class="faq-q-text">What payment methods do you accept?</span>
+              <span class="faq-icon"></span>
+            </button>
+            <div class="faq-a"><div class="faq-a-inner">
+              <p>We accept UPI, cards, and cash in-store, plus secure online payment options at checkout on this website.</p>
+            </div></div>
+          </div>
+        </div>
       </div>
     </div>
   </section>
@@ -1288,6 +1491,26 @@ function renderCart(){
 
 function openCart(){ document.getElementById('cart-overlay').classList.add('active'); }
 function closeCart(){ document.getElementById('cart-overlay').classList.remove('active'); }
+
+/* ---------- FAQ accordion ---------- */
+(function(){
+  const list = document.getElementById('faq-list');
+  if(!list) return;
+  list.addEventListener('click', function(e){
+    const btn = e.target.closest('.faq-q');
+    if(!btn) return;
+    const item = btn.closest('.faq-item');
+    const isOpen = item.classList.contains('open');
+    list.querySelectorAll('.faq-item.open').forEach(el=>{
+      el.classList.remove('open');
+      el.querySelector('.faq-q').setAttribute('aria-expanded','false');
+    });
+    if(!isOpen){
+      item.classList.add('open');
+      btn.setAttribute('aria-expanded','true');
+    }
+  });
+})();
 
 /* ---------- product quick view ---------- */
 let QV_PRODUCT_ID = null;
