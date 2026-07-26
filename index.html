@@ -652,15 +652,15 @@
     <label for="search-toggle" class="search-close-btn" aria-label="Close search">✕</label>
   </div>
   <div class="mobile-menu">
-    <a href="#top">Home</a>
-    <a href="#categories">Shop</a>
-    <a href="#products">Bestsellers</a>
-    <a href="#authenticity">Verify Product</a>
-    <a href="licenses.html">Licenses</a>
-    <a href="#visit">Visit Store</a>
+    <a href="#top" onclick="document.getElementById('nav-toggle').checked=false">Home</a>
+    <a href="#categories" onclick="document.getElementById('nav-toggle').checked=false">Shop</a>
+    <a href="#products" onclick="document.getElementById('nav-toggle').checked=false">Bestsellers</a>
+    <a href="#authenticity" onclick="document.getElementById('nav-toggle').checked=false">Verify Product</a>
+    <a href="licenses.html" onclick="document.getElementById('nav-toggle').checked=false">Licenses</a>
+    <a href="#visit" onclick="document.getElementById('nav-toggle').checked=false">Visit Store</a>
     <div class="mobile-cta">
-      <a class="btn btn-wa" href="https://wa.me/917738242258?text=Hi%20NF%20Naseem%20Fitness" target="_blank" rel="noopener">WhatsApp Us</a>
-      <button class="btn btn-primary" style="justify-content:center;" onclick="openCart()">View Cart <span class="mono" id="cart-count-mobile">(0)</span></button>
+      <a class="btn btn-wa" href="https://wa.me/917738242258?text=Hi%20NF%20Naseem%20Fitness" target="_blank" rel="noopener" onclick="document.getElementById('nav-toggle').checked=false">WhatsApp Us</a>
+      <button class="btn btn-primary" style="justify-content:center;" onclick="document.getElementById('nav-toggle').checked=false;openCart()">View Cart <span class="mono" id="cart-count-mobile">(0)</span></button>
     </div>
   </div>
 </header>
