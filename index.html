@@ -676,7 +676,7 @@
         <p>From your first protein shake to a serious pre-workout stack — pick a category and we'll show verified stock only.</p>
       </div>
       <div class="cat-img-grid">
-        <a href="#products" class="cat-card-img">
+        <a href="#products" class="cat-card-img" onclick="filterByCategory('Supplements');return false;">
           <div class="cat-img-wrap">
             <img src="assets/categories/supplements.jpg" alt="Supplements"
               onerror="this.style.display='none';this.nextElementSibling.style.display='flex';">
@@ -684,7 +684,7 @@
           </div>
           <div class="cat-label"><span class="cat-icon">🛡️</span> Supplements</div>
         </a>
-        <a href="#products" class="cat-card-img">
+        <a href="#products" class="cat-card-img" onclick="filterByCategory('Whey Protein');return false;">
           <div class="cat-img-wrap">
             <img src="assets/categories/whey-protein.jpg" alt="Whey Protein"
               onerror="this.style.display='none';this.nextElementSibling.style.display='flex';">
@@ -692,7 +692,7 @@
           </div>
           <div class="cat-label"><span class="cat-icon">🥛</span> Whey Protein</div>
         </a>
-        <a href="#products" class="cat-card-img">
+        <a href="#products" class="cat-card-img" onclick="filterByCategory('Creatine');return false;">
           <div class="cat-img-wrap">
             <img src="assets/categories/creatine.jpg" alt="Creatine"
               onerror="this.style.display='none';this.nextElementSibling.style.display='flex';">
@@ -700,7 +700,7 @@
           </div>
           <div class="cat-label"><span class="cat-icon">💪</span> Creatine</div>
         </a>
-        <a href="#products" class="cat-card-img">
+        <a href="#products" class="cat-card-img" onclick="filterByCategory('Pre-Workout');return false;">
           <div class="cat-img-wrap">
             <img src="assets/categories/pre-workout.jpg" alt="Pre-Workout"
               onerror="this.style.display='none';this.nextElementSibling.style.display='flex';">
@@ -708,6 +708,11 @@
           </div>
           <div class="cat-label"><span class="cat-icon">⚡</span> Pre-Workout</div>
         </a>
+      </div>
+      <div id="active-category-bar" style="display:none;align-items:center;gap:12px;margin-top:20px;">
+        <span style="font-size:13px;color:var(--paper-dim);">Showing:</span>
+        <span id="active-category-label" style="font-size:13px;font-weight:700;color:var(--teal);"></span>
+        <button onclick="clearCategoryFilter()" style="background:transparent;border:1px solid var(--line);color:var(--paper);border-radius:20px;padding:5px 14px;font-size:12px;cursor:pointer;">Clear ✕</button>
       </div>
     </div>
   </section>
@@ -985,20 +990,46 @@ function renderProducts(list){
   `;}).join('');
 }
 
-/* ---------- search ---------- */
-function filterProducts(query){
-  const q = query.trim().toLowerCase();
-  const list = !q ? PRODUCTS : PRODUCTS.filter(p=>{
-    return (p.name && p.name.toLowerCase().includes(q))
-        || (p.brand && p.brand.toLowerCase().includes(q))
-        || (p.category && p.category.toLowerCase().includes(q));
-  });
+/* ---------- search + category filter ---------- */
+let ACTIVE_CATEGORY = '';
+function applyFilters(){
+  const q = (document.getElementById('search-input-desktop').value || '').trim().toLowerCase();
+  let list = PRODUCTS;
+  if(ACTIVE_CATEGORY){
+    list = list.filter(p => p.category && p.category.toLowerCase() === ACTIVE_CATEGORY.toLowerCase());
+  }
+  if(q){
+    list = list.filter(p=>{
+      return (p.name && p.name.toLowerCase().includes(q))
+          || (p.brand && p.brand.toLowerCase().includes(q))
+          || (p.category && p.category.toLowerCase().includes(q));
+    });
+  }
   renderProducts(list);
+}
+function filterProducts(query){
+  document.getElementById('search-input-desktop').value = query;
+  document.getElementById('search-input-mobile-bar').value = query;
+  applyFilters();
 }
 function handleSearchInput(value){
   document.getElementById('search-input-desktop').value = value;
   document.getElementById('search-input-mobile-bar').value = value;
-  filterProducts(value);
+  applyFilters();
+}
+function filterByCategory(category){
+  ACTIVE_CATEGORY = category;
+  document.getElementById('search-input-desktop').value = '';
+  document.getElementById('search-input-mobile-bar').value = '';
+  document.getElementById('active-category-label').textContent = category;
+  document.getElementById('active-category-bar').style.display = 'flex';
+  applyFilters();
+  goToProducts();
+}
+function clearCategoryFilter(){
+  ACTIVE_CATEGORY = '';
+  document.getElementById('active-category-bar').style.display = 'none';
+  applyFilters();
 }
 function goToProducts(){
   document.getElementById('products').scrollIntoView({behavior:'smooth'});
