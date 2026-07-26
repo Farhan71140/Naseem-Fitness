@@ -81,7 +81,7 @@ Categories: Whey protein, creatine, pre-workouts, multivitamins, and general gym
   }
 
   function getSystemPrompt() {
-    return `You are Aiman, a friendly and knowledgeable AI assistant for NF Naseem Fitness — a verified, genuine supplement store in Nagpada, Mumbai.
+    return `You are Merlin, a friendly and knowledgeable AI assistant for NF Naseem Fitness — a verified, genuine supplement store in Nagpada, Mumbai.
 
 Your job is to help customers:
 1. Find the right supplement (whey protein, creatine, pre-workout, multivitamins) for their goals
@@ -185,7 +185,7 @@ Guidelines:
     }
 
     .nf-chat-header {
-      background: linear-gradient(135deg, var(--iron, #241D13), var(--steel, #17130D));
+      background: var(--iron, #241D13);
       border-bottom: 1px solid var(--line, rgba(255,210,74,0.18));
       padding: 14px 16px;
       display: flex;
@@ -203,15 +203,17 @@ Guidelines:
     }
     .nf-chat-header-info strong {
       display: block;
-      color: var(--paper, #F5EEDD);
-      font-size: 14.5px;
+      color: #FFFFFF;
+      font-size: 15px;
       font-weight: 700;
       font-family: 'Anton', sans-serif;
-      letter-spacing: 0.3px;
+      letter-spacing: 0.4px;
+      text-shadow: 0 1px 2px rgba(0,0,0,0.6);
     }
     .nf-chat-header-info span {
-      font-size: 11.5px;
-      color: #2ECC71;
+      font-size: 12px;
+      color: #4ADE80;
+      font-weight: 600;
     }
     .nf-chat-header-info span::before { content: '● '; font-size: 8px; }
     .nf-chat-close {
@@ -347,15 +349,37 @@ Guidelines:
     #nf-chat-send:hover { transform: scale(1.08); }
     #nf-chat-send svg { pointer-events: none; }
 
-    @media (max-width: 480px) {
-      #nf-chat-box {
-        width: calc(100vw - 32px);
-        right: -6px;
-        max-height: 72vh;
-      }
+    @media (max-width: 600px) {
       #nf-chat-widget { right: 14px; bottom: 16px; }
+      #nf-chat-box {
+        width: calc(100vw - 28px);
+        right: -6px;
+        bottom: 60px;
+        max-height: min(70vh, 560px);
+      }
+      #nf-chat-toggle {
+        height: 48px;
+        padding: 0;
+        width: 48px;
+        justify-content: center;
+        border-radius: 50%;
+      }
       #nf-chat-toggle .toggle-label { display: none; }
-      #nf-chat-toggle { padding: 0; width: 52px; justify-content: center; }
+      #nf-chat-toggle .toggle-icon { font-size: 22px; }
+      .nf-chat-header { padding: 12px 14px; }
+      .nf-chat-avatar { width: 36px; height: 36px; font-size: 17px; }
+      .nf-chat-header-info strong { font-size: 13.5px; }
+      .nf-chat-header-info span { font-size: 11px; }
+      .nf-chat-messages { padding: 12px; gap: 10px; }
+      .nf-msg { font-size: 12.5px; max-width: 90%; }
+      .nf-suggestions { padding: 0 12px 8px; gap: 5px; }
+      .nf-suggestion-btn { font-size: 11px; padding: 4px 10px; }
+      .nf-chat-input-wrap { padding: 10px 12px; }
+      #nf-chat-input { font-size: 13px; padding: 8px 14px; }
+      #nf-chat-send { width: 36px; height: 36px; }
+    }
+    @media (max-width: 360px) {
+      #nf-chat-box { width: calc(100vw - 20px); right: -4px; }
     }
   `;
   document.head.appendChild(style);
@@ -368,7 +392,7 @@ Guidelines:
       <div class="nf-chat-header">
         <div class="nf-chat-avatar">💪</div>
         <div class="nf-chat-header-info">
-          <strong>Aiman — NF Assistant</strong>
+          <strong>Merlin — NF Assistant</strong>
           <span>Online now</span>
         </div>
         <button class="nf-chat-close" id="nf-chat-close" aria-label="Close">✕</button>
@@ -393,7 +417,7 @@ Guidelines:
 
     <button id="nf-chat-toggle" aria-label="Open AI Chat">
       <span class="toggle-icon">✨</span>
-      <span class="toggle-label">Ask Aiman</span>
+      <span class="toggle-label">Ask Merlin</span>
       <span class="chat-notif"></span>
     </button>
   `;
@@ -456,7 +480,7 @@ Guidelines:
 
   function showWelcome() {
     addMessage(
-      `👋 Hi! I'm **Aiman**, your NF Naseem Fitness assistant.\n\nAsk me about products, prices, genuine stock verification, or delivery — what do you need today?`,
+      `👋 Hi! I'm **Merlin**, your NF Naseem Fitness assistant.\n\nAsk me about products, prices, genuine stock verification, or delivery — what do you need today?`,
       'bot'
     );
   }
