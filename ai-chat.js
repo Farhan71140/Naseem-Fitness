@@ -136,7 +136,7 @@ Guidelines:
       transform: scale(1.05);
       box-shadow: 0 8px 30px rgba(255,210,74,0.5);
     }
-    #nf-chat-toggle .toggle-icon { width: 34px; height: 34px; border-radius: 50%; object-fit: cover; display: block; flex-shrink: 0; }
+    #nf-chat-toggle .toggle-icon { width: 38px; height: 38px; border-radius: 50%; object-fit: cover; display: block; flex-shrink: 0; }
     #nf-chat-toggle .toggle-label {
       color: #0A0806;
       font-size: 12.5px;
@@ -362,14 +362,14 @@ Guidelines:
         max-height: min(70vh, 560px);
       }
       #nf-chat-toggle {
-        height: 48px;
+        height: 40px;
         padding: 0;
-        width: 48px;
+        width: 40px;
         justify-content: center;
         border-radius: 50%;
       }
       #nf-chat-toggle .toggle-label { display: none; }
-      #nf-chat-toggle .toggle-icon { width: clamp(32px, 9vw, 38px); height: clamp(32px, 9vw, 38px); }
+      #nf-chat-toggle .toggle-icon { width: 38px; height: 38px; }
       .nf-chat-header { padding: 12px 14px; }
       .nf-chat-avatar { width: 36px; height: 36px; }
       .nf-chat-header-info strong { font-size: 13.5px; }
