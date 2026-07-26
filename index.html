@@ -446,6 +446,50 @@
   .testi-card .who{margin-top:18px;font-size:13px;font-weight:700;font-family:'Space Mono',monospace;color:var(--paper);}
   @media (max-width:860px){ .testi-track{grid-template-columns:1fr;} }
 
+  /* ===== REVIEWS ===== */
+  .prod-rating{display:flex;align-items:center;gap:6px;margin-top:6px;font-size:11.5px;color:var(--paper-dim);}
+  .prod-rating .stars-static{color:var(--amber);font-size:13px;letter-spacing:1px;}
+  .qv-rating{display:flex;align-items:center;gap:10px;margin-top:12px;}
+  .qv-rating .stars-static{color:var(--amber);font-size:16px;letter-spacing:2px;}
+  .qv-rating .count{font-size:12.5px;color:var(--paper-dim);}
+  .qv-review-block{margin-top:28px;padding-top:22px;border-top:1px solid var(--line);}
+  .qv-review-block h4{font-size:14px;text-transform:uppercase;letter-spacing:1px;font-family:'Space Mono',monospace;color:var(--teal);margin-bottom:14px;}
+  .star-picker{display:flex;gap:6px;font-size:26px;line-height:1;}
+  .star-picker span{cursor:pointer;color:var(--iron-light);transition:color .12s, transform .12s;}
+  .star-picker span:hover{transform:scale(1.1);}
+  .star-picker span.active{color:var(--amber);}
+  .review-form-field{margin-top:12px;}
+  .review-form-field label{display:block;font-size:12px;color:var(--paper-dim);margin-bottom:6px;letter-spacing:0.5px;}
+  .review-form-field input, .review-form-field textarea{
+    width:100%;background:var(--iron);border:1px solid var(--line);border-radius:8px;
+    padding:11px 13px;color:var(--paper);font-family:'Inter',sans-serif;font-size:14px;resize:vertical;
+  }
+  .review-form-field input:focus, .review-form-field textarea:focus{outline:none;border-color:var(--teal);}
+  .review-submit-msg{font-size:12.5px;margin-top:10px;display:none;}
+  .review-submit-msg.ok{color:var(--teal);}
+  .review-submit-msg.err{color:#FF8A8A;}
+  .existing-reviews{margin-top:22px;display:flex;flex-direction:column;}
+  .review-item{padding:14px 0;border-bottom:1px solid var(--line);}
+  .review-item:last-child{border-bottom:none;}
+  .review-item .rhead{display:flex;align-items:center;gap:10px;flex-wrap:wrap;}
+  .review-item .rname{font-weight:700;font-size:13px;}
+  .review-item .rdate{font-size:11px;color:var(--paper-dim);}
+  .review-item p{margin-top:6px;font-size:13.5px;color:var(--paper-dim);line-height:1.6;}
+  .no-reviews-note{font-size:13px;color:var(--paper-dim);margin-top:14px;}
+
+  .reviews-section{border-top:1px solid var(--line);}
+  .reviews-track{display:grid;grid-template-columns:repeat(3,1fr);gap:22px;}
+  .review-card{background:var(--steel);border:1px solid var(--line);border-radius:10px;padding:26px;}
+  .review-card .rc-top{display:flex;justify-content:space-between;align-items:flex-start;gap:10px;}
+  .review-card .stars-static{color:var(--amber);font-size:13px;letter-spacing:2px;}
+  .review-card .rc-product{
+    font-family:'Space Mono',monospace;font-size:10px;color:var(--teal);letter-spacing:1px;text-transform:uppercase;
+    background:var(--teal-dim);padding:4px 9px;border-radius:20px;white-space:nowrap;
+  }
+  .review-card p{margin-top:14px;font-size:14px;color:var(--paper-dim);line-height:1.6;}
+  .review-card .who{margin-top:18px;font-size:13px;font-weight:700;font-family:'Space Mono',monospace;color:var(--paper);}
+  @media (max-width:860px){ .reviews-track{grid-template-columns:1fr;} }
+
   /* ===== VISIT / CONTACT ===== */
   .visit{
     display:grid;grid-template-columns:1fr 1fr;gap:0;
@@ -456,14 +500,15 @@
   .visit-info .row{display:flex;gap:14px;margin-top:22px;font-size:14px;color:var(--paper-dim);}
   .visit-info .row strong{color:var(--paper);display:block;font-family:'Inter';font-weight:700;font-size:13px;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:2px;}
   .visit-map{
-    background:
-      repeating-linear-gradient(45deg, var(--iron), var(--iron) 12px, var(--steel) 12px, var(--steel) 24px);
+    background:var(--iron);
     display:flex;align-items:center;justify-content:center;min-height:300px;
-    position:relative;
+    position:relative;overflow:hidden;
   }
+  .visit-map img{width:100%;height:100%;object-fit:cover;display:block;position:absolute;inset:0;}
   .visit-map .pin{
     background:var(--ink-black);border:1px solid var(--teal);color:var(--teal);
     padding:12px 20px;border-radius:8px;font-family:'Space Mono',monospace;font-size:12px;text-align:center;
+    position:relative;z-index:2;
   }
   @media (max-width:860px){ .visit{grid-template-columns:1fr;} .visit-info{padding:36px 24px;} }
 
@@ -803,8 +848,25 @@
           </div>
         </div>
         <div class="visit-map">
-          <div class="pin">📍 Nakapada, Mumbai<br>[Embed Google Map here]</div>
+          <img src="assets/store/shop-front.jpg" alt="NF Naseem Fitness store front, Mumbai"
+            onerror="this.style.display='none';this.nextElementSibling.style.display='flex';">
+          <div class="pin" style="display:none;">📸 Add your shop photo<br>as assets/store/shop-front.jpg</div>
         </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CUSTOMER REVIEWS -->
+  <section class="reviews-section" id="customer-reviews">
+    <div class="wrap">
+      <div class="section-head">
+        <div>
+          <div class="eyebrow">Real feedback, real customers</div>
+          <h2>Customer Reviews</h2>
+        </div>
+      </div>
+      <div class="reviews-track" id="reviews-track">
+        <div class="prod-loading">Loading reviews…</div>
       </div>
     </div>
   </section>
@@ -933,10 +995,128 @@ const SUPABASE_ANON_KEY = 'sb_publishable_CQawBi0OPWWHKBIUnHr1Dg_OK4cuKIh';
 const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
 let PRODUCTS = [];
+let REVIEWS = [];
 let CART = []; // [{id, name, price, unit, qty}]
 
 function escapeHtml(str){
   return String(str ?? '').replace(/[&<>"']/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+}
+
+/* ---------- reviews ---------- */
+async function loadReviews(){
+  const { data, error } = await sb.from('reviews').select('*').order('created_at', { ascending:false });
+  if(error){ REVIEWS = []; return; }
+  REVIEWS = data || [];
+}
+function getProductRatingStats(productId){
+  const list = REVIEWS.filter(r=>r.product_id===productId);
+  const count = list.length;
+  const avg = count ? (list.reduce((s,r)=>s+Number(r.rating),0)/count) : 0;
+  return { avg, count };
+}
+function starsMarkup(avg){
+  const rounded = Math.round(avg);
+  let out = '';
+  for(let i=1;i<=5;i++){ out += i<=rounded ? '★' : '☆'; }
+  return out;
+}
+function formatReviewDate(iso){
+  if(!iso) return '';
+  return new Date(iso).toLocaleDateString('en-IN', { day:'2-digit', month:'short', year:'numeric' });
+}
+function renderRatingSummary(productId, big){
+  const { avg, count } = getProductRatingStats(productId);
+  if(count===0){
+    return big
+      ? `<div class="qv-rating"><span class="stars-static">☆☆☆☆☆</span><span class="count">No reviews yet — be the first!</span></div>`
+      : `<div class="prod-rating"><span class="stars-static">☆☆☆☆☆</span><span>No reviews yet</span></div>`;
+  }
+  const starsHtml = starsMarkup(avg);
+  return big
+    ? `<div class="qv-rating"><span class="stars-static">${starsHtml}</span><span class="count">${avg.toFixed(1)} out of 5 · ${count} review${count>1?'s':''}</span></div>`
+    : `<div class="prod-rating"><span class="stars-static">${starsHtml}</span><span>${avg.toFixed(1)} (${count})</span></div>`;
+}
+function renderQvExistingReviews(productId){
+  const box = document.getElementById('qv-existing-reviews');
+  if(!box) return;
+  const list = REVIEWS.filter(r=>r.product_id===productId);
+  if(list.length===0){
+    box.innerHTML = `<div class="no-reviews-note">No reviews yet for this product.</div>`;
+    return;
+  }
+  box.innerHTML = list.map(r=>`
+    <div class="review-item">
+      <div class="rhead">
+        <span class="stars-static" style="font-size:13px;">${starsMarkup(Number(r.rating))}</span>
+        <span class="rname">${escapeHtml(r.customer_name || 'Anonymous')}</span>
+        <span class="rdate">${formatReviewDate(r.created_at)}</span>
+      </div>
+      ${r.review_text ? `<p>${escapeHtml(r.review_text)}</p>` : ''}
+    </div>
+  `).join('');
+}
+let QV_STAR = 0;
+function setQvStar(n){
+  QV_STAR = n;
+  document.querySelectorAll('#qv-star-picker span').forEach(el=>{
+    el.classList.toggle('active', Number(el.dataset.star) <= n);
+  });
+}
+async function submitReview(){
+  const msgEl = document.getElementById('qv-review-msg');
+  msgEl.style.display = 'none';
+  if(!QV_PRODUCT_ID) return;
+  if(QV_STAR < 1){
+    msgEl.textContent = 'Please select a star rating.';
+    msgEl.className = 'review-submit-msg err'; msgEl.style.display = 'block';
+    return;
+  }
+  const name = document.getElementById('qv-review-name').value.trim();
+  const text = document.getElementById('qv-review-text').value.trim();
+  if(!name){
+    msgEl.textContent = 'Please enter your name.';
+    msgEl.className = 'review-submit-msg err'; msgEl.style.display = 'block';
+    return;
+  }
+  const payload = { product_id: QV_PRODUCT_ID, customer_name: name, rating: QV_STAR, review_text: text };
+  const { data, error } = await sb.from('reviews').insert(payload).select();
+  if(error){
+    msgEl.textContent = 'Error: ' + error.message;
+    msgEl.className = 'review-submit-msg err'; msgEl.style.display = 'block';
+    return;
+  }
+  if(data && data[0]) REVIEWS.unshift(data[0]);
+  document.getElementById('qv-review-name').value = '';
+  document.getElementById('qv-review-text').value = '';
+  setQvStar(0);
+  msgEl.textContent = 'Thanks! Your review has been posted.';
+  msgEl.className = 'review-submit-msg ok'; msgEl.style.display = 'block';
+  renderQvExistingReviews(QV_PRODUCT_ID);
+  const summaryEl = document.querySelector('.qv-rating');
+  if(summaryEl) summaryEl.outerHTML = renderRatingSummary(QV_PRODUCT_ID, true);
+  applyFilters();
+  renderGlobalReviews();
+}
+function renderGlobalReviews(){
+  const track = document.getElementById('reviews-track');
+  if(!track) return;
+  if(REVIEWS.length===0){
+    track.innerHTML = `<div class="prod-empty">No customer reviews yet — be the first to leave one on any product!</div>`;
+    return;
+  }
+  const latest = REVIEWS.slice(0,9);
+  track.innerHTML = latest.map(r=>{
+    const product = PRODUCTS.find(p=>p.id===r.product_id);
+    return `
+    <div class="review-card">
+      <div class="rc-top">
+        <span class="stars-static">${starsMarkup(Number(r.rating))}</span>
+        ${product ? `<span class="rc-product">${escapeHtml(product.name)}</span>` : ''}
+      </div>
+      ${r.review_text ? `<p>"${escapeHtml(r.review_text)}"</p>` : `<p style="font-style:italic;">No written comment.</p>`}
+      <div class="who">— ${escapeHtml(r.customer_name || 'Verified Buyer')}</div>
+    </div>`;
+  }).join('');
 }
 
 /* ---------- load products ---------- */
@@ -981,6 +1161,7 @@ function renderProducts(list){
         <div class="cat-tag">${escapeHtml(p.category)}</div>
         <h4>${escapeHtml(p.name)}</h4>
         ${p.brand ? `<span class="brand-tag">${escapeHtml(p.brand)}</span>` : ''}
+        ${renderRatingSummary(p.id)}
         <div class="price-row">
           <div class="price-wrap">
             <span class="price">₹${price.toLocaleString('en-IN')} ${p.unit ? `<small>/ ${escapeHtml(p.unit)}</small>` : ''}</span>
@@ -1142,7 +1323,33 @@ function openQuickView(id){
     </div>
     <div class="qv-stock"><span class="dot"></span>In stock</div>
     ${descHtml ? `<div class="qv-desc">${descHtml}</div>` : ''}
+    <div class="qv-review-block">
+      <h4>Ratings &amp; Reviews</h4>
+      ${renderRatingSummary(p.id, true)}
+      <div class="existing-reviews" id="qv-existing-reviews"></div>
+      <div style="margin-top:22px;">
+        <div class="review-form-field">
+          <label>Your Rating</label>
+          <div class="star-picker" id="qv-star-picker">
+            ${[1,2,3,4,5].map(n=>`<span data-star="${n}" onclick="setQvStar(${n})">★</span>`).join('')}
+          </div>
+        </div>
+        <div class="review-form-field">
+          <label for="qv-review-name">Your Name</label>
+          <input type="text" id="qv-review-name" placeholder="e.g. Rahul S.">
+        </div>
+        <div class="review-form-field">
+          <label for="qv-review-text">Your Review</label>
+          <textarea id="qv-review-text" rows="3" placeholder="How was the product — quality, delivery, packaging?"></textarea>
+        </div>
+        <button class="btn btn-ghost" style="margin-top:14px;width:100%;justify-content:center;" onclick="submitReview()">Submit Review</button>
+        <div class="review-submit-msg" id="qv-review-msg"></div>
+      </div>
+    </div>
   `;
+  QV_STAR = 0;
+  renderQvExistingReviews(id);
+  document.getElementById('qv-review-msg').style.display='none';
   document.getElementById('quickview-overlay').classList.add('active');
 }
 function closeQuickView(){ document.getElementById('quickview-overlay').classList.remove('active'); }
@@ -1222,7 +1429,12 @@ document.querySelectorAll('.drawer-overlay').forEach(ov=>{
   ov.addEventListener('click', e=>{ if(e.target===ov) ov.classList.remove('active'); });
 });
 
-loadProducts();
+async function initApp(){
+  await Promise.all([loadProducts(), loadReviews()]);
+  if(PRODUCTS.length) applyFilters();
+  renderGlobalReviews();
+}
+initApp();
 </script>
 
 </body>
