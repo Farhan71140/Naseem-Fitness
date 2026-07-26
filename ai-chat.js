@@ -73,7 +73,8 @@ Categories: Whey protein, creatine, pre-workouts, multivitamins, and general gym
         const price = p.price ? `₹${Number(p.price).toLocaleString('en-IN')}` : 'price on request';
         const brand = p.brand ? `${p.brand} ` : '';
         const cat = p.category ? ` | ${p.category}` : '';
-        return `- ${brand}${p.name} | ${price}${cat}`;
+        const stockStatus = (p.stock === undefined || p.stock === null) ? '' : (Number(p.stock) > 0 ? ` | In Stock (${Number(p.stock)} left)` : ' | OUT OF STOCK');
+        return `- ${brand}${p.name} | ${price}${cat}${stockStatus}`;
       }).join('\n');
     } catch (e) {
       return 'Live product catalog unavailable right now — direct the customer to the Shop section or WhatsApp.';
@@ -96,7 +97,8 @@ ${getProductCatalog()}
 Guidelines:
 - Be warm, helpful, and concise. Use simple language.
 - When recommending a product, mention its name and price if you have it.
-- If a customer asks about their goal (bulking, cutting, general fitness), ask 1 clarifying question if needed, then recommend accordingly.
+- If a customer asks whether a specific product (by name or brand, e.g. "Mars Whey Protein") is available: check the "Current product catalog" list above. If it's marked OUT OF STOCK, tell them it's currently out of stock and offer to check on WhatsApp or suggest a similar in-stock alternative from the catalog. If it doesn't appear in the catalog at all, tell them it's not currently listed. Otherwise confirm it's in stock and give its price.
+- If a customer asks their goal (bulking, cutting, general fitness), ask 1 clarifying question if needed, then recommend accordingly.
 - Always mention that stock is 100% genuine and batch-verified when relevant.
 - Keep responses short — max 4-5 lines. Use bullet points when listing products.
 - Do NOT answer questions unrelated to supplements, fitness, or the shop.
