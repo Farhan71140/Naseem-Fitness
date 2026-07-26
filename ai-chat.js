@@ -369,7 +369,7 @@ Guidelines:
         border-radius: 50%;
       }
       #nf-chat-toggle .toggle-label { display: none; }
-      #nf-chat-toggle .toggle-icon { width: 32px; height: 32px; }
+      #nf-chat-toggle .toggle-icon { width: clamp(32px, 9vw, 38px); height: clamp(32px, 9vw, 38px); }
       .nf-chat-header { padding: 12px 14px; }
       .nf-chat-avatar { width: 36px; height: 36px; }
       .nf-chat-header-info strong { font-size: 13.5px; }
