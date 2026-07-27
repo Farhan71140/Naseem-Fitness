@@ -160,6 +160,14 @@
   .icon-btn:hover{color:var(--teal);border-color:var(--teal);}
   .icon-btn.danger:hover{color:var(--bad);border-color:var(--bad);}
   .icon-btn svg{width:14px;height:14px;}
+  .delivery-cell{display:flex;flex-direction:column;gap:6px;min-width:150px;}
+  .delivery-select{width:100%;padding:5px 8px;font-size:11px;border-radius:6px;background:var(--iron);border:1px solid var(--line);color:var(--paper);}
+  .delivery-select.unassigned{color:var(--paper-dim);}
+  .delivery-select.assigned{border-color:var(--teal);color:var(--teal);}
+  .delivery-track-row{display:flex;gap:6px;align-items:center;}
+  .delivery-track-row .mono{font-size:10px;color:var(--paper-dim);flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+  .delivery-mini-btn{background:transparent;border:1px solid var(--line);color:var(--paper-dim);border-radius:6px;padding:3px 6px;font-size:10px;cursor:pointer;white-space:nowrap;}
+  .delivery-mini-btn:hover{border-color:var(--teal);color:var(--teal);}
 
   .status-pill{
     display:inline-flex;align-items:center;gap:6px;padding:5px 11px;border-radius:20px;
@@ -395,7 +403,7 @@
           <table>
             <thead>
               <tr>
-                <th>Order</th><th>Customer</th><th>Phone</th><th>Items</th><th>Amount</th><th>Date</th><th>Status</th><th></th>
+                <th>Order</th><th>Customer</th><th>Phone</th><th>Items</th><th>Amount</th><th>Date</th><th>Status</th><th>Delivery</th><th></th>
               </tr>
             </thead>
             <tbody id="orders-tbody"></tbody>
@@ -493,10 +501,6 @@
           <label for="product-compare-price">MRP / Original Price (optional)</label>
           <input type="number" id="product-compare-price" placeholder="e.g. 1399" min="0">
         </div>
-      </div>
-      <div class="field">
-        <label for="product-stock">Stock Available (units)</label>
-        <input type="number" id="product-stock" placeholder="e.g. 25" min="0" step="1">
       </div>
       <div class="field">
         <label for="product-image-file">Product Photo</label>
@@ -726,9 +730,6 @@ async function renderProducts(){
           <strong>₹${Number(p.price).toLocaleString('en-IN')}</strong> ${p.unit ? '/ '+escapeHtml(p.unit) : ''}
           ${p.compare_price && Number(p.compare_price) > Number(p.price) ? ` <span style="text-decoration:line-through;opacity:0.6;">₹${Number(p.compare_price).toLocaleString('en-IN')}</span>` : ''}
         </div>
-        <div style="font-family:'Space Mono',monospace;font-size:11px;letter-spacing:0.5px;margin-bottom:12px;color:${(p.stock===undefined||p.stock===null) ? 'var(--paper-dim)' : (Number(p.stock)>0 ? '#4ADE80' : '#FF6B6B')};">
-          ${(p.stock===undefined||p.stock===null) ? '● Stock not set (edit to add)' : (Number(p.stock) > 0 ? `● In Stock — ${Number(p.stock)} unit${Number(p.stock)===1?'':'s'}` : '● Out of Stock')}
-        </div>
         <div class="prod-admin-actions">
           <button class="icon-btn" title="Edit" onclick="editProduct('${p.id}')">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 20h9M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
@@ -768,6 +769,23 @@ async function renderOrders(){
           <option value="completed" ${o.status==='completed'?'selected':''}>Completed</option>
           <option value="cancelled" ${o.status==='cancelled'?'selected':''}>Cancelled</option>
         </select>
+      </td>
+      <td>
+        <div class="delivery-cell">
+          <select class="delivery-select ${o.delivery_partner ? 'assigned' : 'unassigned'}" onchange="updateDeliveryPartner('${o.id}', this.value)">
+            <option value="" ${!o.delivery_partner?'selected':''}>Not assigned</option>
+            <option value="Self Delivery" ${o.delivery_partner==='Self Delivery'?'selected':''}>Self Delivery</option>
+            <option value="Shiprocket Quick" ${o.delivery_partner==='Shiprocket Quick'?'selected':''}>Shiprocket Quick</option>
+            <option value="Borzo" ${o.delivery_partner==='Borzo'?'selected':''}>Borzo</option>
+          </select>
+          ${o.delivery_partner ? `
+            <div class="delivery-track-row">
+              <span class="mono" title="${escapeHtml(o.tracking_id || 'No tracking ID yet')}">${o.tracking_id ? escapeHtml(o.tracking_id) : 'No tracking ID'}</span>
+              <button class="delivery-mini-btn" onclick="editTrackingId('${o.id}', ${JSON.stringify(o.tracking_id || '').replace(/"/g,'&quot;')})">${o.tracking_id ? 'Edit' : '+ Add'}</button>
+            </div>
+            ${o.tracking_id && o.phone ? `<button class="delivery-mini-btn" onclick="notifyDeliveryWhatsApp('${o.id}')">📩 Notify customer</button>` : ''}
+          ` : ''}
+        </div>
       </td>
       <td>
         <div class="row-actions">
@@ -846,7 +864,6 @@ async function openProductModal(){
   document.getElementById('product-unit').value = '';
   document.getElementById('product-price').value = '';
   document.getElementById('product-compare-price').value = '';
-  document.getElementById('product-stock').value = '';
   document.getElementById('product-image').value = '';
   document.getElementById('product-image-file').value = '';
   document.getElementById('upload-status').textContent = '';
@@ -866,7 +883,6 @@ async function editProduct(id){
   document.getElementById('product-unit').value = p.unit || '';
   document.getElementById('product-price').value = p.price;
   document.getElementById('product-compare-price').value = p.compare_price || '';
-  document.getElementById('product-stock').value = (p.stock === undefined || p.stock === null) ? '' : p.stock;
   document.getElementById('product-image').value = p.image_url || '';
   document.getElementById('product-image-file').value = '';
   document.getElementById('upload-status').textContent = '';
@@ -880,7 +896,6 @@ async function saveProduct(){
   if(!name || price===''){ showToast('Name and price are required'); return; }
   const id = document.getElementById('product-id').value;
   const comparePrice = document.getElementById('product-compare-price').value;
-  const stock = document.getElementById('product-stock').value;
   const payload = {
     name,
     brand: document.getElementById('product-brand').value.trim(),
@@ -888,7 +903,6 @@ async function saveProduct(){
     unit: document.getElementById('product-unit').value.trim(),
     price: Number(price),
     compare_price: comparePrice === '' ? null : Number(comparePrice),
-    stock: stock === '' ? 0 : Number(stock),
     image_url: document.getElementById('product-image').value.trim(),
     description: document.getElementById('product-desc').value.trim()
   };
@@ -949,6 +963,32 @@ async function updateOrderStatus(id, status){
   renderOverview();
   showToast('Order status updated');
 }
+
+/* ---------- delivery assignment ---------- */
+async function updateDeliveryPartner(id, partner){
+  const payload = partner ? { delivery_partner: partner } : { delivery_partner: null, tracking_id: null };
+  const { error } = await sb.from('orders').update(payload).eq('id', id);
+  if(error){ showToast('Error: ' + error.message); return; }
+  renderOrders();
+  showToast(partner ? `Assigned to ${partner}` : 'Delivery partner cleared');
+}
+async function editTrackingId(id, currentValue){
+  const value = prompt('Enter tracking ID / AWB number / tracking link for this order:', currentValue || '');
+  if(value === null) return; // cancelled
+  const { error } = await sb.from('orders').update({ tracking_id: value.trim() || null }).eq('id', id);
+  if(error){ showToast('Error: ' + error.message); return; }
+  renderOrders();
+  showToast('Tracking ID saved');
+}
+async function notifyDeliveryWhatsApp(id){
+  const orders = await getOrders();
+  const o = orders.find(x => x.id === id);
+  if(!o || !o.phone) { showToast('No phone number on this order'); return; }
+  const phoneDigits = o.phone.replace(/\D/g, '');
+  const msg = `Hi ${o.customer_name}, your NF Naseem Fitness order is on its way via ${o.delivery_partner}! Track it here: ${o.tracking_id}`;
+  window.open(`https://wa.me/${phoneDigits}?text=${encodeURIComponent(msg)}`, '_blank');
+}
+
 async function deleteOrder(id){
   if(!confirm('Delete this order? This cannot be undone.')) return;
   const { error } = await sb.from('orders').delete().eq('id', id);
