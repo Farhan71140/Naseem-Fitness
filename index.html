@@ -115,6 +115,19 @@
   .btn-ghost{border-color:var(--line);color:var(--paper);}
   .btn-ghost:hover{border-color:var(--teal);}
   .btn-wa{background:#25D366;color:#06210F;}
+  .wa-float{
+    display:none;position:fixed;right:20px;bottom:20px;z-index:150;
+    width:58px;height:58px;border-radius:50%;background:#25D366;color:#06210F;
+    align-items:center;justify-content:center;box-shadow:0 10px 26px rgba(0,0,0,0.35);
+    transition:transform .15s ease;
+  }
+  .wa-float:hover{transform:translateY(-2px) scale(1.04);}
+  .wa-float svg{width:30px;height:30px;}
+  .wa-float.show{display:flex;}
+  @media (max-width:480px){
+    .wa-float{right:14px;bottom:14px;width:52px;height:52px;}
+    .wa-float svg{width:26px;height:26px;}
+  }
   .nav-search{
     display:flex;align-items:center;gap:8px;
     background:var(--iron);border:1px solid var(--line);border-radius:30px;
@@ -1173,6 +1186,10 @@
   </div>
 </div>
 
+<a href="https://wa.me/917738242258?text=Hi%20NF%20Naseem%20Fitness" target="_blank" rel="noopener" class="wa-float" id="wa-float-btn" aria-label="Chat on WhatsApp">
+  <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12.04 2C6.58 2 2.13 6.45 2.13 11.91c0 1.75.46 3.46 1.32 4.97L2.05 22l5.25-1.38a9.9 9.9 0 0 0 4.74 1.21h.01c5.46 0 9.9-4.45 9.9-9.91C21.96 6.45 17.5 2 12.04 2zm0 18.14h-.01a8.2 8.2 0 0 1-4.19-1.15l-.3-.18-3.12.82.83-3.04-.2-.31a8.2 8.2 0 0 1-1.26-4.37c0-4.54 3.7-8.23 8.25-8.23 2.2 0 4.27.86 5.83 2.42a8.18 8.18 0 0 1 2.41 5.82c0 4.54-3.7 8.23-8.24 8.23zm4.52-6.17c-.25-.12-1.47-.72-1.7-.81-.23-.08-.39-.12-.56.13-.17.24-.64.81-.79.97-.14.17-.29.19-.53.06-.25-.12-1.05-.39-2-1.23-.74-.66-1.24-1.47-1.39-1.72-.14-.24-.02-.38.11-.5.11-.11.25-.29.37-.43.12-.15.16-.25.25-.41.08-.17.04-.31-.02-.44-.06-.12-.56-1.36-.77-1.86-.2-.48-.41-.42-.56-.43-.14-.01-.31-.01-.48-.01-.17 0-.44.06-.67.31-.23.24-.87.85-.87 2.08s.89 2.41 1.02 2.58c.12.17 1.75 2.67 4.24 3.74.59.26 1.05.41 1.41.52.59.19 1.13.16 1.55.1.47-.07 1.47-.6 1.68-1.18.21-.58.21-1.08.14-1.18-.06-.11-.23-.17-.48-.29z"/></svg>
+</a>
+
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
 /* ============================================================
@@ -1420,6 +1437,7 @@ function addToCart(id){
   else CART.push({ id:p.id, name:p.name, price:Number(p.price), unit:p.unit, qty:1 });
   renderCart();
   openCart();
+  if(window.fbq) fbq('track', 'AddToCart', { content_name: p.name, value: Number(p.price), currency: 'INR' });
 }
 function changeQty(id, delta){
   const line = CART.find(x=>x.id===id);
@@ -1563,6 +1581,7 @@ function openQuickView(id){
   renderQvExistingReviews(id);
   document.getElementById('qv-review-msg').style.display='none';
   document.getElementById('quickview-overlay').classList.add('active');
+  if(window.fbq) fbq('track', 'ViewContent', { content_name: p.name, value: Number(p.price), currency: 'INR' });
 }
 function closeQuickView(){ document.getElementById('quickview-overlay').classList.remove('active'); }
 function qvChangeQty(delta){
@@ -1634,6 +1653,7 @@ function openCheckout(){
   document.getElementById('location-status').textContent = '';
   document.getElementById('location-status').className = 'location-status';
   document.getElementById('checkout-overlay').classList.add('active');
+  if(window.fbq) fbq('track', 'InitiateCheckout', { value: cartTotal(), currency: 'INR' });
 }
 function closeCheckout(){ document.getElementById('checkout-overlay').classList.remove('active'); }
 
@@ -1672,6 +1692,7 @@ async function submitOrder(){
     return;
   }
 
+  if(window.fbq) fbq('track', 'Purchase', { value: amount, currency: 'INR' });
   CART = [];
   renderCart();
   document.getElementById('checkout-body').innerHTML = `
@@ -1687,8 +1708,64 @@ document.querySelectorAll('.drawer-overlay').forEach(ov=>{
   ov.addEventListener('click', e=>{ if(e.target===ov) ov.classList.remove('active'); });
 });
 
+/* ---------- store settings (Marketing & SEO) ---------- */
+async function loadStoreSettings(){
+  try{
+    const { data, error } = await sb.from('store_settings').select('*').eq('id', 1).maybeSingle();
+    if(error || !data) return;
+    applyStoreSettings(data);
+  }catch(e){ /* fail silently — storefront still works without settings */ }
+}
+function applyStoreSettings(s){
+  if(s.seo_title){
+    document.title = s.seo_title;
+  }
+  if(s.seo_description){
+    let metaDesc = document.querySelector('meta[name="description"]');
+    if(!metaDesc){
+      metaDesc = document.createElement('meta');
+      metaDesc.setAttribute('name','description');
+      document.head.appendChild(metaDesc);
+    }
+    metaDesc.setAttribute('content', s.seo_description);
+  }
+  if(s.search_console_verification){
+    let verifyTag = document.querySelector('meta[name="google-site-verification"]');
+    if(!verifyTag){
+      verifyTag = document.createElement('meta');
+      verifyTag.setAttribute('name','google-site-verification');
+      document.head.appendChild(verifyTag);
+    }
+    verifyTag.setAttribute('content', s.search_console_verification);
+  }
+  if(s.ga4_id){
+    const gtagScript = document.createElement('script');
+    gtagScript.async = true;
+    gtagScript.src = 'https://www.googletagmanager.com/gtag/js?id=' + encodeURIComponent(s.ga4_id);
+    document.head.appendChild(gtagScript);
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){ dataLayer.push(arguments); }
+    gtag('js', new Date());
+    gtag('config', s.ga4_id);
+    window.gtag = gtag;
+  }
+  if(s.meta_pixel_id){
+    (function(f,b,e,v,n,t,s2){if(f.fbq)return;n=f.fbq=function(){n.callMethod?
+    n.callMethod.apply(n,arguments):n.queue.push(arguments)};if(!f._fbq)f._fbq=n;
+    n.push=n;n.loaded=!0;n.version='2.0';n.queue=[];t=b.createElement(e);t.async=!0;
+    t.src=v;s2=b.getElementsByTagName(e)[0];s2.parentNode.insertBefore(t,s2)})(window,document,'script',
+    'https://connect.facebook.net/en_US/fbevents.js');
+    window.fbq('init', s.meta_pixel_id);
+    window.fbq('track', 'PageView');
+  }
+  const waBtn = document.getElementById('wa-float-btn');
+  if(waBtn && s.whatsapp_button_enabled !== false){
+    waBtn.classList.add('show');
+  }
+}
+
 async function initApp(){
-  await Promise.all([loadProducts(), loadReviews()]);
+  await Promise.all([loadProducts(), loadReviews(), loadStoreSettings()]);
   if(PRODUCTS.length) applyFilters();
   renderGlobalReviews();
 }

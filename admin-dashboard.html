@@ -390,6 +390,10 @@
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M6 2l1.5 4M18 2l-1.5 4M4 6h16l-1.5 12.5a2 2 0 0 1-2 1.5H7.5a2 2 0 0 1-2-1.5L4 6z"/><path d="M9 10v5M15 10v5"/></svg>
         <span>Orders</span>
       </button>
+      <button class="nav-btn" data-page="marketing" onclick="goPage('marketing')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 11l18-5v12L3 13v-2z"/><path d="M7 13v5a2 2 0 0 0 2 2h1v-6"/></svg>
+        <span>Marketing &amp; SEO</span>
+      </button>
       <button class="nav-btn" data-page="settings" onclick="goPage('settings')">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
         <span>Settings</span>
@@ -504,6 +508,80 @@
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M6 2l1.5 4M18 2l-1.5 4M4 6h16l-1.5 12.5a2 2 0 0 1-2 1.5H7.5a2 2 0 0 1-2-1.5L4 6z"/></svg>
           <p>No orders yet. Log your first order to start tracking earnings.</p>
         </div>
+      </div>
+    </section>
+
+    <!-- ============ MARKETING & SEO ============ -->
+    <section class="page" id="page-marketing">
+      <div class="page-head">
+        <div>
+          <span class="eyebrow">Store Profile</span>
+          <h2>Marketing &amp; SEO</h2>
+          <p>Shown on your storefront and used in social-share previews.</p>
+        </div>
+        <a class="btn btn-ghost" href="index.html" target="_blank" rel="noopener">View storefront →</a>
+      </div>
+
+      <div class="panel" style="max-width:760px;">
+        <h3 style="margin-bottom:4px;">Marketing &amp; SEO</h3>
+        <div class="field" style="margin-top:20px;">
+          <label for="mkt-seo-title">Homepage SEO Title (optional)</label>
+          <input type="text" id="mkt-seo-title" maxlength="70" placeholder="e.g. NF Naseem Fitness™ | Genuine Protein, Creatine & Gym Supplements" oninput="updateSeoPreview()">
+          <div style="font-size:12px;color:var(--paper-dim);margin-top:6px;">Shown in Google results and the browser tab. <span id="seo-title-count">0</span>/70</div>
+        </div>
+        <div class="field">
+          <label for="mkt-seo-desc">Homepage SEO Description (optional)</label>
+          <textarea id="mkt-seo-desc" rows="3" maxlength="200" placeholder="e.g. Buy 100% genuine whey protein, creatine, pre-workout, multivitamins and fitness supplements. Fast shipping across India." oninput="updateSeoPreview()"></textarea>
+          <div style="font-size:12px;color:var(--paper-dim);margin-top:6px;">The snippet under your title in Google results. <span id="seo-desc-count">0</span>/200</div>
+        </div>
+
+        <div style="border:1px solid var(--line);border-radius:8px;padding:14px 16px;margin-bottom:20px;background:var(--iron);">
+          <div style="font-size:11px;letter-spacing:1px;text-transform:uppercase;color:var(--paper-dim);font-family:'Space Mono',monospace;margin-bottom:8px;">Google preview</div>
+          <div id="seo-preview-title" style="color:#8ab4f8;font-size:18px;line-height:1.3;margin-bottom:2px;">NF Naseem Fitness</div>
+          <div style="color:#5CD68A;font-size:13px;margin-bottom:6px;" id="seo-preview-url">https://your-store-domain.com</div>
+          <div id="seo-preview-desc" style="color:var(--paper-dim);font-size:13px;line-height:1.5;">Your homepage description will appear here.</div>
+        </div>
+
+        <div class="field">
+          <label for="mkt-pixel">Meta Pixel ID</label>
+          <input type="text" id="mkt-pixel" placeholder="e.g. 6268396625">
+          <div style="font-size:12px;color:var(--paper-dim);margin-top:6px;">From Meta Events Manager → Data sources. Fires PageView, ViewContent, AddToCart, InitiateCheckout &amp; Purchase on your storefront. Leave empty to turn it off.</div>
+        </div>
+        <div class="field">
+          <label for="mkt-ga4">Google Analytics (GA4)</label>
+          <input type="text" id="mkt-ga4" placeholder="e.g. G-XXXXXXXXXX">
+          <div style="font-size:12px;color:var(--paper-dim);margin-top:6px;">GA4 → Admin → Data streams → your web stream → Measurement ID (starts with G-). Tracks page views plus the full ecommerce funnel. Leave empty to turn it off.</div>
+        </div>
+        <div class="field">
+          <label>Sitemap</label>
+          <div style="font-size:12px;color:var(--paper-dim);margin-bottom:8px;">Submit this to Google Search Console so Google discovers your homepage.</div>
+          <div style="display:flex;gap:10px;">
+            <input type="text" id="mkt-sitemap-url" readonly style="flex:1;">
+            <button class="btn btn-ghost" onclick="copySitemapUrl()">Copy</button>
+          </div>
+        </div>
+        <div class="field">
+          <label for="mkt-search-console">Google Search Console Verification</label>
+          <input type="text" id="mkt-search-console" placeholder="e.g. AbCdEfGhIjKlMnOpQrStUvWxYz">
+          <div style="font-size:12px;color:var(--paper-dim);margin-top:6px;">Search Console → Settings → Ownership verification → HTML tag. Paste the token (the content value — or the whole tag, we'll extract it). Leave empty to remove.</div>
+        </div>
+      </div>
+
+      <div class="panel" style="max-width:760px;display:flex;align-items:center;justify-content:space-between;gap:16px;">
+        <div>
+          <h3 style="margin-bottom:4px;">Floating WhatsApp button</h3>
+          <p style="font-size:13px;color:var(--paper-dim);">A floating "Chat with us" button on your storefront that opens WhatsApp to your store number.</p>
+        </div>
+      </div>
+      <div class="panel" style="max-width:760px;">
+        <label style="display:flex;align-items:center;gap:10px;text-transform:none;letter-spacing:0;font-family:'Inter',sans-serif;font-size:14px;color:var(--paper);cursor:pointer;">
+          <input type="checkbox" id="mkt-wa-enabled" style="width:16px;height:16px;accent-color:var(--teal);">
+          Show a floating WhatsApp chat button on my storefront
+        </label>
+      </div>
+
+      <div class="panel" style="max-width:760px;display:flex;justify-content:flex-end;">
+        <button class="btn btn-primary" onclick="saveMarketingSeo()">Save Store</button>
       </div>
     </section>
 
@@ -904,6 +982,7 @@ function renderAll(){
   renderOverview();
   renderProducts();
   renderOrders();
+  renderMarketingSeo();
 }
 
 /* ---------- data access (Supabase) ---------- */
@@ -916,6 +995,62 @@ async function getOrders(){
   const { data, error } = await sb.from('orders').select('*').order('created_at', { ascending:false });
   if(error){ showToast('Error loading orders: ' + error.message); return []; }
   return data;
+}
+
+/* ---------- marketing & seo (store_settings) ---------- */
+async function getStoreSettings(){
+  const { data, error } = await sb.from('store_settings').select('*').eq('id', 1).maybeSingle();
+  if(error){ showToast('Error loading store settings: ' + error.message); return null; }
+  return data;
+}
+async function renderMarketingSeo(){
+  const s = await getStoreSettings();
+  document.getElementById('mkt-sitemap-url').value = location.origin + '/sitemap.xml';
+  if(!s) return;
+  document.getElementById('mkt-seo-title').value = s.seo_title || '';
+  document.getElementById('mkt-seo-desc').value = s.seo_description || '';
+  document.getElementById('mkt-pixel').value = s.meta_pixel_id || '';
+  document.getElementById('mkt-ga4').value = s.ga4_id || '';
+  document.getElementById('mkt-search-console').value = s.search_console_verification || '';
+  document.getElementById('mkt-wa-enabled').checked = s.whatsapp_button_enabled !== false;
+  updateSeoPreview();
+}
+function updateSeoPreview(){
+  const title = document.getElementById('mkt-seo-title').value.trim();
+  const desc = document.getElementById('mkt-seo-desc').value.trim();
+  document.getElementById('seo-title-count').textContent = title.length;
+  document.getElementById('seo-desc-count').textContent = desc.length;
+  document.getElementById('seo-preview-title').textContent = title || document.title;
+  document.getElementById('seo-preview-url').textContent = location.origin.replace(/^https?:\/\//,'https://') || 'https://your-store-domain.com';
+  document.getElementById('seo-preview-desc').textContent = desc || 'Your homepage description will appear here.';
+}
+function extractSearchConsoleToken(raw){
+  const trimmed = (raw || '').trim();
+  const match = trimmed.match(/content=["']([^"']+)["']/i);
+  return match ? match[1] : trimmed;
+}
+function copySitemapUrl(){
+  const val = document.getElementById('mkt-sitemap-url').value;
+  navigator.clipboard.writeText(val).then(() => {
+    showToast('Sitemap URL copied');
+  }).catch(() => {
+    showToast('Could not copy — please select and copy manually');
+  });
+}
+async function saveMarketingSeo(){
+  const payload = {
+    id: 1,
+    seo_title: document.getElementById('mkt-seo-title').value.trim() || null,
+    seo_description: document.getElementById('mkt-seo-desc').value.trim() || null,
+    meta_pixel_id: document.getElementById('mkt-pixel').value.trim() || null,
+    ga4_id: document.getElementById('mkt-ga4').value.trim() || null,
+    search_console_verification: extractSearchConsoleToken(document.getElementById('mkt-search-console').value) || null,
+    whatsapp_button_enabled: document.getElementById('mkt-wa-enabled').checked,
+    updated_at: new Date().toISOString()
+  };
+  const { error } = await sb.from('store_settings').upsert(payload);
+  if(error){ showToast('Error: ' + error.message); return; }
+  showToast('Store saved');
 }
 function formatItems(items){
   if(!items) return '—';
