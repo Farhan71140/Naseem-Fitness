@@ -168,6 +168,9 @@
   .delivery-track-row .mono{font-size:10px;color:var(--paper-dim);flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
   .delivery-mini-btn{background:transparent;border:1px solid var(--line);color:var(--paper-dim);border-radius:6px;padding:3px 6px;font-size:10px;cursor:pointer;white-space:nowrap;}
   .delivery-mini-btn:hover{border-color:var(--teal);color:var(--teal);}
+  .address-cell{display:flex;flex-direction:column;gap:6px;min-width:180px;max-width:220px;}
+  .address-text{font-size:12px;color:var(--paper-dim);line-height:1.4;max-height:54px;overflow-y:auto;}
+  .address-actions{display:flex;gap:6px;}
 
   .status-pill{
     display:inline-flex;align-items:center;gap:6px;padding:5px 11px;border-radius:20px;
@@ -403,7 +406,7 @@
           <table>
             <thead>
               <tr>
-                <th>Order</th><th>Customer</th><th>Phone</th><th>Items</th><th>Amount</th><th>Date</th><th>Status</th><th>Delivery</th><th></th>
+                <th>Order</th><th>Customer</th><th>Phone</th><th>Address</th><th>Items</th><th>Amount</th><th>Date</th><th>Status</th><th>Delivery</th><th></th>
               </tr>
             </thead>
             <tbody id="orders-tbody"></tbody>
@@ -759,6 +762,17 @@ async function renderOrders(){
       <td class="mono" style="color:var(--paper-dim);">#${o.id.slice(0,8)}</td>
       <td>${escapeHtml(o.customer_name)}</td>
       <td class="mono" style="color:var(--paper-dim);">${escapeHtml(o.phone || '—')}</td>
+      <td>
+        <div class="address-cell">
+          <div class="address-text">${o.address ? escapeHtml(o.address) : '—'}</div>
+          ${o.address ? `
+            <div class="address-actions">
+              <button class="delivery-mini-btn" onclick="copyAddress(${JSON.stringify(o.address).replace(/"/g,'&quot;')})">📋 Copy</button>
+              <a class="delivery-mini-btn" style="text-decoration:none;display:inline-block;" href="https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(o.address)}" target="_blank" rel="noopener">🗺️ Map</a>
+            </div>
+          ` : ''}
+        </div>
+      </td>
       <td style="color:var(--paper-dim);max-width:220px;">${escapeHtml(formatItems(o.items))}</td>
       <td class="mono">₹${Number(o.amount).toLocaleString('en-IN')}</td>
       <td class="mono" style="color:var(--paper-dim);">${formatDate(o.created_at)}</td>
@@ -965,6 +979,13 @@ async function updateOrderStatus(id, status){
 }
 
 /* ---------- delivery assignment ---------- */
+function copyAddress(text){
+  navigator.clipboard.writeText(text).then(() => {
+    showToast('Address copied — paste it into Shiprocket/Borzo');
+  }).catch(() => {
+    showToast('Could not copy — please select and copy manually');
+  });
+}
 async function updateDeliveryPartner(id, partner){
   const payload = partner ? { delivery_partner: partner } : { delivery_partner: null, tracking_id: null };
   const { error } = await sb.from('orders').update(payload).eq('id', id);
