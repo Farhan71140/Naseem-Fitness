@@ -485,7 +485,7 @@
         </div>
       </div>
       <div class="settings-grid">
-        <div class="panel">
+        <div class="panel" style="max-width:480px;">
           <h3 style="margin-bottom:16px;">Change Password</h3>
           <p style="font-size:13px;color:var(--paper-dim);margin-bottom:16px;">Updates the password for your currently signed-in admin account.</p>
           <div class="field">
@@ -498,19 +498,6 @@
           </div>
           <button class="btn btn-primary" onclick="changePassword()">Update Password</button>
         </div>
-        <div class="panel">
-          <h3 style="margin-bottom:16px;">Export Backup</h3>
-          <p style="font-size:13px;color:var(--paper-dim);margin-bottom:16px;">Your real data lives in Supabase, so this is just a convenience snapshot — download the current products and orders as a JSON file.</p>
-          <button class="btn btn-ghost btn-sm" onclick="exportData()">Export Backup (.json)</button>
-        </div>
-      </div>
-      <div class="panel" style="border-color:rgba(255,210,74,0.35);">
-        <h3 style="margin-bottom:10px;font-size:15px;">How this dashboard works</h3>
-        <p style="font-size:13px;color:var(--paper-dim);line-height:1.7;">
-          Products and orders are stored in your Supabase database, not in this browser — so changes here show up instantly on your live website, and orders customers place on the site show up instantly here.<br><br>
-          Admin accounts are managed in Supabase (Authentication → Users), not in this app, so there's no self-signup — only people you've explicitly added can log in.<br><br>
-          To add another admin, or reset someone's password, go to your Supabase project dashboard directly.
-        </p>
       </div>
     </section>
 
@@ -1100,18 +1087,6 @@ async function changePassword(){
   document.getElementById('confirm-pass').value='';
   showToast('Password updated');
 }
-async function exportData(){
-  const [products, orders] = await Promise.all([getProducts(), getOrders()]);
-  const backup = { products, orders, exportedAt: new Date().toISOString() };
-  const blob = new Blob([JSON.stringify(backup, null, 2)], {type:'application/json'});
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement('a');
-  a.href = url; a.download = 'nf-admin-backup-'+new Date().toISOString().slice(0,10)+'.json';
-  a.click();
-  URL.revokeObjectURL(url);
-  showToast('Backup downloaded');
-}
-
 /* ---------- utils ---------- */
 function closeModal(id){ document.getElementById(id).classList.remove('active'); }
 document.querySelectorAll('.modal-overlay').forEach(ov=>{
