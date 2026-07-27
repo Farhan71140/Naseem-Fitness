@@ -66,43 +66,58 @@
   #login-screen{
     min-height:100vh;display:flex;align-items:center;justify-content:center;
     position:relative;overflow:hidden;
-    background:var(--ink-black);
+    background:radial-gradient(ellipse 1400px 900px at 50% 0%, #1a140a 0%, var(--ink-black) 55%);
     padding:24px;
   }
   #login-screen::before{
     content:'';position:absolute;inset:0;pointer-events:none;
     background:
-      radial-gradient(ellipse 900px 560px at 18% -8%, rgba(255,210,74,0.16), transparent 60%),
-      radial-gradient(ellipse 700px 500px at 100% 110%, rgba(255,210,74,0.10), transparent 55%);
+      radial-gradient(ellipse 900px 560px at 12% -10%, rgba(255,210,74,0.22), transparent 60%),
+      radial-gradient(ellipse 800px 600px at 105% 105%, rgba(255,210,74,0.14), transparent 55%),
+      radial-gradient(ellipse 500px 400px at 90% -5%, rgba(255,226,122,0.10), transparent 60%);
   }
   #login-screen::after{
-    content:'';position:absolute;inset:0;pointer-events:none;opacity:0.5;
-    background-image:radial-gradient(rgba(255,210,74,0.10) 1px, transparent 1px);
+    content:'';position:absolute;inset:0;pointer-events:none;opacity:0.55;
+    background-image:radial-gradient(rgba(255,210,74,0.12) 1px, transparent 1px);
     background-size:26px 26px;
-    -webkit-mask-image:radial-gradient(ellipse 700px 500px at 50% 20%, black, transparent 70%);
-            mask-image:radial-gradient(ellipse 700px 500px at 50% 20%, black, transparent 70%);
+    -webkit-mask-image:radial-gradient(ellipse 800px 560px at 50% 25%, black, transparent 70%);
+            mask-image:radial-gradient(ellipse 800px 560px at 50% 25%, black, transparent 70%);
   }
+  .login-orb{position:absolute;border-radius:50%;pointer-events:none;filter:blur(2px);animation:orbFloat 9s ease-in-out infinite;}
+  .login-orb.o1{width:5px;height:5px;background:var(--teal);top:22%;left:16%;box-shadow:0 0 14px 3px rgba(255,210,74,0.7);animation-delay:0s;}
+  .login-orb.o2{width:3px;height:3px;background:var(--amber);top:70%;left:82%;box-shadow:0 0 10px 2px rgba(255,226,122,0.6);animation-delay:2.2s;}
+  .login-orb.o3{width:4px;height:4px;background:var(--gold-light);top:78%;left:20%;box-shadow:0 0 12px 2px rgba(255,242,181,0.55);animation-delay:4.1s;}
+  .login-orb.o4{width:3px;height:3px;background:var(--teal);top:14%;left:80%;box-shadow:0 0 10px 2px rgba(255,210,74,0.6);animation-delay:1.3s;}
+  @keyframes orbFloat{0%,100%{transform:translateY(0);opacity:0.7;}50%{transform:translateY(-16px);opacity:1;}}
   @keyframes loginRise{from{opacity:0;transform:translateY(14px);}to{opacity:1;transform:translateY(0);}}
+  @keyframes borderGlow{0%,100%{opacity:0.6;}50%{opacity:1;}}
+  .login-box-wrap{position:relative;z-index:1;width:100%;max-width:410px;animation:loginRise .6s cubic-bezier(.2,.8,.2,1);}
+  .login-box-wrap::before{
+    content:'';position:absolute;inset:-1px;border-radius:19px;z-index:0;
+    background:linear-gradient(150deg, rgba(255,210,74,0.55), rgba(255,210,74,0.03) 35%, rgba(255,210,74,0.03) 65%, rgba(255,226,122,0.4));
+    animation:borderGlow 4s ease-in-out infinite;
+  }
   .login-box{
     position:relative;z-index:1;
-    width:100%;max-width:400px;
-    background:linear-gradient(160deg, rgba(36,29,19,0.9) 0%, rgba(23,19,13,0.95) 130%);
-    backdrop-filter:blur(6px);
-    border:1px solid var(--line);
-    border-radius:18px;padding:40px 34px 32px;
-    box-shadow:0 40px 100px rgba(0,0,0,0.55), 0 0 0 1px rgba(255,210,74,0.04), 0 0 60px rgba(255,210,74,0.05);
-    animation:loginRise .5s cubic-bezier(.2,.8,.2,1);
+    background:linear-gradient(165deg, rgba(38,31,20,0.92) 0%, rgba(20,16,10,0.97) 130%);
+    backdrop-filter:blur(10px);
+    border:1px solid rgba(255,210,74,0.14);
+    border-radius:18px;padding:42px 36px 34px;
+    box-shadow:0 50px 120px rgba(0,0,0,0.6), 0 0 0 1px rgba(255,210,74,0.03), 0 0 80px rgba(255,210,74,0.06), inset 0 1px 0 rgba(255,255,255,0.04);
   }
   .login-mark{
-    width:52px;height:52px;border-radius:14px;
-    background:linear-gradient(135deg,var(--teal),var(--amber));
+    width:54px;height:54px;border-radius:15px;
+    background:linear-gradient(135deg,var(--amber),var(--teal) 55%,#E6A700);
     display:flex;align-items:center;justify-content:center;
     font-family:'Anton',sans-serif;color:var(--ink-black);font-size:22px;
-    margin-bottom:20px;box-shadow:0 10px 24px rgba(255,210,74,0.25);
+    margin-bottom:22px;
+    box-shadow:0 14px 30px rgba(255,210,74,0.32), 0 0 0 1px rgba(255,255,255,0.15) inset, 0 -6px 14px rgba(0,0,0,0.15) inset;
+    position:relative;
   }
-  .login-eyebrow{font-family:'Space Mono',monospace;font-size:11px;letter-spacing:2.5px;color:var(--teal);text-transform:uppercase;margin-bottom:8px;}
-  .login-box h1{font-size:30px;margin-bottom:8px;letter-spacing:0.3px;}
-  .login-box p.sub{color:var(--paper-dim);font-size:13.5px;margin-bottom:28px;line-height:1.55;}
+  .login-eyebrow{font-family:'Space Mono',monospace;font-size:11px;letter-spacing:3px;color:var(--teal);text-transform:uppercase;margin-bottom:10px;display:flex;align-items:center;gap:8px;}
+  .login-eyebrow::before{content:'';width:16px;height:1px;background:linear-gradient(90deg,var(--teal),transparent);}
+  .login-box h1{font-size:32px;margin-bottom:10px;letter-spacing:0.3px;background:linear-gradient(135deg,var(--paper) 40%,var(--amber));-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;}
+  .login-box p.sub{color:var(--paper-dim);font-size:13.5px;margin-bottom:30px;line-height:1.6;}
   .login-error{
     background:rgba(255,107,107,0.1);border:1px solid rgba(255,107,107,0.3);color:var(--bad);
     font-size:13px;padding:10px 12px;border-radius:8px;margin-bottom:16px;display:none;
@@ -112,9 +127,12 @@
   .login-field-wrap{position:relative;}
   .login-field-wrap svg.field-icon{
     position:absolute;left:13px;top:50%;transform:translateY(-50%);
-    width:16px;height:16px;color:var(--paper-dim);pointer-events:none;
+    width:16px;height:16px;color:var(--paper-dim);pointer-events:none;transition:color .2s ease;
   }
-  .login-field-wrap input{padding-left:38px;}
+  .login-field-wrap input{padding-left:38px;transition:border-color .2s ease, box-shadow .2s ease;}
+  .login-field-wrap input:focus{box-shadow:0 0 0 3px rgba(255,210,74,0.12);}
+  .login-field-wrap input:focus + svg.field-icon,
+  .login-field-wrap:focus-within svg.field-icon{color:var(--teal);}
   .login-field-wrap input#login-pass{padding-right:42px;}
   .pass-toggle{
     position:absolute;right:10px;top:50%;transform:translateY(-50%);
@@ -123,11 +141,18 @@
   }
   .pass-toggle svg{width:17px;height:17px;}
   .pass-toggle:hover{color:var(--teal);}
-  #login-btn{font-size:14px;padding:13px 18px;margin-top:4px;box-shadow:0 12px 28px rgba(255,210,74,0.18);}
+  #login-btn{
+    font-size:14px;padding:14px 18px;margin-top:6px;font-weight:800;letter-spacing:0.3px;
+    background:linear-gradient(135deg,var(--amber),var(--teal) 60%,#E6A700);
+    box-shadow:0 16px 34px rgba(255,210,74,0.24), inset 0 1px 0 rgba(255,255,255,0.25);
+    position:relative;overflow:hidden;
+  }
+  #login-btn:hover{background:linear-gradient(135deg,var(--gold-light),var(--amber) 60%,var(--teal));box-shadow:0 18px 40px rgba(255,210,74,0.34), inset 0 1px 0 rgba(255,255,255,0.3);}
+  .login-foot{margin-top:24px;text-align:center;font-family:'Space Mono',monospace;font-size:10.5px;letter-spacing:1.5px;color:var(--paper-dim);opacity:0.55;text-transform:uppercase;}
   @media (max-width:420px){
-    .login-box{padding:30px 22px 26px;border-radius:14px;}
-    .login-box h1{font-size:25px;}
-    .login-mark{width:44px;height:44px;font-size:18px;margin-bottom:16px;}
+    .login-box{padding:32px 24px 28px;border-radius:14px;}
+    .login-box h1{font-size:26px;}
+    .login-mark{width:46px;height:46px;font-size:18px;margin-bottom:18px;}
   }
 
   /* ===== APP SHELL ===== */
@@ -304,6 +329,11 @@
 
 <!-- ================= LOGIN ================= -->
 <div id="login-screen">
+  <span class="login-orb o1"></span>
+  <span class="login-orb o2"></span>
+  <span class="login-orb o3"></span>
+  <span class="login-orb o4"></span>
+  <div class="login-box-wrap">
   <div class="login-box">
     <div class="login-mark">NF</div>
     <div class="login-eyebrow">Admin Access</div>
@@ -332,6 +362,8 @@
       </div>
     </div>
     <button class="btn btn-primary" id="login-btn" style="width:100%;" onclick="attemptLogin()">Sign In →</button>
+    <div class="login-foot">Naseem Fitness · Control Room</div>
+  </div>
   </div>
 </div>
 
