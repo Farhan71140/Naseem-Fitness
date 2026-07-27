@@ -65,25 +65,70 @@
   /* ===== LOGIN ===== */
   #login-screen{
     min-height:100vh;display:flex;align-items:center;justify-content:center;
-    background:
-      radial-gradient(ellipse 800px 500px at 50% -10%, rgba(255,210,74,0.14), transparent 60%),
-      var(--ink-black);
+    position:relative;overflow:hidden;
+    background:var(--ink-black);
     padding:24px;
   }
-  .login-box{
-    width:100%;max-width:380px;background:var(--steel);border:1px solid var(--line);
-    border-radius:14px;padding:38px 32px;box-shadow:0 30px 80px rgba(0,0,0,0.5);
+  #login-screen::before{
+    content:'';position:absolute;inset:0;pointer-events:none;
+    background:
+      radial-gradient(ellipse 900px 560px at 18% -8%, rgba(255,210,74,0.16), transparent 60%),
+      radial-gradient(ellipse 700px 500px at 100% 110%, rgba(255,210,74,0.10), transparent 55%);
   }
-  .login-box .lockup{display:flex;align-items:center;gap:10px;margin-bottom:8px;}
-  .login-box .lockup .dot{width:8px;height:8px;border-radius:50%;background:var(--teal);}
-  .login-eyebrow{font-family:'Space Mono',monospace;font-size:11px;letter-spacing:2px;color:var(--teal);text-transform:uppercase;margin-bottom:6px;}
-  .login-box h1{font-size:26px;margin-bottom:6px;}
-  .login-box p.sub{color:var(--paper-dim);font-size:13px;margin-bottom:26px;}
+  #login-screen::after{
+    content:'';position:absolute;inset:0;pointer-events:none;opacity:0.5;
+    background-image:radial-gradient(rgba(255,210,74,0.10) 1px, transparent 1px);
+    background-size:26px 26px;
+    -webkit-mask-image:radial-gradient(ellipse 700px 500px at 50% 20%, black, transparent 70%);
+            mask-image:radial-gradient(ellipse 700px 500px at 50% 20%, black, transparent 70%);
+  }
+  @keyframes loginRise{from{opacity:0;transform:translateY(14px);}to{opacity:1;transform:translateY(0);}}
+  .login-box{
+    position:relative;z-index:1;
+    width:100%;max-width:400px;
+    background:linear-gradient(160deg, rgba(36,29,19,0.9) 0%, rgba(23,19,13,0.95) 130%);
+    backdrop-filter:blur(6px);
+    border:1px solid var(--line);
+    border-radius:18px;padding:40px 34px 32px;
+    box-shadow:0 40px 100px rgba(0,0,0,0.55), 0 0 0 1px rgba(255,210,74,0.04), 0 0 60px rgba(255,210,74,0.05);
+    animation:loginRise .5s cubic-bezier(.2,.8,.2,1);
+  }
+  .login-mark{
+    width:52px;height:52px;border-radius:14px;
+    background:linear-gradient(135deg,var(--teal),var(--amber));
+    display:flex;align-items:center;justify-content:center;
+    font-family:'Anton',sans-serif;color:var(--ink-black);font-size:22px;
+    margin-bottom:20px;box-shadow:0 10px 24px rgba(255,210,74,0.25);
+  }
+  .login-eyebrow{font-family:'Space Mono',monospace;font-size:11px;letter-spacing:2.5px;color:var(--teal);text-transform:uppercase;margin-bottom:8px;}
+  .login-box h1{font-size:30px;margin-bottom:8px;letter-spacing:0.3px;}
+  .login-box p.sub{color:var(--paper-dim);font-size:13.5px;margin-bottom:28px;line-height:1.55;}
   .login-error{
     background:rgba(255,107,107,0.1);border:1px solid rgba(255,107,107,0.3);color:var(--bad);
-    font-size:13px;padding:10px 12px;border-radius:6px;margin-bottom:16px;display:none;
+    font-size:13px;padding:10px 12px;border-radius:8px;margin-bottom:16px;display:none;
+    align-items:center;gap:8px;
   }
-  .login-hint{margin-top:18px;font-size:11.5px;color:var(--paper-dim);font-family:'Space Mono',monospace;line-height:1.6;}
+  .login-error svg{width:15px;height:15px;flex-shrink:0;}
+  .login-field-wrap{position:relative;}
+  .login-field-wrap svg.field-icon{
+    position:absolute;left:13px;top:50%;transform:translateY(-50%);
+    width:16px;height:16px;color:var(--paper-dim);pointer-events:none;
+  }
+  .login-field-wrap input{padding-left:38px;}
+  .login-field-wrap input#login-pass{padding-right:42px;}
+  .pass-toggle{
+    position:absolute;right:10px;top:50%;transform:translateY(-50%);
+    background:transparent;border:none;color:var(--paper-dim);cursor:pointer;
+    padding:4px;display:flex;align-items:center;justify-content:center;
+  }
+  .pass-toggle svg{width:17px;height:17px;}
+  .pass-toggle:hover{color:var(--teal);}
+  #login-btn{font-size:14px;padding:13px 18px;margin-top:4px;box-shadow:0 12px 28px rgba(255,210,74,0.18);}
+  @media (max-width:420px){
+    .login-box{padding:30px 22px 26px;border-radius:14px;}
+    .login-box h1{font-size:25px;}
+    .login-mark{width:44px;height:44px;font-size:18px;margin-bottom:16px;}
+  }
 
   /* ===== APP SHELL ===== */
   #app{display:none;min-height:100vh;grid-template-columns:var(--sidebar-w) 1fr;}
@@ -260,22 +305,33 @@
 <!-- ================= LOGIN ================= -->
 <div id="login-screen">
   <div class="login-box">
+    <div class="login-mark">NF</div>
     <div class="login-eyebrow">Admin Access</div>
     <h1>NF Control<br>Room</h1>
     <p class="sub">Sign in to manage products, orders and earnings for NF Naseem Fitness.</p>
-    <div class="login-error" id="login-error">Incorrect email or password.</div>
+    <div class="login-error" id="login-error">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+      <span id="login-error-text">Incorrect email or password.</span>
+    </div>
     <div class="field">
       <label for="login-email">Email</label>
-      <input type="email" id="login-email" placeholder="you@nfsupplementstore.com" autocomplete="username">
+      <div class="login-field-wrap">
+        <svg class="field-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg>
+        <input type="email" id="login-email" placeholder="you@nfsupplementstore.com" autocomplete="username">
+      </div>
     </div>
     <div class="field">
       <label for="login-pass">Password</label>
-      <input type="password" id="login-pass" placeholder="Enter admin password" autocomplete="current-password">
+      <div class="login-field-wrap">
+        <svg class="field-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+        <input type="password" id="login-pass" placeholder="Enter admin password" autocomplete="current-password">
+        <button type="button" class="pass-toggle" id="pass-toggle-btn" onclick="togglePasswordVisibility()" aria-label="Show password">
+          <svg id="eye-open" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+          <svg id="eye-closed" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" style="display:none;"><path d="M17.94 17.94A10.94 10.94 0 0 1 12 20c-7 0-11-8-11-8a20.3 20.3 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a20.3 20.3 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/></svg>
+        </button>
+      </div>
     </div>
     <button class="btn btn-primary" id="login-btn" style="width:100%;" onclick="attemptLogin()">Sign In →</button>
-    <div class="login-hint">
-      Admin accounts are created in your Supabase project (Authentication → Users) — there's no public sign-up here. Lost access? Reset it from the Supabase dashboard.
-    </div>
   </div>
 </div>
 
@@ -592,16 +648,29 @@ const SUPABASE_ANON_KEY = 'sb_publishable_CQawBi0OPWWHKBIUnHr1Dg_OK4cuKIh';
 const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
 /* ---------- auth ---------- */
+function togglePasswordVisibility(){
+  const input = document.getElementById('login-pass');
+  const eyeOpen = document.getElementById('eye-open');
+  const eyeClosed = document.getElementById('eye-closed');
+  const btn = document.getElementById('pass-toggle-btn');
+  const showing = input.type === 'text';
+  input.type = showing ? 'password' : 'text';
+  eyeOpen.style.display = showing ? 'block' : 'none';
+  eyeClosed.style.display = showing ? 'none' : 'block';
+  btn.setAttribute('aria-label', showing ? 'Show password' : 'Hide password');
+}
+
 async function attemptLogin(){
   const email = document.getElementById('login-email').value.trim();
   const password = document.getElementById('login-pass').value;
   const errBox = document.getElementById('login-error');
+  const errText = document.getElementById('login-error-text');
   const btn = document.getElementById('login-btn');
   errBox.style.display = 'none';
 
   if(!email || !password){
-    errBox.textContent = 'Enter both email and password.';
-    errBox.style.display = 'block';
+    errText.textContent = 'Enter both email and password.';
+    errBox.style.display = 'flex';
     return;
   }
   btn.disabled = true; btn.textContent = 'Signing in…';
@@ -609,8 +678,8 @@ async function attemptLogin(){
   btn.disabled = false; btn.textContent = 'Sign In →';
 
   if(error){
-    errBox.textContent = error.message || 'Incorrect email or password.';
-    errBox.style.display = 'block';
+    errText.textContent = error.message || 'Incorrect email or password.';
+    errBox.style.display = 'flex';
     return;
   }
   enterApp();
