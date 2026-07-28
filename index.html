@@ -524,6 +524,11 @@
     position:relative;z-index:2;
   }
   @media (max-width:860px){ .visit{grid-template-columns:1fr;} .visit-info{padding:36px 24px;} }
+  /* On mobile, show Products first, Hero section right after it */
+  @media (max-width:860px){
+    main#top{display:flex;flex-direction:column;}
+    main#top #products{order:-1;}
+  }
 
   /* ===== FOOTER ===== */
   footer{border-top:1px solid var(--line);padding:60px 0 28px;background:var(--ink-black);}
