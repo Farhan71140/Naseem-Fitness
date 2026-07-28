@@ -308,6 +308,18 @@
   .toggle-badge{font-size:11px;font-family:'Space Mono',monospace;padding:2px 8px;border-radius:20px;background:var(--iron);color:var(--paper-dim);margin-left:auto;}
   .toggle-badge.on{background:rgba(92,214,138,0.15);color:var(--good);}
 
+  /* ===== REVIEWS ===== */
+  .tab-count{font-size:10px;background:rgba(0,0,0,0.18);padding:1px 7px;border-radius:10px;margin-left:6px;}
+  .review-admin-card{border:1px solid var(--line);border-radius:10px;padding:16px 18px;margin-bottom:14px;}
+  .review-admin-card:last-child{margin-bottom:0;}
+  .review-admin-head{display:flex;flex-wrap:wrap;align-items:center;gap:10px;margin-bottom:10px;}
+  .review-admin-stars{color:var(--amber);font-size:14px;letter-spacing:2px;}
+  .review-admin-name{font-weight:700;font-size:13.5px;}
+  .review-admin-product{font-family:'Space Mono',monospace;font-size:10px;color:var(--teal);background:var(--teal-dim);padding:3px 9px;border-radius:20px;text-transform:uppercase;letter-spacing:1px;}
+  .review-admin-date{font-size:11px;color:var(--paper-dim);margin-left:auto;}
+  .review-admin-text{font-size:13.5px;color:var(--paper-dim);line-height:1.6;margin-bottom:12px;}
+  .review-admin-actions{display:flex;gap:8px;flex-wrap:wrap;}
+
   /* ===== REPORTS ===== */
   .reports-toolbar{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:24px;}
   .preset-btn{
@@ -426,6 +438,10 @@
       <button class="nav-btn" data-page="orders" onclick="goPage('orders')">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M6 2l1.5 4M18 2l-1.5 4M4 6h16l-1.5 12.5a2 2 0 0 1-2 1.5H7.5a2 2 0 0 1-2-1.5L4 6z"/><path d="M9 10v5M15 10v5"/></svg>
         <span>Orders</span>
+      </button>
+      <button class="nav-btn" data-page="reviews" onclick="goPage('reviews')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+        <span>Reviews</span>
       </button>
       <button class="nav-btn" data-page="reports" onclick="goPage('reports')">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 3v18h18"/><rect x="7" y="12" width="3" height="6"/><rect x="12" y="8" width="3" height="10"/><rect x="17" y="5" width="3" height="13"/></svg>
@@ -552,6 +568,32 @@
         <div id="orders-empty" class="empty-state" style="display:none;">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M6 2l1.5 4M18 2l-1.5 4M4 6h16l-1.5 12.5a2 2 0 0 1-2 1.5H7.5a2 2 0 0 1-2-1.5L4 6z"/></svg>
           <p>No orders yet. Log your first order to start tracking earnings.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ REVIEWS ============ -->
+    <section class="page" id="page-reviews">
+      <div class="page-head">
+        <div>
+          <span class="eyebrow">Storefront</span>
+          <h2>Reviews</h2>
+          <p>Customer ratings. New reviews stay hidden until you publish them. Published reviews show on your storefront and power each product's star rating.</p>
+        </div>
+        <button class="btn btn-ghost" onclick="refreshReviews()">↻ Refresh</button>
+      </div>
+
+      <div style="display:flex;gap:10px;margin-bottom:20px;flex-wrap:wrap;">
+        <button class="preset-btn reviews-tab-btn active" data-tab="pending" onclick="setReviewsTab('pending')">Pending <span class="tab-count" id="reviews-count-pending">0</span></button>
+        <button class="preset-btn reviews-tab-btn" data-tab="published" onclick="setReviewsTab('published')">Published <span class="tab-count" id="reviews-count-published">0</span></button>
+        <button class="preset-btn reviews-tab-btn" data-tab="hidden" onclick="setReviewsTab('hidden')">Hidden <span class="tab-count" id="reviews-count-hidden">0</span></button>
+        <button class="preset-btn reviews-tab-btn" data-tab="all" onclick="setReviewsTab('all')">All</button>
+      </div>
+
+      <div class="panel">
+        <div id="reviews-list"></div>
+        <div id="reviews-empty" class="empty-state" style="display:none;">
+          <p>No reviews here yet. Customers can leave a review from your storefront.</p>
         </div>
       </div>
     </section>
@@ -1252,6 +1294,7 @@ function renderAll(){
   renderMarketingSeo();
   renderOffers();
   renderReports();
+  renderReviews();
 }
 
 /* ---------- data access (Supabase) ---------- */
@@ -1800,6 +1843,109 @@ async function deleteOrder(id){
   renderOrders();
   renderOverview();
   showToast('Order deleted');
+}
+
+/* ---------- reviews ---------- */
+let ALL_REVIEWS_CACHE = [];
+let REVIEWS_PRODUCTS_MAP = {};
+let REVIEWS_TAB = 'pending';
+
+function reviewStatus(r){ return r.status || 'published'; }
+
+async function getReviewsAdmin(){
+  const { data, error } = await sb.from('reviews').select('*').order('created_at', { ascending:false });
+  if(error){ showToast('Error loading reviews: ' + error.message); return []; }
+  return data;
+}
+async function renderReviews(){
+  const [reviews, products] = await Promise.all([getReviewsAdmin(), getProducts()]);
+  ALL_REVIEWS_CACHE = reviews;
+  REVIEWS_PRODUCTS_MAP = {};
+  products.forEach(p=>{ REVIEWS_PRODUCTS_MAP[p.id] = p.name; });
+  renderReviewsTabCounts();
+  renderReviewsList();
+}
+async function refreshReviews(){
+  await renderReviews();
+  showToast('Reviews refreshed');
+}
+function setReviewsTab(tab){
+  REVIEWS_TAB = tab;
+  document.querySelectorAll('.reviews-tab-btn').forEach(b=>b.classList.toggle('active', b.dataset.tab===tab));
+  renderReviewsList();
+}
+function renderReviewsTabCounts(){
+  const counts = { pending:0, published:0, hidden:0 };
+  ALL_REVIEWS_CACHE.forEach(r=>{ const s = reviewStatus(r); if(counts[s] !== undefined) counts[s]++; });
+  document.getElementById('reviews-count-pending').textContent = counts.pending;
+  document.getElementById('reviews-count-published').textContent = counts.published;
+  document.getElementById('reviews-count-hidden').textContent = counts.hidden;
+}
+function renderReviewsList(){
+  let list = ALL_REVIEWS_CACHE;
+  if(REVIEWS_TAB !== 'all'){
+    list = list.filter(r => reviewStatus(r) === REVIEWS_TAB);
+  }
+  const wrap = document.getElementById('reviews-list');
+  const empty = document.getElementById('reviews-empty');
+  if(list.length === 0){
+    wrap.innerHTML = '';
+    empty.style.display = 'block';
+    return;
+  }
+  empty.style.display = 'none';
+  wrap.innerHTML = list.map(r=>{
+    const status = reviewStatus(r);
+    const rounded = Math.round(Number(r.rating) || 0);
+    const stars = '★'.repeat(rounded) + '☆'.repeat(5-rounded);
+    const productName = REVIEWS_PRODUCTS_MAP[r.product_id] || 'Product';
+    const statusPillClass = status === 'pending' ? 'pending' : status === 'published' ? 'completed' : 'cancelled';
+    let actions = '';
+    if(status === 'pending'){
+      actions = `
+        <button class="btn btn-primary btn-sm" onclick="updateReviewStatus('${r.id}','published')">Publish</button>
+        <button class="btn btn-ghost btn-sm" onclick="updateReviewStatus('${r.id}','hidden')">Reject</button>
+        <button class="btn btn-danger btn-sm" onclick="deleteReview('${r.id}')">Delete</button>
+      `;
+    } else if(status === 'published'){
+      actions = `
+        <button class="btn btn-ghost btn-sm" onclick="updateReviewStatus('${r.id}','hidden')">Hide</button>
+        <button class="btn btn-danger btn-sm" onclick="deleteReview('${r.id}')">Delete</button>
+      `;
+    } else {
+      actions = `
+        <button class="btn btn-primary btn-sm" onclick="updateReviewStatus('${r.id}','published')">Publish</button>
+        <button class="btn btn-danger btn-sm" onclick="deleteReview('${r.id}')">Delete</button>
+      `;
+    }
+    return `
+      <div class="review-admin-card">
+        <div class="review-admin-head">
+          <span class="review-admin-stars">${stars}</span>
+          <span class="review-admin-name">${escapeHtml(r.customer_name || 'Anonymous')}</span>
+          <span class="review-admin-product">${escapeHtml(productName)}</span>
+          ${r.verified_purchase ? '<span class="status-pill completed">✓ Verified</span>' : ''}
+          <span class="status-pill ${statusPillClass}">${status}</span>
+          <span class="review-admin-date">${formatDate(r.created_at)}</span>
+        </div>
+        ${r.review_text ? `<div class="review-admin-text">${escapeHtml(r.review_text)}</div>` : `<div class="review-admin-text" style="font-style:italic;">No written comment.</div>`}
+        <div class="review-admin-actions">${actions}</div>
+      </div>
+    `;
+  }).join('');
+}
+async function updateReviewStatus(id, status){
+  const { error } = await sb.from('reviews').update({ status }).eq('id', id);
+  if(error){ showToast('Error: ' + error.message); return; }
+  await renderReviews();
+  showToast(status === 'published' ? 'Review published' : status === 'hidden' ? 'Review hidden' : 'Review updated');
+}
+async function deleteReview(id){
+  if(!confirm('Delete this review? This cannot be undone.')) return;
+  const { error } = await sb.from('reviews').delete().eq('id', id);
+  if(error){ showToast('Error: ' + error.message); return; }
+  await renderReviews();
+  showToast('Review deleted');
 }
 
 /* ---------- settings ---------- */
