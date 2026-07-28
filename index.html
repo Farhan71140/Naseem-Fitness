@@ -446,11 +446,38 @@
   .price-wrap{display:flex;align-items:baseline;gap:7px;flex-wrap:wrap;row-gap:4px;min-width:0;flex:1;}
   .price-compare{font-family:'Space Mono',monospace;font-size:11.5px;color:var(--paper-dim);text-decoration:line-through;}
   .discount-pill{font-family:'Space Mono',monospace;font-size:10px;color:var(--teal);background:rgba(255,210,74,0.14);border:1px solid var(--line);padding:2px 6px;border-radius:10px;white-space:nowrap;}
+  .prod-photo-count{
+    position:absolute;bottom:8px;right:8px;background:rgba(10,8,6,0.6);color:var(--paper);
+    font-family:'Space Mono',monospace;font-size:10px;padding:2px 8px;border-radius:20px;backdrop-filter:blur(2px);
+  }
 
   /* ===== QUICK VIEW ===== */
-  .qv-photo{aspect-ratio:1/1;background:linear-gradient(135deg, var(--iron) 0%, var(--steel) 60%);border-radius:10px;border:1px solid var(--line);display:flex;align-items:center;justify-content:center;position:relative;overflow:hidden;margin-bottom:20px;}
+  .qv-photo{aspect-ratio:1/1;background:linear-gradient(135deg, var(--iron) 0%, var(--steel) 60%);border-radius:10px;border:1px solid var(--line);display:flex;align-items:center;justify-content:center;position:relative;overflow:hidden;margin-bottom:12px;}
   .qv-photo img{width:100%;height:100%;object-fit:cover;display:block;}
   .qv-photo .ph-label{font-family:'Space Mono',monospace;font-size:11px;color:var(--paper-dim);text-align:center;padding:0 20px;letter-spacing:0.5px;}
+  .qv-photo-track{display:flex;width:100%;height:100%;transition:transform .32s cubic-bezier(.2,.8,.2,1);}
+  .qv-photo-slide{flex:0 0 100%;width:100%;height:100%;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg, var(--iron) 0%, var(--steel) 60%);}
+  .qv-photo-slide img{width:100%;height:100%;object-fit:cover;display:block;}
+  .qv-photo-arrow{
+    position:absolute;top:50%;transform:translateY(-50%);width:34px;height:34px;border-radius:50%;
+    background:rgba(10,8,6,0.55);border:1px solid rgba(255,210,74,0.25);color:var(--paper);
+    display:flex;align-items:center;justify-content:center;cursor:pointer;z-index:2;
+    backdrop-filter:blur(3px);transition:background .15s ease, border-color .15s ease;
+  }
+  .qv-photo-arrow:hover{background:rgba(10,8,6,0.8);border-color:var(--teal);color:var(--teal);}
+  .qv-photo-arrow svg{width:17px;height:17px;}
+  .qv-photo-arrow.prev{left:10px;}
+  .qv-photo-arrow.next{right:10px;}
+  .qv-photo-dots{position:absolute;bottom:10px;left:0;right:0;display:flex;justify-content:center;gap:6px;z-index:2;}
+  .qv-photo-dots button{
+    width:6px;height:6px;border-radius:50%;border:none;background:rgba(245,238,221,0.35);
+    cursor:pointer;padding:0;transition:background .15s ease, width .15s ease;
+  }
+  .qv-photo-dots button.active{background:var(--teal);width:16px;border-radius:4px;}
+  .qv-photo-count-badge{
+    position:absolute;top:10px;right:10px;z-index:2;background:rgba(10,8,6,0.6);color:var(--paper);
+    font-family:'Space Mono',monospace;font-size:11px;padding:3px 9px;border-radius:20px;backdrop-filter:blur(2px);
+  }
   .qv-cat{font-family:'Space Mono',monospace;font-size:10px;color:var(--amber);letter-spacing:1.5px;text-transform:uppercase;}
   .qv-brand{font-family:'Space Mono',monospace;font-size:11px;color:var(--paper-dim);letter-spacing:1px;text-transform:uppercase;margin-top:8px;}
   .qv-title{font-family:'Anton',sans-serif;font-size:25px;text-transform:none;margin-top:6px;letter-spacing:0.2px;line-height:1.15;}
@@ -1450,12 +1477,12 @@ function renderProducts(list){
     return `
     <div class="prod-card" onclick="openQuickView('${p.id}')">
       <div class="prod-photo">
-        ${p.image_url
-          ? `<img src="${escapeHtml(p.image_url)}" alt="${escapeHtml(p.name)}" style="width:100%;height:100%;object-fit:cover;" onerror="this.parentElement.innerHTML='<div><svg viewBox=\\'0 0 24 24\\' fill=\\'none\\' stroke=\\'currentColor\\' stroke-width=\\'1.5\\'><rect x=\\'6\\' y=\\'3\\' width=\\'12\\' height=\\'18\\' rx=\\'2\\'/></svg><div class=\\'ph-label\\'>IMAGE UNAVAILABLE</div></div>'">`
+        ${(() => { const imgs = getProductImages(p); return imgs[0]
+          ? `<img src="${escapeHtml(imgs[0])}" alt="${escapeHtml(p.name)}" style="width:100%;height:100%;object-fit:cover;" onerror="this.parentElement.innerHTML='<div><svg viewBox=\\'0 0 24 24\\' fill=\\'none\\' stroke=\\'currentColor\\' stroke-width=\\'1.5\\'><rect x=\\'6\\' y=\\'3\\' width=\\'12\\' height=\\'18\\' rx=\\'2\\'/></svg><div class=\\'ph-label\\'>IMAGE UNAVAILABLE</div></div>'">${imgs.length>1 ? `<span class="prod-photo-count">📷 ${imgs.length}</span>` : ''}`
           : `<div>
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="6" y="3" width="12" height="18" rx="2"/><path d="M9 3v3h6V3"/></svg>
               <div class="ph-label">PRODUCT PHOTO<br>GOES HERE</div>
-            </div>`}
+            </div>`; })()}
         <span class="badge-genuine">✓ GENUINE</span>
       </div>
       <div class="prod-body">
@@ -1615,12 +1642,79 @@ function closeCart(){ document.getElementById('cart-overlay').classList.remove('
 /* ---------- product quick view ---------- */
 let QV_PRODUCT_ID = null;
 let QV_QTY = 1;
+let QV_IMAGES = [];
+let QV_IMG_INDEX = 0;
+
+function getProductImages(p){
+  if(Array.isArray(p.image_urls) && p.image_urls.length) return p.image_urls.slice(0,5);
+  return p.image_url ? [p.image_url] : [];
+}
+
+function renderQvPhoto(){
+  const wrap = document.getElementById('qv-photo-wrap');
+  if(!wrap) return;
+  if(QV_IMAGES.length === 0){
+    wrap.innerHTML = `<div><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="6" y="3" width="12" height="18" rx="2"/><path d="M9 3v3h6V3"/></svg><div class="ph-label">PRODUCT PHOTO<br>GOES HERE</div></div>`;
+    return;
+  }
+  const multi = QV_IMAGES.length > 1;
+  wrap.innerHTML = `
+    ${multi ? `<div class="qv-photo-count-badge">${QV_IMG_INDEX+1} / ${QV_IMAGES.length}</div>` : ''}
+    <div class="qv-photo-track" id="qv-photo-track" style="transform:translateX(-${QV_IMG_INDEX*100}%);">
+      ${QV_IMAGES.map((url, i) => `
+        <div class="qv-photo-slide">
+          <img src="${escapeHtml(url)}" alt="Product photo ${i+1}" onerror="this.parentElement.innerHTML='<div class=\\'ph-label\\'>IMAGE UNAVAILABLE</div>'">
+        </div>
+      `).join('')}
+    </div>
+    ${multi ? `
+      <button type="button" class="qv-photo-arrow prev" onclick="qvPrevImage(event)" aria-label="Previous photo">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 18l-6-6 6-6"/></svg>
+      </button>
+      <button type="button" class="qv-photo-arrow next" onclick="qvNextImage(event)" aria-label="Next photo">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18l6-6-6-6"/></svg>
+      </button>
+      <div class="qv-photo-dots">
+        ${QV_IMAGES.map((_, i) => `<button type="button" class="${i===QV_IMG_INDEX?'active':''}" onclick="qvGoToImage(${i})" aria-label="Photo ${i+1}"></button>`).join('')}
+      </div>
+    ` : ''}
+  `;
+  attachQvSwipe();
+}
+function qvGoToImage(i){
+  QV_IMG_INDEX = Math.max(0, Math.min(QV_IMAGES.length-1, i));
+  renderQvPhoto();
+}
+function qvPrevImage(e){
+  if(e) e.stopPropagation();
+  QV_IMG_INDEX = (QV_IMG_INDEX - 1 + QV_IMAGES.length) % QV_IMAGES.length;
+  renderQvPhoto();
+}
+function qvNextImage(e){
+  if(e) e.stopPropagation();
+  QV_IMG_INDEX = (QV_IMG_INDEX + 1) % QV_IMAGES.length;
+  renderQvPhoto();
+}
+function attachQvSwipe(){
+  const wrap = document.getElementById('qv-photo-wrap');
+  if(!wrap || QV_IMAGES.length < 2) return;
+  let startX = null;
+  wrap.addEventListener('touchstart', e => { startX = e.touches[0].clientX; }, { passive:true });
+  wrap.addEventListener('touchend', e => {
+    if(startX === null) return;
+    const dx = e.changedTouches[0].clientX - startX;
+    if(Math.abs(dx) > 40){ dx < 0 ? qvNextImage() : qvPrevImage(); }
+    startX = null;
+  }, { passive:true });
+}
 
 function openQuickView(id){
   const p = PRODUCTS.find(x=>x.id===id);
   if(!p) return;
   QV_PRODUCT_ID = id;
   QV_QTY = 1;
+  QV_IMAGES = getProductImages(p);
+  QV_IMG_INDEX = 0;
   document.getElementById('qv-qty').textContent = QV_QTY;
 
   const effQv = getEffectivePricing(p);
@@ -1639,14 +1733,7 @@ function openQuickView(id){
   }
 
   document.getElementById('quickview-body').innerHTML = `
-    <div class="qv-photo">
-      ${p.image_url
-        ? `<img src="${escapeHtml(p.image_url)}" alt="${escapeHtml(p.name)}" onerror="this.parentElement.innerHTML='<div><svg viewBox=\\'0 0 24 24\\' fill=\\'none\\' stroke=\\'currentColor\\' stroke-width=\\'1.5\\'><rect x=\\'6\\' y=\\'3\\' width=\\'12\\' height=\\'18\\' rx=\\'2\\'/></svg><div class=\\'ph-label\\'>IMAGE UNAVAILABLE</div></div>'">`
-        : `<div>
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="6" y="3" width="12" height="18" rx="2"/><path d="M9 3v3h6V3"/></svg>
-            <div class="ph-label">PRODUCT PHOTO<br>GOES HERE</div>
-          </div>`}
-    </div>
+    <div class="qv-photo" id="qv-photo-wrap"></div>
     <div class="qv-cat">${escapeHtml(p.category)}</div>
     ${p.brand ? `<div class="qv-brand">${escapeHtml(p.brand)}</div>` : ''}
     <h2 class="qv-title">${escapeHtml(p.name)}</h2>
@@ -1686,6 +1773,7 @@ function openQuickView(id){
       </div>
     </div>
   `;
+  renderQvPhoto();
   QV_STAR = 0;
   renderQvExistingReviews(id);
   document.getElementById('qv-review-msg').style.display='none';
