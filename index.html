@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>NF Naseem Fitness™ | Genuine Protein, Creatine & Gym Supplements — Mumbai</title>
+<title>NF Naseem Fitness™ | Genuine Protein, Creatine & Gym Supplements — Pan India Delivery</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Anton&family=Inter:wght@400;500;600;700;800&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
 <style>
@@ -731,7 +731,7 @@
 <body>
 
 <header>
-  <div class="topbar"><div class="topbar-track"><span>100% GENUINE STOCK · VERIFY EVERY BATCH · FREE SHIPPING ACROSS MUMBAI ON ORDERS ₹999+</span><span>100% GENUINE STOCK · VERIFY EVERY BATCH · FREE SHIPPING ACROSS MUMBAI ON ORDERS ₹999+</span><span>100% GENUINE STOCK · VERIFY EVERY BATCH · FREE SHIPPING ACROSS MUMBAI ON ORDERS ₹999+</span><span>100% GENUINE STOCK · VERIFY EVERY BATCH · FREE SHIPPING ACROSS MUMBAI ON ORDERS ₹999+</span></div></div>
+  <div class="topbar"><div class="topbar-track" id="topbar-track"><span>100% GENUINE STOCK · VERIFY EVERY BATCH · FREE SHIPPING ACROSS INDIA ON ORDERS ₹899+</span><span>100% GENUINE STOCK · VERIFY EVERY BATCH · FREE SHIPPING ACROSS INDIA ON ORDERS ₹899+</span><span>100% GENUINE STOCK · VERIFY EVERY BATCH · FREE SHIPPING ACROSS INDIA ON ORDERS ₹899+</span><span>100% GENUINE STOCK · VERIFY EVERY BATCH · FREE SHIPPING ACROSS INDIA ON ORDERS ₹899+</span></div></div>
   <input type="checkbox" id="nav-toggle" class="nav-toggle-input">
   <input type="checkbox" id="search-toggle" class="nav-toggle-input" onchange="if(this.checked){setTimeout(()=>document.getElementById('search-input-mobile-bar').focus(),80)}">
   <nav class="wrap">
@@ -813,7 +813,7 @@
   <section class="hero" style="padding:0;">
     <div class="wrap hero-grid">
       <div class="hero-top">
-        <div class="eyebrow">Mumbai's Verified Supplement Store</div>
+        <div class="eyebrow">Mumbai's Verified Supplement Store · Delivering Pan-India</div>
         <h1>REAL GAINS START<br>WITH <span class="accent">REAL STOCK.</span></h1>
         <p class="lead">Every tub sold at NF Naseem Fitness is batch-verified before it reaches your hands — genuine whey protein, creatine, pre-workouts and multivitamins, no exceptions, no fakes.</p>
         <div class="hero-cta">
@@ -823,7 +823,7 @@
         <div class="hero-stats">
           <div><strong>100%</strong><span>Genuine Stock</span></div>
           <div><strong>2,000+</strong><span>Members Served</span></div>
-          <div><strong>24H</strong><span>Mumbai Dispatch</span></div>
+          <div><strong>All India</strong><span>Delivery</span></div>
         </div>
       </div>
       <div class="seal-wrap">
@@ -1039,11 +1039,11 @@
           <div class="faq-item">
             <button class="faq-q" aria-expanded="false">
               <span class="faq-num">04</span>
-              <span class="faq-q-text">Do you deliver across Mumbai?</span>
+              <span class="faq-q-text">Do you deliver across India?</span>
               <span class="faq-icon"></span>
             </button>
             <div class="faq-a"><div class="faq-a-inner">
-              <p>Yes — we offer free shipping across Mumbai on orders ₹999 and above, with same-day delivery as promised to our regulars.</p>
+              <p>Yes — we deliver pan-India with free shipping on orders ₹899 and above. Same-day dispatch from our Mumbai store, with delivery across the rest of India in standard shipping timelines.</p>
             </div></div>
           </div>
           <div class="faq-item">
@@ -1079,7 +1079,7 @@
         <a class="brand" href="#top" style="margin-bottom:12px;">
           <img src="https://nfsupplementstore.com/api/assets/985c9e40-47f9-4bba-b053-d1c7176096fc/4a066dca2b5f7f07ecec5fed1fdbf29d" alt="NF Naseem Fitness logo" style="height:36px;">
         </a>
-        <p style="color:var(--paper-dim);font-size:13px;max-width:280px;margin-top:14px;">Mumbai's batch-verified supplement store. Genuine protein, creatine, pre-workout and multivitamins — every time.</p>
+        <p style="color:var(--paper-dim);font-size:13px;max-width:280px;margin-top:14px;">Mumbai's batch-verified supplement store, shipping genuine protein, creatine, pre-workout and multivitamins pan-India — every time.</p>
       </div>
       <div>
         <h5>Shop</h5>
@@ -1761,6 +1761,13 @@ function applyStoreSettings(s){
   const waBtn = document.getElementById('wa-float-btn');
   if(waBtn && s.whatsapp_button_enabled !== false){
     waBtn.classList.add('show');
+  }
+  if(s.topbar_text){
+    const track = document.getElementById('topbar-track');
+    if(track){
+      const span = `<span>${escapeHtml(s.topbar_text)}</span>`;
+      track.innerHTML = span.repeat(4);
+    }
   }
 }
 

@@ -567,6 +567,16 @@
         </div>
       </div>
 
+      <div class="panel" style="max-width:760px;">
+        <h3 style="margin-bottom:4px;">Announcement / Moving Bar</h3>
+        <p style="font-size:13px;color:var(--paper-dim);margin-bottom:16px;">The scrolling strip shown above the navigation bar on your storefront.</p>
+        <div class="field">
+          <label for="mkt-topbar-text">Moving bar text</label>
+          <input type="text" id="mkt-topbar-text" maxlength="150" placeholder="e.g. FREE SHIPPING ACROSS INDIA ON ORDERS ₹899+">
+          <div style="font-size:12px;color:var(--paper-dim);margin-top:6px;">Shown on repeat in a scrolling strip. Leave empty to keep the site's default text.</div>
+        </div>
+      </div>
+
       <div class="panel" style="max-width:760px;display:flex;align-items:center;justify-content:space-between;gap:16px;">
         <div>
           <h3 style="margin-bottom:4px;">Floating WhatsApp button</h3>
@@ -1013,6 +1023,7 @@ async function renderMarketingSeo(){
   document.getElementById('mkt-ga4').value = s.ga4_id || '';
   document.getElementById('mkt-search-console').value = s.search_console_verification || '';
   document.getElementById('mkt-wa-enabled').checked = s.whatsapp_button_enabled !== false;
+  document.getElementById('mkt-topbar-text').value = s.topbar_text || '';
   updateSeoPreview();
 }
 function updateSeoPreview(){
@@ -1046,6 +1057,7 @@ async function saveMarketingSeo(){
     ga4_id: document.getElementById('mkt-ga4').value.trim() || null,
     search_console_verification: extractSearchConsoleToken(document.getElementById('mkt-search-console').value) || null,
     whatsapp_button_enabled: document.getElementById('mkt-wa-enabled').checked,
+    topbar_text: document.getElementById('mkt-topbar-text').value.trim() || null,
     updated_at: new Date().toISOString()
   };
   const { error } = await sb.from('store_settings').upsert(payload);
