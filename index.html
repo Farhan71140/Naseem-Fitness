@@ -115,6 +115,27 @@
   .btn-ghost{border-color:var(--line);color:var(--paper);}
   .btn-ghost:hover{border-color:var(--teal);}
   .btn-wa{background:#25D366;color:#06210F;}
+  .btn-submit-review{
+    background:linear-gradient(135deg, var(--amber), var(--teal) 55%, #E6A700);
+    color:var(--ink-black);
+    font-weight:800;letter-spacing:0.3px;
+    box-shadow:0 12px 28px rgba(255,210,74,0.28), inset 0 1px 0 rgba(255,255,255,0.3);
+    border:none;position:relative;overflow:hidden;
+  }
+  .btn-submit-review:hover{
+    background:linear-gradient(135deg, var(--gold-light), var(--amber) 55%, var(--teal));
+    box-shadow:0 16px 34px rgba(255,210,74,0.4), inset 0 1px 0 rgba(255,255,255,0.35);
+  }
+  .btn-submit-review:disabled{opacity:0.55;cursor:not-allowed;transform:none;box-shadow:none;}
+  .review-verify-note{font-size:12px;color:var(--paper-dim);margin-top:8px;line-height:1.5;}
+  .verified-badge{
+    display:inline-flex;align-items:center;gap:4px;
+    background:rgba(92,214,138,0.14);color:#5CD68A;
+    border:1px solid rgba(92,214,138,0.35);
+    font-size:10.5px;font-weight:700;letter-spacing:0.5px;text-transform:uppercase;
+    padding:3px 8px;border-radius:20px;margin-left:8px;
+  }
+  .verified-badge svg{width:11px;height:11px;}
   .wa-float{
     display:none;position:fixed;right:20px;bottom:20px;z-index:150;
     width:58px;height:58px;border-radius:50%;background:#25D366;color:#06210F;
@@ -1268,6 +1289,7 @@ function renderQvExistingReviews(productId){
       <div class="rhead">
         <span class="stars-static" style="font-size:13px;">${starsMarkup(Number(r.rating))}</span>
         <span class="rname">${escapeHtml(r.customer_name || 'Anonymous')}</span>
+        ${r.verified_purchase ? '<span class="verified-badge"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M20 6L9 17l-5-5"/></svg>Verified Purchase</span>' : ''}
         <span class="rdate">${formatReviewDate(r.created_at)}</span>
       </div>
       ${r.review_text ? `<p>${escapeHtml(r.review_text)}</p>` : ''}
@@ -1281,24 +1303,60 @@ function setQvStar(n){
     el.classList.toggle('active', Number(el.dataset.star) <= n);
   });
 }
+function normalizePhone(v){
+  const digits = String(v || '').replace(/\D/g, '');
+  return digits.length > 10 ? digits.slice(-10) : digits;
+}
+async function verifyPurchase(phone, productName){
+  const digits = normalizePhone(phone);
+  if(digits.length !== 10) return false;
+  const { data, error } = await sb.from('orders').select('phone,items,status');
+  if(error || !data) return false;
+  const nameLower = productName.trim().toLowerCase();
+  return data.some(o => {
+    if(normalizePhone(o.phone) !== digits) return false;
+    if(!['approved','completed'].includes(o.status)) return false;
+    const items = Array.isArray(o.items) ? o.items : [];
+    return items.some(it => (it.name || '').toLowerCase().includes(nameLower) || nameLower.includes((it.name || '').toLowerCase()));
+  });
+}
 async function submitReview(){
   const msgEl = document.getElementById('qv-review-msg');
+  const btn = document.getElementById('qv-submit-review-btn');
   msgEl.style.display = 'none';
   if(!QV_PRODUCT_ID) return;
+  const product = PRODUCTS.find(x=>x.id===QV_PRODUCT_ID);
+  if(!product) return;
   if(QV_STAR < 1){
     msgEl.textContent = 'Please select a star rating.';
     msgEl.className = 'review-submit-msg err'; msgEl.style.display = 'block';
     return;
   }
   const name = document.getElementById('qv-review-name').value.trim();
+  const phone = document.getElementById('qv-review-phone').value.trim();
   const text = document.getElementById('qv-review-text').value.trim();
   if(!name){
     msgEl.textContent = 'Please enter your name.';
     msgEl.className = 'review-submit-msg err'; msgEl.style.display = 'block';
     return;
   }
-  const payload = { product_id: QV_PRODUCT_ID, customer_name: name, rating: QV_STAR, review_text: text };
+  if(normalizePhone(phone).length !== 10){
+    msgEl.textContent = 'Please enter the 10-digit phone number used at checkout.';
+    msgEl.className = 'review-submit-msg err'; msgEl.style.display = 'block';
+    return;
+  }
+  btn.disabled = true; btn.textContent = 'Verifying purchase…';
+  const verified = await verifyPurchase(phone, product.name);
+  if(!verified){
+    btn.disabled = false; btn.textContent = 'Submit Review';
+    msgEl.textContent = "We couldn't find a confirmed order for this product with that phone number. Only customers who've purchased this product can leave a review.";
+    msgEl.className = 'review-submit-msg err'; msgEl.style.display = 'block';
+    return;
+  }
+  btn.textContent = 'Posting…';
+  const payload = { product_id: QV_PRODUCT_ID, customer_name: name, rating: QV_STAR, review_text: text, verified_purchase: true };
   const { data, error } = await sb.from('reviews').insert(payload).select();
+  btn.disabled = false; btn.textContent = 'Submit Review';
   if(error){
     msgEl.textContent = 'Error: ' + error.message;
     msgEl.className = 'review-submit-msg err'; msgEl.style.display = 'block';
@@ -1306,9 +1364,10 @@ async function submitReview(){
   }
   if(data && data[0]) REVIEWS.unshift(data[0]);
   document.getElementById('qv-review-name').value = '';
+  document.getElementById('qv-review-phone').value = '';
   document.getElementById('qv-review-text').value = '';
   setQvStar(0);
-  msgEl.textContent = 'Thanks! Your review has been posted.';
+  msgEl.textContent = 'Thanks! Your verified review has been posted.';
   msgEl.className = 'review-submit-msg ok'; msgEl.style.display = 'block';
   renderQvExistingReviews(QV_PRODUCT_ID);
   const summaryEl = document.querySelector('.qv-rating');
@@ -1333,7 +1392,7 @@ function renderGlobalReviews(){
         ${product ? `<span class="rc-product">${escapeHtml(product.name)}</span>` : ''}
       </div>
       ${r.review_text ? `<p>"${escapeHtml(r.review_text)}"</p>` : `<p style="font-style:italic;">No written comment.</p>`}
-      <div class="who">— ${escapeHtml(r.customer_name || 'Verified Buyer')}</div>
+      <div class="who">— ${escapeHtml(r.customer_name || 'Verified Buyer')}${r.verified_purchase ? '<span class="verified-badge"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M20 6L9 17l-5-5"/></svg>Verified</span>' : ''}</div>
     </div>`;
   }).join('');
 }
@@ -1579,10 +1638,15 @@ function openQuickView(id){
           <input type="text" id="qv-review-name" placeholder="e.g. Rahul S.">
         </div>
         <div class="review-form-field">
+          <label for="qv-review-phone">Phone Number Used at Checkout</label>
+          <input type="text" id="qv-review-phone" placeholder="e.g. 98765 43210" inputmode="tel">
+          <div class="review-verify-note">Only customers who've purchased this product can leave a review — we verify against your order.</div>
+        </div>
+        <div class="review-form-field">
           <label for="qv-review-text">Your Review</label>
           <textarea id="qv-review-text" rows="3" placeholder="How was the product — quality, delivery, packaging?"></textarea>
         </div>
-        <button class="btn btn-ghost" style="margin-top:14px;width:100%;justify-content:center;" onclick="submitReview()">Submit Review</button>
+        <button class="btn btn-submit-review" id="qv-submit-review-btn" style="margin-top:14px;width:100%;justify-content:center;" onclick="submitReview()">Submit Review</button>
         <div class="review-submit-msg" id="qv-review-msg"></div>
       </div>
     </div>
