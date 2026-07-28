@@ -296,6 +296,17 @@
   .modal-foot{display:flex;justify-content:flex-end;gap:10px;padding:16px 22px;border-top:1px solid var(--line);}
   .field-row{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
 
+  /* ===== OFFERS ===== */
+  .offer-option{display:flex;align-items:flex-start;gap:14px;border:1px solid var(--line);border-radius:10px;padding:16px 18px;margin-bottom:12px;cursor:pointer;transition:border-color .15s ease, background .15s ease;}
+  .offer-option:hover{border-color:rgba(255,210,74,0.4);}
+  .offer-option.selected{border-color:var(--teal);background:rgba(255,210,74,0.06);}
+  .offer-option input[type=radio]{margin-top:3px;width:16px;height:16px;accent-color:var(--teal);flex-shrink:0;}
+  .offer-option-title{font-weight:700;font-size:14.5px;display:flex;align-items:center;gap:8px;}
+  .offer-option-badge{font-size:10px;font-family:'Space Mono',monospace;letter-spacing:1px;text-transform:uppercase;color:var(--teal);background:var(--teal-dim);padding:2px 8px;border-radius:20px;}
+  .offer-option-desc{font-size:12.5px;color:var(--paper-dim);margin-top:4px;line-height:1.5;}
+  .toggle-badge{font-size:11px;font-family:'Space Mono',monospace;padding:2px 8px;border-radius:20px;background:var(--iron);color:var(--paper-dim);margin-left:auto;}
+  .toggle-badge.on{background:rgba(92,214,138,0.15);color:var(--good);}
+
   /* ===== SETTINGS ===== */
   .settings-grid{display:grid;grid-template-columns:1fr 1fr;gap:20px;}
   .toast{
@@ -389,6 +400,10 @@
       <button class="nav-btn" data-page="orders" onclick="goPage('orders')">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M6 2l1.5 4M18 2l-1.5 4M4 6h16l-1.5 12.5a2 2 0 0 1-2 1.5H7.5a2 2 0 0 1-2-1.5L4 6z"/><path d="M9 10v5M15 10v5"/></svg>
         <span>Orders</span>
+      </button>
+      <button class="nav-btn" data-page="offers" onclick="goPage('offers')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M20.59 13.41 13 21a2 2 0 0 1-2.83 0L2 12.83V2h10.83L21 10.17a2 2 0 0 1 0 2.83z"/><circle cx="7" cy="7" r="1.5" fill="currentColor" stroke="none"/></svg>
+        <span>Offers</span>
       </button>
       <button class="nav-btn" data-page="marketing" onclick="goPage('marketing')">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 11l18-5v12L3 13v-2z"/><path d="M7 13v5a2 2 0 0 0 2 2h1v-6"/></svg>
@@ -508,6 +523,92 @@
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M6 2l1.5 4M18 2l-1.5 4M4 6h16l-1.5 12.5a2 2 0 0 1-2 1.5H7.5a2 2 0 0 1-2-1.5L4 6z"/></svg>
           <p>No orders yet. Log your first order to start tracking earnings.</p>
         </div>
+      </div>
+    </section>
+
+    <!-- ============ OFFERS ============ -->
+    <section class="page" id="page-offers">
+      <div class="page-head">
+        <div>
+          <span class="eyebrow">Store Profile</span>
+          <h2>Offers</h2>
+          <p>Control how discounts and store-wide sales appear on your storefront.</p>
+        </div>
+        <a class="btn btn-ghost" href="index.html" target="_blank" rel="noopener">View storefront →</a>
+      </div>
+
+      <div class="panel" style="max-width:760px;">
+        <h3 style="margin-bottom:4px;">Offers display</h3>
+        <p style="font-size:13px;color:var(--paper-dim);margin-bottom:18px;">How discounted items appear on your storefront. Strike-through prices show on item cards either way.</p>
+
+        <div class="offer-option" data-mode="tab" onclick="selectOffersDisplay('tab')">
+          <input type="radio" name="offers-display" value="tab" onclick="selectOffersDisplay('tab')">
+          <div>
+            <div class="offer-option-title">Offers tab <span class="offer-option-badge">Default</span></div>
+            <div class="offer-option-desc">Pinned "Offers" entry in the category strip — minimalist, premium feel.</div>
+          </div>
+        </div>
+        <div class="offer-option" data-mode="carousel" onclick="selectOffersDisplay('carousel')">
+          <input type="radio" name="offers-display" value="carousel" onclick="selectOffersDisplay('carousel')">
+          <div>
+            <div class="offer-option-title">Top carousel</div>
+            <div class="offer-option-desc">Edge-to-edge horizontal scroller above the categories. Bigger visual punch.</div>
+          </div>
+        </div>
+        <div class="offer-option" data-mode="both" onclick="selectOffersDisplay('both')">
+          <input type="radio" name="offers-display" value="both" onclick="selectOffersDisplay('both')">
+          <div>
+            <div class="offer-option-title">Both</div>
+            <div class="offer-option-desc">Carousel <i>and</i> tab. For festival pushes &amp; big-bang sales.</div>
+          </div>
+        </div>
+        <div class="offer-option" data-mode="off" onclick="selectOffersDisplay('off')" style="margin-bottom:0;">
+          <input type="radio" name="offers-display" value="off" onclick="selectOffersDisplay('off')">
+          <div>
+            <div class="offer-option-title">Off</div>
+            <div class="offer-option-desc">No dedicated showcase — discounts only show inline on item cards.</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="panel" style="max-width:760px;">
+        <h3 style="margin-bottom:4px;">Store-wide sale</h3>
+        <p style="font-size:13px;color:var(--paper-dim);margin-bottom:18px;">One % off every product — shown as a sale price with the original struck through. Schedule a window or run it open-ended.</p>
+
+        <label style="display:flex;align-items:center;gap:10px;text-transform:none;letter-spacing:0;font-family:'Inter',sans-serif;font-size:14px;color:var(--paper);cursor:pointer;margin-bottom:20px;">
+          <input type="checkbox" id="sale-enabled" style="width:16px;height:16px;accent-color:var(--teal);" onchange="toggleSaleEnabled()">
+          Run a store-wide sale
+          <span class="toggle-badge" id="sale-toggle-badge">Off</span>
+        </label>
+
+        <div class="field-row">
+          <div class="field">
+            <label for="sale-discount">Discount %</label>
+            <input type="number" id="sale-discount" min="0" max="90" placeholder="e.g. 10">
+            <div style="font-size:12px;color:var(--paper-dim);margin-top:6px;">e.g. 10 = 10% off every item (rounded to the nearest ₹1).</div>
+          </div>
+          <div class="field">
+            <label for="sale-banner">Banner label — optional</label>
+            <input type="text" id="sale-banner" placeholder="e.g. ⭐ Opening Offer – Flat 5% OFF on All Products">
+            <div style="font-size:12px;color:var(--paper-dim);margin-top:6px;">Shown in the storefront sale ribbon. Leave blank for a default.</div>
+          </div>
+        </div>
+        <div class="field-row">
+          <div class="field">
+            <label for="sale-starts">Starts — optional</label>
+            <input type="datetime-local" id="sale-starts">
+            <div style="font-size:12px;color:var(--paper-dim);margin-top:6px;">Leave blank to start immediately.</div>
+          </div>
+          <div class="field">
+            <label for="sale-ends">Ends — optional</label>
+            <input type="datetime-local" id="sale-ends">
+            <div style="font-size:12px;color:var(--paper-dim);margin-top:6px;">Leave blank to run until you turn it off.</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="panel" style="max-width:760px;display:flex;justify-content:flex-end;">
+        <button class="btn btn-primary" onclick="saveOffers()">Save Offers</button>
       </div>
     </section>
 
@@ -993,6 +1094,7 @@ function renderAll(){
   renderProducts();
   renderOrders();
   renderMarketingSeo();
+  renderOffers();
 }
 
 /* ---------- data access (Supabase) ---------- */
@@ -1064,6 +1166,60 @@ async function saveMarketingSeo(){
   if(error){ showToast('Error: ' + error.message); return; }
   showToast('Store saved');
 }
+
+/* ---------- offers ---------- */
+function selectOffersDisplay(mode){
+  document.querySelectorAll('input[name="offers-display"]').forEach(r=>{ r.checked = (r.value===mode); });
+  document.querySelectorAll('.offer-option').forEach(el=>{ el.classList.toggle('selected', el.dataset.mode===mode); });
+}
+function toggleSaleEnabled(){
+  const cb = document.getElementById('sale-enabled');
+  const badge = document.getElementById('sale-toggle-badge');
+  badge.textContent = cb.checked ? 'On' : 'Off';
+  badge.classList.toggle('on', cb.checked);
+}
+function toLocalInputValue(iso){
+  if(!iso) return '';
+  const d = new Date(iso);
+  if(isNaN(d.getTime())) return '';
+  const pad = n=>String(n).padStart(2,'0');
+  return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
+}
+function fromLocalInputValue(val){
+  if(!val) return null;
+  const d = new Date(val);
+  return isNaN(d.getTime()) ? null : d.toISOString();
+}
+async function renderOffers(){
+  const s = await getStoreSettings();
+  const mode = (s && s.offers_display_mode) || 'tab';
+  selectOffersDisplay(mode);
+  document.getElementById('sale-enabled').checked = !!(s && s.sale_enabled);
+  toggleSaleEnabled();
+  document.getElementById('sale-discount').value = (s && s.sale_discount_percent) ? s.sale_discount_percent : '';
+  document.getElementById('sale-banner').value = (s && s.sale_banner_label) || '';
+  document.getElementById('sale-starts').value = s ? toLocalInputValue(s.sale_starts_at) : '';
+  document.getElementById('sale-ends').value = s ? toLocalInputValue(s.sale_ends_at) : '';
+}
+async function saveOffers(){
+  const mode = (document.querySelector('input[name="offers-display"]:checked') || {}).value || 'tab';
+  const enabled = document.getElementById('sale-enabled').checked;
+  const discount = document.getElementById('sale-discount').value;
+  const payload = {
+    id: 1,
+    offers_display_mode: mode,
+    sale_enabled: enabled,
+    sale_discount_percent: discount === '' ? 0 : Number(discount),
+    sale_banner_label: document.getElementById('sale-banner').value.trim() || null,
+    sale_starts_at: fromLocalInputValue(document.getElementById('sale-starts').value),
+    sale_ends_at: fromLocalInputValue(document.getElementById('sale-ends').value),
+    updated_at: new Date().toISOString()
+  };
+  const { error } = await sb.from('store_settings').upsert(payload);
+  if(error){ showToast('Error: ' + error.message); return; }
+  showToast('Offers saved');
+}
+
 function formatItems(items){
   if(!items) return '—';
   if(typeof items === 'string') return items;
