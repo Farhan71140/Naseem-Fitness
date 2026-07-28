@@ -392,6 +392,12 @@
     font-family:'Anton',sans-serif;font-size:18px;text-transform:uppercase;letter-spacing:0.4px;
   }
   .cat-label .cat-icon{font-size:20px;line-height:1;}
+  /* ===== OFFERS ===== */
+  .offers-carousel{background:linear-gradient(90deg,var(--amber),var(--teal));overflow:hidden;cursor:pointer;padding:12px 0;}
+  .offers-carousel-track{display:flex;width:max-content;white-space:nowrap;animation:offers-scroll 18s linear infinite;}
+  .offers-carousel-track span{padding:0 40px;font-family:'Anton',sans-serif;font-size:15px;color:var(--ink-black);text-transform:uppercase;letter-spacing:0.5px;}
+  @keyframes offers-scroll{0%{transform:translateX(0);}100%{transform:translateX(-50%);}}
+  @media (max-width:600px){ .offers-carousel-track span{font-size:12px;padding:0 24px;} }
 
   /* ===== PRODUCTS ===== */
   .prod-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:22px;}
@@ -1413,6 +1419,20 @@ async function loadProducts(){
   renderProducts(PRODUCTS);
 }
 
+/* ---------- pricing (accounts for store-wide sale) ---------- */
+function getEffectivePricing(p){
+  const price = Number(p.price);
+  const ownCompare = Number(p.compare_price || 0);
+  if(window.SALE_ACTIVE && window.SALE_DISCOUNT_PCT > 0){
+    const discounted = Math.round(price * (1 - window.SALE_DISCOUNT_PCT/100));
+    const compare = ownCompare > price ? ownCompare : price;
+    const hasDiscount = discounted < compare;
+    return { price: discounted, compare, hasDiscount, pct: hasDiscount ? Math.round((1-discounted/compare)*100) : 0 };
+  }
+  const hasDiscount = ownCompare > price;
+  return { price, compare: ownCompare, hasDiscount, pct: hasDiscount ? Math.round((1-price/ownCompare)*100) : 0 };
+}
+
 function renderProducts(list){
   const grid = document.getElementById('products-grid');
   if(list.length===0){
@@ -1420,10 +1440,11 @@ function renderProducts(list){
     return;
   }
   grid.innerHTML = list.map(p=>{
-    const comparePrice = Number(p.compare_price || 0);
-    const price = Number(p.price);
-    const hasDiscount = comparePrice > price;
-    const pct = hasDiscount ? Math.round((1 - price/comparePrice)*100) : 0;
+    const eff = getEffectivePricing(p);
+    const price = eff.price;
+    const comparePrice = eff.compare;
+    const hasDiscount = eff.hasDiscount;
+    const pct = eff.pct;
     return `
     <div class="prod-card" onclick="openQuickView('${p.id}')">
       <div class="prod-photo">
@@ -1457,7 +1478,9 @@ let ACTIVE_CATEGORY = '';
 function applyFilters(){
   const q = (document.getElementById('search-input-desktop').value || '').trim().toLowerCase();
   let list = PRODUCTS;
-  if(ACTIVE_CATEGORY){
+  if(ACTIVE_CATEGORY === '__OFFERS__'){
+    list = list.filter(p => getEffectivePricing(p).hasDiscount);
+  } else if(ACTIVE_CATEGORY){
     list = list.filter(p => p.category && p.category.toLowerCase() === ACTIVE_CATEGORY.toLowerCase());
   }
   if(q){
@@ -1484,6 +1507,15 @@ function filterByCategory(category){
   document.getElementById('search-input-desktop').value = '';
   document.getElementById('search-input-mobile-bar').value = '';
   document.getElementById('active-category-label').textContent = category;
+  document.getElementById('active-category-bar').style.display = 'flex';
+  applyFilters();
+  goToProducts();
+}
+function filterOffers(){
+  ACTIVE_CATEGORY = '__OFFERS__';
+  document.getElementById('search-input-desktop').value = '';
+  document.getElementById('search-input-mobile-bar').value = '';
+  document.getElementById('active-category-label').textContent = 'Offers';
   document.getElementById('active-category-bar').style.display = 'flex';
   applyFilters();
   goToProducts();
@@ -1589,10 +1621,11 @@ function openQuickView(id){
   QV_QTY = 1;
   document.getElementById('qv-qty').textContent = QV_QTY;
 
-  const comparePrice = Number(p.compare_price || 0);
-  const price = Number(p.price);
-  const hasDiscount = comparePrice > price;
-  const pct = hasDiscount ? Math.round((1 - price/comparePrice)*100) : 0;
+  const effQv = getEffectivePricing(p);
+  const price = effQv.price;
+  const comparePrice = effQv.compare;
+  const hasDiscount = effQv.hasDiscount;
+  const pct = effQv.pct;
 
   // description: turn each non-empty line into a checklist item; if only one line, show as plain paragraph
   const descLines = (p.description || '').split('\n').map(l=>l.trim()).filter(Boolean);
@@ -1841,6 +1874,56 @@ function applyStoreSettings(s){
     if(track){
       const span = `<span>${escapeHtml(s.topbar_text)}</span>`;
       track.innerHTML = span.repeat(4);
+    }
+  }
+
+  /* ---- store-wide sale + offers display ---- */
+  const now = new Date();
+  const startsOk = !s.sale_starts_at || now >= new Date(s.sale_starts_at);
+  const endsOk = !s.sale_ends_at || now <= new Date(s.sale_ends_at);
+  window.SALE_DISCOUNT_PCT = Number(s.sale_discount_percent) || 0;
+  window.SALE_ACTIVE = !!(s.sale_enabled && window.SALE_DISCOUNT_PCT > 0 && startsOk && endsOk);
+  window.SALE_BANNER_LABEL = s.sale_banner_label || `⭐ Storewide Sale – Flat ${window.SALE_DISCOUNT_PCT}% OFF on All Products`;
+  window.OFFERS_DISPLAY_MODE = s.offers_display_mode || 'tab';
+  renderOffersUI();
+}
+
+/* ---------- offers tab / carousel ---------- */
+function renderOffersUI(){
+  const existingTab = document.getElementById('offers-tab-card');
+  if(existingTab) existingTab.remove();
+  const existingCarousel = document.getElementById('offers-carousel');
+  if(existingCarousel) existingCarousel.remove();
+
+  if(!window.SALE_ACTIVE || window.OFFERS_DISPLAY_MODE === 'off') return;
+
+  const mode = window.OFFERS_DISPLAY_MODE;
+  const grid = document.querySelector('.cat-img-grid');
+  if((mode === 'tab' || mode === 'both') && grid){
+    const tab = document.createElement('a');
+    tab.href = '#products';
+    tab.id = 'offers-tab-card';
+    tab.className = 'cat-card-img';
+    tab.onclick = function(){ filterOffers(); return false; };
+    tab.innerHTML = `
+      <div class="cat-img-wrap" style="background:linear-gradient(135deg,var(--amber),var(--teal));display:flex;align-items:center;justify-content:center;">
+        <div style="font-family:'Anton',sans-serif;font-size:22px;color:var(--ink-black);text-align:center;padding:10px;line-height:1.1;">${window.SALE_DISCOUNT_PCT}%<br>OFF</div>
+      </div>
+      <div class="cat-label"><span class="cat-icon">🔥</span> Offers</div>
+    `;
+    grid.insertBefore(tab, grid.firstChild);
+  }
+
+  if(mode === 'carousel' || mode === 'both'){
+    const section = document.getElementById('categories');
+    if(section && section.parentNode){
+      const banner = document.createElement('div');
+      banner.id = 'offers-carousel';
+      banner.className = 'offers-carousel';
+      const label = escapeHtml(window.SALE_BANNER_LABEL);
+      banner.innerHTML = `<div class="offers-carousel-track">${`<span>${label}</span>`.repeat(6)}</div>`;
+      banner.addEventListener('click', filterOffers);
+      section.parentNode.insertBefore(banner, section);
     }
   }
 }
