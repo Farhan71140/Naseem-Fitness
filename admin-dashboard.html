@@ -277,6 +277,46 @@
   .prod-admin-price strong{color:var(--paper);}
   .prod-admin-actions{display:flex;gap:8px;}
   .prod-admin-actions .icon-btn{flex:1;width:auto;}
+  .prod-admin-photo-count{
+    position:absolute;bottom:8px;right:8px;background:rgba(10,8,6,0.72);color:var(--paper);
+    font-family:'Space Mono',monospace;font-size:10px;letter-spacing:0.5px;padding:3px 7px;border-radius:20px;
+    display:flex;align-items:center;gap:4px;backdrop-filter:blur(2px);
+  }
+  .prod-admin-photo-count svg{width:11px;height:11px;}
+
+  /* ===== PRODUCT PHOTO UPLOAD (multi-image) ===== */
+  .photo-upload-grid{display:flex;flex-wrap:wrap;gap:10px;margin-bottom:10px;}
+  .photo-tile{
+    position:relative;width:76px;height:76px;border-radius:9px;overflow:hidden;
+    border:1px solid var(--line);background:var(--iron);flex-shrink:0;
+  }
+  .photo-tile img{width:100%;height:100%;object-fit:cover;display:block;}
+  .photo-tile .cover-badge{
+    position:absolute;top:0;left:0;right:0;background:var(--teal);color:var(--ink-black);
+    font-family:'Space Mono',monospace;font-size:8.5px;font-weight:700;letter-spacing:0.5px;
+    text-align:center;padding:2px 0;text-transform:uppercase;
+  }
+  .photo-tile .photo-remove{
+    position:absolute;top:3px;right:3px;width:19px;height:19px;border-radius:50%;
+    background:rgba(10,8,6,0.75);border:none;color:var(--paper);cursor:pointer;
+    display:flex;align-items:center;justify-content:center;font-size:12px;line-height:1;padding:0;
+  }
+  .photo-tile .photo-remove:hover{background:var(--bad);}
+  .photo-tile .photo-make-cover{
+    position:absolute;bottom:0;left:0;right:0;background:rgba(10,8,6,0.75);color:var(--paper-dim);
+    border:none;cursor:pointer;font-family:'Space Mono',monospace;font-size:8px;letter-spacing:0.5px;
+    text-transform:uppercase;padding:3px 0;
+  }
+  .photo-tile .photo-make-cover:hover{color:var(--teal);}
+  .photo-tile-add{
+    width:76px;height:76px;border-radius:9px;flex-shrink:0;
+    border:1px dashed var(--line);background:transparent;color:var(--paper-dim);
+    display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;
+    cursor:pointer;font-size:10px;text-align:center;line-height:1.3;
+  }
+  .photo-tile-add:hover{border-color:var(--teal);color:var(--teal);}
+  .photo-tile-add svg{width:18px;height:18px;}
+  .photo-upload-hint{font-size:12px;color:var(--paper-dim);margin-top:2px;}
 
   /* ===== MODAL ===== */
   .modal-overlay{
@@ -1038,14 +1078,17 @@
         </div>
       </div>
       <div class="field">
-        <label for="product-image-file">Product Photo</label>
-        <input type="file" id="product-image-file" accept="image/*" onchange="uploadProductImage(this.files[0])">
-        <div id="upload-status" style="font-size:12px;color:var(--paper-dim);margin-top:6px;"></div>
-        <img id="image-preview" style="display:none;max-width:120px;max-height:120px;border-radius:8px;margin-top:10px;border:1px solid var(--line);object-fit:cover;">
+        <label>Product Photos (up to 5 — first photo is the cover shown in listings)</label>
+        <div class="photo-upload-grid" id="photo-upload-grid"></div>
+        <input type="file" id="product-image-file" accept="image/*" multiple onchange="handleProductImageFiles(this.files)">
+        <div class="photo-upload-hint" id="upload-status"></div>
       </div>
       <div class="field">
-        <label for="product-image">Image URL (auto-filled after upload — or paste your own link)</label>
-        <input type="text" id="product-image" placeholder="https://..." oninput="previewImageUrl(this.value)">
+        <label for="product-image">Or paste an image link</label>
+        <div style="display:flex;gap:8px;">
+          <input type="text" id="product-image" placeholder="https://...">
+          <button type="button" class="btn btn-ghost btn-sm" style="flex-shrink:0;" onclick="addImageUrlManually()">+ Add</button>
+        </div>
       </div>
       <div class="field">
         <label for="product-desc">Description (shown to customers)</label>
@@ -1312,11 +1355,14 @@ async function renderProducts(){
     </div>`;
     return;
   }
-  grid.innerHTML = products.map(p=>`
+  grid.innerHTML = products.map(p=>{
+    const imgs = Array.isArray(p.image_urls) && p.image_urls.length ? p.image_urls : (p.image_url ? [p.image_url] : []);
+    return `
     <div class="prod-admin-card">
       <div class="prod-admin-photo">
-        ${p.image_url ? `<img src="${escapeHtml(p.image_url)}" alt="${escapeHtml(p.name)}" onerror="this.parentElement.innerHTML='<svg viewBox=\\'0 0 24 24\\' fill=\\'none\\' stroke=\\'currentColor\\' stroke-width=\\'1.5\\'><rect x=\\'6\\' y=\\'3\\' width=\\'12\\' height=\\'18\\' rx=\\'2\\'/></svg>'">`
+        ${imgs[0] ? `<img src="${escapeHtml(imgs[0])}" alt="${escapeHtml(p.name)}" onerror="this.parentElement.innerHTML='<svg viewBox=\\'0 0 24 24\\' fill=\\'none\\' stroke=\\'currentColor\\' stroke-width=\\'1.5\\'><rect x=\\'6\\' y=\\'3\\' width=\\'12\\' height=\\'18\\' rx=\\'2\\'/></svg>'">`
           : `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="6" y="3" width="12" height="18" rx="2"/><path d="M9 3v3h6V3"/></svg>`}
+        ${imgs.length > 1 ? `<div class="prod-admin-photo-count"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="15" height="15" rx="2"/><path d="M21 8v11a2 2 0 0 1-2 2H8"/></svg>${imgs.length}</div>` : ''}
       </div>
       <div class="prod-admin-body">
         <div class="prod-admin-cat">${escapeHtml(p.category)}</div>
@@ -1336,7 +1382,7 @@ async function renderProducts(){
         </div>
       </div>
     </div>
-  `).join('');
+  `;}).join('');
 }
 
 /* ---------- render: orders ---------- */
@@ -1778,29 +1824,74 @@ function formatDate(iso){
   return new Date(iso).toLocaleDateString('en-IN', { day:'2-digit', month:'short', year:'numeric' });
 }
 
-/* ---------- product image upload ---------- */
+/* ---------- product image upload (multi, max 5) ---------- */
 const PRODUCT_IMAGE_BUCKET = 'product-images';
-function previewImageUrl(url){
-  const img = document.getElementById('image-preview');
-  if(!url){ img.style.display='none'; return; }
-  img.src = url;
-  img.style.display = 'block';
+const MAX_PRODUCT_IMAGES = 5;
+let PRODUCT_IMAGES = [];
+
+function renderPhotoUploadGrid(){
+  const grid = document.getElementById('photo-upload-grid');
+  const tiles = PRODUCT_IMAGES.map((url, i) => `
+    <div class="photo-tile">
+      ${i===0 ? '<div class="cover-badge">Cover</div>' : ''}
+      <img src="${escapeHtml(url)}" alt="Product photo ${i+1}">
+      <button type="button" class="photo-remove" title="Remove" onclick="removeProductImage(${i})">✕</button>
+      ${i!==0 ? `<button type="button" class="photo-make-cover" onclick="makeCoverImage(${i})">Make cover</button>` : ''}
+    </div>
+  `).join('');
+  const addTile = PRODUCT_IMAGES.length < MAX_PRODUCT_IMAGES
+    ? `<button type="button" class="photo-tile-add" onclick="document.getElementById('product-image-file').click()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 5v14M5 12h14"/></svg>
+        Add
+      </button>`
+    : '';
+  grid.innerHTML = tiles + addTile;
 }
-async function uploadProductImage(file){
-  if(!file) return;
+function removeProductImage(i){
+  PRODUCT_IMAGES.splice(i, 1);
+  renderPhotoUploadGrid();
+}
+function makeCoverImage(i){
+  const [img] = PRODUCT_IMAGES.splice(i, 1);
+  PRODUCT_IMAGES.unshift(img);
+  renderPhotoUploadGrid();
+}
+function addImageUrlManually(){
+  const input = document.getElementById('product-image');
+  const url = input.value.trim();
+  if(!url) return;
+  if(PRODUCT_IMAGES.length >= MAX_PRODUCT_IMAGES){ showToast(`Maximum ${MAX_PRODUCT_IMAGES} photos per product`); return; }
+  PRODUCT_IMAGES.push(url);
+  input.value = '';
+  renderPhotoUploadGrid();
+}
+async function handleProductImageFiles(fileList){
+  const files = Array.from(fileList || []);
+  document.getElementById('product-image-file').value = '';
+  if(files.length === 0) return;
+  const remaining = MAX_PRODUCT_IMAGES - PRODUCT_IMAGES.length;
+  if(remaining <= 0){ showToast(`Maximum ${MAX_PRODUCT_IMAGES} photos per product`); return; }
+  const toUpload = files.slice(0, remaining);
+  if(files.length > remaining){ showToast(`Only ${remaining} more photo${remaining===1?'':'s'} allowed — uploading the first ${remaining}`); }
   const statusEl = document.getElementById('upload-status');
-  statusEl.textContent = 'Uploading…';
+  for(let i=0; i<toUpload.length; i++){
+    statusEl.textContent = `Uploading ${i+1} of ${toUpload.length}…`;
+    const url = await uploadSingleProductImage(toUpload[i]);
+    if(url){ PRODUCT_IMAGES.push(url); renderPhotoUploadGrid(); }
+  }
+  statusEl.textContent = PRODUCT_IMAGES.length ? 'Uploaded ✓' : '';
+}
+async function uploadSingleProductImage(file){
+  const statusEl = document.getElementById('upload-status');
   const safeName = file.name.toLowerCase().replace(/[^a-z0-9.]+/g, '-').replace(/-+/g,'-');
-  const path = `products/${Date.now()}-${safeName}`;
+  const path = `products/${Date.now()}-${Math.random().toString(36).slice(2,7)}-${safeName}`;
   const { error: uploadError } = await sb.storage.from(PRODUCT_IMAGE_BUCKET).upload(path, file, { upsert:false });
   if(uploadError){
     statusEl.innerHTML = `Upload failed: ${escapeHtml(uploadError.message)}. Make sure a public Storage bucket named "${PRODUCT_IMAGE_BUCKET}" exists in your Supabase project (Storage → New bucket → Public), then try again.`;
-    return;
+    return null;
   }
   const { data } = sb.storage.from(PRODUCT_IMAGE_BUCKET).getPublicUrl(path);
-  document.getElementById('product-image').value = data.publicUrl;
-  previewImageUrl(data.publicUrl);
-  statusEl.textContent = 'Uploaded ✓';
+  return data.publicUrl;
 }
 
 /* ---------- product CRUD ---------- */
@@ -1817,7 +1908,8 @@ async function openProductModal(){
   document.getElementById('product-image').value = '';
   document.getElementById('product-image-file').value = '';
   document.getElementById('upload-status').textContent = '';
-  document.getElementById('image-preview').style.display = 'none';
+  PRODUCT_IMAGES = [];
+  renderPhotoUploadGrid();
   document.getElementById('product-desc').value = '';
   document.getElementById('product-modal').classList.add('active');
 }
@@ -1833,10 +1925,13 @@ async function editProduct(id){
   document.getElementById('product-unit').value = p.unit || '';
   document.getElementById('product-price').value = p.price;
   document.getElementById('product-compare-price').value = p.compare_price || '';
-  document.getElementById('product-image').value = p.image_url || '';
+  document.getElementById('product-image').value = '';
   document.getElementById('product-image-file').value = '';
   document.getElementById('upload-status').textContent = '';
-  previewImageUrl(p.image_url || '');
+  PRODUCT_IMAGES = Array.isArray(p.image_urls) && p.image_urls.length
+    ? [...p.image_urls]
+    : (p.image_url ? [p.image_url] : []);
+  renderPhotoUploadGrid();
   document.getElementById('product-desc').value = p.description || '';
   document.getElementById('product-modal').classList.add('active');
 }
@@ -1853,7 +1948,8 @@ async function saveProduct(){
     unit: document.getElementById('product-unit').value.trim(),
     price: Number(price),
     compare_price: comparePrice === '' ? null : Number(comparePrice),
-    image_url: document.getElementById('product-image').value.trim(),
+    image_url: PRODUCT_IMAGES[0] || '',
+    image_urls: PRODUCT_IMAGES,
     description: document.getElementById('product-desc').value.trim()
   };
   let error;
