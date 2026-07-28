@@ -1254,8 +1254,9 @@ async function loadReviews(){
   if(error){ REVIEWS = []; return; }
   REVIEWS = data || [];
 }
+function isPublishedReview(r){ return r.status !== 'pending' && r.status !== 'hidden'; }
 function getProductRatingStats(productId){
-  const list = REVIEWS.filter(r=>r.product_id===productId);
+  const list = REVIEWS.filter(r=>r.product_id===productId && isPublishedReview(r));
   const count = list.length;
   const avg = count ? (list.reduce((s,r)=>s+Number(r.rating),0)/count) : 0;
   return { avg, count };
@@ -1285,7 +1286,7 @@ function renderRatingSummary(productId, big){
 function renderQvExistingReviews(productId){
   const box = document.getElementById('qv-existing-reviews');
   if(!box) return;
-  const list = REVIEWS.filter(r=>r.product_id===productId);
+  const list = REVIEWS.filter(r=>r.product_id===productId && isPublishedReview(r));
   if(list.length===0){
     box.innerHTML = `<div class="no-reviews-note">No reviews yet for this product.</div>`;
     return;
@@ -1360,7 +1361,7 @@ async function submitReview(){
     return;
   }
   btn.textContent = 'Posting…';
-  const payload = { product_id: QV_PRODUCT_ID, customer_name: name, rating: QV_STAR, review_text: text, verified_purchase: true };
+  const payload = { product_id: QV_PRODUCT_ID, customer_name: name, rating: QV_STAR, review_text: text, verified_purchase: true, status: 'pending' };
   const { data, error } = await sb.from('reviews').insert(payload).select();
   btn.disabled = false; btn.textContent = 'Submit Review';
   if(error){
@@ -1373,7 +1374,7 @@ async function submitReview(){
   document.getElementById('qv-review-phone').value = '';
   document.getElementById('qv-review-text').value = '';
   setQvStar(0);
-  msgEl.textContent = 'Thanks! Your verified review has been posted.';
+  msgEl.textContent = "Thanks! Your review has been submitted and will appear once approved.";
   msgEl.className = 'review-submit-msg ok'; msgEl.style.display = 'block';
   renderQvExistingReviews(QV_PRODUCT_ID);
   const summaryEl = document.querySelector('.qv-rating');
@@ -1384,11 +1385,12 @@ async function submitReview(){
 function renderGlobalReviews(){
   const track = document.getElementById('reviews-track');
   if(!track) return;
-  if(REVIEWS.length===0){
+  const published = REVIEWS.filter(isPublishedReview);
+  if(published.length===0){
     track.innerHTML = `<div class="prod-empty">No customer reviews yet — be the first to leave one on any product!</div>`;
     return;
   }
-  const latest = REVIEWS.slice(0,9);
+  const latest = published.slice(0,9);
   track.innerHTML = latest.map(r=>{
     const product = PRODUCTS.find(p=>p.id===r.product_id);
     return `
