@@ -524,10 +524,15 @@
     position:relative;z-index:2;
   }
   @media (max-width:860px){ .visit{grid-template-columns:1fr;} .visit-info{padding:36px 24px;} }
-  /* On mobile, show Products first, Hero section right after it */
+  /* On mobile: show video+badges, then Shop by Category, then Products, then the hero headline/CTA text */
   @media (max-width:860px){
     main#top{display:flex;flex-direction:column;}
-    main#top #products{order:-1;}
+    main#top > .hero{display:contents;}
+    .hero-grid{display:contents;}
+    .seal-wrap{order:-4;margin-bottom:0;padding:0 20px;}
+    #categories{order:-3;}
+    #products{order:-2;}
+    .hero-top{order:-1;padding:24px 20px 0;}
   }
 
   /* ===== FOOTER ===== */
