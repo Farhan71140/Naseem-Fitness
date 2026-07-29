@@ -700,7 +700,7 @@
           <table class="responsive-table">
             <thead>
               <tr>
-                <th>Order</th><th>Customer</th><th>Phone</th><th>Address</th><th>Items</th><th>Amount</th><th>Date</th><th>Status</th><th>Delivery</th><th></th>
+                <th>Order</th><th>Customer</th><th>Phone</th><th>Address</th><th>Items</th><th>Amount</th><th>Payment</th><th>Date</th><th>Status</th><th>Delivery</th><th></th>
               </tr>
             </thead>
             <tbody id="orders-tbody"></tbody>
@@ -1415,6 +1415,18 @@ async function renderOrders(){
       </td>
       <td data-label="Items" style="color:var(--paper-dim);max-width:220px;">${escapeHtml(formatItems(o.items))}</td>
       <td class="mono" data-label="Amount">₹${Number(o.amount).toLocaleString('en-IN')}</td>
+      <td data-label="Payment">
+        ${String(o.payment_method||'').toLowerCase() === 'cod' ? `
+          <div class="cod-cell" style="font-size:12px;line-height:1.5;">
+            <div style="color:var(--paper-dim);">COD · Advance ₹${Number(o.advance_amount||0).toLocaleString('en-IN')}</div>
+            <div style="color:var(--paper-dim);">Balance ₹${Number(o.remaining_amount||0).toLocaleString('en-IN')} on delivery</div>
+            <label style="display:flex;align-items:center;gap:6px;margin-top:4px;cursor:pointer;">
+              <input type="checkbox" ${o.advance_paid ? 'checked' : ''} onchange="updateAdvancePaid('${o.id}', this.checked)">
+              <span>${o.advance_paid ? 'Advance received' : 'Advance pending'}</span>
+            </label>
+          </div>
+        ` : `<span style="color:var(--paper-dim);">${escapeHtml(o.payment_method || 'COD')}</span>`}
+      </td>
       <td class="mono" data-label="Date" style="color:var(--paper-dim);">${formatDate(o.created_at)}</td>
       <td data-label="Status">
         <select class="status-select status-pill ${o.status}" onchange="updateOrderStatus('${o.id}', this.value)">
@@ -1746,11 +1758,14 @@ function downloadTextFile(filename, content, mime){
 }
 function exportOrdersCsv(){
   if(!REPORTS_CACHE){ showToast('Reports still loading — try again in a moment'); return; }
-  const rows = [['Order ID','Customer','Phone','Items','Amount','Status','Channel','Payment Method','Fulfillment','Tax','Discount','Date']];
+  const rows = [['Order ID','Customer','Phone','Items','Amount','Status','Channel','Payment Method','Advance Amount','Remaining Amount','Advance Paid','Fulfillment','Tax','Discount','Date']];
   REPORTS_CACHE.counted.forEach(o=>{
+    const isCod = String(o.payment_method||'').toLowerCase() === 'cod';
     rows.push([
       o.id, o.customer_name, o.phone || '', formatItems(o.items), o.amount,
       o.status, o.channel || 'Online', o.payment_method || 'COD',
+      isCod ? (o.advance_amount || 0) : '', isCod ? (o.remaining_amount || 0) : '',
+      isCod ? (o.advance_paid ? 'Yes' : 'No') : '',
       o.delivery_partner ? 'Delivery' : 'Unassigned', o.tax_amount || 0, o.discount_amount || 0,
       formatDate(o.created_at)
     ]);
@@ -2017,6 +2032,17 @@ async function updateOrderStatus(id, status){
   renderOrders();
   renderOverview();
   showToast('Order status updated');
+}
+
+/* ---------- COD advance payment tracking ---------- */
+// NOTE: until the online payment gateway is integrated for COD advance collection,
+// this checkbox lets you manually mark the 10% advance as received once you've
+// collected it (e.g. via UPI/payment link sent to the customer).
+async function updateAdvancePaid(id, paid){
+  const { error } = await sb.from('orders').update({ advance_paid: paid }).eq('id', id);
+  if(error){ showToast('Error: ' + error.message); return; }
+  renderOrders();
+  showToast(paid ? 'Advance marked as received' : 'Advance marked as pending');
 }
 
 /* ---------- delivery assignment ---------- */
