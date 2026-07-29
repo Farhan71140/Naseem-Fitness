@@ -1425,6 +1425,15 @@ async function renderOrders(){
               <span>${o.advance_paid ? 'Advance received' : 'Advance pending'}</span>
             </label>
           </div>
+        ` : String(o.payment_method||'').toLowerCase() === 'upi' ? `
+          <div class="cod-cell" style="font-size:12px;line-height:1.5;">
+            <div style="color:var(--paper-dim);">UPI${o.upi_app ? ' · ' + escapeHtml(upiAppLabel(o.upi_app)) : ''}</div>
+            ${o.upi_ref ? `<div class="mono" style="color:var(--paper-dim);">Ref: ${escapeHtml(o.upi_ref)}</div>` : ''}
+            <label style="display:flex;align-items:center;gap:6px;margin-top:4px;cursor:pointer;">
+              <input type="checkbox" ${o.upi_paid ? 'checked' : ''} onchange="updateUpiPaid('${o.id}', this.checked)">
+              <span>${o.upi_paid ? 'Payment verified' : 'Verify payment'}</span>
+            </label>
+          </div>
         ` : `<span style="color:var(--paper-dim);">${escapeHtml(o.payment_method || 'COD')}</span>`}
       </td>
       <td class="mono" data-label="Date" style="color:var(--paper-dim);">${formatDate(o.created_at)}</td>
@@ -1758,14 +1767,16 @@ function downloadTextFile(filename, content, mime){
 }
 function exportOrdersCsv(){
   if(!REPORTS_CACHE){ showToast('Reports still loading — try again in a moment'); return; }
-  const rows = [['Order ID','Customer','Phone','Items','Amount','Status','Channel','Payment Method','Advance Amount','Remaining Amount','Advance Paid','Fulfillment','Tax','Discount','Date']];
+  const rows = [['Order ID','Customer','Phone','Items','Amount','Status','Channel','Payment Method','Advance Amount','Remaining Amount','Advance Paid','UPI Ref','UPI Verified','Fulfillment','Tax','Discount','Date']];
   REPORTS_CACHE.counted.forEach(o=>{
     const isCod = String(o.payment_method||'').toLowerCase() === 'cod';
+    const isUpi = String(o.payment_method||'').toLowerCase() === 'upi';
     rows.push([
       o.id, o.customer_name, o.phone || '', formatItems(o.items), o.amount,
       o.status, o.channel || 'Online', o.payment_method || 'COD',
       isCod ? (o.advance_amount || 0) : '', isCod ? (o.remaining_amount || 0) : '',
       isCod ? (o.advance_paid ? 'Yes' : 'No') : '',
+      isUpi ? (o.upi_ref || '') : '', isUpi ? (o.upi_paid ? 'Yes' : 'No') : '',
       o.delivery_partner ? 'Delivery' : 'Unassigned', o.tax_amount || 0, o.discount_amount || 0,
       formatDate(o.created_at)
     ]);
@@ -2043,6 +2054,19 @@ async function updateAdvancePaid(id, paid){
   if(error){ showToast('Error: ' + error.message); return; }
   renderOrders();
   showToast(paid ? 'Advance marked as received' : 'Advance marked as pending');
+}
+
+/* ---------- UPI payment verification ---------- */
+// NOTE: the storefront has no payment-gateway backend, so a UPI order is inserted
+// with upi_paid:false as soon as the customer says they've paid. Check your bank /
+// UPI app for the matching amount + reference, then tick this box to mark it verified.
+const UPI_APP_LABELS = { gpay:'Google Pay', phonepe:'PhonePe', paytm:'Paytm', navi:'Navi', other:'Other UPI app' };
+function upiAppLabel(app){ return UPI_APP_LABELS[app] || app || ''; }
+async function updateUpiPaid(id, paid){
+  const { error } = await sb.from('orders').update({ upi_paid: paid }).eq('id', id);
+  if(error){ showToast('Error: ' + error.message); return; }
+  renderOrders();
+  showToast(paid ? 'UPI payment marked as verified' : 'UPI payment marked as pending');
 }
 
 /* ---------- delivery assignment ---------- */
