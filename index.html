@@ -636,7 +636,32 @@
   .cart-line-remove:hover{color:var(--bad);}
   .cart-total-row{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;font-size:15px;}
   .cart-total-row strong{font-family:'Space Mono',monospace;font-size:19px;color:var(--teal);}
+  .cart-total-row.sub-row{margin-bottom:8px;font-size:13px;color:var(--paper-dim);}
+  .cart-total-row.sub-row strong{font-size:14px;color:var(--paper);font-family:'Space Mono',monospace;}
+  .cart-total-row.sub-row strong.free-tag{color:var(--teal);font-family:'Inter',sans-serif;font-size:12px;font-weight:700;letter-spacing:.3px;}
+  .cart-total-row.grand-row{padding-top:12px;border-top:1px solid var(--line);}
   .cart-empty{text-align:center;padding:60px 10px;color:var(--paper-dim);font-size:13.5px;}
+
+  .free-delivery-banner{
+    background:var(--teal-dim);border:1px solid var(--line);border-radius:8px;
+    padding:12px 14px;margin-bottom:16px;
+  }
+  .free-delivery-banner p{
+    font-size:12.5px;color:var(--paper);margin:0 0 8px;line-height:1.4;
+  }
+  .free-delivery-banner p strong{color:var(--teal);}
+  .free-delivery-banner .fdb-track{
+    height:6px;border-radius:4px;background:rgba(255,255,255,0.08);overflow:hidden;
+  }
+  .free-delivery-banner .fdb-fill{
+    height:100%;border-radius:4px;background:var(--teal);
+    transition:width .35s ease;
+  }
+  .free-delivery-banner.qualified{
+    display:flex;align-items:center;gap:8px;
+  }
+  .free-delivery-banner.qualified p{margin:0;font-size:13px;}
+  .free-delivery-banner.qualified .fdb-track{display:none;}
 
   .checkout-field{margin-bottom:14px;}
   .checkout-field label{display:block;font-family:'Space Mono',monospace;font-size:11px;letter-spacing:1px;text-transform:uppercase;color:var(--paper-dim);margin-bottom:6px;}
@@ -1218,7 +1243,10 @@
     </div>
     <div class="drawer-body" id="cart-body"></div>
     <div class="drawer-foot" id="cart-foot" style="display:none;">
-      <div class="cart-total-row"><span>Total</span><strong id="cart-total">₹0</strong></div>
+      <div class="free-delivery-banner" id="cart-delivery-banner"></div>
+      <div class="cart-total-row sub-row"><span>Subtotal</span><strong id="cart-subtotal">₹0</strong></div>
+      <div class="cart-total-row sub-row"><span>Delivery Fee</span><strong id="cart-delivery-fee">₹0</strong></div>
+      <div class="cart-total-row grand-row"><span>Total</span><strong id="cart-total">₹0</strong></div>
       <button class="btn btn-primary" style="width:100%;justify-content:center;" onclick="openCheckout()">Checkout →</button>
     </div>
   </div>
@@ -1265,7 +1293,10 @@
           <div class="cod-summary-note">Online advance payment is coming soon — for now we'll confirm your order and share a payment link separately.</div>
         </div>
       </div>
-      <div class="cart-total-row"><span>Order Total</span><strong id="checkout-total">₹0</strong></div>
+      <div class="free-delivery-banner" id="checkout-delivery-banner"></div>
+      <div class="cart-total-row sub-row"><span>Subtotal</span><strong id="checkout-subtotal">₹0</strong></div>
+      <div class="cart-total-row sub-row"><span>Delivery Fee</span><strong id="checkout-delivery-fee">₹0</strong></div>
+      <div class="cart-total-row grand-row"><span>Order Total</span><strong id="checkout-total">₹0</strong></div>
     </div>
     <div class="drawer-foot">
       <button class="btn btn-primary" id="checkout-submit-btn" style="width:100%;justify-content:center;" onclick="submitOrder()">Place Order</button>
@@ -1627,6 +1658,34 @@ function removeLine(id){
 function cartTotal(){
   return CART.reduce((s,l)=> s + l.price*l.qty, 0);
 }
+
+/* ---------- delivery fee ---------- */
+const FREE_DELIVERY_THRESHOLD = 899;
+const DELIVERY_FEE = 99;
+
+function getDeliveryFee(subtotal){
+  if(subtotal <= 0) return 0;
+  return subtotal >= FREE_DELIVERY_THRESHOLD ? 0 : DELIVERY_FEE;
+}
+function getOrderTotal(subtotal){
+  return subtotal + getDeliveryFee(subtotal);
+}
+function renderDeliveryBanner(el, subtotal){
+  if(!el) return;
+  if(subtotal <= 0){ el.innerHTML = ''; el.className = 'free-delivery-banner'; return; }
+  if(subtotal >= FREE_DELIVERY_THRESHOLD){
+    el.className = 'free-delivery-banner qualified';
+    el.innerHTML = `<span style="font-size:16px;">🎉</span><p>You've unlocked <strong>FREE delivery</strong> on this order!</p>`;
+  }else{
+    const remaining = FREE_DELIVERY_THRESHOLD - subtotal;
+    const pct = Math.min(100, Math.round((subtotal / FREE_DELIVERY_THRESHOLD) * 100));
+    el.className = 'free-delivery-banner';
+    el.innerHTML = `
+      <p>Add <strong>₹${remaining.toLocaleString('en-IN')}</strong> more to make your order <strong>FREE delivery</strong> 🚚</p>
+      <div class="fdb-track"><div class="fdb-fill" style="width:${pct}%;"></div></div>
+    `;
+  }
+}
 function renderCart(){
   const count = CART.reduce((s,l)=>s+l.qty,0);
   document.getElementById('cart-count-desktop').style.display = count>0 ? 'flex' : 'none';
@@ -1657,7 +1716,12 @@ function renderCart(){
       <button class="cart-line-remove" onclick="removeLine('${l.id}')" aria-label="Remove">✕</button>
     </div>
   `).join('');
-  document.getElementById('cart-total').textContent = '₹'+cartTotal().toLocaleString('en-IN');
+  const subtotal = cartTotal();
+  const deliveryFee = getDeliveryFee(subtotal);
+  document.getElementById('cart-subtotal').textContent = '₹'+subtotal.toLocaleString('en-IN');
+  document.getElementById('cart-delivery-fee').textContent = deliveryFee===0 ? 'FREE' : '₹'+deliveryFee.toLocaleString('en-IN');
+  document.getElementById('cart-total').textContent = '₹'+getOrderTotal(subtotal).toLocaleString('en-IN');
+  renderDeliveryBanner(document.getElementById('cart-delivery-banner'), subtotal);
 }
 
 function openCart(){ document.getElementById('cart-overlay').classList.add('active'); }
@@ -1893,7 +1957,7 @@ function codAdvanceAmount(total){
 }
 
 function updatePaymentSummary(){
-  const total = cartTotal();
+  const total = getOrderTotal(cartTotal());
   const advance = codAdvanceAmount(total);
   const remaining = total - advance;
   const advanceEl = document.getElementById('cod-advance-amount');
@@ -1913,13 +1977,18 @@ function updatePaymentSummary(){
 function openCheckout(){
   if(CART.length===0) return;
   closeCart();
-  document.getElementById('checkout-total').textContent = '₹'+cartTotal().toLocaleString('en-IN');
+  const subtotal = cartTotal();
+  const deliveryFee = getDeliveryFee(subtotal);
+  document.getElementById('checkout-subtotal').textContent = '₹'+subtotal.toLocaleString('en-IN');
+  document.getElementById('checkout-delivery-fee').textContent = deliveryFee===0 ? 'FREE' : '₹'+deliveryFee.toLocaleString('en-IN');
+  document.getElementById('checkout-total').textContent = '₹'+getOrderTotal(subtotal).toLocaleString('en-IN');
+  renderDeliveryBanner(document.getElementById('checkout-delivery-banner'), subtotal);
   document.getElementById('checkout-error').style.display='none';
   document.getElementById('location-status').textContent = '';
   document.getElementById('location-status').className = 'location-status';
   document.getElementById('checkout-overlay').classList.add('active');
   updatePaymentSummary();
-  if(window.fbq) fbq('track', 'InitiateCheckout', { value: cartTotal(), currency: 'INR' });
+  if(window.fbq) fbq('track', 'InitiateCheckout', { value: getOrderTotal(subtotal), currency: 'INR' });
 }
 function closeCheckout(){ document.getElementById('checkout-overlay').classList.remove('active'); }
 
@@ -1939,7 +2008,9 @@ async function submitOrder(){
 
   btn.disabled = true; btn.textContent = 'Placing order…';
   const items = CART.map(l=>({ name:l.name, price:l.price, qty:l.qty }));
-  const amount = cartTotal();
+  const subtotal = cartTotal();
+  const deliveryFee = getDeliveryFee(subtotal);
+  const amount = getOrderTotal(subtotal);
 
   const paymentMethodInput = document.querySelector('input[name="payment-method"]:checked');
   const paymentMethod = paymentMethodInput ? paymentMethodInput.value : 'cod';
