@@ -1,0 +1,458 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Refund &amp; Cancellation Policy | NF Naseem Fitness™</title>
+<meta name="description" content="Refund &amp; Cancellation Policy for NF Naseem Fitness™ — order cancellation, returns, eligibility, refund process, and processing times.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Anton&family=Inter:wght@400;500;600;700;800&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink-black:#0A0806;
+    --steel:#17130D;
+    --iron:#241D13;
+    --iron-light:#3A2E1A;
+    --paper:#F5EEDD;
+    --paper-dim:#B8AD95;
+    --teal:#FFD24A;
+    --teal-dim:#4A3A0E;
+    --gold-light:#FFF2B5;
+    --line: rgba(255,210,74,0.18);
+    --line-strong: rgba(255,210,74,0.32);
+  }
+  *{box-sizing:border-box;margin:0;padding:0;}
+  body{
+    background:var(--ink-black);color:var(--paper);
+    font-family:'Inter',sans-serif;line-height:1.5;
+    -webkit-font-smoothing:antialiased;
+  }
+  h1,h2,h3{font-family:'Anton',sans-serif;font-weight:400;text-transform:uppercase;letter-spacing:0.5px;line-height:1.05;}
+  a{color:inherit;text-decoration:none;}
+  .wrap{max-width:1180px;margin:0 auto;padding:0 32px;}
+  .mono{font-family:'Space Mono',monospace;}
+  :focus-visible{outline:2px solid var(--teal);outline-offset:3px;}
+  .eyebrow{
+    display:inline-flex;align-items:center;gap:10px;
+    font-family:'Space Mono',monospace;font-size:12px;letter-spacing:3px;text-transform:uppercase;
+    color:var(--teal);margin-bottom:14px;
+  }
+  .eyebrow::before{content:'';width:22px;height:1px;background:var(--teal);}
+
+  /* ===== HEADER ===== */
+  header{
+    position:sticky;top:0;z-index:50;background:rgba(10,8,6,0.94);backdrop-filter:blur(10px);
+    border-bottom:1px solid var(--line);
+  }
+  nav.wrap{display:flex;align-items:center;justify-content:space-between;gap:24px;padding:16px 32px;}
+  .brand{display:flex;align-items:center;gap:10px;}
+  .brand-name{font-family:'Anton',sans-serif;font-size:19px;letter-spacing:0.5px;text-transform:uppercase;line-height:1.1;white-space:nowrap;}
+  .brand-name span{color:var(--teal);}
+  .brand-tag{display:block;font-family:'Space Mono',monospace;font-size:9px;letter-spacing:2px;color:var(--paper-dim);text-transform:uppercase;margin-top:2px;white-space:nowrap;}
+  .nf-mark{width:38px;height:38px;flex:none;}
+  .nav-links{display:flex;gap:28px;font-size:14px;font-weight:600;}
+  .nav-links a{opacity:0.85;transition:opacity .2s, color .2s;}
+  .nav-links a:hover{opacity:1;color:var(--teal);}
+  .nav-links a.active{opacity:1;color:var(--teal);}
+  .btn{
+    display:inline-flex;align-items:center;justify-content:center;gap:8px;
+    padding:11px 22px;border-radius:8px;font-size:14px;font-weight:700;
+    border:1px solid var(--line);white-space:nowrap;transition:border-color .2s, background .2s, transform .15s;
+  }
+  .btn-primary{background:var(--teal);color:var(--ink-black);border-color:var(--teal);}
+  .btn-primary:hover{transform:translateY(-1px);}
+  .btn-ghost{border-color:var(--line);color:var(--paper);}
+  .btn-ghost:hover{border-color:var(--teal);}
+  .hamburger-btn{display:none;flex-direction:column;gap:5px;width:24px;cursor:pointer;flex:none;}
+  .hamburger-btn span{display:block;height:2px;width:100%;background:var(--paper);border-radius:2px;}
+  .nav-toggle-input{display:none;}
+  .mobile-menu{display:none;flex-direction:column;gap:4px;padding:10px 32px 24px;border-top:1px solid var(--line);background:var(--ink-black);}
+  .mobile-menu a{padding:12px 0;font-size:15px;font-weight:600;border-bottom:1px solid var(--line);}
+  .nav-toggle-input:checked ~ .mobile-menu{display:flex;}
+  @media (max-width:860px){
+    .nav-links{display:none;}
+    .header-cta{display:none;}
+    .hamburger-btn{display:flex;}
+  }
+
+  /* ===== HERO ===== */
+  .lic-hero{padding:80px 0 60px;position:relative;overflow:hidden;}
+  .hero-split{display:grid;grid-template-columns:1.1fr 0.9fr;gap:40px;align-items:center;}
+  .hero-copy h1{font-size:clamp(32px,4.6vw,52px);}
+  .hero-copy h1 span{color:var(--teal);}
+  .hero-copy .sub{max-width:480px;margin-top:20px;color:var(--paper-dim);font-size:15.5px;}
+  .updated-pill{
+    display:inline-flex;align-items:center;gap:8px;margin-top:28px;
+    font-family:'Space Mono',monospace;font-size:11px;letter-spacing:1.5px;text-transform:uppercase;
+    color:var(--paper-dim);border:1px solid var(--line);border-radius:30px;padding:8px 18px;
+  }
+  .updated-pill .dot{width:6px;height:6px;border-radius:50%;background:var(--teal);box-shadow:0 0 8px var(--teal);}
+
+  /* ---- ID card stack (signature visual) ---- */
+  .card-stack{position:relative;height:300px;display:flex;align-items:center;justify-content:center;}
+  .id-card{
+    position:absolute;width:300px;height:184px;border-radius:16px;
+    background:linear-gradient(135deg, var(--iron) 0%, var(--steel) 70%);
+    border:1px solid var(--line-strong);padding:20px 22px;
+    box-shadow:0 30px 60px -20px rgba(0,0,0,0.7);
+  }
+  .id-card.back{transform:rotate(7deg) translate(18px,10px);opacity:0.55;filter:saturate(0.7);}
+  .id-card.front{transform:rotate(-5deg);}
+  .id-shine{
+    position:absolute;top:0;left:0;right:0;bottom:0;border-radius:16px;overflow:hidden;pointer-events:none;
+  }
+  .id-shine::before{
+    content:'';position:absolute;top:-40%;left:-20%;width:60%;height:180%;
+    background:linear-gradient(115deg, transparent 30%, rgba(255,210,74,0.16) 48%, rgba(255,242,181,0.28) 52%, rgba(255,210,74,0.16) 56%, transparent 70%);
+    transform:rotate(8deg);
+  }
+  .id-top{display:flex;justify-content:space-between;align-items:flex-start;position:relative;z-index:2;}
+  .id-chip{width:34px;height:24px;border-radius:5px;background:linear-gradient(135deg,#FFF2B5,#C99A2E);position:relative;}
+  .id-chip::before,.id-chip::after{content:'';position:absolute;left:6px;right:6px;height:1px;background:rgba(0,0,0,0.35);}
+  .id-chip::before{top:8px;} .id-chip::after{top:14px;}
+  .id-verified-tag{
+    font-family:'Space Mono',monospace;font-size:9.5px;letter-spacing:1.5px;color:var(--ink-black);
+    background:var(--teal);padding:4px 9px;border-radius:20px;font-weight:700;
+  }
+  .id-mid{position:relative;z-index:2;margin-top:16px;}
+  .id-label{font-family:'Space Mono',monospace;font-size:9.5px;letter-spacing:2px;color:var(--paper-dim);text-transform:uppercase;}
+  .id-name{font-family:'Anton',sans-serif;font-size:16px;letter-spacing:0.5px;color:var(--paper);margin-top:4px;}
+  .id-num{font-family:'Space Mono',monospace;font-size:12px;letter-spacing:1.5px;color:var(--teal);margin-top:10px;}
+  .id-bottom{position:relative;z-index:2;display:flex;justify-content:space-between;align-items:flex-end;margin-top:14px;}
+  .id-valid{font-family:'Space Mono',monospace;font-size:9px;color:var(--paper-dim);letter-spacing:1px;}
+  .id-check{
+    width:26px;height:26px;border-radius:50%;border:1.5px solid var(--teal);
+    display:flex;align-items:center;justify-content:center;color:var(--teal);font-size:13px;flex:none;
+  }
+  @media (max-width:860px){
+    .hero-split{grid-template-columns:1fr;text-align:center;}
+    .hero-copy .sub{margin-left:auto;margin-right:auto;}
+    .card-stack{height:220px;margin-top:20px;}
+    .id-card{width:250px;height:154px;}
+  }
+
+  /* ===== TEAR / PERFORATION DIVIDER ===== */
+  .tear-divider{position:relative;padding:36px 0;text-align:center;}
+  .tear-divider .line{
+    border-top:1px dashed var(--line-strong);position:relative;
+  }
+  .tear-divider .label{
+    position:relative;top:-11px;display:inline-block;background:var(--ink-black);
+    padding:0 18px;font-family:'Space Mono',monospace;font-size:10.5px;letter-spacing:2.5px;
+    text-transform:uppercase;color:var(--paper-dim);
+  }
+
+  /* ===== CERTIFICATE CARDS ===== */
+  .cert-section{padding:0 0 84px;}
+  .cert-grid{display:grid;grid-template-columns:1fr 1fr;gap:28px;}
+  .cert-card{
+    position:relative;background:linear-gradient(165deg, var(--steel) 0%, var(--iron) 130%);
+    border:1px solid var(--line);border-radius:14px;
+    padding:40px 36px 32px;overflow:hidden;
+    box-shadow:0 24px 48px -24px rgba(0,0,0,0.6);
+  }
+  .cert-card::before{
+    content:'';position:absolute;top:0;left:0;right:0;height:2px;
+    background:linear-gradient(90deg, transparent, var(--teal) 30%, var(--teal) 70%, transparent);
+    opacity:0.7;
+  }
+  .cert-card::after{
+    content:'';position:absolute;inset:9px;border:1px solid var(--line);border-radius:9px;pointer-events:none;
+  }
+  .cert-seal{position:absolute;top:26px;right:26px;width:66px;height:66px;transform:rotate(-6deg);opacity:0.92;}
+  .cert-tag{
+    font-family:'Space Mono',monospace;font-size:11px;letter-spacing:2px;text-transform:uppercase;
+    color:var(--teal);margin-bottom:10px;
+  }
+  .cert-card h3{font-size:21px;max-width:78%;margin-bottom:26px;}
+  .cert-rows{display:flex;flex-direction:column;position:relative;z-index:2;}
+  .cert-row{
+    display:flex;justify-content:space-between;gap:16px;padding:14px 0;
+    border-bottom:1px dashed var(--line);font-size:13.5px;
+  }
+  .cert-row:last-child{border-bottom:none;}
+  .cert-row .k{color:var(--paper-dim);flex:none;}
+  .cert-row .v{font-family:'Space Mono',monospace;text-align:right;color:var(--paper);}
+  .cert-row .v.ok{color:var(--teal);}
+  @media (max-width:860px){ .cert-grid{grid-template-columns:1fr;} }
+
+  /* ===== ADDRESS + COMMITMENT ===== */
+  .info-grid{display:grid;grid-template-columns:1fr 1fr;gap:28px;margin-top:28px;}
+  .addr-card{
+    position:relative;background:var(--iron);border:1px solid var(--line);border-radius:14px;padding:36px 32px;
+  }
+  .addr-card::before{
+    content:'';position:absolute;top:0;left:0;right:0;height:2px;
+    background:linear-gradient(90deg, transparent, var(--teal) 30%, var(--teal) 70%, transparent);opacity:0.55;
+  }
+  .addr-card .cert-tag{margin-bottom:16px;}
+  .addr-card address{font-style:normal;font-size:15px;line-height:1.9;color:var(--paper);}
+  .pin-icon{width:18px;height:18px;color:var(--teal);flex:none;margin-bottom:12px;}
+  .quote-card{
+    position:relative;
+    background:linear-gradient(160deg, var(--iron) 0%, var(--steel) 100%);
+    border:1px solid var(--line);border-radius:14px;padding:36px 36px;
+    display:flex;flex-direction:column;justify-content:center;
+  }
+  .quote-card::before{
+    content:'';position:absolute;top:0;left:0;right:0;height:2px;
+    background:linear-gradient(90deg, transparent, var(--teal) 30%, var(--teal) 70%, transparent);opacity:0.55;
+  }
+  .quote-mark{font-family:'Anton',sans-serif;font-size:44px;color:var(--teal-dim);line-height:0;display:block;margin-bottom:6px;}
+  .quote-card p{font-size:16.5px;color:var(--paper);line-height:1.8;}
+  .quote-card p + p{margin-top:16px;color:var(--paper-dim);font-size:13.5px;}
+  @media (max-width:860px){ .info-grid{grid-template-columns:1fr;} }
+
+  /* ===== CTA STRIP (document-footer style) ===== */
+  .cta-strip{padding:20px 0 76px;}
+  .cta-panel{
+    position:relative;text-align:center;padding:56px 40px;border-radius:18px;
+    background:radial-gradient(120% 140% at 50% 0%, rgba(255,210,74,0.08) 0%, transparent 60%), var(--steel);
+    border:1px solid var(--line);
+  }
+  .cta-panel::before{
+    content:'';position:absolute;inset:9px;border:1px solid var(--line);border-radius:13px;pointer-events:none;
+  }
+  .cta-panel h2{font-size:clamp(22px,3.2vw,32px);margin-bottom:12px;position:relative;z-index:2;}
+  .cta-panel p{color:var(--paper-dim);max-width:460px;margin:0 auto 26px;font-size:14.5px;position:relative;z-index:2;}
+  .cta-row{display:flex;gap:14px;justify-content:center;flex-wrap:wrap;position:relative;z-index:2;}
+
+  /* ===== FOOTER ===== */
+  footer{border-top:1px solid var(--line);padding:36px 0 26px;text-align:center;}
+  footer p{color:var(--paper-dim);font-size:13px;}
+  footer a:hover{color:var(--teal);}
+
+  /* ===== POLICY DOCUMENT ===== */
+  .policy-hero{padding:64px 0 20px;}
+  .policy-hero h1{font-size:clamp(30px,4.4vw,46px);}
+  .policy-hero h1 span{color:var(--teal);}
+  .policy-hero .sub{max-width:620px;margin-top:16px;color:var(--paper-dim);font-size:15.5px;}
+  .breadcrumb{font-family:'Space Mono',monospace;font-size:11px;letter-spacing:1.5px;text-transform:uppercase;color:var(--paper-dim);margin-bottom:18px;}
+  .breadcrumb a{color:var(--paper-dim);}
+  .breadcrumb a:hover{color:var(--teal);}
+
+  .policy-section{padding:20px 0 80px;}
+  .policy-doc{
+    max-width:840px;margin:0 auto;
+    background:linear-gradient(165deg, var(--steel) 0%, var(--iron) 130%);
+    border:1px solid var(--line);border-radius:16px;padding:44px 44px 24px;position:relative;
+  }
+  .policy-doc::before{
+    content:'';position:absolute;top:0;left:0;right:0;height:2px;
+    background:linear-gradient(90deg, transparent, var(--teal) 30%, var(--teal) 70%, transparent);opacity:0.7;
+  }
+  .policy-toc{
+    display:flex;flex-wrap:wrap;gap:10px 22px;padding-bottom:26px;margin-bottom:30px;
+    border-bottom:1px dashed var(--line-strong);
+  }
+  .policy-toc a{
+    font-family:'Space Mono',monospace;font-size:12px;letter-spacing:0.5px;color:var(--paper-dim);
+    border:1px solid var(--line);border-radius:20px;padding:7px 14px;transition:border-color .2s,color .2s;
+  }
+  .policy-toc a:hover{border-color:var(--teal);color:var(--teal);}
+
+  .policy-block{padding-bottom:34px;margin-bottom:34px;border-bottom:1px dashed var(--line);scroll-margin-top:100px;}
+  .policy-block:last-of-type{border-bottom:none;margin-bottom:0;}
+  .policy-block h2{
+    font-family:'Space Mono',monospace;text-transform:uppercase;letter-spacing:2px;font-size:13px;
+    color:var(--teal);display:flex;align-items:center;gap:10px;margin-bottom:18px;
+  }
+  .policy-block h2 .num{
+    width:24px;height:24px;border-radius:50%;border:1px solid var(--teal);
+    display:inline-flex;align-items:center;justify-content:center;font-size:11px;flex:none;
+  }
+  .policy-block p{font-size:15px;color:var(--paper);line-height:1.8;margin-bottom:14px;}
+  .policy-block p:last-child{margin-bottom:0;}
+  .policy-block ul{margin:0 0 4px;padding-left:0;list-style:none;}
+  .policy-block ul li{
+    position:relative;padding:10px 0 10px 22px;font-size:14.5px;color:var(--paper);line-height:1.65;
+    border-bottom:1px dashed var(--line);
+  }
+  .policy-block ul li:last-child{border-bottom:none;}
+  .policy-block ul li::before{
+    content:'';position:absolute;left:0;top:19px;width:6px;height:6px;border-radius:50%;background:var(--teal);
+  }
+  .policy-block ul li.bad::before{background:#E0554F;}
+  .policy-note{
+    margin-top:8px;background:var(--teal-dim);border:1px solid var(--line-strong);border-radius:10px;
+    padding:14px 18px;font-size:13.5px;color:var(--gold-light);
+  }
+  .contact-card{
+    display:flex;align-items:center;gap:16px;flex-wrap:wrap;justify-content:space-between;
+    background:var(--iron);border:1px solid var(--line);border-radius:12px;padding:22px 24px;
+  }
+  .contact-card .who{font-family:'Anton',sans-serif;font-size:16px;letter-spacing:0.5px;}
+  .contact-card .num{font-family:'Space Mono',monospace;color:var(--teal);font-size:15px;margin-top:6px;display:block;}
+  @media (max-width:640px){
+    .policy-doc{padding:32px 22px 20px;}
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <input type="checkbox" id="nav-toggle" class="nav-toggle-input">
+  <nav class="wrap">
+    <a class="brand" href="index.html">
+      <svg class="nf-mark" viewBox="0 0 48 48" fill="none">
+        <rect x="1" y="1" width="46" height="46" rx="10" stroke="#FFD24A" stroke-width="1.5"/>
+        <text x="24" y="31" text-anchor="middle" font-family="Anton" font-size="20" fill="#FFD24A">NF</text>
+      </svg>
+      <div>
+        <div class="brand-name">Naseem <span>Fitness</span></div>
+        <span class="brand-tag">Strength · Discipline · Results</span>
+      </div>
+    </a>
+    <div class="nav-links">
+      <a href="index.html">Home</a>
+      <a href="index.html#categories">Shop</a>
+      <a href="index.html#authenticity">Verify Product</a>
+      <a href="licenses.html">Licenses</a>
+      <a href="refund-policy.html" class="active">Refund Policy</a>
+      <a href="index.html#visit">Visit Store</a>
+    </div>
+    <a class="btn btn-primary header-cta" href="index.html">View Store</a>
+    <label for="nav-toggle" class="hamburger-btn" aria-label="Open menu">
+      <span></span><span></span><span></span>
+    </label>
+  </nav>
+  <div class="mobile-menu">
+    <a href="index.html">Home</a>
+    <a href="index.html#categories">Shop</a>
+    <a href="index.html#authenticity">Verify Product</a>
+    <a href="licenses.html">Licenses</a>
+    <a href="refund-policy.html">Refund Policy</a>
+    <a href="index.html#visit">Visit Store</a>
+  </div>
+</header>
+
+<main>
+  <!-- HERO -->
+  <section class="policy-hero">
+    <div class="wrap">
+      <div class="breadcrumb"><a href="index.html">Home</a> / Refund &amp; Cancellation</div>
+      <div class="eyebrow">Policy Document</div>
+      <h1>Refund &amp; <span>Cancellation Policy</span></h1>
+      <p class="sub">Please read this policy carefully before placing an order with NF Naseem Fitness™. It explains how cancellations, returns and refunds are handled.</p>
+      <div class="updated-pill"><span class="dot"></span> Last updated 14 July 2026 · 2 min read</div>
+    </div>
+  </section>
+
+  <!-- POLICY DOCUMENT -->
+  <section class="policy-section">
+    <div class="wrap">
+      <div class="policy-doc">
+
+        <div class="policy-toc">
+          <a href="#cancellation">Order Cancellation</a>
+          <a href="#returns">Return Policy</a>
+          <a href="#eligible">Eligible for Refund</a>
+          <a href="#not-eligible">Not Eligible</a>
+          <a href="#process">Refund Process</a>
+          <a href="#timing">Processing Time</a>
+          <a href="#contact">Contact Us</a>
+        </div>
+
+        <p style="font-size:15px;color:var(--paper-dim);margin-bottom:36px;">At NF Naseem Fitness™, customer satisfaction is important to us. Please read our Refund &amp; Cancellation Policy carefully before placing an order.</p>
+
+        <div class="policy-block" id="cancellation">
+          <h2><span class="num">1</span> Order Cancellation</h2>
+          <ul>
+            <li>Orders can be cancelled free of charge before they are confirmed by our team.</li>
+            <li>Once an order is confirmed, cancellation is possible only if it has not been packed or shipped.</li>
+            <li>Orders cannot be cancelled after they have been dispatched for delivery.</li>
+            <li>To request a cancellation, contact us immediately at <strong>+91 7738242258</strong>.</li>
+          </ul>
+        </div>
+
+        <div class="policy-block" id="returns">
+          <h2><span class="num">2</span> Return Policy</h2>
+          <p>Due to hygiene, safety, and quality standards, dietary supplements, protein powders, creatine, pre-workouts, vitamins, capsules, and other nutrition products are non-returnable once the original seal has been opened or the product has been used.</p>
+        </div>
+
+        <div class="policy-block" id="eligible">
+          <h2><span class="num">3</span> Eligible for Refund or Replacement</h2>
+          <p>You may be eligible for a refund or replacement if:</p>
+          <ul>
+            <li>You received the wrong product.</li>
+            <li>The product arrived damaged or defective.</li>
+            <li>The product was expired at the time of delivery.</li>
+            <li>The item received was significantly different from what you ordered.</li>
+          </ul>
+        </div>
+
+        <div class="policy-block" id="not-eligible">
+          <h2><span class="num">4</span> Not Eligible for Refund</h2>
+          <p>Refunds or returns will not be accepted if:</p>
+          <ul>
+            <li class="bad">The product has been opened, used, or its original seal has been broken.</li>
+            <li class="bad">The product has been damaged after delivery.</li>
+            <li class="bad">You changed your mind after receiving the order.</li>
+            <li class="bad">The delivery failed because of an incorrect address, incorrect contact details, or the customer was unavailable.</li>
+            <li class="bad">A shipped order is refused without a valid reason.</li>
+            <li class="bad">Shipping or Cash on Delivery (COD) charges, if applicable, are generally non-refundable unless the mistake was on our part.</li>
+          </ul>
+        </div>
+
+        <div class="policy-block" id="process">
+          <h2><span class="num">5</span> Refund Request Process</h2>
+          <p>Please contact us within 7 days of delivery with:</p>
+          <ul>
+            <li>Your Order Number.</li>
+            <li>A description of the issue.</li>
+            <li>Clear photos of the product and package.</li>
+            <li>A continuous unboxing video recorded from the moment the sealed package is opened (required for claims related to damaged, missing, or incorrect products).</li>
+          </ul>
+          <div class="policy-note">Claims submitted without an unboxing video may not be eligible for a refund or replacement.</div>
+        </div>
+
+        <div class="policy-block" id="timing">
+          <h2><span class="num">6</span> Refund Processing Time</h2>
+          <p>Once approved:</p>
+          <ul>
+            <li>UPI/Wallet: 1–3 business days.</li>
+            <li>Debit/Credit Card &amp; Net Banking: 5–7 business days.</li>
+            <li>Cash on Delivery (COD): Refund will be made via UPI or Bank Transfer after verification.</li>
+          </ul>
+          <p style="margin-top:14px;font-size:13.5px;color:var(--paper-dim);">Actual processing time depends on your bank or payment provider.</p>
+        </div>
+
+        <div class="policy-block" id="contact">
+          <h2><span class="num">7</span> Contact Us</h2>
+          <div class="contact-card">
+            <div>
+              <div class="who">NF Naseem Fitness™</div>
+              <span class="num">📞 Phone / WhatsApp: +91 7738242258</span>
+            </div>
+            <a class="btn btn-primary" href="https://wa.me/917738242258?text=Hi%2C%20I%20have%20a%20question%20about%20a%20refund%20or%20cancellation" target="_blank" rel="noopener">Message on WhatsApp</a>
+          </div>
+          <p style="margin-top:16px;">If you have any questions regarding refunds or cancellations, please contact us during business hours.</p>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- CTA -->
+  <section class="cta-strip">
+    <div class="wrap">
+      <div class="cta-panel">
+        <h2>Have a question about your order?</h2>
+        <p>Reach out on WhatsApp and our team will help you right away.</p>
+        <div class="cta-row">
+          <a class="btn btn-primary" href="https://wa.me/917738242258" target="_blank" rel="noopener">Chat on WhatsApp</a>
+          <a class="btn btn-ghost" href="index.html">Back to Store</a>
+        </div>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <div class="wrap">
+    <p>© 2026 NF Naseem Fitness™. All rights reserved. · Genuine supplements, Mumbai-verified.</p>
+  </div>
+</footer>
+
+</body>
+</html>
