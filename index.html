@@ -1284,11 +1284,11 @@
           <input type="radio" name="payment-method" value="cod" checked onchange="updatePaymentSummary()">
           <span class="payment-option-main">
             <strong>Cash on Delivery</strong>
-            <small>Pay 10% online now to confirm your order, and the rest in cash when it's delivered.</small>
+            <small>Pay 15% online now to confirm your order, and the rest in cash when it's delivered.</small>
           </span>
         </label>
         <div class="cod-summary" id="cod-summary">
-          <div class="cod-summary-row advance"><span>Pay Now (10% advance)</span><strong id="cod-advance-amount">₹0</strong></div>
+          <div class="cod-summary-row advance"><span>Pay Now (15% advance)</span><strong id="cod-advance-amount">₹0</strong></div>
           <div class="cod-summary-row"><span>Pay on Delivery</span><strong id="cod-remaining-amount">₹0</strong></div>
           <div class="cod-summary-note">Online advance payment is coming soon — for now we'll confirm your order and share a payment link separately.</div>
         </div>
@@ -1950,7 +1950,7 @@ function useCurrentLocation(){
   }, { enableHighAccuracy: true, timeout: 10000 });
 }
 
-const COD_ADVANCE_PERCENT = 10; // % of order total collected upfront for Cash on Delivery orders
+const COD_ADVANCE_PERCENT = 15; // % of order total collected upfront for Cash on Delivery orders
 
 function codAdvanceAmount(total){
   return Math.round(total * COD_ADVANCE_PERCENT / 100);
