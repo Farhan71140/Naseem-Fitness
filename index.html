@@ -585,17 +585,56 @@
   .visit-info .row{display:flex;gap:14px;margin-top:22px;font-size:14px;color:var(--paper-dim);}
   .visit-info .row strong{color:var(--paper);display:block;font-family:'Inter';font-weight:700;font-size:13px;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:2px;}
   .visit-map{
-    background:var(--iron);
-    display:flex;align-items:center;justify-content:center;min-height:300px;
-    position:relative;overflow:hidden;
+    position:relative;overflow:hidden;min-height:340px;background:var(--ink-black);
+    border-left:1px solid var(--line);
   }
-  .visit-map img{width:100%;height:100%;object-fit:contain;display:block;position:absolute;inset:0;background:var(--ink-black);}
-  .visit-map .pin{
-    background:var(--ink-black);border:1px solid var(--teal);color:var(--teal);
-    padding:12px 20px;border-radius:8px;font-family:'Space Mono',monospace;font-size:12px;text-align:center;
-    position:relative;z-index:2;
+  .visit-map iframe{
+    position:absolute;inset:0;width:100%;height:100%;border:0;pointer-events:none;
+    filter:invert(92%) hue-rotate(180deg) brightness(0.95) contrast(1.05) saturate(0.6);
+    transform:scale(1.04);
+    transition:transform .6s ease, filter .4s ease;
   }
-  @media (max-width:860px){ .visit{grid-template-columns:1fr;} .visit-info{padding:36px 24px;} }
+  .visit-map:hover iframe{
+    transform:scale(1.1);
+    filter:invert(92%) hue-rotate(180deg) brightness(1.02) contrast(1.1) saturate(0.8);
+  }
+  .map-click-layer{
+    position:absolute;inset:0;z-index:2;display:flex;flex-direction:column;justify-content:space-between;
+    text-decoration:none;cursor:pointer;padding:22px;
+    background:linear-gradient(180deg, rgba(10,8,6,0.6) 0%, rgba(10,8,6,0) 26%, rgba(10,8,6,0) 66%, rgba(10,8,6,0.7) 100%);
+    transition:background .35s ease;
+  }
+  .map-click-layer:hover{
+    background:linear-gradient(180deg, rgba(10,8,6,0.7) 0%, rgba(255,210,74,0.06) 26%, rgba(255,210,74,0.06) 66%, rgba(10,8,6,0.8) 100%);
+  }
+  .map-pin-badge{
+    align-self:flex-start;display:inline-flex;align-items:center;gap:9px;
+    background:rgba(10,8,6,0.8);backdrop-filter:blur(6px);
+    border:1px solid var(--line);border-radius:30px;padding:9px 18px 9px 13px;
+    font-family:'Space Mono',monospace;font-size:12px;color:var(--paper);letter-spacing:0.3px;
+    box-shadow:0 6px 20px rgba(0,0,0,0.35);
+  }
+  .map-pin-dot{
+    width:9px;height:9px;border-radius:50%;background:var(--teal);flex:none;
+    animation:mapPulse 2s infinite;
+  }
+  @keyframes mapPulse{
+    0%{box-shadow:0 0 0 0 rgba(255,210,74,0.55);}
+    70%{box-shadow:0 0 0 11px rgba(255,210,74,0);}
+    100%{box-shadow:0 0 0 0 rgba(255,210,74,0);}
+  }
+  .map-cta{
+    align-self:flex-end;display:inline-flex;align-items:center;gap:7px;
+    background:var(--teal);color:var(--ink-black);font-weight:700;font-size:13px;
+    padding:12px 20px;border-radius:8px;box-shadow:0 8px 24px rgba(255,210,74,0.25);
+    transition:transform .25s ease, box-shadow .25s ease;
+  }
+  .map-click-layer:hover .map-cta{ transform:translateX(4px); box-shadow:0 10px 28px rgba(255,210,74,0.35); }
+  @media (max-width:860px){
+    .visit{grid-template-columns:1fr;}
+    .visit-info{padding:36px 24px;}
+    .visit-map{min-height:260px;border-left:none;border-top:1px solid var(--line);}
+  }
   /* On mobile: show video+badges, then Shop by Category, then Products, then the hero headline/CTA text */
   @media (max-width:860px){
     main#top{display:flex;flex-direction:column;}
@@ -1140,7 +1179,7 @@
         <div class="visit-info">
           <div class="eyebrow">Visit the store</div>
           <h2>Come see the shelf<br>for yourself.</h2>
-          <div class="row"><div><strong>Address</strong>Ground Floor, Shop 2, Kajipura Haji Kasam Chawl No. 23, Maulana Azad Road, Nagpada, Two Tank, Mumbai, Maharashtra 400008</div></div>
+          <div class="row"><div><strong>Address</strong><a href="https://google.com/maps?q=18.9638375,72.829032&z=17&hl=en" target="_blank" rel="noopener" style="color:inherit;text-decoration:underline;text-decoration-color:var(--line);text-underline-offset:3px;">Ground Floor, Shop 2, Kajipura Haji Kasam Chawl No. 23, Maulana Azad Road, Nagpada, Two Tank, Mumbai, Maharashtra 400008</a></div></div>
           <div class="row"><div><strong>Phone / WhatsApp</strong>+91 77382 42258</div></div>
           <div class="row"><div><strong>Hours</strong>Mon–Sun, 10:00 AM – 9:30 PM</div></div>
           <div class="hero-cta" style="margin-top:30px;">
@@ -1148,9 +1187,16 @@
           </div>
         </div>
         <div class="visit-map">
-          <img src="assets/store/shop-front.jpg" alt="NF Naseem Fitness store front, Mumbai"
-            onerror="this.style.display='none';this.nextElementSibling.style.display='flex';">
-          <div class="pin" style="display:none;">📸 Add your shop photo<br>as assets/store/shop-front.jpg</div>
+          <iframe
+            src="https://www.google.com/maps?q=18.9638375,72.829032&z=17&output=embed"
+            loading="lazy"
+            referrerpolicy="no-referrer-when-downgrade"
+            title="NF Naseem Fitness store location map"
+            aria-hidden="true"></iframe>
+          <a class="map-click-layer" href="https://google.com/maps?q=18.9638375,72.829032&z=17&hl=en" target="_blank" rel="noopener" aria-label="Open NF Naseem Fitness location in Google Maps">
+            <span class="map-pin-badge"><span class="map-pin-dot"></span>NF Naseem Fitness</span>
+            <span class="map-cta">📍 Get Directions →</span>
+          </a>
         </div>
       </div>
     </div>
