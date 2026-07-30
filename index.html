@@ -870,7 +870,7 @@
 
   /* ===== UPI PAYMENT PANEL ===== */
   .upi-panel{margin-top:10px;background:rgba(255,210,74,0.06);border:1px solid var(--line);border-radius:8px;padding:14px;}
-  .upi-panel-label{font-size:12px;color:var(--paper-dim);margin-bottom:10px;}
+  .upi-panel-label{font-size:13px;font-weight:600;color:var(--paper);margin-bottom:12px;}
   .upi-apps-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;}
   @media (max-width:480px){.upi-apps-grid{grid-template-columns:repeat(2,1fr);}}
   .upi-app-btn{
@@ -932,7 +932,7 @@
   .delivery-info-banner p{font-size:12.5px;line-height:1.6;color:var(--paper-dim);margin:0;}
   .delivery-info-banner p strong{color:var(--paper);font-family:'Anton',sans-serif;font-weight:400;font-size:13px;letter-spacing:0.2px;}
 
-  .payment-option{position:relative;align-items:center;padding:14px;overflow:hidden;}
+  .payment-option{position:relative;align-items:center;padding:14px;}
   .payment-option-icon{
     display:flex;align-items:center;justify-content:center;flex:none;
     width:38px;height:38px;border-radius:9px;
@@ -956,10 +956,10 @@
   .payment-option:has(input:checked) .payment-option-icon, .payment-option.is-selected .payment-option-icon{background:var(--teal);color:var(--ink-black);}
   .payment-option:has(input:checked) .payment-option-check, .payment-option.is-selected .payment-option-check{opacity:1;transform:scale(1);}
   .payment-option-badge{
-    position:absolute;top:-9px;left:14px;
+    position:absolute;top:-11px;left:14px;z-index:2;
     background:linear-gradient(135deg, var(--teal), var(--amber));
     color:var(--ink-black);font-family:'Space Mono',monospace;font-size:9.5px;font-weight:700;
-    letter-spacing:0.6px;text-transform:uppercase;padding:3px 9px;border-radius:20px;
+    letter-spacing:0.6px;text-transform:uppercase;padding:4px 10px;border-radius:20px;
     box-shadow:0 3px 8px rgba(255,210,74,0.3);
   }
 
@@ -1638,7 +1638,7 @@
             <div class="upi-txn-ref" id="cod-advance-txn-ref-display"></div>
           </div>
         </div>
-        <label class="payment-option" id="pm-upi-option" style="margin-top:10px;">
+        <label class="payment-option" id="pm-upi-option" style="margin-top:20px;">
           <span class="payment-option-badge">Recommended</span>
           <input type="radio" name="payment-method" value="upi" onchange="updatePaymentSummary()">
           <span class="payment-option-icon pm-icon-upi">
@@ -1646,13 +1646,13 @@
           </span>
           <span class="payment-option-main">
             <strong>UPI Payment</strong>
-            <small>Pay the full amount instantly with Google Pay, PhonePe, Paytm, Navi or any UPI app.</small>
           </span>
           <span class="payment-option-check">✓</span>
         </label>
         <div class="upi-panel" id="upi-panel" style="display:none;">
-          <div class="upi-panel-label">Tap your UPI app to pay ₹<span id="upi-panel-amount">0</span><span id="upi-panel-amount-suffix"></span>:</div>
-          <div class="upi-apps-grid" id="upi-apps-grid">
+          <div class="upi-panel-label">Total Payable — ₹<span id="upi-panel-amount">0</span><span id="upi-panel-amount-suffix"></span></div>
+          <button type="button" class="btn btn-primary" id="upi-checkout-btn" style="width:100%;justify-content:center;" onclick="showUpiAppsGrid()">Checkout →</button>
+          <div class="upi-apps-grid" id="upi-apps-grid" style="display:none;margin-top:14px;">
             <div class="upi-app-btn" onclick="payWithUpiApp('gpay')">
               <div class="upi-app-icon gpay">G</div><span>Google Pay</span>
             </div>
@@ -1669,11 +1669,10 @@
               <div class="upi-app-icon other">⋯</div><span>Other UPI App</span>
             </div>
           </div>
-          </div>
           <div class="upi-confirm-step" id="upi-confirm-step" style="display:none;">
             <p>Opened <strong id="upi-chosen-app-label"></strong> to pay ₹<span id="upi-confirm-amount">0</span><span id="upi-confirm-amount-suffix"></span>?</p>
             <button type="button" class="btn btn-primary" onclick="confirmUpiPaid()">I've Completed the Payment</button>
-            <button type="button" class="btn btn-ghost" onclick="resetUpiChoice()">Choose a different app / try again</button>
+            <button type="button" class="btn btn-ghost" onclick="resetUpiChoice(true)">Choose a different app / try again</button>
             <div class="upi-txn-ref" id="upi-txn-ref-display"></div>
           </div>
         </div>
@@ -2527,7 +2526,14 @@ function payWithUpiApp(app, context){
   window.location.href = link;
 }
 
-function resetUpiChoice(){
+function showUpiAppsGrid(){
+  const grid = document.getElementById('upi-apps-grid');
+  const btn = document.getElementById('upi-checkout-btn');
+  if(grid) grid.style.display = 'grid';
+  if(btn) btn.style.display = 'none';
+}
+
+function resetUpiChoice(keepAppsVisible){
   window.selectedUpiApp = null;
   window.upiTxnRef = null;
   window.upiPaymentContext = null;
@@ -2535,6 +2541,15 @@ function resetUpiChoice(){
   if(step) step.style.display = 'none';
   const codStep = document.getElementById('cod-advance-confirm-step');
   if(codStep) codStep.style.display = 'none';
+  // Full reset (payment method switched, or checkout drawer just opened) also
+  // collapses the UPI apps grid back behind the "Checkout" button. "Try again"
+  // from the confirm step passes keepAppsVisible=true so the grid stays open.
+  if(!keepAppsVisible){
+    const upiGrid = document.getElementById('upi-apps-grid');
+    if(upiGrid) upiGrid.style.display = 'none';
+    const upiCheckoutBtn = document.getElementById('upi-checkout-btn');
+    if(upiCheckoutBtn) upiCheckoutBtn.style.display = '';
+  }
 }
 
 async function confirmUpiPaid(){
