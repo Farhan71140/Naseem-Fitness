@@ -700,7 +700,7 @@
           <table class="responsive-table">
             <thead>
               <tr>
-                <th>Order</th><th>Customer</th><th>Phone</th><th>Address</th><th>Items</th><th>Amount</th><th>Payment</th><th>Date</th><th>Status</th><th>Delivery</th><th></th>
+                <th>Order</th><th>Verify Code</th><th>Customer</th><th>Phone</th><th>Address</th><th>Items</th><th>Amount</th><th>Payment</th><th>Date</th><th>Status</th><th>Delivery</th><th></th>
               </tr>
             </thead>
             <tbody id="orders-tbody"></tbody>
@@ -1400,6 +1400,14 @@ async function renderOrders(){
   tbody.innerHTML = orders.map(o=>`
     <tr>
       <td class="mono" data-label="Order" style="color:var(--paper-dim);">#${o.id.slice(0,8)}</td>
+      <td data-label="Verify Code">
+        ${o.verify_code ? `
+          <div style="display:flex;align-items:center;gap:6px;">
+            <span class="mono" style="color:var(--teal);font-weight:700;">${escapeHtml(o.verify_code)}</span>
+            <button class="delivery-mini-btn" title="Copy for packing sticker" onclick="copyVerifyCode('${escapeHtml(o.verify_code)}')">📋</button>
+          </div>
+        ` : '<span style="color:var(--paper-dim);">—</span>'}
+      </td>
       <td data-label="Customer">${escapeHtml(o.customer_name)}</td>
       <td class="mono" data-label="Phone" style="color:var(--paper-dim);">${escapeHtml(o.phone || '—')}</td>
       <td data-label="Address">
@@ -1767,12 +1775,12 @@ function downloadTextFile(filename, content, mime){
 }
 function exportOrdersCsv(){
   if(!REPORTS_CACHE){ showToast('Reports still loading — try again in a moment'); return; }
-  const rows = [['Order ID','Customer','Phone','Items','Amount','Status','Channel','Payment Method','Advance Amount','Remaining Amount','Advance Paid','UPI Ref','UPI Verified','Fulfillment','Tax','Discount','Date']];
+  const rows = [['Order ID','Verify Code','Customer','Phone','Items','Amount','Status','Channel','Payment Method','Advance Amount','Remaining Amount','Advance Paid','UPI Ref','UPI Verified','Fulfillment','Tax','Discount','Date']];
   REPORTS_CACHE.counted.forEach(o=>{
     const isCod = String(o.payment_method||'').toLowerCase() === 'cod';
     const isUpi = String(o.payment_method||'').toLowerCase() === 'upi';
     rows.push([
-      o.id, o.customer_name, o.phone || '', formatItems(o.items), o.amount,
+      o.id, o.verify_code || '', o.customer_name, o.phone || '', formatItems(o.items), o.amount,
       o.status, o.channel || 'Online', o.payment_method || 'COD',
       isCod ? (o.advance_amount || 0) : '', isCod ? (o.remaining_amount || 0) : '',
       isCod ? (o.advance_paid ? 'Yes' : 'No') : '',
@@ -2073,6 +2081,13 @@ async function updateUpiPaid(id, paid){
 function copyAddress(text){
   navigator.clipboard.writeText(text).then(() => {
     showToast('Address copied — paste it into Shiprocket/Borzo');
+  }).catch(() => {
+    showToast('Could not copy — please select and copy manually');
+  });
+}
+function copyVerifyCode(text){
+  navigator.clipboard.writeText(text).then(() => {
+    showToast('Verify Code copied — print it on the packing sticker');
   }).catch(() => {
     showToast('Could not copy — please select and copy manually');
   });
