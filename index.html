@@ -443,6 +443,33 @@
     line-height:1;padding:0;
   }
   .add-btn:hover{background:#FFF2B5;}
+  .prod-share-btn{
+    position:absolute;top:10px;right:10px;z-index:2;
+    width:32px;height:32px;border-radius:50%;
+    background:rgba(11,12,14,0.75);backdrop-filter:blur(3px);
+    border:1px solid var(--line);color:var(--paper);
+    display:flex;align-items:center;justify-content:center;
+    cursor:pointer;transition:border-color .2s, color .2s, background .2s;
+  }
+  .prod-share-btn svg{width:15px;height:15px;}
+  .prod-share-btn:hover{border-color:var(--teal);color:var(--teal);background:rgba(11,12,14,0.92);}
+  .qv-share-btn{
+    background:transparent;border:1px solid var(--line);color:var(--paper-dim);
+    cursor:pointer;width:34px;height:34px;border-radius:8px;
+    display:flex;align-items:center;justify-content:center;transition:border-color .2s, color .2s;
+  }
+  .qv-share-btn svg{width:16px;height:16px;}
+  .qv-share-btn:hover{border-color:var(--teal);color:var(--teal);}
+  .drawer-head-actions{display:flex;align-items:center;gap:8px;}
+  .share-toast{
+    position:fixed;left:50%;bottom:28px;transform:translateX(-50%) translateY(20px);
+    background:var(--teal);color:var(--ink-black);font-family:'Space Mono',monospace;
+    font-size:12.5px;letter-spacing:0.5px;font-weight:700;
+    padding:12px 20px;border-radius:30px;z-index:999;
+    opacity:0;pointer-events:none;transition:opacity .25s, transform .25s;
+    box-shadow:0 8px 24px rgba(0,0,0,0.35);
+  }
+  .share-toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
   @media (max-width:860px){ .prod-grid{grid-template-columns:repeat(2,1fr);} }
   .prod-card{cursor:pointer;}
   .prod-body .brand-tag{display:block;font-family:'Space Mono',monospace;font-size:10px;color:var(--paper-dim);letter-spacing:1px;text-transform:uppercase;margin-top:6px;}
@@ -1575,12 +1602,41 @@
           </span>
           <span class="payment-option-main">
             <strong>Cash on Delivery</strong>
-            <small>Pay the full amount in cash when your order is delivered.</small>
+            <small>Pay 15% advance now to confirm, balance in cash on delivery.</small>
           </span>
           <span class="payment-option-check">✓</span>
         </label>
         <div class="cod-summary" id="cod-summary">
-          <div class="cod-summary-row"><span>Pay on Delivery</span><strong id="cod-remaining-amount">₹0</strong></div>
+          <div class="cod-summary-row"><span>Order Total</span><strong id="cod-order-total">₹0</strong></div>
+          <div class="cod-summary-row advance"><span>Advance — Pay Now (15%)</span><strong id="cod-advance-amount">₹0</strong></div>
+          <div class="cod-summary-row"><span>Pay on Delivery (85%)</span><strong id="cod-remaining-amount">₹0</strong></div>
+          <div class="cod-summary-note">🔒 A 15% advance confirms your COD order and helps us avoid fake/prank orders. The remaining 85% is paid in cash when your order is delivered.</div>
+        </div>
+        <div class="upi-panel" id="cod-advance-panel" style="display:none;">
+          <div class="upi-panel-label">Tap your UPI app to pay the 15% advance — ₹<span id="cod-advance-panel-amount">0</span>:</div>
+          <div class="upi-apps-grid" id="cod-advance-apps-grid">
+            <div class="upi-app-btn" onclick="payWithUpiApp('gpay','cod')">
+              <div class="upi-app-icon gpay">G</div><span>Google Pay</span>
+            </div>
+            <div class="upi-app-btn" onclick="payWithUpiApp('phonepe','cod')">
+              <div class="upi-app-icon phonepe">P</div><span>PhonePe</span>
+            </div>
+            <div class="upi-app-btn" onclick="payWithUpiApp('paytm','cod')">
+              <div class="upi-app-icon paytm">₹</div><span>Paytm</span>
+            </div>
+            <div class="upi-app-btn" onclick="payWithUpiApp('navi','cod')">
+              <div class="upi-app-icon navi">N</div><span>Navi</span>
+            </div>
+            <div class="upi-app-btn" onclick="payWithUpiApp('other','cod')">
+              <div class="upi-app-icon other">⋯</div><span>Other UPI App</span>
+            </div>
+          </div>
+          <div class="upi-confirm-step" id="cod-advance-confirm-step" style="display:none;">
+            <p>Opened <strong id="cod-advance-chosen-app-label"></strong> to pay ₹<span id="cod-advance-confirm-amount">0</span> advance?</p>
+            <button type="button" class="btn btn-primary" onclick="confirmCodAdvancePaid()">I've Paid the Advance</button>
+            <button type="button" class="btn btn-ghost" onclick="resetUpiChoice()">Choose a different app / try again</button>
+            <div class="upi-txn-ref" id="cod-advance-txn-ref-display"></div>
+          </div>
         </div>
         <label class="payment-option" id="pm-upi-option" style="margin-top:10px;">
           <span class="payment-option-badge">Recommended</span>
@@ -1621,9 +1677,6 @@
             <div class="upi-txn-ref" id="upi-txn-ref-display"></div>
           </div>
         </div>
-        <div class="cod-place-order-wrap" id="cod-place-order-wrap" style="display:none;margin-top:14px;">
-          <button type="button" class="btn btn-primary" style="width:100%;justify-content:center;" onclick="submitOrder()" id="cod-place-order-btn">Place Order (Cash on Delivery)</button>
-        </div>
       </div>
       <div class="free-delivery-banner" id="checkout-delivery-banner"></div>
       <div class="chk-totals-card">
@@ -1647,7 +1700,12 @@
   <div class="drawer">
     <div class="drawer-head">
       <h3>Product Details</h3>
-      <button class="drawer-close" onclick="closeQuickView()">✕</button>
+      <div class="drawer-head-actions">
+        <button type="button" class="qv-share-btn" aria-label="Share this product" onclick="shareProduct(QV_PRODUCT_ID, event)">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.6" y1="10.6" x2="15.4" y2="6.4"/><line x1="8.6" y1="13.4" x2="15.4" y2="17.6"/></svg>
+        </button>
+        <button class="drawer-close" onclick="closeQuickView()">✕</button>
+      </div>
     </div>
     <div class="drawer-body" id="quickview-body"></div>
     <div class="drawer-foot" id="quickview-foot">
@@ -1662,6 +1720,8 @@
     </div>
   </div>
 </div>
+
+<div class="share-toast" id="share-toast">Link copied!</div>
 
 <!-- ORDER TRACKING DRAWER -->
 <div class="drawer-overlay" id="track-order-overlay">
@@ -1962,6 +2022,9 @@ function renderProducts(list){
               <div class="ph-label">PRODUCT PHOTO<br>GOES HERE</div>
             </div>`; })()}
         <span class="badge-genuine">✓ GENUINE</span>
+        <button type="button" class="prod-share-btn" aria-label="Share this product" onclick="event.stopPropagation();shareProduct('${p.id}', event)">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.6" y1="10.6" x2="15.4" y2="6.4"/><line x1="8.6" y1="13.4" x2="15.4" y2="17.6"/></svg>
+        </button>
       </div>
       <div class="prod-body">
         <div class="cat-tag">${escapeHtml(p.category)}</div>
@@ -2292,6 +2355,49 @@ function openQuickView(id){
   if(window.fbq) fbq('track', 'ViewContent', { content_name: p.name, value: Number(p.price), currency: 'INR' });
 }
 function closeQuickView(){ document.getElementById('quickview-overlay').classList.remove('active'); }
+
+/* ---------- share product ---------- */
+function showShareToast(msg){
+  const t = document.getElementById('share-toast');
+  if(!t) return;
+  t.textContent = msg;
+  t.classList.add('show');
+  clearTimeout(window._shareToastTimer);
+  window._shareToastTimer = setTimeout(()=>t.classList.remove('show'), 2200);
+}
+async function shareProduct(id, evt){
+  if(evt){ evt.stopPropagation(); evt.preventDefault(); }
+  const p = PRODUCTS.find(x=>x.id===id);
+  if(!p) return;
+  const shareUrl = `${location.origin}${location.pathname}?product=${encodeURIComponent(id)}`;
+  const eff = getEffectivePricing(p);
+  const shareText = `${p.name}${p.brand ? ' - ' + p.brand : ''} — ₹${eff.price.toLocaleString('en-IN')} at NF Naseem Fitness`;
+
+  if(navigator.share){
+    try{
+      await navigator.share({ title: p.name, text: shareText, url: shareUrl });
+      return;
+    }catch(err){
+      if(err && err.name === 'AbortError') return; // user cancelled, do nothing
+      // fall through to fallback below
+    }
+  }
+  try{
+    await navigator.clipboard.writeText(shareUrl);
+    showShareToast('Product link copied!');
+  }catch(err){
+    // final fallback: open WhatsApp share
+    window.open(`https://wa.me/?text=${encodeURIComponent(shareText + ' ' + shareUrl)}`, '_blank', 'noopener');
+  }
+}
+/* ---------- open product from shared link ---------- */
+function openSharedProductFromUrl(){
+  const params = new URLSearchParams(location.search);
+  const id = params.get('product');
+  if(id && PRODUCTS.some(p=>p.id===id)){
+    openQuickView(id);
+  }
+}
 function qvChangeQty(delta){
   QV_QTY = Math.max(1, QV_QTY + delta);
   document.getElementById('qv-qty').textContent = QV_QTY;
@@ -2380,7 +2486,16 @@ function buildUpiLink(app, amount, ref){
   }
 }
 
-function payWithUpiApp(app){
+/* ---------- COD advance (15%) ----------
+   Cash on Delivery orders require a 15% advance paid online (via UPI) to confirm
+   the order and discourage fake/prank orders. The remaining 85% is collected in
+   cash when the order is delivered. */
+const COD_ADVANCE_PCT = 15;
+function getCodAdvance(total){ return Math.round(total * COD_ADVANCE_PCT / 100); }
+function getCodRemaining(total){ return total - getCodAdvance(total); }
+
+function payWithUpiApp(app, context){
+  context = context === 'cod' ? 'cod' : 'full';
   if(CART.length===0) return;
   const name = document.getElementById('chk-name').value.trim();
   const phone = document.getElementById('chk-phone').value.trim();
@@ -2393,24 +2508,33 @@ function payWithUpiApp(app){
   errBox.style.display = 'none';
 
   const total = getOrderTotal(cartTotal());
+  const amount = context === 'cod' ? getCodAdvance(total) : total;
   const ref = 'NF' + Date.now();
   window.selectedUpiApp = app;
   window.upiTxnRef = ref;
+  window.upiPaymentContext = context;
 
-  document.getElementById('upi-confirm-amount').textContent = total.toLocaleString('en-IN');
-  document.getElementById('upi-chosen-app-label').textContent = UPI_APP_LABELS[app] || 'your UPI app';
-  document.getElementById('upi-txn-ref-display').textContent = 'Ref: ' + ref;
-  document.getElementById('upi-confirm-step').style.display = 'block';
+  const amountEl = document.getElementById(context === 'cod' ? 'cod-advance-confirm-amount' : 'upi-confirm-amount');
+  const labelEl = document.getElementById(context === 'cod' ? 'cod-advance-chosen-app-label' : 'upi-chosen-app-label');
+  const refEl = document.getElementById(context === 'cod' ? 'cod-advance-txn-ref-display' : 'upi-txn-ref-display');
+  const stepEl = document.getElementById(context === 'cod' ? 'cod-advance-confirm-step' : 'upi-confirm-step');
+  if(amountEl) amountEl.textContent = amount.toLocaleString('en-IN');
+  if(labelEl) labelEl.textContent = UPI_APP_LABELS[app] || 'your UPI app';
+  if(refEl) refEl.textContent = 'Ref: ' + ref;
+  if(stepEl) stepEl.style.display = 'block';
 
-  const link = buildUpiLink(app, total, ref);
+  const link = buildUpiLink(app, amount, ref);
   window.location.href = link;
 }
 
 function resetUpiChoice(){
   window.selectedUpiApp = null;
   window.upiTxnRef = null;
+  window.upiPaymentContext = null;
   const step = document.getElementById('upi-confirm-step');
   if(step) step.style.display = 'none';
+  const codStep = document.getElementById('cod-advance-confirm-step');
+  if(codStep) codStep.style.display = 'none';
 }
 
 async function confirmUpiPaid(){
@@ -2423,10 +2547,29 @@ async function confirmUpiPaid(){
   await submitOrder();
 }
 
+async function confirmCodAdvancePaid(){
+  if(!window.upiTxnRef || window.upiPaymentContext !== 'cod'){
+    const errBox = document.getElementById('checkout-error');
+    errBox.textContent = 'Please tap a UPI app above and pay the 15% advance first.';
+    errBox.style.display = 'block';
+    return;
+  }
+  await submitOrder();
+}
+
 function updatePaymentSummary(){
   const total = getOrderTotal(cartTotal());
+  const advance = getCodAdvance(total);
+  const remaining = getCodRemaining(total);
+
+  const orderTotalEl = document.getElementById('cod-order-total');
+  const advanceEl = document.getElementById('cod-advance-amount');
   const remainingEl = document.getElementById('cod-remaining-amount');
-  if(remainingEl) remainingEl.textContent = '₹'+total.toLocaleString('en-IN');
+  const advancePanelAmountEl = document.getElementById('cod-advance-panel-amount');
+  if(orderTotalEl) orderTotalEl.textContent = '₹'+total.toLocaleString('en-IN');
+  if(advanceEl) advanceEl.textContent = '₹'+advance.toLocaleString('en-IN');
+  if(remainingEl) remainingEl.textContent = '₹'+remaining.toLocaleString('en-IN');
+  if(advancePanelAmountEl) advancePanelAmountEl.textContent = advance.toLocaleString('en-IN');
 
   const method = document.querySelector('input[name="payment-method"]:checked');
   const methodVal = method ? method.value : 'cod';
@@ -2440,19 +2583,20 @@ function updatePaymentSummary(){
   if(upiAmountEl) upiAmountEl.textContent = total.toLocaleString('en-IN');
 
   const codSummary = document.getElementById('cod-summary');
+  const codAdvancePanel = document.getElementById('cod-advance-panel');
   const upiPanel = document.getElementById('upi-panel');
-  const codPlaceOrderWrap = document.getElementById('cod-place-order-wrap');
   if(codSummary) codSummary.style.display = methodVal === 'cod' ? 'block' : 'none';
-  if(codPlaceOrderWrap) codPlaceOrderWrap.style.display = methodVal === 'cod' ? 'block' : 'none';
-  // The UPI app picker (tap-to-pay, no QR) only shows for the UPI payment method.
+  // COD orders now require paying the 15% advance via UPI before the order is placed.
+  if(codAdvancePanel) codAdvancePanel.style.display = methodVal === 'cod' ? 'block' : 'none';
+  // The UPI app picker (tap-to-pay, no QR) only shows for the full UPI payment method.
   if(upiPanel) upiPanel.style.display = methodVal === 'upi' ? 'block' : 'none';
 
   // Switching methods invalidates any in-progress UPI payment selection.
   resetUpiChoice();
 
-  // Placing a COD order happens via the button inside this panel; placing a UPI
-  // order happens via "I've Completed the Payment" once a payment is initiated.
-  // The bottom drawer button is unused for both, so keep it hidden.
+  // Both COD (15% advance) and full UPI payment are placed via "I've Paid the
+  // Advance" / "I've Completed the Payment" inside their respective panels above,
+  // once a payment is initiated. The bottom drawer button is unused for both.
   const btn = document.getElementById('checkout-submit-btn');
   if(btn) btn.style.display = 'none';
   const footEl = document.querySelector('#checkout-overlay .drawer-foot');
@@ -2497,24 +2641,32 @@ async function submitOrder(){
   const paymentMethodInput = document.querySelector('input[name="payment-method"]:checked');
   const paymentMethod = paymentMethodInput ? paymentMethodInput.value : 'cod';
 
-  // Only UPI orders require a tap-to-pay confirmation first. COD is placed directly
-  // and paid in cash on delivery — no online step required.
-  if(paymentMethod === 'upi' && !window.upiTxnRef){
+  // UPI orders require a tap-to-pay confirmation for the full amount first. COD
+  // orders require a tap-to-pay confirmation for the 15% advance first — the
+  // remaining 85% is paid in cash on delivery.
+  if(paymentMethod === 'upi' && (!window.upiTxnRef || window.upiPaymentContext !== 'full')){
     errBox.textContent = 'Please tap a UPI app above and complete the payment first.';
+    errBox.style.display = 'block';
+    return;
+  }
+  if(paymentMethod === 'cod' && (!window.upiTxnRef || window.upiPaymentContext !== 'cod')){
+    errBox.textContent = 'Please tap a UPI app above and pay the 15% advance first.';
     errBox.style.display = 'block';
     return;
   }
   errBox.style.display = 'none';
 
   const btn = paymentMethod === 'cod'
-    ? document.getElementById('cod-place-order-btn')
-    : document.getElementById('checkout-submit-btn');
+    ? document.querySelector('#cod-advance-confirm-step .btn-primary')
+    : document.querySelector('#upi-confirm-step .btn-primary');
   if(btn){ btn.disabled = true; btn.textContent = 'Placing order…'; }
 
   const items = CART.map(l=>({ name:l.name, price:l.price, qty:l.qty }));
   const subtotal = cartTotal();
   const deliveryFee = getDeliveryFee(subtotal);
   const amount = getOrderTotal(subtotal);
+  const advanceAmount = paymentMethod === 'cod' ? getCodAdvance(amount) : 0;
+  const remainingAmount = paymentMethod === 'cod' ? getCodRemaining(amount) : amount;
 
   const orderPayload = {
     customer_name: name,
@@ -2524,23 +2676,28 @@ async function submitOrder(){
     amount,
     status: 'pending',
     payment_method: paymentMethod,
-    advance_amount: 0,
-    remaining_amount: amount,
+    advance_amount: advanceAmount,
+    remaining_amount: remainingAmount,
     advance_paid: false
   };
   // TODO: once a real payment-gateway backend (Razorpay/Cashfree etc.) is wired up,
-  // verify the UPI payment here BEFORE inserting the order. For now, UPI payments are
-  // logged with the app + reference the customer used, and paid:false, to be verified
-  // manually in the admin dashboard. COD orders are logged as-is (paid in cash later).
+  // verify the UPI payment here BEFORE inserting the order. For now, both the full
+  // UPI payment and the COD 15% advance are logged with the app + reference the
+  // customer used, and paid:false, to be verified manually in the admin dashboard.
+  // The COD order's remaining 85% is collected in cash when it's delivered.
   if(paymentMethod === 'upi'){
     orderPayload.upi_app = window.selectedUpiApp || null;
     orderPayload.upi_ref = window.upiTxnRef || null;
     orderPayload.upi_paid = false;
   }
+  if(paymentMethod === 'cod'){
+    orderPayload.upi_app = window.selectedUpiApp || null;
+    orderPayload.upi_ref = window.upiTxnRef || null;
+  }
 
   const { data: insertedOrder, error } = await sb.from('orders').insert(orderPayload).select('id, created_at').single();
 
-  if(btn){ btn.disabled = false; btn.textContent = paymentMethod === 'cod' ? 'Place Order (Cash on Delivery)' : 'Place Order'; }
+  if(btn){ btn.disabled = false; btn.textContent = paymentMethod === 'cod' ? "I've Paid the Advance" : "I've Completed the Payment"; }
 
   if(error){
     errBox.textContent = "Something went wrong placing your order. Please try again or message us on WhatsApp.";
@@ -2553,7 +2710,7 @@ async function submitOrder(){
   renderCart();
   let paymentNote = '';
   if(paymentMethod === 'cod'){
-    paymentNote = `<p style="margin-top:10px;">Pay <strong>₹${amount.toLocaleString('en-IN')}</strong> in cash when your order is delivered.</p>`;
+    paymentNote = `<p style="margin-top:10px;">We're verifying your 15% advance of <strong>₹${advanceAmount.toLocaleString('en-IN')}</strong> (Ref: ${escapeHtml(window.upiTxnRef || '')}). Pay the remaining <strong>₹${remainingAmount.toLocaleString('en-IN')}</strong> in cash when your order is delivered.</p>`;
   }else if(paymentMethod === 'upi'){
     paymentNote = `<p style="margin-top:10px;">We're verifying your UPI payment of <strong>₹${amount.toLocaleString('en-IN')}</strong> (Ref: ${escapeHtml(window.upiTxnRef || '')}). You'll get a confirmation shortly — message us on WhatsApp with a screenshot to speed it up.</p>`;
   }
@@ -2874,6 +3031,7 @@ async function initApp(){
   await Promise.all([loadProducts(), loadReviews(), loadStoreSettings()]);
   if(PRODUCTS.length) applyFilters();
   renderGlobalReviews();
+  openSharedProductFromUrl();
 }
 initApp();
 </script>
