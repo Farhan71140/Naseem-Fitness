@@ -511,6 +511,24 @@
   .code-line{display:flex;justify-content:space-between;padding:12px 0;border-bottom:1px dashed var(--line);font-size:13px;}
   .code-line span:first-child{color:var(--paper-dim);}
   .code-line .ok{color:var(--teal);}
+  .code-line .bad{color:#FF9B9B;}
+  .verify-form{display:flex;gap:10px;margin-bottom:20px;}
+  .verify-form input{
+    flex:1;background:var(--iron);border:1px solid var(--line);border-radius:8px;
+    color:var(--paper);padding:12px 14px;font-family:'Space Mono',monospace;font-size:14px;
+    letter-spacing:1px;text-transform:uppercase;
+  }
+  .verify-form input:focus{outline:none;border-color:var(--teal);}
+  .verify-form button{
+    background:var(--teal);color:var(--ink-black);border:none;border-radius:8px;
+    padding:0 20px;font-family:'Inter',sans-serif;font-weight:700;font-size:14px;cursor:pointer;flex:none;
+  }
+  .verify-form button:disabled{opacity:0.6;cursor:default;}
+  .verify-msg{font-size:13px;font-family:'Inter',sans-serif;line-height:1.5;padding:12px 14px;border-radius:8px;display:none;margin-bottom:18px;}
+  .verify-msg.err{display:block;background:rgba(255,107,107,0.1);border:1px solid rgba(255,107,107,0.3);color:#FF9B9B;}
+  .verify-msg.ok{display:block;background:rgba(255,210,74,0.08);border:1px solid var(--line);color:var(--paper-dim);}
+  .verify-items{margin-top:4px;}
+  .verify-items div{padding:3px 0;}
   @media (max-width:860px){ .auth-grid{grid-template-columns:1fr;} }
 
   /* ===== REVIEWS ===== */
@@ -1103,12 +1121,14 @@
         </ul>
       </div>
       <div class="code-panel">
-        <div class="code-head"><span>Batch Verification</span><span>NF-MUM</span></div>
-        <div class="code-line"><span>Product</span><span>Whey Protein — Chocolate</span></div>
-        <div class="code-line"><span>Batch Code</span><span>NF-2601-A7</span></div>
-        <div class="code-line"><span>Sourced</span><span>Authorised Distributor</span></div>
-        <div class="code-line"><span>Status</span><span class="ok">✓ VERIFIED GENUINE</span></div>
-        <div class="code-line" style="border-bottom:none;"><span>Dispatch</span><span>Mumbai, Same-Day</span></div>
+        <div class="code-head"><span>Verify Your Product</span><span>NF-MUM</span></div>
+        <div class="verify-form">
+          <input type="text" id="verify-code-input" placeholder="Enter Verify Code e.g. NF-7K4D9M2Q" maxlength="20" onkeydown="if(event.key==='Enter')verifyProductCode();">
+          <button id="verify-code-btn" onclick="verifyProductCode()">Verify</button>
+        </div>
+        <div class="verify-msg" id="verify-msg"></div>
+        <div id="verify-result"></div>
+        <p style="color:var(--paper-dim);font-size:12px;margin-top:6px;">The Verify Code is printed on the sticker inside your package — not on the invoice.</p>
       </div>
     </div>
   </section>
@@ -1504,6 +1524,43 @@ function setQvStar(n){
 function normalizePhone(v){
   const digits = String(v || '').replace(/\D/g, '');
   return digits.length > 10 ? digits.slice(-10) : digits;
+}
+async function verifyProductCode(){
+  const input = document.getElementById('verify-code-input');
+  const btn = document.getElementById('verify-code-btn');
+  const msgEl = document.getElementById('verify-msg');
+  const resultEl = document.getElementById('verify-result');
+  const code = input.value.trim();
+  resultEl.innerHTML = '';
+  msgEl.style.display = 'none';
+  if(!code){
+    msgEl.textContent = 'Please enter the Verify Code printed on your package sticker.';
+    msgEl.className = 'verify-msg err';
+    return;
+  }
+  btn.disabled = true; btn.textContent = 'Checking…';
+  const { data, error } = await sb.rpc('verify_order_code', { p_code: code });
+  btn.disabled = false; btn.textContent = 'Verify';
+
+  const order = Array.isArray(data) ? data[0] : data;
+  if(error || !order){
+    msgEl.textContent = "We couldn't find an order with this Verify Code. Double-check the sticker, or message us on WhatsApp if you think this is a mistake.";
+    msgEl.className = 'verify-msg err';
+    return;
+  }
+
+  const items = Array.isArray(order.items) ? order.items : [];
+  const itemsHtml = items.map(it => `<div>${escapeHtml(it.name || '')} × ${Number(it.qty || 1)}</div>`).join('') || '<div>—</div>';
+  const dateStr = order.order_date ? new Date(order.order_date).toLocaleDateString('en-IN', { day:'2-digit', month:'short', year:'numeric' }) : '—';
+
+  msgEl.textContent = "✓ This product was genuinely dispatched from NF Naseem Fitness, Mumbai.";
+  msgEl.className = 'verify-msg ok';
+  resultEl.innerHTML = `
+    <div class="code-line"><span>Order Ref</span><span>${escapeHtml(order.order_ref || '')}</span></div>
+    <div class="code-line"><span>Product(s)</span><span class="verify-items">${itemsHtml}</span></div>
+    <div class="code-line"><span>Order Date</span><span>${dateStr}</span></div>
+    <div class="code-line" style="border-bottom:none;"><span>Status</span><span class="ok">✓ VERIFIED GENUINE</span></div>
+  `;
 }
 async function verifyPurchase(phone, productName){
   const digits = normalizePhone(phone);
@@ -2228,7 +2285,7 @@ async function submitOrder(){
     orderPayload.upi_paid = false;
   }
 
-  const { error } = await sb.from('orders').insert(orderPayload);
+  const { data: insertedOrder, error } = await sb.from('orders').insert(orderPayload).select('id, created_at').single();
 
   btn.disabled = false; btn.textContent = 'Place Order';
 
@@ -2247,10 +2304,12 @@ async function submitOrder(){
   }else if(paymentMethod === 'upi'){
     paymentNote = `<p style="margin-top:10px;">We're verifying your UPI payment of <strong>₹${amount.toLocaleString('en-IN')}</strong> (Ref: ${escapeHtml(window.upiTxnRef || '')}). You'll get a confirmation shortly — message us on WhatsApp with a screenshot to speed it up.</p>`;
   }
+  const orderRef = insertedOrder && insertedOrder.id ? 'NF-' + insertedOrder.id.slice(0, 8).toUpperCase() : '';
   document.getElementById('checkout-body').innerHTML = `
     <div class="checkout-success">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><path d="M22 4L12 14.01l-3-3"/></svg>
       <h4>Order placed!</h4>
+      ${orderRef ? `<p style="margin-top:6px;"><span style="font-family:'Space Mono',monospace;color:var(--teal);">Order ID: ${orderRef}</span></p>` : ''}
       <p>Thanks, ${escapeHtml(name)} — we've received your order and will confirm it shortly. You can also message us on WhatsApp to speed things up.</p>
       ${paymentNote}
     </div>`;
