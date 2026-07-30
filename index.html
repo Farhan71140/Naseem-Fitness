@@ -1596,7 +1596,7 @@
       <div class="checkout-field">
         <label>Payment Method</label>
         <label class="payment-option" id="pm-cod-option">
-          <input type="radio" name="payment-method" value="cod" checked onchange="updatePaymentSummary()">
+          <input type="radio" name="payment-method" value="cod" onchange="updatePaymentSummary()">
           <span class="payment-option-icon pm-icon-cod">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="6" width="20" height="12" rx="2"/><circle cx="12" cy="12" r="3"/><path d="M6 12h.01M18 12h.01"/></svg>
           </span>
@@ -1606,7 +1606,7 @@
           </span>
           <span class="payment-option-check">✓</span>
         </label>
-        <div class="cod-summary" id="cod-summary">
+        <div class="cod-summary" id="cod-summary" style="display:none;">
           <div class="cod-summary-row"><span>Order Total</span><strong id="cod-order-total">₹0</strong></div>
           <div class="cod-summary-row advance"><span>Advance — Pay Now (15%)</span><strong id="cod-advance-amount">₹0</strong></div>
           <div class="cod-summary-row"><span>Pay on Delivery (85%)</span><strong id="cod-remaining-amount">₹0</strong></div>
@@ -2572,7 +2572,7 @@ function updatePaymentSummary(){
   if(advancePanelAmountEl) advancePanelAmountEl.textContent = advance.toLocaleString('en-IN');
 
   const method = document.querySelector('input[name="payment-method"]:checked');
-  const methodVal = method ? method.value : 'cod';
+  const methodVal = method ? method.value : null;
 
   const codOptionEl = document.getElementById('pm-cod-option');
   const upiOptionEl = document.getElementById('pm-upi-option');
@@ -2616,8 +2616,7 @@ function openCheckout(){
   document.getElementById('location-status').textContent = '';
   document.getElementById('location-status').className = 'location-status';
   document.querySelector('#checkout-overlay .drawer-foot').style.display = '';
-  const codRadio = document.querySelector('input[name="payment-method"][value="cod"]');
-  if(codRadio) codRadio.checked = true;
+  document.querySelectorAll('input[name="payment-method"]').forEach(r => r.checked = false);
   resetUpiChoice();
   document.getElementById('checkout-overlay').classList.add('active');
   updatePaymentSummary();
@@ -2639,7 +2638,12 @@ async function submitOrder(){
   if(CART.length===0) return;
 
   const paymentMethodInput = document.querySelector('input[name="payment-method"]:checked');
-  const paymentMethod = paymentMethodInput ? paymentMethodInput.value : 'cod';
+  if(!paymentMethodInput){
+    errBox.textContent = 'Please select a payment method.';
+    errBox.style.display = 'block';
+    return;
+  }
+  const paymentMethod = paymentMethodInput.value;
 
   // UPI orders require a tap-to-pay confirmation for the full amount first. COD
   // orders require a tap-to-pay confirmation for the 15% advance first — the
