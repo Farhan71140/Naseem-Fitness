@@ -379,6 +379,12 @@
   .revenue-chart-axis{display:flex;justify-content:space-between;margin-top:10px;font-family:'Space Mono',monospace;font-size:11px;color:var(--paper-dim);}
   .breakdown-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:20px;margin-bottom:24px;}
   @media (max-width:980px){ .breakdown-grid{grid-template-columns:1fr;} }
+  .delivery-partner-grid{display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-bottom:24px;}
+  @media (max-width:980px){ .delivery-partner-grid{grid-template-columns:1fr;} }
+  .del-order-row{display:flex;flex-direction:column;gap:6px;padding:14px 0;border-bottom:1px dashed var(--line);}
+  .del-order-row:last-child{border-bottom:none;}
+  .del-order-top{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;}
+  .del-order-actions{display:flex;gap:6px;flex-wrap:wrap;}
   .breakdown-row{margin-bottom:14px;}
   .breakdown-row:last-child{margin-bottom:0;}
   .breakdown-row .bd-head{display:flex;justify-content:space-between;font-size:13px;font-weight:600;margin-bottom:6px;}
@@ -580,6 +586,10 @@
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M6 2l1.5 4M18 2l-1.5 4M4 6h16l-1.5 12.5a2 2 0 0 1-2 1.5H7.5a2 2 0 0 1-2-1.5L4 6z"/><path d="M9 10v5M15 10v5"/></svg>
         <span>Orders</span>
       </button>
+      <button class="nav-btn" data-page="delivery" onclick="goPage('delivery')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="1" y="6" width="15" height="12" rx="2"/><path d="M16 10h4l3 4v4h-7z"/><circle cx="6" cy="19" r="1.8"/><circle cx="18" cy="19" r="1.8"/></svg>
+        <span>Delivery</span>
+      </button>
       <button class="nav-btn" data-page="reviews" onclick="goPage('reviews')">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
         <span>Reviews</span>
@@ -709,6 +719,71 @@
         <div id="orders-empty" class="empty-state" style="display:none;">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M6 2l1.5 4M18 2l-1.5 4M4 6h16l-1.5 12.5a2 2 0 0 1-2 1.5H7.5a2 2 0 0 1-2-1.5L4 6z"/></svg>
           <p>No orders yet. Log your first order to start tracking earnings.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ DELIVERY ============ -->
+    <section class="page" id="page-delivery">
+      <div class="page-head">
+        <div>
+          <span class="eyebrow">Fulfilment</span>
+          <h2>Delivery</h2>
+          <p>Manage courier partners and track shipments for Shiprocket and Borzo.</p>
+        </div>
+      </div>
+
+      <div class="stat-grid">
+        <div class="stat-card">
+          <div class="stat-label">Not Assigned</div>
+          <div class="stat-value" id="del-stat-unassigned">0</div>
+          <div class="stat-sub">Need a courier</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Self Delivery</div>
+          <div class="stat-value" id="del-stat-self">0</div>
+          <div class="stat-sub">Handled in-house</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Shiprocket</div>
+          <div class="stat-value" id="del-stat-shiprocket">0</div>
+          <div class="stat-sub">Active shipments</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Borzo</div>
+          <div class="stat-value" id="del-stat-borzo">0</div>
+          <div class="stat-sub">Active shipments</div>
+        </div>
+      </div>
+
+      <div class="delivery-partner-grid">
+        <div class="panel">
+          <div class="panel-head">
+            <div>
+              <h3>Shiprocket</h3>
+              <span class="mono" style="font-size:12px;color:var(--paper-dim);">Pan-India courier shipping</span>
+            </div>
+            <a class="btn btn-ghost btn-sm" href="https://app.shiprocket.in/" target="_blank" rel="noopener">Open Dashboard ↗</a>
+          </div>
+          <p style="font-size:13px;color:var(--paper-dim);padding:0 22px 16px;">Copy the order address below, create the shipment in Shiprocket, then paste the AWB / tracking ID back here so the customer can be notified.</p>
+          <div id="del-shiprocket-list" style="padding:0 22px 22px;"></div>
+          <div id="del-shiprocket-empty" class="empty-state" style="display:none;">
+            <p>No orders currently assigned to Shiprocket.</p>
+          </div>
+        </div>
+        <div class="panel">
+          <div class="panel-head">
+            <div>
+              <h3>Borzo</h3>
+              <span class="mono" style="font-size:12px;color:var(--paper-dim);">Same-day local delivery</span>
+            </div>
+            <a class="btn btn-ghost btn-sm" href="https://www.borzodelivery.com/in" target="_blank" rel="noopener">Open Dashboard ↗</a>
+          </div>
+          <p style="font-size:13px;color:var(--paper-dim);padding:0 22px 16px;">Copy the order address below, book the rider on Borzo, then paste the order/tracking ID back here so the customer can be notified.</p>
+          <div id="del-borzo-list" style="padding:0 22px 22px;"></div>
+          <div id="del-borzo-empty" class="empty-state" style="display:none;">
+            <p>No orders currently assigned to Borzo.</p>
+          </div>
         </div>
       </div>
     </section>
@@ -1500,6 +1575,7 @@ function renderAll(){
   renderOverview();
   renderProducts();
   renderOrders();
+  renderDelivery();
   renderMarketingSeo();
   renderOffers();
   renderReports();
@@ -1507,6 +1583,56 @@ function renderAll(){
 }
 
 /* ---------- data access (Supabase) ---------- */
+async function renderDelivery(){
+  const orders = [...(await getOrders())]
+    .filter(o => o.status !== 'cancelled')
+    .sort((a,b)=> new Date(b.created_at) - new Date(a.created_at));
+
+  const unassigned = orders.filter(o => !o.delivery_partner);
+  const selfDelivery = orders.filter(o => o.delivery_partner === 'Self Delivery');
+  const shiprocket = orders.filter(o => o.delivery_partner === 'Shiprocket Quick');
+  const borzo = orders.filter(o => o.delivery_partner === 'Borzo');
+
+  const setText = (id, val) => { const el = document.getElementById(id); if(el) el.textContent = val; };
+  setText('del-stat-unassigned', unassigned.length);
+  setText('del-stat-self', selfDelivery.length);
+  setText('del-stat-shiprocket', shiprocket.length);
+  setText('del-stat-borzo', borzo.length);
+
+  renderDeliveryPartnerList('del-shiprocket-list', 'del-shiprocket-empty', shiprocket);
+  renderDeliveryPartnerList('del-borzo-list', 'del-borzo-empty', borzo);
+}
+
+function renderDeliveryPartnerList(listId, emptyId, orders){
+  const list = document.getElementById(listId);
+  const empty = document.getElementById(emptyId);
+  if(!list || !empty) return;
+  if(orders.length === 0){
+    list.innerHTML = '';
+    empty.style.display = 'block';
+    return;
+  }
+  empty.style.display = 'none';
+  list.innerHTML = orders.map(o => `
+    <div class="del-order-row">
+      <div class="del-order-top">
+        <div>
+          <span class="mono" style="color:var(--paper-dim);">#${o.id.slice(0,8)}</span>
+          <strong style="margin-left:8px;">${escapeHtml(o.customer_name)}</strong>
+        </div>
+        <span class="status-pill ${o.status}">${escapeHtml(o.status)}</span>
+      </div>
+      <div style="font-size:13px;color:var(--paper-dim);">${o.address ? escapeHtml(o.address) : 'No address on file'}</div>
+      <div class="del-order-actions">
+        ${o.address ? `<button class="delivery-mini-btn" onclick="copyAddress(${JSON.stringify(o.address).replace(/"/g,'&quot;')})">📋 Copy Address</button>` : ''}
+        <span class="mono" style="font-size:11px;color:var(--paper-dim);align-self:center;" title="${escapeHtml(o.tracking_id || 'No tracking ID yet')}">${o.tracking_id ? escapeHtml(o.tracking_id) : 'No tracking ID'}</span>
+        <button class="delivery-mini-btn" onclick="editTrackingId('${o.id}', ${JSON.stringify(o.tracking_id || '').replace(/"/g,'&quot;')})">${o.tracking_id ? 'Edit ID' : '+ Add ID'}</button>
+        ${o.tracking_id && o.phone ? `<button class="delivery-mini-btn" onclick="notifyDeliveryWhatsApp('${o.id}')">📩 Notify customer</button>` : ''}
+      </div>
+    </div>
+  `).join('');
+}
+
 async function getProducts(){
   const { data, error } = await sb.from('products').select('*').order('created_at', { ascending:false });
   if(error){ showToast('Error loading products: ' + error.message); return []; }
@@ -2119,6 +2245,7 @@ async function updateDeliveryPartner(id, partner){
   const { error } = await sb.from('orders').update(payload).eq('id', id);
   if(error){ showToast('Error: ' + error.message); return; }
   renderOrders();
+  renderDelivery();
   showToast(partner ? `Assigned to ${partner}` : 'Delivery partner cleared');
 }
 async function editTrackingId(id, currentValue){
@@ -2127,6 +2254,7 @@ async function editTrackingId(id, currentValue){
   const { error } = await sb.from('orders').update({ tracking_id: value.trim() || null }).eq('id', id);
   if(error){ showToast('Error: ' + error.message); return; }
   renderOrders();
+  renderDelivery();
   showToast('Tracking ID saved');
 }
 async function notifyDeliveryWhatsApp(id){
@@ -2143,6 +2271,7 @@ async function deleteOrder(id){
   const { error } = await sb.from('orders').delete().eq('id', id);
   if(error){ showToast('Error: ' + error.message); return; }
   renderOrders();
+  renderDelivery();
   renderOverview();
   showToast('Order deleted');
 }
