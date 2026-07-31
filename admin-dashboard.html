@@ -1095,6 +1095,10 @@
         <label for="product-desc">Description (shown to customers)</label>
         <textarea id="product-desc" rows="4" placeholder="One point per line, e.g.&#10;Supports daily energy metabolism&#10;Helps maintain immunity&#10;Supports overall health and wellness"></textarea>
       </div>
+      <div class="field" style="display:flex;align-items:center;gap:10px;flex-direction:row;">
+        <input type="checkbox" id="product-is-new" style="width:auto;">
+        <label for="product-is-new" style="margin:0;">Mark as "New Arrival" (shows a NEW tag to customers)</label>
+      </div>
     </div>
     <div class="modal-foot">
       <button class="btn btn-ghost" onclick="closeModal('product-modal')">Cancel</button>
@@ -1946,7 +1950,9 @@ async function openProductModal(){
   PRODUCT_IMAGES = [];
   renderPhotoUploadGrid();
   document.getElementById('product-desc').value = '';
+  document.getElementById('product-is-new').checked = true;
   document.getElementById('product-modal').classList.add('active');
+}
 }
 async function editProduct(id){
   const products = await getProducts();
@@ -1968,6 +1974,7 @@ async function editProduct(id){
     : (p.image_url ? [p.image_url] : []);
   renderPhotoUploadGrid();
   document.getElementById('product-desc').value = p.description || '';
+  document.getElementById('product-is-new').checked = !!p.is_new;
   document.getElementById('product-modal').classList.add('active');
 }
 async function saveProduct(){
@@ -1985,7 +1992,8 @@ async function saveProduct(){
     compare_price: comparePrice === '' ? null : Number(comparePrice),
     image_url: PRODUCT_IMAGES[0] || '',
     image_urls: PRODUCT_IMAGES,
-    description: document.getElementById('product-desc').value.trim()
+    description: document.getElementById('product-desc').value.trim(),
+    is_new: document.getElementById('product-is-new').checked
   };
   let error;
   if(id){

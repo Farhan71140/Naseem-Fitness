@@ -2007,10 +2007,7 @@ function getEffectivePricing(p){
 }
 
 function isNewProduct(p){
-  if(!p.created_at) return false;
-  const addedMs = new Date(p.created_at).getTime();
-  const sevenDaysMs = 7 * 24 * 60 * 60 * 1000;
-  return (Date.now() - addedMs) < sevenDaysMs;
+  return p.is_new === true;
 }
 
 function renderProducts(list){
