@@ -1953,7 +1953,6 @@ async function openProductModal(){
   document.getElementById('product-is-new').checked = true;
   document.getElementById('product-modal').classList.add('active');
 }
-}
 async function editProduct(id){
   const products = await getProducts();
   const p = products.find(x=>x.id===id);
