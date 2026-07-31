@@ -435,6 +435,18 @@
     padding:4px 10px;border-radius:20px;
     box-shadow:0 2px 8px rgba(255,210,74,0.4);
   }
+  .prod-card.out-of-stock{opacity:0.5;}
+  .prod-card.out-of-stock:hover{transform:none;}
+  .prod-card.out-of-stock .prod-photo{filter:grayscale(0.6);}
+  .oos-bar{
+    position:absolute;bottom:0;left:0;right:0;
+    background:rgba(11,12,14,0.88);color:var(--bad,#FF6B6B);
+    font-family:'Space Mono',monospace;font-size:11px;letter-spacing:1.5px;font-weight:700;
+    text-align:center;padding:8px 0;text-transform:uppercase;
+    border-top:1px solid var(--bad,#FF6B6B);
+  }
+  .add-btn:disabled{opacity:0.4;cursor:not-allowed;}
+  .add-btn:disabled:hover{transform:none;}
   .prod-body{padding:18px 18px 20px;}
   .prod-body .cat-tag{font-family:'Space Mono',monospace;font-size:10px;color:var(--amber);letter-spacing:1.5px;text-transform:uppercase;}
   .prod-body h4{font-size:16px;font-weight:700;margin-top:8px;font-family:'Inter',sans-serif;text-transform:none;}
@@ -2023,8 +2035,10 @@ function renderProducts(list){
     const comparePrice = eff.compare;
     const hasDiscount = eff.hasDiscount;
     const pct = eff.pct;
+    const stock = (p.stock === undefined || p.stock === null) ? null : Number(p.stock);
+    const outOfStock = stock !== null && stock <= 0;
     return `
-    <div class="prod-card" onclick="openQuickView('${p.id}')">
+    <div class="prod-card${outOfStock ? ' out-of-stock' : ''}" onclick="openQuickView('${p.id}')">
       <div class="prod-photo">
         ${(() => { const imgs = getProductImages(p); return imgs[0]
           ? `<img src="${escapeHtml(imgs[0])}" alt="${escapeHtml(p.name)}" style="width:100%;height:100%;object-fit:cover;" onerror="this.parentElement.innerHTML='<div><svg viewBox=\\'0 0 24 24\\' fill=\\'none\\' stroke=\\'currentColor\\' stroke-width=\\'1.5\\'><rect x=\\'6\\' y=\\'3\\' width=\\'12\\' height=\\'18\\' rx=\\'2\\'/></svg><div class=\\'ph-label\\'>IMAGE UNAVAILABLE</div></div>'">${imgs.length>1 ? `<span class="prod-photo-count">📷 ${imgs.length}</span>` : ''}`
@@ -2032,11 +2046,12 @@ function renderProducts(list){
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="6" y="3" width="12" height="18" rx="2"/><path d="M9 3v3h6V3"/></svg>
               <div class="ph-label">PRODUCT PHOTO<br>GOES HERE</div>
             </div>`; })()}
-        ${isNewProduct(p) ? `<span class="badge-new">NEW</span>` : ''}
+        ${!outOfStock && isNewProduct(p) ? `<span class="badge-new">NEW</span>` : ''}
         <span class="badge-genuine">✓ GENUINE</span>
         <button type="button" class="prod-share-btn" aria-label="Share this product" onclick="event.stopPropagation();shareProduct('${p.id}', event)">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.6" y1="10.6" x2="15.4" y2="6.4"/><line x1="8.6" y1="13.4" x2="15.4" y2="17.6"/></svg>
         </button>
+        ${outOfStock ? `<div class="oos-bar">Out of Stock</div>` : ''}
       </div>
       <div class="prod-body">
         <div class="cat-tag">${escapeHtml(p.category)}</div>
@@ -2048,7 +2063,7 @@ function renderProducts(list){
             <span class="price">₹${price.toLocaleString('en-IN')} ${p.unit ? `<small>/ ${escapeHtml(p.unit)}</small>` : ''}</span>
             ${hasDiscount ? `<span class="price-compare">₹${comparePrice.toLocaleString('en-IN')}</span><span class="discount-pill">-${pct}%</span>` : ''}
           </div>
-          <button class="add-btn" aria-label="Add to cart" onclick="event.stopPropagation();addToCart('${p.id}')">+</button>
+          <button class="add-btn" aria-label="Add to cart" ${outOfStock ? 'disabled' : ''} onclick="event.stopPropagation();addToCart('${p.id}')">+</button>
         </div>
       </div>
     </div>
@@ -2115,6 +2130,10 @@ function goToProducts(){
 function addToCart(id){
   const p = PRODUCTS.find(x=>x.id===id);
   if(!p) return;
+  if(p.stock !== undefined && p.stock !== null && Number(p.stock) <= 0){
+    alert('Sorry, this product is currently out of stock.');
+    return;
+  }
   const line = CART.find(x=>x.id===id);
   if(line) line.qty += 1;
   else CART.push({ id:p.id, name:p.name, price:Number(p.price), unit:p.unit, qty:1 });
@@ -2328,7 +2347,16 @@ function openQuickView(id){
       ${hasDiscount ? `<span class="qv-compare">₹${comparePrice.toLocaleString('en-IN')}</span><span class="discount-pill">-${pct}%</span>` : ''}
       ${p.unit ? `<span style="font-family:'Space Mono',monospace;font-size:12px;color:var(--paper-dim);">/ ${escapeHtml(p.unit)}</span>` : ''}
     </div>
-    <div class="qv-stock"><span class="dot"></span>In stock</div>
+    ${(() => {
+      const stock = (p.stock === undefined || p.stock === null) ? null : Number(p.stock);
+      if(stock !== null && stock <= 0){
+        return `<div class="qv-stock"><span class="dot" style="background:var(--bad,#FF6B6B);"></span>Out of stock</div>`;
+      }
+      if(stock !== null && stock <= 5){
+        return `<div class="qv-stock"><span class="dot" style="background:#FFB84D;"></span>Only ${stock} left in stock</div>`;
+      }
+      return `<div class="qv-stock"><span class="dot"></span>In stock</div>`;
+    })()}
     ${descHtml ? `<div class="qv-desc">${descHtml}</div>` : ''}
     <div class="qv-review-block">
       <h4>Ratings &amp; Reviews</h4>
@@ -2363,6 +2391,12 @@ function openQuickView(id){
   QV_STAR = 0;
   renderQvExistingReviews(id);
   document.getElementById('qv-review-msg').style.display='none';
+  const qvOutOfStock = (p.stock !== undefined && p.stock !== null && Number(p.stock) <= 0);
+  const qvAddBtn = document.getElementById('quickview-add-btn');
+  qvAddBtn.disabled = qvOutOfStock;
+  qvAddBtn.textContent = qvOutOfStock ? 'Out of Stock' : 'Add to Cart';
+  qvAddBtn.style.opacity = qvOutOfStock ? '0.5' : '';
+  qvAddBtn.style.cursor = qvOutOfStock ? 'not-allowed' : '';
   document.getElementById('quickview-overlay').classList.add('active');
   if(window.fbq) fbq('track', 'ViewContent', { content_name: p.name, value: Number(p.price), currency: 'INR' });
 }
@@ -2418,6 +2452,10 @@ function qvAddToCart(){
   if(!QV_PRODUCT_ID) return;
   const p = PRODUCTS.find(x=>x.id===QV_PRODUCT_ID);
   if(!p) return;
+  if(p.stock !== undefined && p.stock !== null && Number(p.stock) <= 0){
+    alert('Sorry, this product is currently out of stock.');
+    return;
+  }
   const line = CART.find(x=>x.id===p.id);
   if(line) line.qty += QV_QTY;
   else CART.push({ id:p.id, name:p.name, price:Number(p.price), unit:p.unit, qty:QV_QTY });
