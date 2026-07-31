@@ -385,6 +385,27 @@
   .del-order-row:last-child{border-bottom:none;}
   .del-order-top{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;}
   .del-order-actions{display:flex;gap:6px;flex-wrap:wrap;}
+
+  /* ===== BILL RECEIPT ===== */
+  .bill-receipt{
+    background:#F5EEDD;color:#111;font-family:'Space Mono',monospace;font-size:12px;line-height:1.6;
+    padding:22px 18px;border-radius:6px;max-width:320px;margin:0 auto;
+  }
+  .bill-receipt .bill-logo{display:flex;justify-content:center;margin-bottom:10px;}
+  .bill-receipt .bill-logo img{height:56px;width:auto;}
+  .bill-receipt .bill-brand{text-align:center;font-weight:700;font-size:14px;letter-spacing:0.5px;text-transform:uppercase;}
+  .bill-receipt .bill-addr{text-align:center;font-size:10.5px;color:#333;margin-top:8px;line-height:1.7;}
+  .bill-receipt .bill-title{text-align:center;font-weight:700;letter-spacing:2px;margin-top:10px;}
+  .bill-receipt .bill-hr{border-top:1px dashed #999;margin:10px 0;}
+  .bill-receipt .bill-row{display:flex;justify-content:space-between;gap:10px;}
+  .bill-receipt .bill-row.bold{font-weight:700;}
+  .bill-receipt .bill-item-name{font-weight:700;margin-top:6px;}
+  .bill-receipt .bill-thanks{text-align:center;margin-top:10px;}
+  @media print{
+    body *{visibility:hidden;}
+    #bill-receipt, #bill-receipt *{visibility:visible;}
+    #bill-receipt{position:absolute;top:0;left:0;width:100%;max-width:100%;margin:0;box-shadow:none;}
+  }
   .breakdown-row{margin-bottom:14px;}
   .breakdown-row:last-child{margin-bottom:0;}
   .breakdown-row .bd-head{display:flex;justify-content:space-between;font-size:13px;font-weight:600;margin-bottom:6px;}
@@ -1265,6 +1286,24 @@
   </div>
 </div>
 
+<!-- ================= BILL MODAL ================= -->
+<div class="modal-overlay" id="bill-modal">
+  <div class="modal" style="max-width:400px;">
+    <div class="modal-head">
+      <h3>Order Bill</h3>
+      <button class="modal-close" onclick="closeModal('bill-modal')">✕</button>
+    </div>
+    <div class="modal-body" style="padding:18px;background:#0d0d0d;">
+      <div id="bill-receipt" class="bill-receipt"></div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn btn-ghost" onclick="closeModal('bill-modal')">Close</button>
+      <button class="btn btn-ghost" onclick="printBill()">🖨️ Print</button>
+      <button class="btn btn-primary" onclick="downloadBillPdf()">⬇️ Download PDF</button>
+    </div>
+  </div>
+</div>
+
 <div class="toast" id="toast">
   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6L9 17l-5-5"/></svg>
   <span id="toast-msg">Saved</span>
@@ -1562,6 +1601,9 @@ async function renderOrders(){
       </td>
       <td data-label="Actions">
         <div class="row-actions">
+          <button class="icon-btn" title="Generate Bill" onclick="openBillModal('${o.id}')">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M6 2h9l5 5v13a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2z"/><path d="M15 2v5h5"/><path d="M8 13h8M8 17h5"/></svg>
+          </button>
           <button class="icon-btn danger" title="Delete" onclick="deleteOrder('${o.id}')">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 6h18M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2m3 0l-1 14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2L4 6h16z"/></svg>
           </button>
@@ -2274,6 +2316,201 @@ async function deleteOrder(id){
   renderDelivery();
   renderOverview();
   showToast('Order deleted');
+}
+
+/* ---------- order bill / receipt ---------- */
+const BILL_BUSINESS = {
+  name: 'NF NASEEM FITNESS™',
+  addrLines: [
+    'NF NASEEM FITNESS™ – Official Mumbai Branch',
+    'Ground Floor, Shop No. 2, 23, Haji Kasam Chawl,',
+    'Maulana Azad Road, Two Tank, Mumbai Central,',
+    'Mumbai – 400008, Maharashtra'
+  ],
+  phone: '+91 77382 42258',
+  logoUrl: 'https://nfsupplementstore.com/api/assets/985c9e40-47f9-4bba-b053-d1c7176096fc/4a066dca2b5f7f07ecec5fed1fdbf29d'
+};
+let CURRENT_BILL_ORDER = null;
+
+function billMoney(n){
+  return Number(n || 0).toLocaleString('en-IN', { minimumFractionDigits:2, maximumFractionDigits:2 });
+}
+function formatBillDate(iso){
+  if(!iso) return '—';
+  const d = new Date(iso);
+  const pad = n => String(n).padStart(2,'0');
+  return `${pad(d.getDate())}/${pad(d.getMonth()+1)}/${String(d.getFullYear()).slice(-2)} ${pad(d.getHours())}:${pad(d.getMinutes())}`;
+}
+function billFulfilmentLabel(o){
+  if(o.delivery_partner) return `Delivery · ${o.delivery_partner}`;
+  if(String(o.channel||'').toLowerCase() === 'walk-in') return 'Walk-in / Self Pickup';
+  return 'Delivery';
+}
+function billPaymentLabel(o){
+  const method = String(o.payment_method || '').toLowerCase();
+  if(method === 'cod') return o.advance_paid ? 'Advance paid' : 'Advance pending';
+  if(method === 'upi') return o.upi_paid ? 'Paid via UPI' : 'UPI — pending verification';
+  return o.payment_method || 'COD';
+}
+function buildBillData(o){
+  const itemsArr = Array.isArray(o.items) && o.items.length
+    ? o.items
+    : (o.items ? [{ name: String(o.items), price: Number(o.amount)||0, qty: 1 }] : []);
+  const subtotal = itemsArr.reduce((s,i) => s + (Number(i.price)||0) * (Number(i.qty)||1), 0);
+  const discount = Number(o.discount_amount || 0);
+  const tax = Number(o.tax_amount || 0);
+  const total = Number(o.amount || 0);
+  const advance = Number(o.advance_amount || 0);
+  const balance = Number(o.remaining_amount != null ? o.remaining_amount : (total - advance));
+  return { itemsArr, subtotal, discount, tax, total, advance, balance };
+}
+
+async function openBillModal(id){
+  const orders = await getOrders();
+  const o = orders.find(x => x.id === id);
+  if(!o){ showToast('Order not found'); return; }
+  CURRENT_BILL_ORDER = o;
+  renderBillReceipt(o);
+  document.getElementById('bill-modal').classList.add('active');
+}
+
+function renderBillReceipt(o){
+  const b = buildBillData(o);
+  const isCod = String(o.payment_method||'').toLowerCase() === 'cod';
+  const html = `
+    <div class="bill-logo"><img src="${BILL_BUSINESS.logoUrl}" alt="NF Naseem Fitness" onerror="this.parentElement.style.display='none'"></div>
+    <div class="bill-brand">${BILL_BUSINESS.name}. All Rights Reserved.</div>
+    <div class="bill-addr">
+      ${BILL_BUSINESS.addrLines.map(l => escapeHtml(l)).join('<br>')}<br>
+      Ph: ${escapeHtml(BILL_BUSINESS.phone)}
+    </div>
+    <div class="bill-title">RECEIPT</div>
+    <div class="bill-hr"></div>
+    <div class="bill-row"><span>Order #${o.id.slice(0,8).toUpperCase()}</span><span>${formatBillDate(o.created_at)}</span></div>
+    <div>${escapeHtml(billFulfilmentLabel(o))}</div>
+    <div>${escapeHtml(o.customer_name)} · ${escapeHtml(o.phone || '—')}</div>
+    ${o.address ? `<div>${escapeHtml(o.address)}</div>` : ''}
+    <div class="bill-hr"></div>
+    ${b.itemsArr.map(i => `
+      <div class="bill-item-name">${escapeHtml(i.name)}</div>
+      <div class="bill-row"><span>${i.qty} x ₹${billMoney(i.price)}</span><span>₹${billMoney((Number(i.qty)||1)*(Number(i.price)||0))}</span></div>
+    `).join('')}
+    <div class="bill-hr"></div>
+    <div class="bill-row"><span>Subtotal</span><span>₹${billMoney(b.subtotal)}</span></div>
+    ${b.discount > 0 ? `<div class="bill-row"><span>Discount</span><span>-₹${billMoney(b.discount)}</span></div>` : ''}
+    ${b.tax > 0 ? `<div class="bill-row"><span>Tax</span><span>₹${billMoney(b.tax)}</span></div>` : ''}
+    <div class="bill-row bold"><span>TOTAL</span><span>₹${billMoney(b.total)}</span></div>
+    ${isCod ? `
+      <div class="bill-row"><span>Advance paid</span><span>₹${billMoney(b.advance)}</span></div>
+      <div class="bill-row bold"><span>BALANCE DUE (cash)</span><span>₹${billMoney(b.balance)}</span></div>
+    ` : ''}
+    <div class="bill-hr"></div>
+    <div class="bill-row"><span>Payment</span><span>${escapeHtml(billPaymentLabel(o))}</span></div>
+    <div class="bill-hr"></div>
+    <div class="bill-thanks">Thank you! Visit again.</div>
+  `;
+  document.getElementById('bill-receipt').innerHTML = html;
+}
+
+function printBill(){
+  window.print();
+}
+
+async function downloadBillPdf(){
+  if(!CURRENT_BILL_ORDER){ showToast('No bill loaded'); return; }
+  if(!window.jspdf){ showToast('PDF library failed to load — check your internet connection'); return; }
+  const { jsPDF } = window.jspdf;
+  const o = CURRENT_BILL_ORDER;
+  const b = buildBillData(o);
+  const isCod = String(o.payment_method||'').toLowerCase() === 'cod';
+
+  const pageW = 80; // mm — standard receipt width
+  const margin = 4;
+  const contentW = pageW - margin*2;
+  const centerX = pageW/2;
+  const lineH = 4.6;
+
+  // Estimate page height generously, then trim with a final crop-safe save.
+  const estLines = 30 + b.itemsArr.length*3;
+  const pageH = 30 + estLines*3.6;
+
+  const doc = new jsPDF({ unit:'mm', format:[pageW, pageH] });
+  let y = margin + 4;
+
+  const dash = () => {
+    doc.setLineDashPattern([0.8,0.8], 0);
+    doc.line(margin, y, pageW-margin, y);
+    doc.setLineDashPattern([], 0);
+    y += 4;
+  };
+  const row = (label, val, bold) => {
+    doc.setFont('courier', bold ? 'bold' : 'normal');
+    doc.text(String(label), margin, y);
+    doc.text(String(val), pageW-margin, y, { align:'right' });
+    y += lineH;
+  };
+  const centerText = (text, size) => {
+    doc.setFontSize(size);
+    doc.text(text, centerX, y, { align:'center' });
+    y += size/2.4;
+  };
+
+  doc.setFont('courier','bold');
+  centerText('NF NASEEM FITNESS', 11);
+  y += 1;
+  doc.setFont('courier','normal');
+  centerText('All Rights Reserved.', 8);
+  y += 1;
+  doc.setFontSize(7);
+  [
+    'NF NASEEM FITNESS - Official Mumbai Branch',
+    'Ground Floor, Shop No. 2, 23, Haji Kasam Chawl,',
+    'Maulana Azad Road, Two Tank, Mumbai Central,',
+    'Mumbai - 400008, Maharashtra',
+    `Ph: ${BILL_BUSINESS.phone}`
+  ].forEach(l => { doc.text(l, centerX, y, { align:'center' }); y += 3.6; });
+  y += 2;
+  doc.setFont('courier','bold');
+  centerText('RECEIPT', 9);
+  y += 1;
+  dash();
+
+  doc.setFontSize(8);
+  doc.setFont('courier','normal');
+  row(`Order #${o.id.slice(0,8).toUpperCase()}`, formatBillDate(o.created_at));
+  doc.text(billFulfilmentLabel(o), margin, y); y += lineH;
+  doc.text(`${o.customer_name} - ${o.phone||''}`, margin, y); y += lineH;
+  if(o.address){
+    doc.splitTextToSize(o.address, contentW).forEach(l => { doc.text(l, margin, y); y += 3.8; });
+  }
+  y += 1;
+  dash();
+
+  b.itemsArr.forEach(i => {
+    doc.setFont('courier','bold');
+    doc.splitTextToSize(String(i.name), contentW).forEach(l => { doc.text(l, margin, y); y += 3.8; });
+    doc.setFont('courier','normal');
+    doc.text(`${i.qty} x ${billMoney(i.price)}`, margin, y);
+    doc.text(billMoney((Number(i.qty)||1)*(Number(i.price)||0)), pageW-margin, y, { align:'right' });
+    y += lineH;
+  });
+  dash();
+
+  row('Subtotal', billMoney(b.subtotal));
+  if(b.discount > 0) row('Discount', '-'+billMoney(b.discount));
+  if(b.tax > 0) row('Tax', billMoney(b.tax));
+  row('TOTAL', billMoney(b.total), true);
+  if(isCod){
+    row('Advance paid', billMoney(b.advance));
+    row('BALANCE DUE (cash)', billMoney(b.balance), true);
+  }
+  dash();
+  row('Payment', billPaymentLabel(o));
+  dash();
+  doc.setFont('courier','normal');
+  centerText('Thank you! Visit again.', 8);
+
+  doc.save(`NF-Bill-${o.id.slice(0,8)}.pdf`);
 }
 
 /* ---------- reviews ---------- */
