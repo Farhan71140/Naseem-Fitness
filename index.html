@@ -428,6 +428,13 @@
     font-family:'Space Mono',monospace;font-size:9px;letter-spacing:1px;
     padding:4px 8px;border-radius:20px;
   }
+  .badge-new{
+    position:absolute;top:10px;left:10px;
+    background:var(--teal);color:var(--ink-black);
+    font-family:'Space Mono',monospace;font-size:9px;letter-spacing:1.5px;font-weight:700;
+    padding:4px 10px;border-radius:20px;
+    box-shadow:0 2px 8px rgba(255,210,74,0.4);
+  }
   .prod-body{padding:18px 18px 20px;}
   .prod-body .cat-tag{font-family:'Space Mono',monospace;font-size:10px;color:var(--amber);letter-spacing:1.5px;text-transform:uppercase;}
   .prod-body h4{font-size:16px;font-weight:700;margin-top:8px;font-family:'Inter',sans-serif;text-transform:none;}
@@ -1999,6 +2006,13 @@ function getEffectivePricing(p){
   return { price, compare: ownCompare, hasDiscount, pct: hasDiscount ? Math.round((1-price/ownCompare)*100) : 0 };
 }
 
+function isNewProduct(p){
+  if(!p.created_at) return false;
+  const addedMs = new Date(p.created_at).getTime();
+  const sevenDaysMs = 7 * 24 * 60 * 60 * 1000;
+  return (Date.now() - addedMs) < sevenDaysMs;
+}
+
 function renderProducts(list){
   const grid = document.getElementById('products-grid');
   if(list.length===0){
@@ -2020,6 +2034,7 @@ function renderProducts(list){
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="6" y="3" width="12" height="18" rx="2"/><path d="M9 3v3h6V3"/></svg>
               <div class="ph-label">PRODUCT PHOTO<br>GOES HERE</div>
             </div>`; })()}
+        ${isNewProduct(p) ? `<span class="badge-new">NEW</span>` : ''}
         <span class="badge-genuine">✓ GENUINE</span>
         <button type="button" class="prod-share-btn" aria-label="Share this product" onclick="event.stopPropagation();shareProduct('${p.id}', event)">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.6" y1="10.6" x2="15.4" y2="6.4"/><line x1="8.6" y1="13.4" x2="15.4" y2="17.6"/></svg>
