@@ -1079,6 +1079,11 @@
         </div>
       </div>
       <div class="field">
+        <label for="product-stock">Stock Quantity</label>
+        <input type="number" id="product-stock" placeholder="e.g. 25" min="0" step="1">
+        <div class="photo-upload-hint">Set to 0 when sold out — the product will show "Out of Stock" on the site and customers won't be able to add it to cart.</div>
+      </div>
+      <div class="field">
         <label>Product Photos (up to 5 — first photo is the cover shown in listings)</label>
         <div class="photo-upload-grid" id="photo-upload-grid"></div>
         <input type="file" id="product-image-file" accept="image/*" multiple onchange="handleProductImageFiles(this.files)">
@@ -1377,6 +1382,12 @@ async function renderProducts(){
           <strong>₹${Number(p.price).toLocaleString('en-IN')}</strong> ${p.unit ? '/ '+escapeHtml(p.unit) : ''}
           ${p.compare_price && Number(p.compare_price) > Number(p.price) ? ` <span style="text-decoration:line-through;opacity:0.6;">₹${Number(p.compare_price).toLocaleString('en-IN')}</span>` : ''}
         </div>
+        ${(() => {
+          const st = (p.stock === undefined || p.stock === null) ? 0 : Number(p.stock);
+          const color = st <= 0 ? 'var(--bad)' : (st <= 5 ? 'var(--warn)' : 'var(--good)');
+          const label = st <= 0 ? 'Out of stock' : `${st} in stock`;
+          return `<div style="font-family:'Space Mono',monospace;font-size:11px;color:${color};letter-spacing:0.5px;margin-top:4px;">● ${label}</div>`;
+        })()}
         <div class="prod-admin-actions">
           <button class="icon-btn" title="Edit" onclick="editProduct('${p.id}')">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 20h9M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
@@ -1944,6 +1955,7 @@ async function openProductModal(){
   document.getElementById('product-unit').value = '';
   document.getElementById('product-price').value = '';
   document.getElementById('product-compare-price').value = '';
+  document.getElementById('product-stock').value = '';
   document.getElementById('product-image').value = '';
   document.getElementById('product-image-file').value = '';
   document.getElementById('upload-status').textContent = '';
@@ -1965,6 +1977,7 @@ async function editProduct(id){
   document.getElementById('product-unit').value = p.unit || '';
   document.getElementById('product-price').value = p.price;
   document.getElementById('product-compare-price').value = p.compare_price || '';
+  document.getElementById('product-stock').value = (p.stock === undefined || p.stock === null) ? '' : p.stock;
   document.getElementById('product-image').value = '';
   document.getElementById('product-image-file').value = '';
   document.getElementById('upload-status').textContent = '';
@@ -1982,6 +1995,7 @@ async function saveProduct(){
   if(!name || price===''){ showToast('Name and price are required'); return; }
   const id = document.getElementById('product-id').value;
   const comparePrice = document.getElementById('product-compare-price').value;
+  const stock = document.getElementById('product-stock').value;
   const payload = {
     name,
     brand: document.getElementById('product-brand').value.trim(),
@@ -1989,6 +2003,7 @@ async function saveProduct(){
     unit: document.getElementById('product-unit').value.trim(),
     price: Number(price),
     compare_price: comparePrice === '' ? null : Number(comparePrice),
+    stock: stock === '' ? 0 : Number(stock),
     image_url: PRODUCT_IMAGES[0] || '',
     image_urls: PRODUCT_IMAGES,
     description: document.getElementById('product-desc').value.trim(),
