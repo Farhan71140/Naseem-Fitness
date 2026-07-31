@@ -1985,6 +1985,7 @@ async function loadProducts(){
     return;
   }
   PRODUCTS = data || [];
+  window.PRODUCTS = PRODUCTS; // expose to ai-chat.js so the AI assistant sees the live catalog
   if(PRODUCTS.length===0){
     grid.innerHTML = `<div class="prod-empty">New stock coming soon — check back shortly.</div>`;
     return;
