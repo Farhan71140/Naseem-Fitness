@@ -128,8 +128,8 @@ Guidelines:
       height: 52px;
       padding: 0 20px 0 16px;
       border-radius: 50px;
-      background: linear-gradient(135deg, var(--teal, #FFD24A), var(--amber, #FFE27A));
-      border: none;
+      background: linear-gradient(135deg, #17130D, #241D13);
+      border: 1px solid rgba(255,210,74,0.4);
       cursor: grab;
       touch-action: none;
       user-select: none;
@@ -148,7 +148,7 @@ Guidelines:
     }
     #nf-chat-toggle .toggle-icon { width: 40px; height: 40px; border-radius: 50%; object-fit: cover; display: block; flex-shrink: 0; }
     #nf-chat-toggle .toggle-label {
-      color: #0A0806;
+      color: #FFD24A;
       font-size: 12.5px;
       font-weight: 700;
       letter-spacing: 0.5px;
@@ -220,7 +220,8 @@ Guidelines:
     .nf-chat-avatar {
       width: 40px; height: 40px;
       border-radius: 50%;
-      background: linear-gradient(135deg, var(--teal, #FFD24A), var(--amber, #FFE27A));
+      background: linear-gradient(135deg, #17130D, #241D13);
+      border: 1px solid rgba(255,210,74,0.4);
       display: flex; align-items: center; justify-content: center;
       overflow: hidden;
       flex-shrink: 0;
