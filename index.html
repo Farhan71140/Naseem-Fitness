@@ -500,6 +500,70 @@
     font-family:'Space Mono',monospace;font-size:10px;padding:2px 8px;border-radius:20px;backdrop-filter:blur(2px);
   }
 
+  /* ===== COMBO OFFERS — wide showcase cards ===== */
+  .combo-grid{display:grid;grid-template-columns:1fr;gap:26px;}
+  .combo-card{
+    display:grid;grid-template-columns:1fr;
+    background:linear-gradient(160deg, var(--steel) 0%, var(--iron) 140%);
+    border:1px solid var(--line);border-radius:18px;overflow:hidden;
+    box-shadow:0 14px 34px rgba(0,0,0,0.28);
+    transition:transform .25s ease, border-color .25s ease, box-shadow .25s ease;
+  }
+  .combo-card:hover{transform:translateY(-4px);border-color:var(--iron-light);box-shadow:0 20px 48px rgba(0,0,0,0.38);}
+  .combo-photo{
+    position:relative;width:100%;aspect-ratio:16/10;
+    background:linear-gradient(135deg, var(--iron) 0%, var(--steel) 60%);
+    overflow:hidden;
+  }
+  .combo-photo img{width:100%;height:100%;object-fit:cover;display:block;}
+  .combo-photo > div{width:100%;height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;}
+  .combo-photo svg{width:52px;height:52px;opacity:0.5;margin-bottom:10px;}
+  .combo-badge{
+    position:absolute;top:16px;left:16px;background:var(--teal);color:var(--ink-black);
+    font-family:'Space Mono',monospace;font-size:11px;font-weight:800;letter-spacing:1.8px;
+    padding:6px 15px;border-radius:20px;text-transform:uppercase;
+    box-shadow:0 4px 14px rgba(255,210,74,0.45);
+  }
+  .combo-discount-badge{
+    position:absolute;top:16px;right:16px;background:rgba(10,8,6,0.82);backdrop-filter:blur(4px);
+    border:1px solid var(--teal);color:var(--teal);font-family:'Space Mono',monospace;
+    font-size:13px;font-weight:800;padding:6px 13px;border-radius:20px;
+  }
+  .combo-body{padding:22px 22px 24px;}
+  .combo-body h4{font-size:20px;font-weight:800;font-family:'Inter',sans-serif;line-height:1.25;letter-spacing:0.2px;}
+  .combo-desc{font-size:13.5px;color:var(--paper-dim);line-height:1.75;white-space:pre-line;margin-top:8px;}
+  .combo-footer{
+    display:flex;align-items:center;justify-content:space-between;gap:16px;
+    margin-top:18px;padding-top:16px;border-top:1px dashed var(--line);
+  }
+  .combo-price-wrap{display:flex;flex-direction:column;gap:2px;}
+  .combo-offer-price{font-family:'Space Mono',monospace;font-size:24px;font-weight:800;color:var(--paper);line-height:1;}
+  .combo-original-price{font-family:'Space Mono',monospace;font-size:13px;color:var(--paper-dim);text-decoration:line-through;}
+  .combo-add-btn{
+    display:inline-flex;align-items:center;gap:8px;flex:none;
+    background:var(--teal);color:var(--ink-black);border:none;cursor:pointer;
+    font-family:'Inter',sans-serif;font-weight:800;font-size:14px;
+    padding:13px 22px;border-radius:30px;transition:background .2s, transform .15s;
+    box-shadow:0 8px 20px rgba(255,210,74,0.28);
+  }
+  .combo-add-btn:hover{background:var(--gold-light,#FFF2B5);transform:translateY(-1px);}
+  .combo-add-btn svg{width:17px;height:17px;}
+  /* full-bleed edge-to-edge image + card on phones for a bigger, punchier look */
+  @media (max-width:700px){
+    .combo-grid{margin-left:-20px;margin-right:-20px;gap:18px;}
+    .combo-card{border-radius:0;border-left:none;border-right:none;}
+    .combo-photo{aspect-ratio:4/3;}
+    .combo-footer{flex-direction:column;align-items:stretch;gap:14px;}
+    .combo-add-btn{justify-content:center;width:100%;}
+  }
+  /* wide row layout once there's room — image sits alongside the details */
+  @media (min-width:701px){
+    .combo-card{grid-template-columns:44% 1fr;}
+    .combo-photo{aspect-ratio:auto;height:100%;min-height:300px;}
+    .combo-body{display:flex;flex-direction:column;justify-content:center;padding:30px 34px;}
+    .combo-footer{margin-top:22px;}
+  }
+
   /* ===== QUICK VIEW ===== */
   .qv-photo{aspect-ratio:1/1;background:linear-gradient(135deg, var(--iron) 0%, var(--steel) 60%);border-radius:10px;border:1px solid var(--line);display:flex;align-items:center;justify-content:center;position:relative;overflow:hidden;margin-bottom:12px;}
   .qv-photo img{width:100%;height:100%;object-fit:cover;display:block;}
@@ -1380,7 +1444,7 @@
         </div>
         <p>Handpicked bundles at a special price — better value than buying separately.</p>
       </div>
-      <div class="prod-grid" id="combos-grid"></div>
+      <div class="combo-grid" id="combos-grid"></div>
     </div>
   </section>
 
@@ -2077,25 +2141,29 @@ function renderCombosStorefront(list){
     const offer = Number(c.offer_price) || 0;
     const pct = original > offer && original > 0 ? Math.round((1 - offer/original) * 100) : 0;
     return `
-    <div class="prod-card">
-      <div class="prod-photo">
+    <div class="combo-card">
+      <div class="combo-photo">
         ${c.image_url
-          ? `<img src="${escapeHtml(c.image_url)}" alt="${escapeHtml(c.name)}" style="width:100%;height:100%;object-fit:cover;" onerror="this.parentElement.innerHTML='<div><svg viewBox=\\'0 0 24 24\\' fill=\\'none\\' stroke=\\'currentColor\\' stroke-width=\\'1.5\\'><rect x=\\'3\\' y=\\'7\\' width=\\'18\\' height=\\'13\\' rx=\\'2\\'/></svg><div class=\\'ph-label\\'>IMAGE UNAVAILABLE</div></div>'">`
+          ? `<img src="${escapeHtml(c.image_url)}" alt="${escapeHtml(c.name)}" onerror="this.parentElement.innerHTML='<div><svg viewBox=\\'0 0 24 24\\' fill=\\'none\\' stroke=\\'currentColor\\' stroke-width=\\'1.5\\'><rect x=\\'3\\' y=\\'7\\' width=\\'18\\' height=\\'13\\' rx=\\'2\\'/></svg></div>'">`
           : `<div>
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="7" width="18" height="13" rx="2"/><path d="M3 11h18M8 7V5a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
               <div class="ph-label">COMBO PHOTO<br>GOES HERE</div>
             </div>`}
-        <span class="badge-new" style="background:var(--teal);">COMBO</span>
+        <span class="combo-badge">Combo Offer</span>
+        ${pct ? `<span class="combo-discount-badge">-${pct}%</span>` : ''}
       </div>
-      <div class="prod-body">
+      <div class="combo-body">
         <h4>${escapeHtml(c.name)}</h4>
-        ${c.description ? `<p style="font-size:12.5px;color:var(--paper-dim);margin-top:4px;line-height:1.6;white-space:pre-line;">${escapeHtml(c.description)}</p>` : ''}
-        <div class="price-row">
-          <div class="price-wrap">
-            <span class="price">₹${offer.toLocaleString('en-IN')}</span>
-            ${pct ? `<span class="price-compare">₹${original.toLocaleString('en-IN')}</span><span class="discount-pill">-${pct}%</span>` : ''}
+        ${c.description ? `<p class="combo-desc">${escapeHtml(c.description)}</p>` : ''}
+        <div class="combo-footer">
+          <div class="combo-price-wrap">
+            <span class="combo-offer-price">₹${offer.toLocaleString('en-IN')}</span>
+            ${original > offer ? `<span class="combo-original-price">₹${original.toLocaleString('en-IN')}</span>` : ''}
           </div>
-          <button class="add-btn" aria-label="Add combo to cart" onclick="addComboToCart('${c.id}')">+</button>
+          <button class="combo-add-btn" onclick="addComboToCart('${c.id}')">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="9" cy="21" r="1.4"/><circle cx="19" cy="21" r="1.4"/><path d="M2.5 3h2.4l2.7 12.4a2 2 0 0 0 2 1.6h8.7a2 2 0 0 0 2-1.6L22.5 8H6.2"/></svg>
+            Add Combo to Cart
+          </button>
         </div>
       </div>
     </div>
