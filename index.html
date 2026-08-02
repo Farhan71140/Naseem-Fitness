@@ -500,6 +500,23 @@
     font-family:'Space Mono',monospace;font-size:10px;padding:2px 8px;border-radius:20px;backdrop-filter:blur(2px);
   }
 
+  .combo-card{cursor:pointer;}
+  .combo-desc-teaser{font-size:13px;color:var(--paper-dim);margin-top:8px;line-height:1.6;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+  .combo-view-more{
+    display:inline-block;margin-top:6px;font-family:'Space Mono',monospace;font-size:11px;
+    letter-spacing:0.5px;color:var(--teal);text-transform:uppercase;
+  }
+  .combo-qv-photo{
+    width:100%;aspect-ratio:16/10;border-radius:12px;border:1px solid var(--line);
+    background:linear-gradient(135deg, var(--iron) 0%, var(--steel) 60%);
+    overflow:hidden;margin-bottom:16px;display:flex;align-items:center;justify-content:center;
+  }
+  .combo-qv-photo img{width:100%;height:100%;object-fit:cover;}
+  .combo-qv-body ul{margin:10px 0 0;padding:0;list-style:none;display:flex;flex-direction:column;gap:10px;}
+  .combo-qv-body ul li{font-size:14px;color:var(--paper);line-height:1.6;padding-left:22px;position:relative;}
+  .combo-qv-body ul li::before{content:'✓';position:absolute;left:0;color:var(--teal);font-weight:800;}
+  .combo-qv-body p{font-size:14px;color:var(--paper);line-height:1.75;margin-top:4px;}
+
   /* ===== COMBO OFFERS — wide showcase cards ===== */
   .combo-grid{display:grid;grid-template-columns:1fr;gap:26px;}
   .combo-card{
@@ -1856,6 +1873,20 @@
 
 <div class="share-toast" id="share-toast">Link copied!</div>
 
+<!-- COMBO QUICK VIEW DRAWER -->
+<div class="drawer-overlay" id="combo-quickview-overlay">
+  <div class="drawer">
+    <div class="drawer-head">
+      <h3>Combo Details</h3>
+      <button class="drawer-close" onclick="closeComboQuickView()">✕</button>
+    </div>
+    <div class="drawer-body" id="combo-quickview-body"></div>
+    <div class="drawer-foot">
+      <button class="btn btn-primary" id="combo-quickview-add-btn" style="width:100%;justify-content:center;" onclick="cqvAddToCart()">Add Combo to Cart</button>
+    </div>
+  </div>
+</div>
+
 <!-- ORDER TRACKING DRAWER -->
 <div class="drawer-overlay" id="track-order-overlay">
   <div class="drawer">
@@ -2141,8 +2172,9 @@ function renderCombosStorefront(list){
     const original = Number(c.original_price) || 0;
     const offer = Number(c.offer_price) || 0;
     const pct = original > offer && original > 0 ? Math.round((1 - offer/original) * 100) : 0;
+    const firstLine = (c.description || '').split('\n').map(l=>l.trim()).filter(Boolean)[0] || '';
     return `
-    <div class="combo-card">
+    <div class="combo-card" onclick="openComboQuickView('${c.id}')">
       <div class="combo-photo">
         ${c.image_url
           ? `<img src="${escapeHtml(c.image_url)}" alt="${escapeHtml(c.name)}" onerror="this.parentElement.innerHTML='<div><svg viewBox=\\'0 0 24 24\\' fill=\\'none\\' stroke=\\'currentColor\\' stroke-width=\\'1.5\\'><rect x=\\'3\\' y=\\'7\\' width=\\'18\\' height=\\'13\\' rx=\\'2\\'/></svg></div>'">`
@@ -2155,13 +2187,14 @@ function renderCombosStorefront(list){
       </div>
       <div class="combo-body">
         <h4>${escapeHtml(c.name)}</h4>
-        ${c.description ? `<p class="combo-desc">${escapeHtml(c.description)}</p>` : ''}
+        ${firstLine ? `<p class="combo-desc-teaser">${escapeHtml(firstLine)}</p>` : ''}
+        <span class="combo-view-more">View full details →</span>
         <div class="combo-footer">
           <div class="combo-price-wrap">
             <span class="combo-offer-price">₹${offer.toLocaleString('en-IN')}</span>
             ${original > offer ? `<span class="combo-original-price">₹${original.toLocaleString('en-IN')}</span>` : ''}
           </div>
-          <button class="combo-add-btn" onclick="addComboToCart('${c.id}')">
+          <button class="combo-add-btn" onclick="event.stopPropagation(); addComboToCart('${c.id}')">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="9" cy="21" r="1.4"/><circle cx="19" cy="21" r="1.4"/><path d="M2.5 3h2.4l2.7 12.4a2 2 0 0 0 2 1.6h8.7a2 2 0 0 0 2-1.6L22.5 8H6.2"/></svg>
             Add Combo to Cart
           </button>
@@ -2169,6 +2202,43 @@ function renderCombosStorefront(list){
       </div>
     </div>
   `;}).join('');
+}
+let CQV_COMBO_ID = null;
+function openComboQuickView(id){
+  const c = COMBOS.find(x=>x.id===id);
+  if(!c) return;
+  CQV_COMBO_ID = id;
+  const original = Number(c.original_price) || 0;
+  const offer = Number(c.offer_price) || 0;
+  const pct = original > offer && original > 0 ? Math.round((1 - offer/original) * 100) : 0;
+  const descLines = (c.description || '').split('\n').map(l=>l.trim()).filter(Boolean);
+  let descHtml = '';
+  if(descLines.length > 1){
+    descHtml = `<ul>${descLines.map(l=>`<li>${escapeHtml(l)}</li>`).join('')}</ul>`;
+  } else if(descLines.length === 1){
+    descHtml = `<p>${escapeHtml(descLines[0])}</p>`;
+  }
+  document.getElementById('combo-quickview-body').innerHTML = `
+    <div class="combo-qv-photo">
+      ${c.image_url ? `<img src="${escapeHtml(c.image_url)}" alt="${escapeHtml(c.name)}">` : ''}
+    </div>
+    <span class="combo-badge" style="position:static;display:inline-block;margin-bottom:10px;">Combo Offer</span>
+    <h2 class="qv-title">${escapeHtml(c.name)}</h2>
+    <div class="qv-price-row">
+      <span class="qv-price">₹${offer.toLocaleString('en-IN')}</span>
+      ${pct ? `<span class="qv-compare">₹${original.toLocaleString('en-IN')}</span><span class="discount-pill">-${pct}%</span>` : ''}
+    </div>
+    <div class="combo-qv-body">${descHtml}</div>
+  `;
+  document.getElementById('combo-quickview-overlay').classList.add('active');
+}
+function closeComboQuickView(){
+  document.getElementById('combo-quickview-overlay').classList.remove('active');
+}
+function cqvAddToCart(){
+  if(!CQV_COMBO_ID) return;
+  addComboToCart(CQV_COMBO_ID);
+  closeComboQuickView();
 }
 function addComboToCart(id){
   const c = COMBOS.find(x=>x.id===id);
