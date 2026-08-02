@@ -540,6 +540,42 @@
   .qv-desc ul{padding-left:0;list-style:none;margin-top:6px;}
   .qv-desc li{padding:7px 0;border-bottom:1px solid var(--line);padding-left:22px;position:relative;}
   .qv-desc li::before{content:'✓';position:absolute;left:0;color:var(--teal);font-weight:700;}
+
+  /* ===== FLAVOR / VARIANT SELECTOR (Quick View) ===== */
+  .qv-flavor-block{margin-top:20px;padding-top:20px;border-top:1px solid var(--line);}
+  .qv-flavor-label{
+    display:flex;align-items:baseline;justify-content:space-between;gap:10px;
+    font-family:'Space Mono',monospace;font-size:11px;letter-spacing:1.5px;text-transform:uppercase;
+    color:var(--paper-dim);margin-bottom:12px;
+  }
+  .qv-flavor-label .sel-name{color:var(--teal);font-weight:700;letter-spacing:0.3px;text-transform:none;font-family:'Inter',sans-serif;font-size:13.5px;}
+  .qv-flavor-grid{display:flex;flex-wrap:wrap;gap:9px;}
+  .qv-flavor-pill{
+    display:inline-flex;align-items:center;gap:8px;padding:7px 15px 7px 8px;border-radius:30px;
+    border:1px solid var(--line);background:var(--steel);cursor:pointer;
+    transition:border-color .2s ease, background .2s ease, transform .15s ease;
+  }
+  .qv-flavor-pill:hover{border-color:var(--teal);transform:translateY(-1px);}
+  .qv-flavor-pill.active{border-color:var(--teal);background:rgba(255,210,74,0.1);box-shadow:0 0 0 1px var(--teal) inset;}
+  .qv-flavor-pill .swatch{
+    width:19px;height:19px;border-radius:50%;flex-shrink:0;
+    border:1px solid rgba(255,255,255,0.25);box-shadow:inset 0 0 0 2px rgba(10,8,6,0.35);
+  }
+  .qv-flavor-pill .fname{font-size:13px;font-weight:600;color:var(--paper);line-height:1.2;}
+  .qv-flavor-pill.sold-out{opacity:0.42;cursor:not-allowed;}
+  .qv-flavor-pill.sold-out:hover{transform:none;border-color:var(--line);}
+  .qv-flavor-pill.sold-out .fname{text-decoration:line-through;}
+  .qv-flavor-pill .fname .tag{
+    display:block;font-family:'Space Mono',monospace;font-size:8.5px;color:var(--bad,#FF6B6B);
+    text-transform:uppercase;letter-spacing:0.5px;font-weight:700;line-height:1.4;
+  }
+
+  .prod-flavor-row{display:flex;align-items:center;gap:5px;margin-top:8px;flex-wrap:wrap;}
+  .prod-flavor-row .fdot{
+    width:12px;height:12px;border-radius:50%;flex-shrink:0;
+    border:1px solid rgba(255,255,255,0.2);box-shadow:inset 0 0 0 1.5px rgba(10,8,6,0.3);
+  }
+  .prod-flavor-row .fmore{font-family:'Space Mono',monospace;font-size:10px;color:var(--paper-dim);margin-left:1px;}
   .qv-qty-row{display:flex;align-items:center;justify-content:space-between;margin-top:24px;padding-top:20px;border-top:1px solid var(--line);}
   .qv-qty-row .qty-ctrl button{width:32px;height:32px;font-size:16px;}
 
@@ -2057,6 +2093,12 @@ function renderProducts(list){
         <div class="cat-tag">${escapeHtml(p.category)}</div>
         <h4>${escapeHtml(p.name)}</h4>
         ${p.brand ? `<span class="brand-tag">${escapeHtml(p.brand)}</span>` : ''}
+        ${Array.isArray(p.flavors) && p.flavors.length ? `
+          <div class="prod-flavor-row">
+            ${p.flavors.slice(0,5).map(f=>`<span class="fdot" style="background:${escapeHtml(f.color||'#FFD24A')};" title="${escapeHtml(f.name)}"></span>`).join('')}
+            ${p.flavors.length>5 ? `<span class="fmore">+${p.flavors.length-5}</span>` : ''}
+          </div>
+        ` : ''}
         ${renderRatingSummary(p.id)}
         <div class="price-row">
           <div class="price-wrap">
@@ -2132,6 +2174,11 @@ function addToCart(id){
   if(!p) return;
   if(p.stock !== undefined && p.stock !== null && Number(p.stock) <= 0){
     alert('Sorry, this product is currently out of stock.');
+    return;
+  }
+  if(Array.isArray(p.flavors) && p.flavors.length){
+    // this product has flavor variants — open Quick View so the customer can pick one first
+    openQuickView(id);
     return;
   }
   const line = CART.find(x=>x.id===id);
@@ -2249,6 +2296,8 @@ let QV_PRODUCT_ID = null;
 let QV_QTY = 1;
 let QV_IMAGES = [];
 let QV_IMG_INDEX = 0;
+let QV_BASE_IMAGES = [];
+let QV_SELECTED_FLAVOR = null;
 
 function getProductImages(p){
   if(Array.isArray(p.image_urls) && p.image_urls.length) return p.image_urls.slice(0,5);
@@ -2313,13 +2362,84 @@ function attachQvSwipe(){
   }, { passive:true });
 }
 
+/* ---------- flavor / variant selector ---------- */
+function renderFlavorSelectorHtml(p){
+  if(!Array.isArray(p.flavors) || p.flavors.length === 0) return '';
+  return `
+    <div class="qv-flavor-block">
+      <div class="qv-flavor-label">
+        <span>Choose Flavor</span>
+        <span class="sel-name" id="qv-flavor-selected-name">${QV_SELECTED_FLAVOR ? escapeHtml(QV_SELECTED_FLAVOR.name) : 'Select an option'}</span>
+      </div>
+      <div class="qv-flavor-grid" id="qv-flavor-grid">
+        ${p.flavors.map(f => {
+          const soldOut = f.in_stock === false;
+          const active = QV_SELECTED_FLAVOR && QV_SELECTED_FLAVOR.id === f.id;
+          return `
+          <button type="button" class="qv-flavor-pill${active ? ' active' : ''}${soldOut ? ' sold-out' : ''}" onclick="selectQvFlavor('${f.id}')" ${soldOut ? 'aria-disabled="true"' : ''}>
+            <span class="swatch" style="background:${escapeHtml(f.color || '#FFD24A')};"></span>
+            <span class="fname">${escapeHtml(f.name)}${soldOut ? '<span class="tag">Sold Out</span>' : ''}</span>
+          </button>`;
+        }).join('')}
+      </div>
+    </div>
+  `;
+}
+function selectQvFlavor(flavorId){
+  const p = PRODUCTS.find(x=>x.id===QV_PRODUCT_ID);
+  if(!p || !Array.isArray(p.flavors)) return;
+  const f = p.flavors.find(x=>x.id===flavorId);
+  if(!f) return;
+  QV_SELECTED_FLAVOR = f;
+  // swap the photo gallery to show this flavor's own photo first, if it has one
+  QV_IMAGES = f.image_url ? [f.image_url, ...QV_BASE_IMAGES.filter(u=>u!==f.image_url)] : QV_BASE_IMAGES.slice();
+  QV_IMG_INDEX = 0;
+  renderQvPhoto();
+  const grid = document.getElementById('qv-flavor-grid');
+  if(grid){
+    grid.querySelectorAll('.qv-flavor-pill').forEach((el,i)=> el.classList.toggle('active', p.flavors[i].id === flavorId));
+  }
+  const nameEl = document.getElementById('qv-flavor-selected-name');
+  if(nameEl) nameEl.textContent = f.name;
+  updateQvAddButtonState(p);
+}
+function updateQvAddButtonState(p){
+  const qvAddBtn = document.getElementById('quickview-add-btn');
+  if(!qvAddBtn) return;
+  const outOfStock = (p.stock !== undefined && p.stock !== null && Number(p.stock) <= 0);
+  const hasFlavors = Array.isArray(p.flavors) && p.flavors.length > 0;
+  let disabled = outOfStock;
+  let label = 'Add to Cart';
+  if(outOfStock){
+    label = 'Out of Stock';
+  } else if(hasFlavors && !QV_SELECTED_FLAVOR){
+    disabled = true;
+    label = 'Select a Flavor';
+  } else if(hasFlavors && QV_SELECTED_FLAVOR && QV_SELECTED_FLAVOR.in_stock === false){
+    disabled = true;
+    label = 'Flavor Out of Stock';
+  }
+  qvAddBtn.disabled = disabled;
+  qvAddBtn.textContent = label;
+  qvAddBtn.style.opacity = disabled ? '0.5' : '';
+  qvAddBtn.style.cursor = disabled ? 'not-allowed' : '';
+}
+
 function openQuickView(id){
   const p = PRODUCTS.find(x=>x.id===id);
   if(!p) return;
   QV_PRODUCT_ID = id;
   QV_QTY = 1;
-  QV_IMAGES = getProductImages(p);
+  QV_BASE_IMAGES = getProductImages(p);
+  QV_IMAGES = QV_BASE_IMAGES.slice();
   QV_IMG_INDEX = 0;
+  QV_SELECTED_FLAVOR = null;
+  if(Array.isArray(p.flavors) && p.flavors.length){
+    QV_SELECTED_FLAVOR = p.flavors.find(f => f.in_stock !== false) || p.flavors[0];
+    if(QV_SELECTED_FLAVOR && QV_SELECTED_FLAVOR.image_url){
+      QV_IMAGES = [QV_SELECTED_FLAVOR.image_url, ...QV_BASE_IMAGES.filter(u=>u!==QV_SELECTED_FLAVOR.image_url)];
+    }
+  }
   document.getElementById('qv-qty').textContent = QV_QTY;
 
   const effQv = getEffectivePricing(p);
@@ -2357,6 +2477,7 @@ function openQuickView(id){
       }
       return `<div class="qv-stock"><span class="dot"></span>In stock</div>`;
     })()}
+    ${renderFlavorSelectorHtml(p)}
     ${descHtml ? `<div class="qv-desc">${descHtml}</div>` : ''}
     <div class="qv-review-block">
       <h4>Ratings &amp; Reviews</h4>
@@ -2391,12 +2512,7 @@ function openQuickView(id){
   QV_STAR = 0;
   renderQvExistingReviews(id);
   document.getElementById('qv-review-msg').style.display='none';
-  const qvOutOfStock = (p.stock !== undefined && p.stock !== null && Number(p.stock) <= 0);
-  const qvAddBtn = document.getElementById('quickview-add-btn');
-  qvAddBtn.disabled = qvOutOfStock;
-  qvAddBtn.textContent = qvOutOfStock ? 'Out of Stock' : 'Add to Cart';
-  qvAddBtn.style.opacity = qvOutOfStock ? '0.5' : '';
-  qvAddBtn.style.cursor = qvOutOfStock ? 'not-allowed' : '';
+  updateQvAddButtonState(p);
   document.getElementById('quickview-overlay').classList.add('active');
   if(window.fbq) fbq('track', 'ViewContent', { content_name: p.name, value: Number(p.price), currency: 'INR' });
 }
@@ -2456,12 +2572,24 @@ function qvAddToCart(){
     alert('Sorry, this product is currently out of stock.');
     return;
   }
-  const line = CART.find(x=>x.id===p.id);
+  const hasFlavors = Array.isArray(p.flavors) && p.flavors.length > 0;
+  if(hasFlavors && !QV_SELECTED_FLAVOR){
+    alert('Please select a flavor first.');
+    return;
+  }
+  if(hasFlavors && QV_SELECTED_FLAVOR.in_stock === false){
+    alert('This flavor is currently out of stock. Please choose another.');
+    return;
+  }
+  const lineId = hasFlavors ? `${p.id}::${QV_SELECTED_FLAVOR.id}` : p.id;
+  const lineName = hasFlavors ? `${p.name} — ${QV_SELECTED_FLAVOR.name}` : p.name;
+  const line = CART.find(x=>x.id===lineId);
   if(line) line.qty += QV_QTY;
-  else CART.push({ id:p.id, name:p.name, price:Number(p.price), unit:p.unit, qty:QV_QTY });
+  else CART.push({ id:lineId, name:lineName, price:Number(p.price), unit:p.unit, qty:QV_QTY });
   renderCart();
   closeQuickView();
   openCart();
+  if(window.fbq) fbq('track', 'AddToCart', { content_name: lineName, value: Number(p.price), currency: 'INR' });
 }
 
 /* ---------- checkout ---------- */

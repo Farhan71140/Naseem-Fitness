@@ -318,6 +318,52 @@
   .photo-tile-add svg{width:18px;height:18px;}
   .photo-upload-hint{font-size:12px;color:var(--paper-dim);margin-top:2px;}
 
+  /* ===== FLAVOR / VARIANT MANAGER ===== */
+  .flavor-list{display:flex;flex-direction:column;gap:10px;margin-bottom:12px;}
+  .flavor-card{
+    position:relative;border:1px solid var(--line);border-radius:11px;padding:13px 13px 13px 14px;
+    background:linear-gradient(165deg, var(--iron) 0%, var(--steel) 130%);
+    display:flex;flex-direction:column;gap:11px;
+  }
+  .flavor-card::before{
+    content:'';position:absolute;left:0;top:10px;bottom:10px;width:3px;border-radius:3px;
+    background:var(--flavor-accent, var(--teal));opacity:0.85;
+  }
+  .flavor-card-top{display:flex;align-items:center;gap:10px;}
+  .flavor-photo-thumb{
+    width:44px;height:44px;border-radius:9px;flex-shrink:0;overflow:hidden;border:1px solid var(--line);
+    background:var(--steel);display:flex;align-items:center;justify-content:center;cursor:pointer;position:relative;
+  }
+  .flavor-photo-thumb img{width:100%;height:100%;object-fit:cover;display:block;}
+  .flavor-photo-thumb svg{width:16px;height:16px;color:var(--paper-dim);}
+  .flavor-photo-thumb input[type=file]{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%;}
+  .flavor-name-input{flex:1;margin:0;}
+  .flavor-remove-btn{
+    width:32px;height:32px;flex-shrink:0;border-radius:8px;border:1px solid rgba(255,107,107,0.35);
+    background:transparent;color:var(--bad);cursor:pointer;display:flex;align-items:center;justify-content:center;
+    transition:background .2s;
+  }
+  .flavor-remove-btn:hover{background:rgba(255,107,107,0.14);}
+  .flavor-remove-btn svg{width:14px;height:14px;}
+  .flavor-card-bottom{display:flex;align-items:center;gap:16px;flex-wrap:wrap;padding-left:2px;}
+  .flavor-swatch-wrap{display:flex;align-items:center;gap:7px;font-size:10.5px;color:var(--paper-dim);font-family:'Space Mono',monospace;text-transform:uppercase;letter-spacing:0.8px;}
+  .flavor-swatch-wrap input[type=color]{
+    width:24px;height:24px;padding:0;border:1px solid var(--line);border-radius:50%;overflow:hidden;
+    cursor:pointer;background:none;-webkit-appearance:none;appearance:none;
+  }
+  .flavor-swatch-wrap input[type=color]::-webkit-color-swatch-wrapper{padding:0;}
+  .flavor-swatch-wrap input[type=color]::-webkit-color-swatch{border:none;border-radius:50%;}
+  .flavor-instock-toggle{display:flex;align-items:center;gap:7px;font-size:10.5px;color:var(--paper-dim);cursor:pointer;font-family:'Space Mono',monospace;text-transform:uppercase;letter-spacing:0.8px;user-select:none;}
+  .flavor-instock-toggle input{width:auto;margin:0;accent-color:var(--teal);cursor:pointer;}
+  .flavor-add-btn{width:100%;justify-content:center;border-style:dashed;}
+  .flavor-empty-hint{
+    font-size:12.5px;color:var(--paper-dim);padding:16px 14px;text-align:center;
+    border:1px dashed var(--line);border-radius:10px;line-height:1.6;
+  }
+  .prod-admin-flavor-row{display:flex;align-items:center;gap:5px;margin-top:7px;flex-wrap:wrap;}
+  .prod-admin-flavor-dot{width:13px;height:13px;border-radius:50%;border:1px solid rgba(255,255,255,0.22);box-shadow:inset 0 0 0 1.5px rgba(10,8,6,0.35);flex-shrink:0;}
+  .prod-admin-flavor-label{font-family:'Space Mono',monospace;font-size:10px;color:var(--paper-dim);letter-spacing:0.5px;margin-left:2px;}
+
   /* ===== MODAL ===== */
   .modal-overlay{
     display:none;position:fixed;inset:0;background:rgba(10,8,6,0.7);backdrop-filter:blur(3px);
@@ -1193,6 +1239,12 @@
         </div>
       </div>
       <div class="field">
+        <label>Flavors / Variants <span style="opacity:.6;text-transform:none;letter-spacing:0;">(optional — up to 8)</span></label>
+        <div class="flavor-list" id="flavor-list"></div>
+        <button type="button" class="btn btn-ghost btn-sm flavor-add-btn" onclick="addFlavorRow()">+ Add Flavor</button>
+        <div class="photo-upload-hint">Add flavor variants (e.g. Chocolate, Mango, Unflavored). Each can have its own photo and color tag. On the store, customers tap a flavor to preview it before adding to cart. Leave empty if this product has no flavors.</div>
+      </div>
+      <div class="field">
         <label for="product-desc">Description (shown to customers)</label>
         <textarea id="product-desc" rows="4" placeholder="One point per line, e.g.&#10;Supports daily energy metabolism&#10;Helps maintain immunity&#10;Supports overall health and wellness"></textarea>
       </div>
@@ -1492,6 +1544,12 @@ async function renderProducts(){
         <div class="prod-admin-cat">${escapeHtml(p.category)}</div>
         <h4>${escapeHtml(p.name)}</h4>
         ${p.brand ? `<div style="font-family:'Space Mono',monospace;font-size:10px;color:var(--paper-dim);letter-spacing:1px;text-transform:uppercase;margin-top:2px;">${escapeHtml(p.brand)}</div>` : ''}
+        ${Array.isArray(p.flavors) && p.flavors.length ? `
+          <div class="prod-admin-flavor-row">
+            ${p.flavors.slice(0,6).map(f=>`<span class="prod-admin-flavor-dot" style="background:${escapeHtml(f.color||'#FFD24A')};" title="${escapeHtml(f.name)}"></span>`).join('')}
+            <span class="prod-admin-flavor-label">${p.flavors.length} flavor${p.flavors.length===1?'':'s'}</span>
+          </div>
+        ` : ''}
         <div class="prod-admin-price">
           <strong>₹${Number(p.price).toLocaleString('en-IN')}</strong> ${p.unit ? '/ '+escapeHtml(p.unit) : ''}
           ${p.compare_price && Number(p.compare_price) > Number(p.price) ? ` <span style="text-decoration:line-through;opacity:0.6;">₹${Number(p.compare_price).toLocaleString('en-IN')}</span>` : ''}
@@ -2112,6 +2170,94 @@ async function uploadSingleProductImage(file){
   return data.publicUrl;
 }
 
+/* ---------- flavor / variant manager ---------- */
+const MAX_FLAVORS = 8;
+const FLAVOR_SWATCHES = ['#FFD24A','#FF8A5C','#8B5CF6','#4ADE80','#5CD6D6','#FF6B9D','#C9A876','#B8AD95'];
+let PRODUCT_FLAVORS = [];
+
+function genFlavorId(){
+  return 'f' + Date.now().toString(36) + Math.random().toString(36).slice(2, 7);
+}
+
+function renderFlavorList(){
+  const list = document.getElementById('flavor-list');
+  if(!list) return;
+  if(PRODUCT_FLAVORS.length === 0){
+    list.innerHTML = `<div class="flavor-empty-hint">No flavors added yet. This product will show as a single standard item.<br>Click "+ Add Flavor" below to offer variants like Chocolate, Mango, Unflavored, etc.</div>`;
+    return;
+  }
+  list.innerHTML = PRODUCT_FLAVORS.map((f, i) => `
+    <div class="flavor-card" style="--flavor-accent:${escapeHtml(f.color || '#FFD24A')};">
+      <div class="flavor-card-top">
+        <label class="flavor-photo-thumb" title="Upload flavor photo (optional)">
+          ${f.image_url
+            ? `<img src="${escapeHtml(f.image_url)}" alt="${escapeHtml(f.name || 'Flavor')}">`
+            : `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="4" y="4" width="16" height="16" rx="3"/><circle cx="9" cy="10" r="1.5"/><path d="M20 15l-4.5-4.5a1.5 1.5 0 0 0-2.1 0L6 18"/></svg>`}
+          <input type="file" accept="image/*" onchange="handleFlavorImageFile('${f.id}', this.files)">
+        </label>
+        <input type="text" class="flavor-name-input" placeholder="e.g. Chocolate" value="${escapeHtml(f.name || '')}" oninput="updateFlavorField('${f.id}','name',this.value)">
+        <button type="button" class="flavor-remove-btn" title="Remove flavor" onclick="removeFlavorRow('${f.id}')">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg>
+        </button>
+      </div>
+      <div class="flavor-card-bottom">
+        <label class="flavor-swatch-wrap">
+          Tag colour
+          <input type="color" value="${escapeHtml(f.color || FLAVOR_SWATCHES[i % FLAVOR_SWATCHES.length])}" oninput="updateFlavorField('${f.id}','color',this.value);this.closest('.flavor-card').style.setProperty('--flavor-accent', this.value)">
+        </label>
+        <label class="flavor-instock-toggle">
+          <input type="checkbox" ${f.in_stock !== false ? 'checked' : ''} onchange="updateFlavorField('${f.id}','in_stock',this.checked)">
+          In stock
+        </label>
+      </div>
+    </div>
+  `).join('');
+}
+function addFlavorRow(){
+  if(PRODUCT_FLAVORS.length >= MAX_FLAVORS){ showToast(`Maximum ${MAX_FLAVORS} flavors per product`); return; }
+  PRODUCT_FLAVORS.push({
+    id: genFlavorId(),
+    name: '',
+    color: FLAVOR_SWATCHES[PRODUCT_FLAVORS.length % FLAVOR_SWATCHES.length],
+    image_url: '',
+    in_stock: true
+  });
+  renderFlavorList();
+}
+function removeFlavorRow(id){
+  PRODUCT_FLAVORS = PRODUCT_FLAVORS.filter(f => f.id !== id);
+  renderFlavorList();
+}
+function updateFlavorField(id, field, value){
+  const f = PRODUCT_FLAVORS.find(x => x.id === id);
+  if(!f) return;
+  f[field] = value;
+  if(field === 'color' || field === 'name'){
+    // avoid a full re-render on every keystroke of the color/name inputs so focus isn't lost
+    return;
+  }
+  renderFlavorList();
+}
+async function handleFlavorImageFile(id, fileList){
+  const files = Array.from(fileList || []);
+  if(files.length === 0) return;
+  const f = PRODUCT_FLAVORS.find(x => x.id === id);
+  if(!f) return;
+  const url = await uploadFlavorImage(files[0]);
+  if(url){ f.image_url = url; renderFlavorList(); }
+}
+async function uploadFlavorImage(file){
+  const safeName = file.name.toLowerCase().replace(/[^a-z0-9.]+/g, '-').replace(/-+/g,'-');
+  const path = `products/flavors/${Date.now()}-${Math.random().toString(36).slice(2,7)}-${safeName}`;
+  const { error: uploadError } = await sb.storage.from(PRODUCT_IMAGE_BUCKET).upload(path, file, { upsert:false });
+  if(uploadError){
+    showToast('Flavor photo upload failed: ' + uploadError.message);
+    return null;
+  }
+  const { data } = sb.storage.from(PRODUCT_IMAGE_BUCKET).getPublicUrl(path);
+  return data.publicUrl;
+}
+
 /* ---------- product CRUD ---------- */
 let allProductsCache = [];
 async function openProductModal(){
@@ -2131,6 +2277,8 @@ async function openProductModal(){
   renderPhotoUploadGrid();
   document.getElementById('product-desc').value = '';
   document.getElementById('product-is-new').checked = true;
+  PRODUCT_FLAVORS = [];
+  renderFlavorList();
   document.getElementById('product-modal').classList.add('active');
 }
 async function editProduct(id){
@@ -2155,6 +2303,8 @@ async function editProduct(id){
   renderPhotoUploadGrid();
   document.getElementById('product-desc').value = p.description || '';
   document.getElementById('product-is-new').checked = !!p.is_new;
+  PRODUCT_FLAVORS = Array.isArray(p.flavors) ? p.flavors.map(f => ({...f})) : [];
+  renderFlavorList();
   document.getElementById('product-modal').classList.add('active');
 }
 async function saveProduct(){
@@ -2175,7 +2325,10 @@ async function saveProduct(){
     image_url: PRODUCT_IMAGES[0] || '',
     image_urls: PRODUCT_IMAGES,
     description: document.getElementById('product-desc').value.trim(),
-    is_new: document.getElementById('product-is-new').checked
+    is_new: document.getElementById('product-is-new').checked,
+    flavors: PRODUCT_FLAVORS
+      .filter(f => f.name && f.name.trim())
+      .map(f => ({ id: f.id, name: f.name.trim(), color: f.color || '#FFD24A', image_url: f.image_url || '', in_stock: f.in_stock !== false }))
   };
   let error;
   if(id){
