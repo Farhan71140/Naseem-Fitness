@@ -318,6 +318,21 @@
   .photo-tile-add svg{width:18px;height:18px;}
   .photo-upload-hint{font-size:12px;color:var(--paper-dim);margin-top:2px;}
 
+  /* ===== COMBO PRODUCT PICKER ===== */
+  .combo-product-picker{max-height:220px;overflow-y:auto;border:1px solid var(--line);border-radius:8px;padding:6px;background:var(--iron);}
+  .combo-product-row{display:flex;align-items:center;gap:10px;padding:8px;border-radius:6px;cursor:pointer;}
+  .combo-product-row:hover{background:var(--steel);}
+  .combo-product-row input{width:auto;flex-shrink:0;accent-color:var(--teal);}
+  .combo-product-row img{width:32px;height:32px;border-radius:5px;object-fit:cover;flex-shrink:0;background:var(--steel);}
+  .combo-product-row .cpr-name{font-size:13px;color:var(--paper);flex:1;}
+  .combo-product-row .cpr-price{font-family:'Space Mono',monospace;font-size:11px;color:var(--paper-dim);}
+  .combo-empty-hint{font-size:12px;color:var(--paper-dim);padding:10px;text-align:center;}
+  .prod-admin-combo-badge{
+    position:absolute;top:8px;left:8px;background:var(--teal);color:var(--ink-black);
+    font-family:'Space Mono',monospace;font-size:9.5px;font-weight:700;letter-spacing:0.5px;
+    padding:3px 8px;border-radius:20px;text-transform:uppercase;z-index:2;
+  }
+
   /* ===== FLAVOR / VARIANT MANAGER ===== */
   .flavor-list{display:flex;flex-direction:column;gap:10px;margin-bottom:12px;}
   .flavor-card{
@@ -649,6 +664,10 @@
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/></svg>
         <span>Products</span>
       </button>
+      <button class="nav-btn" data-page="combos" onclick="goPage('combos')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="7" width="18" height="13" rx="2"/><path d="M3 11h18M8 7V5a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+        <span>Combos</span>
+      </button>
       <button class="nav-btn" data-page="orders" onclick="goPage('orders')">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M6 2l1.5 4M18 2l-1.5 4M4 6h16l-1.5 12.5a2 2 0 0 1-2 1.5H7.5a2 2 0 0 1-2-1.5L4 6z"/><path d="M9 10v5M15 10v5"/></svg>
         <span>Orders</span>
@@ -760,6 +779,19 @@
         <button class="btn btn-primary" onclick="openProductModal()">+ Add Product</button>
       </div>
       <div class="prod-grid" id="products-grid"></div>
+    </section>
+
+    <!-- ============ COMBO OFFERS ============ -->
+    <section class="page" id="page-combos">
+      <div class="page-head">
+        <div>
+          <span class="eyebrow">Bundles</span>
+          <h2>Combo Offers</h2>
+          <p>Bundle products together at a special price. Combos appear in their own section on your storefront, above the regular products.</p>
+        </div>
+        <button class="btn btn-primary" onclick="openComboModal()">+ Add Combo</button>
+      </div>
+      <div class="prod-grid" id="combos-grid"></div>
     </section>
 
     <!-- ============ ORDERS ============ -->
@@ -1260,6 +1292,70 @@
   </div>
 </div>
 
+<!-- ================= COMBO MODAL ================= -->
+<div class="modal-overlay" id="combo-modal">
+  <div class="modal">
+    <div class="modal-head">
+      <h3 id="combo-modal-title">Add Combo</h3>
+      <button class="modal-close" onclick="closeModal('combo-modal')">✕</button>
+    </div>
+    <div class="modal-body">
+      <input type="hidden" id="combo-id">
+      <div class="field">
+        <label for="combo-name">Combo Offer Name</label>
+        <input type="text" id="combo-name" placeholder="e.g. Bulk-Up Starter Combo">
+      </div>
+
+      <div class="field">
+        <label>Combo Display Photo</label>
+        <div class="photo-upload-grid" id="combo-photo-grid"></div>
+        <input type="file" id="combo-image-file" accept="image/*" onchange="handleComboImageFile(this.files)">
+        <div class="photo-upload-hint" id="combo-upload-status">This is the main photo customers see on the combo card. Upload your own edited design/photo — it'll be shown exactly as uploaded.</div>
+      </div>
+
+      <div class="field">
+        <label>Products included in this combo</label>
+        <div class="combo-product-picker" id="combo-product-picker"></div>
+        <div class="photo-upload-hint" id="combo-selected-hint">Select every product that's part of this combo.</div>
+      </div>
+
+      <div class="field-row">
+        <div class="field">
+          <label for="combo-original-price">Original Price (₹)</label>
+          <input type="number" id="combo-original-price" placeholder="e.g. 2499" min="0" oninput="updateComboDiscountPreview()">
+        </div>
+        <div class="field">
+          <label for="combo-offer-price">Offer Price (₹)</label>
+          <input type="number" id="combo-offer-price" placeholder="e.g. 1999" min="0" oninput="updateComboDiscountPreview()">
+        </div>
+      </div>
+      <div class="field-row">
+        <div class="field">
+          <button type="button" class="btn btn-ghost btn-sm" style="width:100%;" onclick="sumComboOriginalPrice()">↺ Sum original price from selected products</button>
+        </div>
+        <div class="field">
+          <label>Discount</label>
+          <div id="combo-discount-preview" style="padding:10px 12px;border:1px solid var(--line);border-radius:6px;font-family:'Space Mono',monospace;color:var(--teal);font-weight:700;">—</div>
+        </div>
+      </div>
+
+      <div class="field">
+        <label for="combo-desc">Combo Description (shown to customers)</label>
+        <textarea id="combo-desc" rows="4" placeholder="What's in the combo and why it's a good deal, e.g.&#10;1x Whey Protein 1kg&#10;1x Creatine Monohydrate 250g&#10;Save ₹500 vs buying separately"></textarea>
+      </div>
+
+      <div class="field" style="display:flex;align-items:center;gap:10px;flex-direction:row;">
+        <input type="checkbox" id="combo-active" style="width:auto;" checked>
+        <label for="combo-active" style="margin:0;">Active (visible to customers on the storefront)</label>
+      </div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn btn-ghost" onclick="closeModal('combo-modal')">Cancel</button>
+      <button class="btn btn-primary" onclick="saveCombo()">Save Combo</button>
+    </div>
+  </div>
+</div>
+
 <!-- ================= ORDER MODAL ================= -->
 <div class="modal-overlay" id="order-modal">
   <div class="modal">
@@ -1674,6 +1770,7 @@ async function renderOrders(){
 function renderAll(){
   renderOverview();
   renderProducts();
+  renderCombos();
   renderOrders();
   renderDelivery();
   renderMarketingSeo();
@@ -2347,6 +2444,234 @@ async function deleteProduct(id){
   if(error){ showToast('Error: ' + error.message); return; }
   renderProducts();
   showToast('Product deleted');
+}
+
+/* ---------- combo offers ---------- */
+let COMBO_IMAGE = '';
+let COMBO_SELECTED_IDS = [];
+let comboProductsCache = [];
+
+async function getCombos(){
+  const { data, error } = await sb.from('combo_offers').select('*').order('created_at', { ascending:false });
+  if(error){
+    if(String(error.message||'').toLowerCase().includes('relation') || error.code === '42P01'){
+      showToast('Combo Offers table not found yet — create it in Supabase first (see setup notes).');
+    } else {
+      showToast('Error loading combos: ' + error.message);
+    }
+    return [];
+  }
+  return data || [];
+}
+
+async function renderCombos(){
+  const combos = await getCombos();
+  const grid = document.getElementById('combos-grid');
+  if(!grid) return;
+  if(combos.length===0){
+    grid.innerHTML = `<div class="empty-state" style="grid-column:1/-1;">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="7" width="18" height="13" rx="2"/><path d="M3 11h18M8 7V5a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+      <p>No combos yet. Bundle a few products into your first combo offer.</p>
+    </div>`;
+    return;
+  }
+  const products = await getProducts();
+  const productMap = {};
+  products.forEach(p=>{ productMap[p.id] = p; });
+  grid.innerHTML = combos.map(c=>{
+    const includedNames = (Array.isArray(c.product_ids) ? c.product_ids : [])
+      .map(pid => productMap[pid]?.name).filter(Boolean);
+    const pct = comboDiscountPct(c.original_price, c.offer_price);
+    return `
+    <div class="prod-admin-card">
+      <div class="prod-admin-photo">
+        ${c.image_url ? `<img src="${escapeHtml(c.image_url)}" alt="${escapeHtml(c.name)}">`
+          : `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="7" width="18" height="13" rx="2"/><path d="M3 11h18M8 7V5a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>`}
+        <span class="prod-admin-combo-badge">${c.active===false ? 'Inactive' : 'Combo'}</span>
+      </div>
+      <div class="prod-admin-body">
+        <div class="prod-admin-cat">${includedNames.length} product${includedNames.length===1?'':'s'} included</div>
+        <h4>${escapeHtml(c.name)}</h4>
+        ${includedNames.length ? `<div style="font-size:12px;color:var(--paper-dim);margin-top:4px;line-height:1.5;">${escapeHtml(includedNames.join(', '))}</div>` : ''}
+        <div class="prod-admin-price">
+          <strong>₹${Number(c.offer_price).toLocaleString('en-IN')}</strong>
+          ${c.original_price ? ` <span style="text-decoration:line-through;opacity:0.6;">₹${Number(c.original_price).toLocaleString('en-IN')}</span>` : ''}
+          ${pct ? ` <span style="color:var(--good);">-${pct}%</span>` : ''}
+        </div>
+        <div class="prod-admin-actions">
+          <button class="icon-btn" title="Edit" onclick="editCombo('${c.id}')">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 20h9M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
+          </button>
+          <button class="icon-btn danger" title="Delete" onclick="deleteCombo('${c.id}')">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 6h18M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2m3 0l-1 14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2L4 6h16z"/></svg>
+          </button>
+        </div>
+      </div>
+    </div>
+  `;}).join('');
+}
+
+function comboDiscountPct(original, offer){
+  const o = Number(original) || 0;
+  const f = Number(offer) || 0;
+  if(o <= 0 || f <= 0 || f >= o) return 0;
+  return Math.round((1 - f/o) * 100);
+}
+
+function updateComboDiscountPreview(){
+  const original = document.getElementById('combo-original-price').value;
+  const offer = document.getElementById('combo-offer-price').value;
+  const el = document.getElementById('combo-discount-preview');
+  const pct = comboDiscountPct(original, offer);
+  el.textContent = pct > 0 ? `-${pct}% OFF` : '—';
+}
+
+function sumComboOriginalPrice(){
+  const sum = comboProductsCache
+    .filter(p => COMBO_SELECTED_IDS.includes(p.id))
+    .reduce((s,p)=> s + (Number(p.price)||0), 0);
+  document.getElementById('combo-original-price').value = sum || '';
+  updateComboDiscountPreview();
+}
+
+function renderComboProductPicker(){
+  const wrap = document.getElementById('combo-product-picker');
+  if(comboProductsCache.length===0){
+    wrap.innerHTML = `<div class="combo-empty-hint">No products in your catalog yet. Add products first, then build a combo.</div>`;
+    return;
+  }
+  wrap.innerHTML = comboProductsCache.map(p=>{
+    const imgs = Array.isArray(p.image_urls) && p.image_urls.length ? p.image_urls : (p.image_url ? [p.image_url] : []);
+    const checked = COMBO_SELECTED_IDS.includes(p.id);
+    return `
+    <label class="combo-product-row">
+      <input type="checkbox" ${checked ? 'checked' : ''} onchange="toggleComboProduct('${p.id}', this.checked)">
+      ${imgs[0] ? `<img src="${escapeHtml(imgs[0])}" alt="">` : `<div style="width:32px;height:32px;border-radius:5px;background:var(--steel);flex-shrink:0;"></div>`}
+      <span class="cpr-name">${escapeHtml(p.name)}</span>
+      <span class="cpr-price">₹${Number(p.price).toLocaleString('en-IN')}</span>
+    </label>
+  `;}).join('');
+}
+
+function toggleComboProduct(id, checked){
+  if(checked){
+    if(!COMBO_SELECTED_IDS.includes(id)) COMBO_SELECTED_IDS.push(id);
+  } else {
+    COMBO_SELECTED_IDS = COMBO_SELECTED_IDS.filter(x=>x!==id);
+  }
+}
+
+function renderComboPhotoGrid(){
+  const grid = document.getElementById('combo-photo-grid');
+  if(COMBO_IMAGE){
+    grid.innerHTML = `
+      <div class="photo-tile">
+        <img src="${escapeHtml(COMBO_IMAGE)}" alt="Combo photo">
+        <button type="button" class="photo-remove" title="Remove" onclick="removeComboImage()">✕</button>
+      </div>`;
+  } else {
+    grid.innerHTML = `<button type="button" class="photo-tile-add" onclick="document.getElementById('combo-image-file').click()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 5v14M5 12h14"/></svg>
+        Add
+      </button>`;
+  }
+}
+function removeComboImage(){
+  COMBO_IMAGE = '';
+  renderComboPhotoGrid();
+}
+async function handleComboImageFile(fileList){
+  const files = Array.from(fileList || []);
+  document.getElementById('combo-image-file').value = '';
+  if(files.length === 0) return;
+  const statusEl = document.getElementById('combo-upload-status');
+  statusEl.textContent = 'Uploading…';
+  const safeName = files[0].name.toLowerCase().replace(/[^a-z0-9.]+/g, '-').replace(/-+/g,'-');
+  const path = `combos/${Date.now()}-${Math.random().toString(36).slice(2,7)}-${safeName}`;
+  const { error: uploadError } = await sb.storage.from(PRODUCT_IMAGE_BUCKET).upload(path, files[0], { upsert:false });
+  if(uploadError){
+    statusEl.innerHTML = `Upload failed: ${escapeHtml(uploadError.message)}.`;
+    return;
+  }
+  const { data } = sb.storage.from(PRODUCT_IMAGE_BUCKET).getPublicUrl(path);
+  COMBO_IMAGE = data.publicUrl;
+  statusEl.textContent = 'Uploaded ✓ — this is the photo customers will see.';
+  renderComboPhotoGrid();
+}
+
+async function openComboModal(){
+  comboProductsCache = await getProducts();
+  document.getElementById('combo-modal-title').textContent = 'Add Combo';
+  document.getElementById('combo-id').value = '';
+  document.getElementById('combo-name').value = '';
+  document.getElementById('combo-original-price').value = '';
+  document.getElementById('combo-offer-price').value = '';
+  document.getElementById('combo-desc').value = '';
+  document.getElementById('combo-active').checked = true;
+  document.getElementById('combo-image-file').value = '';
+  document.getElementById('combo-upload-status').textContent = '';
+  COMBO_IMAGE = '';
+  COMBO_SELECTED_IDS = [];
+  renderComboPhotoGrid();
+  renderComboProductPicker();
+  updateComboDiscountPreview();
+  document.getElementById('combo-modal').classList.add('active');
+}
+async function editCombo(id){
+  const combos = await getCombos();
+  const c = combos.find(x=>x.id===id);
+  if(!c) return;
+  comboProductsCache = await getProducts();
+  document.getElementById('combo-modal-title').textContent = 'Edit Combo';
+  document.getElementById('combo-id').value = c.id;
+  document.getElementById('combo-name').value = c.name;
+  document.getElementById('combo-original-price').value = c.original_price || '';
+  document.getElementById('combo-offer-price').value = c.offer_price || '';
+  document.getElementById('combo-desc').value = c.description || '';
+  document.getElementById('combo-active').checked = c.active !== false;
+  document.getElementById('combo-image-file').value = '';
+  document.getElementById('combo-upload-status').textContent = '';
+  COMBO_IMAGE = c.image_url || '';
+  COMBO_SELECTED_IDS = Array.isArray(c.product_ids) ? [...c.product_ids] : [];
+  renderComboPhotoGrid();
+  renderComboProductPicker();
+  updateComboDiscountPreview();
+  document.getElementById('combo-modal').classList.add('active');
+}
+async function saveCombo(){
+  const name = document.getElementById('combo-name').value.trim();
+  const offerPrice = document.getElementById('combo-offer-price').value;
+  if(!name || offerPrice===''){ showToast('Combo name and offer price are required'); return; }
+  if(COMBO_SELECTED_IDS.length === 0){ showToast('Select at least one product for this combo'); return; }
+  const id = document.getElementById('combo-id').value;
+  const originalPrice = document.getElementById('combo-original-price').value;
+  const payload = {
+    name,
+    image_url: COMBO_IMAGE,
+    product_ids: COMBO_SELECTED_IDS,
+    original_price: originalPrice === '' ? null : Number(originalPrice),
+    offer_price: Number(offerPrice),
+    discount_pct: comboDiscountPct(originalPrice, offerPrice),
+    description: document.getElementById('combo-desc').value.trim(),
+    active: document.getElementById('combo-active').checked
+  };
+  let error;
+  if(id){
+    ({ error } = await sb.from('combo_offers').update(payload).eq('id', id));
+  } else {
+    ({ error } = await sb.from('combo_offers').insert(payload));
+  }
+  if(error){ showToast('Error: ' + error.message); return; }
+  closeModal('combo-modal');
+  renderCombos();
+  showToast(id ? 'Combo updated' : 'Combo added');
+}
+async function deleteCombo(id){
+  if(!confirm('Delete this combo offer? This cannot be undone.')) return;
+  const { error } = await sb.from('combo_offers').delete().eq('id', id);
+  if(error){ showToast('Error: ' + error.message); return; }
+  renderCombos();
+  showToast('Combo deleted');
 }
 
 /* ---------- order CRUD ---------- */

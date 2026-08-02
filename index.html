@@ -1370,6 +1370,20 @@
     </div>
   </section>
 
+  <!-- COMBO OFFERS -->
+  <section id="combos" style="display:none;">
+    <div class="wrap">
+      <div class="section-head">
+        <div>
+          <div class="eyebrow">Bundle &amp; Save</div>
+          <h2>Combo Offers</h2>
+        </div>
+        <p>Handpicked bundles at a special price — better value than buying separately.</p>
+      </div>
+      <div class="prod-grid" id="combos-grid"></div>
+    </div>
+  </section>
+
   <!-- PRODUCTS -->
   <section id="products" style="padding-top:0;">
     <div class="wrap">
@@ -2039,6 +2053,64 @@ async function loadProducts(){
     return;
   }
   renderProducts(PRODUCTS);
+}
+
+/* ---------- load combo offers ---------- */
+let COMBOS = [];
+async function loadCombos(){
+  const section = document.getElementById('combos');
+  const grid = document.getElementById('combos-grid');
+  const { data, error } = await sb.from('combo_offers').select('*').eq('active', true).order('created_at', { ascending:false });
+  if(error || !data || data.length===0){
+    if(section) section.style.display = 'none';
+    return;
+  }
+  COMBOS = data;
+  if(section) section.style.display = '';
+  renderCombosStorefront(COMBOS);
+}
+function renderCombosStorefront(list){
+  const grid = document.getElementById('combos-grid');
+  if(!grid) return;
+  grid.innerHTML = list.map(c=>{
+    const original = Number(c.original_price) || 0;
+    const offer = Number(c.offer_price) || 0;
+    const pct = original > offer && original > 0 ? Math.round((1 - offer/original) * 100) : 0;
+    return `
+    <div class="prod-card">
+      <div class="prod-photo">
+        ${c.image_url
+          ? `<img src="${escapeHtml(c.image_url)}" alt="${escapeHtml(c.name)}" style="width:100%;height:100%;object-fit:cover;" onerror="this.parentElement.innerHTML='<div><svg viewBox=\\'0 0 24 24\\' fill=\\'none\\' stroke=\\'currentColor\\' stroke-width=\\'1.5\\'><rect x=\\'3\\' y=\\'7\\' width=\\'18\\' height=\\'13\\' rx=\\'2\\'/></svg><div class=\\'ph-label\\'>IMAGE UNAVAILABLE</div></div>'">`
+          : `<div>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="7" width="18" height="13" rx="2"/><path d="M3 11h18M8 7V5a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+              <div class="ph-label">COMBO PHOTO<br>GOES HERE</div>
+            </div>`}
+        <span class="badge-new" style="background:var(--teal);">COMBO</span>
+      </div>
+      <div class="prod-body">
+        <h4>${escapeHtml(c.name)}</h4>
+        ${c.description ? `<p style="font-size:12.5px;color:var(--paper-dim);margin-top:4px;line-height:1.6;white-space:pre-line;">${escapeHtml(c.description)}</p>` : ''}
+        <div class="price-row">
+          <div class="price-wrap">
+            <span class="price">₹${offer.toLocaleString('en-IN')}</span>
+            ${pct ? `<span class="price-compare">₹${original.toLocaleString('en-IN')}</span><span class="discount-pill">-${pct}%</span>` : ''}
+          </div>
+          <button class="add-btn" aria-label="Add combo to cart" onclick="addComboToCart('${c.id}')">+</button>
+        </div>
+      </div>
+    </div>
+  `;}).join('');
+}
+function addComboToCart(id){
+  const c = COMBOS.find(x=>x.id===id);
+  if(!c) return;
+  const lineId = 'combo-' + c.id;
+  const line = CART.find(x=>x.id===lineId);
+  if(line) line.qty += 1;
+  else CART.push({ id:lineId, name:c.name + ' (Combo)', price:Number(c.offer_price), unit:'', qty:1 });
+  renderCart();
+  openCart();
+  if(window.fbq) fbq('track', 'AddToCart', { content_name: c.name, value: Number(c.offer_price), currency: 'INR' });
 }
 
 /* ---------- pricing (accounts for store-wide sale) ---------- */
@@ -3226,7 +3298,7 @@ function renderOffersUI(){
 }
 
 async function initApp(){
-  await Promise.all([loadProducts(), loadReviews(), loadStoreSettings()]);
+  await Promise.all([loadProducts(), loadReviews(), loadStoreSettings(), loadCombos()]);
   if(PRODUCTS.length) applyFilters();
   renderGlobalReviews();
   openSharedProductFromUrl();
