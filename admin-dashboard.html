@@ -457,19 +457,64 @@
 
   /* ===== BILL RECEIPT ===== */
   .bill-receipt{
-    background:#F5EEDD;color:#111;font-family:'Space Mono',monospace;font-size:12px;line-height:1.6;
-    padding:22px 18px;border-radius:6px;max-width:320px;margin:0 auto;
+    position:relative;
+    background:#F5EEDD;color:#1a1508;font-family:'Space Mono',monospace;font-size:12px;line-height:1.6;
+    padding:26px 20px 20px;border-radius:10px;max-width:340px;margin:0 auto;
+    border:1px solid #D8C89A;box-shadow:0 8px 28px rgba(0,0,0,0.35);
+  }
+  .bill-receipt::before{
+    content:'';position:absolute;top:0;left:0;right:0;height:5px;border-radius:10px 10px 0 0;
+    background:linear-gradient(90deg,#C9A227,#F5D67A 50%,#C9A227);
   }
   .bill-receipt .bill-logo{display:flex;justify-content:center;margin-bottom:10px;}
   .bill-receipt .bill-logo img{height:56px;width:auto;}
-  .bill-receipt .bill-brand{text-align:center;font-weight:700;font-size:14px;letter-spacing:0.5px;text-transform:uppercase;}
-  .bill-receipt .bill-addr{text-align:center;font-size:10.5px;color:#333;margin-top:8px;line-height:1.7;}
-  .bill-receipt .bill-title{text-align:center;font-weight:700;letter-spacing:2px;margin-top:10px;}
-  .bill-receipt .bill-hr{border-top:1px dashed #999;margin:10px 0;}
+  .bill-receipt .bill-brand{
+    text-align:center;font-family:'Anton',sans-serif;font-weight:400;font-size:20px;
+    letter-spacing:0.5px;color:#12100A;
+  }
+  .bill-receipt .bill-caption{
+    text-align:center;font-size:10px;font-weight:700;letter-spacing:0.5px;color:#6B5A2E;margin-top:4px;
+  }
+  .bill-receipt .bill-branch{
+    text-align:center;font-size:11px;font-weight:700;letter-spacing:0.3px;color:#3A2E10;margin-top:12px;
+  }
+  .bill-receipt .bill-addr{text-align:center;font-size:10.5px;color:#4A3E22;margin-top:6px;line-height:1.75;}
+  .bill-receipt .bill-contact{text-align:center;font-size:10.5px;color:#4A3E22;margin-top:8px;line-height:1.9;}
+  .bill-receipt .bill-contact .site-line{color:#8A6A10;font-weight:700;}
+  .bill-receipt .bill-contact .ai-line{
+    display:inline-block;margin-top:4px;padding:4px 10px;border-radius:20px;
+    background:rgba(201,162,39,0.14);border:1px solid rgba(201,162,39,0.4);
+    font-size:9.5px;letter-spacing:0.3px;color:#7A5C10;font-weight:700;
+  }
+  .bill-receipt .bill-title{
+    text-align:center;font-family:'Anton',sans-serif;font-weight:400;font-size:16px;
+    letter-spacing:4px;margin-top:14px;color:#12100A;
+  }
+  .bill-receipt .bill-hr{
+    border:none;height:1px;margin:12px 0;
+    background:repeating-linear-gradient(90deg,#C9A227 0,#C9A227 5px,transparent 5px,transparent 9px);
+  }
+  .bill-receipt .bill-hr.gold-solid{background:linear-gradient(90deg,transparent,#C9A227 20%,#C9A227 80%,transparent);}
   .bill-receipt .bill-row{display:flex;justify-content:space-between;gap:10px;}
   .bill-receipt .bill-row.bold{font-weight:700;}
-  .bill-receipt .bill-item-name{font-weight:700;margin-top:6px;}
-  .bill-receipt .bill-thanks{text-align:center;margin-top:10px;}
+  .bill-receipt .bill-item-name{font-weight:700;margin-top:6px;color:#12100A;}
+  .bill-receipt .bill-section-label{
+    font-size:9.5px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:#A3821E;margin-bottom:6px;
+  }
+  .bill-receipt .bill-total-box{
+    margin-top:8px;padding:9px 12px;border-radius:6px;background:rgba(201,162,39,0.12);
+    border:1px solid rgba(201,162,39,0.5);
+  }
+  .bill-receipt .bill-balance-box{
+    margin-top:6px;padding:9px 12px;border-radius:6px;background:#1a1508;color:#F5D67A;
+  }
+  .bill-receipt .bill-thanks{text-align:center;margin-top:6px;font-weight:700;letter-spacing:0.5px;color:#12100A;}
+  .bill-receipt .bill-footer-brand{
+    text-align:center;margin-top:8px;font-family:'Anton',sans-serif;font-weight:400;font-size:13px;
+    letter-spacing:1px;color:#8A6A10;
+  }
+  .bill-receipt .bill-footer-tag{text-align:center;font-size:9.5px;letter-spacing:1.5px;color:#6B5A2E;margin-top:5px;text-transform:uppercase;}
+  .bill-receipt .bill-footer-tag2{text-align:center;font-size:9.5px;letter-spacing:1.5px;color:#6B5A2E;margin-top:2px;text-transform:uppercase;}
   @media print{
     body *{visibility:hidden;}
     #bill-receipt, #bill-receipt *{visibility:visible;}
@@ -2818,6 +2863,8 @@ const BILL_BUSINESS = {
     'Mumbai – 400008, Maharashtra'
   ],
   phone: '+91 77382 42258',
+  website: 'nfsupplementstore.com',
+  aiSupport: '🤖 24/7 AI Support Assistant: Always Ready to Help You',
   logoUrl: 'assets/logo.png'
 };
 let CURRENT_BILL_ORDER = null;
@@ -2869,35 +2916,50 @@ function renderBillReceipt(o){
   const isCod = String(o.payment_method||'').toLowerCase() === 'cod';
   const html = `
     <div class="bill-logo"><img src="${BILL_BUSINESS.logoUrl}" alt="NF Naseem Fitness" onerror="this.parentElement.style.display='none'"></div>
-    <div class="bill-brand">${BILL_BUSINESS.name}. All Rights Reserved.</div>
+    <div class="bill-brand">NF Naseem Fitness</div>
+    <div class="bill-caption">${BILL_BUSINESS.name}. All Rights Reserved.</div>
+    <div class="bill-branch">${escapeHtml(BILL_BUSINESS.addrLines[0])}</div>
     <div class="bill-addr">
-      ${BILL_BUSINESS.addrLines.map(l => escapeHtml(l)).join('<br>')}<br>
-      Ph: ${escapeHtml(BILL_BUSINESS.phone)}
+      ${BILL_BUSINESS.addrLines.slice(1).map(l => escapeHtml(l)).join('<br>')}
+    </div>
+    <div class="bill-contact">
+      Ph: ${escapeHtml(BILL_BUSINESS.phone)}<br>
+      <span class="site-line">Website: ${escapeHtml(BILL_BUSINESS.website)}</span><br>
+      <span class="ai-line">${escapeHtml(BILL_BUSINESS.aiSupport)}</span>
     </div>
     <div class="bill-title">RECEIPT</div>
-    <div class="bill-hr"></div>
+    <div class="bill-hr gold-solid"></div>
     <div class="bill-row"><span>Order #${o.id.slice(0,8).toUpperCase()}</span><span>${formatBillDate(o.created_at)}</span></div>
-    <div>${escapeHtml(billFulfilmentLabel(o))}</div>
-    <div>${escapeHtml(o.customer_name)} · ${escapeHtml(o.phone || '—')}</div>
-    ${o.address ? `<div>${escapeHtml(o.address)}</div>` : ''}
     <div class="bill-hr"></div>
+    <div class="bill-section-label">Delivery Details</div>
+    <div style="font-weight:700;">${escapeHtml(o.customer_name)}</div>
+    <div>📞 ${escapeHtml(o.phone || '—')}</div>
+    ${o.address ? `<div>${escapeHtml(o.address)}</div>` : ''}
+    <div>${escapeHtml(billFulfilmentLabel(o))}</div>
+    <div class="bill-hr"></div>
+    <div class="bill-section-label">Product Details</div>
     ${b.itemsArr.map(i => `
       <div class="bill-item-name">${escapeHtml(i.name)}</div>
-      <div class="bill-row"><span>${i.qty} x ₹${billMoney(i.price)}</span><span>₹${billMoney((Number(i.qty)||1)*(Number(i.price)||0))}</span></div>
+      <div>Quantity: ${i.qty} × ₹${billMoney(i.price)}</div>
     `).join('')}
     <div class="bill-hr"></div>
+    <div class="bill-section-label">Payment Summary</div>
     <div class="bill-row"><span>Subtotal</span><span>₹${billMoney(b.subtotal)}</span></div>
     ${b.discount > 0 ? `<div class="bill-row"><span>Discount</span><span>-₹${billMoney(b.discount)}</span></div>` : ''}
     ${b.tax > 0 ? `<div class="bill-row"><span>Tax</span><span>₹${billMoney(b.tax)}</span></div>` : ''}
-    <div class="bill-row bold"><span>TOTAL</span><span>₹${billMoney(b.total)}</span></div>
+    <div class="bill-total-box"><div class="bill-row bold"><span>TOTAL</span><span>₹${billMoney(b.total)}</span></div></div>
     ${isCod ? `
-      <div class="bill-row"><span>Advance paid</span><span>₹${billMoney(b.advance)}</span></div>
-      <div class="bill-row bold"><span>BALANCE DUE (cash)</span><span>₹${billMoney(b.balance)}</span></div>
+      <div class="bill-row" style="margin-top:6px;"><span>Advance Paid</span><span>₹${billMoney(b.advance)}</span></div>
+      <div class="bill-balance-box"><div class="bill-row bold"><span>BALANCE DUE (Cash)</span><span>₹${billMoney(b.balance)}</span></div></div>
     ` : ''}
     <div class="bill-hr"></div>
-    <div class="bill-row"><span>Payment</span><span>${escapeHtml(billPaymentLabel(o))}</span></div>
-    <div class="bill-hr"></div>
-    <div class="bill-thanks">Thank you! Visit again.</div>
+    <div class="bill-section-label">Payment Method</div>
+    <div>${escapeHtml(billPaymentLabel(o))}</div>
+    <div class="bill-hr gold-solid"></div>
+    <div class="bill-thanks">Thank You! Visit Again.</div>
+    <div class="bill-footer-brand">NF NASEEM FITNESS™</div>
+    <div class="bill-footer-tag">Premium Nutrition • Trusted Quality</div>
+    <div class="bill-footer-tag2">Your Trust • Our Commitment</div>
   `;
   document.getElementById('bill-receipt').innerHTML = html;
 }
@@ -2921,7 +2983,7 @@ async function downloadBillPdf(){
   const lineH = 4.6;
 
   // Estimate page height generously, then trim with a final crop-safe save.
-  const estLines = 30 + b.itemsArr.length*3;
+  const estLines = 42 + b.itemsArr.length*3;
   const pageH = 30 + estLines*3.6;
 
   const doc = new jsPDF({ unit:'mm', format:[pageW, pageH] });
@@ -2957,7 +3019,9 @@ async function downloadBillPdf(){
     'Ground Floor, Shop No. 2, 23, Haji Kasam Chawl,',
     'Maulana Azad Road, Two Tank, Mumbai Central,',
     'Mumbai - 400008, Maharashtra',
-    `Ph: ${BILL_BUSINESS.phone}`
+    `Ph: ${BILL_BUSINESS.phone}`,
+    `Website: ${BILL_BUSINESS.website}`,
+    BILL_BUSINESS.aiSupport
   ].forEach(l => { doc.text(l, centerX, y, { align:'center' }); y += 3.6; });
   y += 2;
   doc.setFont('courier','bold');
@@ -2968,37 +3032,54 @@ async function downloadBillPdf(){
   doc.setFontSize(8);
   doc.setFont('courier','normal');
   row(`Order #${o.id.slice(0,8).toUpperCase()}`, formatBillDate(o.created_at));
-  doc.text(billFulfilmentLabel(o), margin, y); y += lineH;
-  doc.text(`${o.customer_name} - ${o.phone||''}`, margin, y); y += lineH;
+  dash();
+  doc.setFont('courier','bold');
+  doc.text('DELIVERY DETAILS', margin, y); y += lineH;
+  doc.setFont('courier','normal');
+  doc.text(String(o.customer_name), margin, y); y += lineH;
+  doc.text(`Ph: ${o.phone||''}`, margin, y); y += lineH;
   if(o.address){
     doc.splitTextToSize(o.address, contentW).forEach(l => { doc.text(l, margin, y); y += 3.8; });
   }
+  doc.text(billFulfilmentLabel(o), margin, y); y += lineH;
   y += 1;
   dash();
 
+  doc.setFont('courier','bold');
+  doc.text('PRODUCT DETAILS', margin, y); y += lineH;
   b.itemsArr.forEach(i => {
     doc.setFont('courier','bold');
     doc.splitTextToSize(String(i.name), contentW).forEach(l => { doc.text(l, margin, y); y += 3.8; });
     doc.setFont('courier','normal');
-    doc.text(`${i.qty} x ${billMoney(i.price)}`, margin, y);
-    doc.text(billMoney((Number(i.qty)||1)*(Number(i.price)||0)), pageW-margin, y, { align:'right' });
+    doc.text(`Quantity: ${i.qty} x ${billMoney(i.price)}`, margin, y);
     y += lineH;
   });
   dash();
 
+  doc.setFont('courier','bold');
+  doc.text('PAYMENT SUMMARY', margin, y); y += lineH;
+  doc.setFont('courier','normal');
   row('Subtotal', billMoney(b.subtotal));
   if(b.discount > 0) row('Discount', '-'+billMoney(b.discount));
   if(b.tax > 0) row('Tax', billMoney(b.tax));
   row('TOTAL', billMoney(b.total), true);
   if(isCod){
-    row('Advance paid', billMoney(b.advance));
-    row('BALANCE DUE (cash)', billMoney(b.balance), true);
+    row('Advance Paid', billMoney(b.advance));
+    row('BALANCE DUE (Cash)', billMoney(b.balance), true);
   }
   dash();
-  row('Payment', billPaymentLabel(o));
-  dash();
+  doc.setFont('courier','bold');
+  doc.text('PAYMENT METHOD', margin, y); y += lineH;
   doc.setFont('courier','normal');
-  centerText('Thank you! Visit again.', 8);
+  doc.text(billPaymentLabel(o), margin, y); y += lineH;
+  dash();
+  centerText('Thank You! Visit Again.', 8);
+  doc.setFont('courier','bold');
+  centerText('NF NASEEM FITNESS', 8);
+  doc.setFont('courier','normal');
+  doc.setFontSize(7);
+  centerText('Premium Nutrition - Trusted Quality', 7);
+  centerText('Your Trust - Our Commitment', 7);
 
   doc.save(`NF-Bill-${o.id.slice(0,8)}.pdf`);
 }
