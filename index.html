@@ -567,9 +567,21 @@
   .combo-add-btn svg{width:17px;height:17px;}
   /* full-bleed edge-to-edge image + card on phones for a bigger, punchier look */
   @media (max-width:700px){
-    .combo-grid{gap:18px;}
-    .combo-footer{flex-direction:column;align-items:stretch;gap:14px;}
-    .combo-add-btn{justify-content:center;width:100%;}
+    #combos{padding:44px 0;}
+    #combos .section-head{margin-bottom:22px;}
+    .combo-grid{gap:14px;}
+    .combo-photo{padding-top:42%;}
+    .combo-badge{padding:5px 11px;font-size:10px;letter-spacing:1px;top:12px;left:12px;}
+    .combo-discount-badge{padding:5px 10px;font-size:11px;top:12px;right:12px;}
+    .combo-body{padding:16px 18px 18px;}
+    .combo-body h4{font-size:16.5px;}
+    .combo-desc-teaser{font-size:12.5px;margin-top:5px;}
+    .combo-view-more{margin-top:4px;font-size:10px;}
+    .combo-footer{flex-direction:row;align-items:center;justify-content:space-between;gap:10px;margin-top:12px;padding-top:12px;}
+    .combo-offer-price{font-size:19px;}
+    .combo-original-price{font-size:11.5px;}
+    .combo-add-btn{justify-content:center;width:auto;padding:10px 16px;font-size:12.5px;}
+    .combo-add-btn svg{width:15px;height:15px;}
   }
   /* wide row layout once there's room — image sits alongside the details */
   @media (min-width:701px){
@@ -804,9 +816,9 @@
     main#top{display:flex;flex-direction:column;}
     main#top > .hero{display:contents;}
     .hero-grid{display:contents;}
-    .seal-wrap{order:-4;margin-bottom:0;padding:0 20px;}
-    #categories{order:-3;}
-    #combos{order:-2.5;}
+    .seal-wrap{order:-5;margin-bottom:0;padding:0 20px;}
+    #categories{order:-4;}
+    #combos{order:-3;}
     #products{order:-2;}
     .hero-top{order:-1;padding:24px 20px 0;}
   }
