@@ -1003,6 +1003,22 @@
     color:var(--paper-dim);font-size:12.5px;text-decoration:underline;cursor:pointer;font-family:'Inter',sans-serif;
   }
   .track-back-btn:hover{color:var(--teal);}
+  .track-find-id-link{
+    display:block;width:100%;text-align:left;margin:-6px 0 16px;background:transparent;border:none;
+    color:var(--teal);font-size:13px;font-weight:600;cursor:pointer;font-family:'Inter',sans-serif;padding:0;
+  }
+  .track-find-id-link:hover{text-decoration:underline;}
+  .find-id-card{
+    margin-top:14px;padding:14px 16px;border:1px solid var(--line);border-radius:10px;
+    background:rgba(255,255,255,0.02);
+  }
+  .find-id-card .fic-top{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;}
+  .find-id-card .fic-ref{font-family:'Space Mono',monospace;font-size:15px;font-weight:700;color:var(--teal);letter-spacing:0.5px;}
+  .find-id-card .fic-date{font-size:12px;color:var(--paper-dim);}
+  .find-id-card .fic-sub{font-size:12.5px;color:var(--paper-dim);margin-top:6px;}
+  .find-id-card .fic-use-btn{
+    margin-top:12px;width:100%;justify-content:center;padding:9px;font-size:13px;
+  }
   .use-location-btn{
     display:inline-flex;align-items:center;gap:6px;
     background:transparent;border:1px solid var(--teal);color:var(--teal);
@@ -1947,22 +1963,47 @@
       <button class="drawer-close" onclick="closeTrackOrder()">✕</button>
     </div>
     <div class="drawer-body" id="track-order-body">
-      <p class="track-intro">Enter your Order ID (from your confirmation, e.g. <span style="color:var(--teal);font-family:'Space Mono',monospace;">NF-A1B2C3D4</span>) along with the phone number used while ordering.</p>
+      <div id="track-main-view">
+        <p class="track-intro">Enter your Order ID (from your confirmation, e.g. <span style="color:var(--teal);font-family:'Space Mono',monospace;">NF-A1B2C3D4</span>) along with the phone number used while ordering.</p>
 
-      <div class="checkout-field">
-        <label for="track-order-id">Order ID</label>
-        <input type="text" id="track-order-id" placeholder="e.g. NF-A1B2C3D4" autocomplete="off" style="text-transform:uppercase;" onkeydown="if(event.key==='Enter'){document.getElementById('track-phone').focus();}">
+        <div class="checkout-field">
+          <label for="track-order-id">Order ID</label>
+          <input type="text" id="track-order-id" placeholder="e.g. NF-A1B2C3D4" autocomplete="off" style="text-transform:uppercase;" onkeydown="if(event.key==='Enter'){document.getElementById('track-phone').focus();}">
+        </div>
+        <div class="checkout-field">
+          <label for="track-phone">Phone Number</label>
+          <input type="tel" id="track-phone" placeholder="Phone number used at checkout" autocomplete="off" onkeydown="if(event.key==='Enter'){submitTrackOrder();}">
+        </div>
+
+        <button type="button" class="track-find-id-link" onclick="openFindOrderId()">❓ Where is my Order ID?</button>
+
+        <button class="btn btn-primary track-submit-btn" id="track-submit-btn" onclick="submitTrackOrder()">Track Order</button>
+        <div class="track-loading" id="track-loading"><span class="track-spinner"></span> Looking up your order…</div>
+        <div class="track-error" id="track-error"></div>
+
+        <div id="track-result"></div>
       </div>
-      <div class="checkout-field">
-        <label for="track-phone">Phone Number</label>
-        <input type="tel" id="track-phone" placeholder="Phone number used at checkout" autocomplete="off" onkeydown="if(event.key==='Enter'){submitTrackOrder();}">
+
+      <div id="find-id-view" style="display:none;">
+        <p class="track-intro">Order ID aapko Order Confirmation SMS, WhatsApp ya Email me mil jayegi. Agar wo nahi mil raha, apna naam aur phone number daaliye — hum aapke order dhoondh denge.</p>
+
+        <div class="checkout-field">
+          <label for="find-id-name">Full Name</label>
+          <input type="text" id="find-id-name" placeholder="Name used while ordering" autocomplete="off" onkeydown="if(event.key==='Enter'){document.getElementById('find-id-phone').focus();}">
+        </div>
+        <div class="checkout-field">
+          <label for="find-id-phone">Phone Number</label>
+          <input type="tel" id="find-id-phone" placeholder="Phone number used at checkout" autocomplete="off" onkeydown="if(event.key==='Enter'){submitFindOrderId();}">
+        </div>
+
+        <button class="btn btn-primary track-submit-btn" id="find-id-submit-btn" onclick="submitFindOrderId()">Find My Order ID</button>
+        <div class="track-loading" id="find-id-loading"><span class="track-spinner"></span> Looking up your orders…</div>
+        <div class="track-error" id="find-id-error"></div>
+
+        <div id="find-id-result"></div>
+
+        <button type="button" class="track-back-btn" onclick="closeFindOrderId()">← Back to Order Tracking</button>
       </div>
-
-      <button class="btn btn-primary track-submit-btn" id="track-submit-btn" onclick="submitTrackOrder()">Track Order</button>
-      <div class="track-loading" id="track-loading"><span class="track-spinner"></span> Looking up your order…</div>
-      <div class="track-error" id="track-error"></div>
-
-      <div id="track-result"></div>
     </div>
   </div>
 </div>
@@ -3226,6 +3267,8 @@ function openTrackOrder(){
 }
 function closeTrackOrder(){
   document.getElementById('track-order-overlay').classList.remove('active');
+  document.getElementById('find-id-view').style.display = 'none';
+  document.getElementById('track-main-view').style.display = 'block';
 }
 function normalizeOrderRef(raw){
   return String(raw||'').trim().toUpperCase().replace(/^NF-?/,'').replace(/[^A-Z0-9]/g,'');
@@ -3238,6 +3281,113 @@ function resetTrackForm(){
   document.getElementById('track-order-id').value = '';
   document.getElementById('track-phone').value = '';
   document.getElementById('track-order-id').focus();
+}
+
+/* ---------- where is my order id ---------- */
+function openFindOrderId(){
+  document.getElementById('track-main-view').style.display = 'none';
+  document.getElementById('find-id-view').style.display = 'block';
+  document.getElementById('find-id-error').style.display = 'none';
+  document.getElementById('find-id-result').innerHTML = '';
+  document.getElementById('find-id-name').focus();
+}
+function closeFindOrderId(){
+  document.getElementById('find-id-view').style.display = 'none';
+  document.getElementById('track-main-view').style.display = 'block';
+  document.getElementById('find-id-name').value = '';
+  document.getElementById('find-id-phone').value = '';
+  document.getElementById('find-id-result').innerHTML = '';
+  document.getElementById('find-id-error').style.display = 'none';
+}
+function namesLooselyMatch(inputName, storedName){
+  const clean = s => String(s||'').trim().toLowerCase().replace(/[^a-z\s]/g,'').replace(/\s+/g,' ');
+  const a = clean(inputName), b = clean(storedName);
+  if(!a || !b) return false;
+  if(a === b || b.includes(a) || a.includes(b)) return true;
+  // fallback: match on first name word
+  const aFirst = a.split(' ')[0], bFirst = b.split(' ')[0];
+  return !!aFirst && aFirst === bFirst;
+}
+async function submitFindOrderId(){
+  const nameInput = document.getElementById('find-id-name').value;
+  const phoneInput = document.getElementById('find-id-phone').value;
+  const errBox = document.getElementById('find-id-error');
+  const resultBox = document.getElementById('find-id-result');
+  const loading = document.getElementById('find-id-loading');
+  const btn = document.getElementById('find-id-submit-btn');
+
+  errBox.style.display = 'none';
+  resultBox.innerHTML = '';
+
+  const phone = normalizePhone(phoneInput);
+  const name = nameInput.trim();
+
+  if(!name || name.length < 2){
+    errBox.textContent = 'Please enter the name used while ordering.';
+    errBox.style.display = 'block';
+    return;
+  }
+  if(phone.length < 10){
+    errBox.textContent = 'Please enter the 10-digit phone number used at checkout.';
+    errBox.style.display = 'block';
+    return;
+  }
+
+  btn.disabled = true;
+  loading.style.display = 'flex';
+
+  try{
+    const { data, error } = await sb.from('orders').select('*');
+    loading.style.display = 'none';
+    btn.disabled = false;
+
+    if(error){
+      errBox.textContent = "Couldn't reach our order system right now. Please try again in a moment.";
+      errBox.style.display = 'block';
+      return;
+    }
+
+    let matches = (data || []).filter(o => normalizePhone(o.phone) === phone);
+    const nameMatches = matches.filter(o => namesLooselyMatch(name, o.customer_name));
+    if(nameMatches.length) matches = nameMatches;
+
+    if(!matches.length){
+      errBox.innerHTML = "We couldn't find any order with that name and phone number. Double-check both, or <a href=\"https://wa.me/917738242258?text=Hi%20NF%20Naseem%20Fitness%2C%20I%20need%20help%20finding%20my%20Order%20ID\" target=\"_blank\" rel=\"noopener\" style=\"color:var(--teal);text-decoration:underline;\">message us on WhatsApp</a> and we'll sort it out.";
+      errBox.style.display = 'block';
+      return;
+    }
+
+    matches.sort((a,b) => new Date(b.created_at) - new Date(a.created_at));
+
+    resultBox.innerHTML = `<p class="track-intro" style="margin-bottom:10px;">${matches.length > 1 ? `We found ${matches.length} orders:` : 'We found your order:'}</p>` +
+      matches.slice(0, 8).map(o => {
+        const ref = 'NF-' + o.id.slice(0,8).toUpperCase();
+        const placedDate = o.created_at ? new Date(o.created_at).toLocaleDateString('en-IN',{ day:'numeric', month:'short', year:'numeric' }) : '';
+        let items = [];
+        try{ items = Array.isArray(o.items) ? o.items : JSON.parse(o.items || '[]'); }catch(e){ items = []; }
+        const itemSummary = items.length ? items.map(it => it.name).slice(0,2).join(', ') + (items.length > 2 ? ` +${items.length-2} more` : '') : '';
+        return `
+          <div class="find-id-card">
+            <div class="fic-top">
+              <span class="fic-ref">${ref}</span>
+              <span class="fic-date">${placedDate}</span>
+            </div>
+            ${itemSummary ? `<div class="fic-sub">${escapeHtml(itemSummary)}</div>` : ''}
+            <button class="btn btn-primary fic-use-btn" onclick="useFoundOrderId('${ref}','${escapeHtml(phoneInput).replace(/'/g,"\\'")}')">Track This Order</button>
+          </div>`;
+      }).join('');
+  }catch(e){
+    loading.style.display = 'none';
+    btn.disabled = false;
+    errBox.textContent = "Something went wrong. Please try again or message us on WhatsApp.";
+    errBox.style.display = 'block';
+  }
+}
+function useFoundOrderId(ref, phone){
+  document.getElementById('track-order-id').value = ref;
+  document.getElementById('track-phone').value = phone;
+  closeFindOrderId();
+  submitTrackOrder();
 }
 
 async function submitTrackOrder(){
