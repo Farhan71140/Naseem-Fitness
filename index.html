@@ -2172,7 +2172,8 @@ async function loadCombos(){
     return;
   }
   COMBOS = data;
-  if(section) section.style.display = '';
+  // Combos section is temporarily hidden on the storefront (admin panel / data still work as normal).
+  if(section) section.style.display = 'none';
   renderCombosStorefront(COMBOS);
 }
 function renderCombosStorefront(list){
