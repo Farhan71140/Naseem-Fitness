@@ -2139,15 +2139,9 @@ async function verifyProductCode(){
 async function verifyPurchase(phone, productName){
   const digits = normalizePhone(phone);
   if(digits.length !== 10) return false;
-  const { data, error } = await sb.from('orders').select('phone,items,status');
-  if(error || !data) return false;
-  const nameLower = productName.trim().toLowerCase();
-  return data.some(o => {
-    if(normalizePhone(o.phone) !== digits) return false;
-    if(!['approved','completed'].includes(o.status)) return false;
-    const items = Array.isArray(o.items) ? o.items : [];
-    return items.some(it => (it.name || '').toLowerCase().includes(nameLower) || nameLower.includes((it.name || '').toLowerCase()));
-  });
+  const { data, error } = await sb.rpc('verify_purchase', { p_phone: digits, p_product_name: productName });
+  if(error) return false;
+  return !!data;
 }
 async function submitReview(){
   const msgEl = document.getElementById('qv-review-msg');
@@ -3337,7 +3331,7 @@ async function submitFindOrderId(){
   loading.style.display = 'flex';
 
   try{
-    const { data, error } = await sb.from('orders').select('*');
+    const { data, error } = await sb.rpc('find_orders_by_phone', { p_phone: phone });
     loading.style.display = 'none';
     btn.disabled = false;
 
@@ -3419,7 +3413,7 @@ async function submitTrackOrder(){
   loading.style.display = 'flex';
 
   try{
-    const { data, error } = await sb.from('orders').select('*');
+    const { data, error } = await sb.rpc('track_order_by_ref', { p_ref: ref, p_phone: phone });
     loading.style.display = 'none';
     btn.disabled = false;
 
