@@ -395,6 +395,34 @@
     font-family:'Anton',sans-serif;font-size:18px;text-transform:uppercase;letter-spacing:0.4px;
   }
   .cat-label .cat-icon{font-size:20px;line-height:1;}
+
+  /* ===== COMBO CATEGORY TILE — visually distinct from plain category tiles ===== */
+  .combo-cat-card{
+    position:relative;border:1px solid var(--teal);
+    background:linear-gradient(160deg, var(--steel) 0%, var(--iron) 140%);
+    box-shadow:0 0 0 1px rgba(255,210,74,0.12), 0 14px 34px rgba(255,210,74,0.08);
+  }
+  .combo-cat-card:hover{border-color:var(--teal);box-shadow:0 0 0 1px rgba(255,210,74,0.25), 0 18px 40px rgba(255,210,74,0.18);}
+  .combo-cat-card .cat-img-wrap{background:linear-gradient(135deg, rgba(255,210,74,0.12) 0%, var(--iron) 70%);}
+  .combo-cat-card .cat-img-wrap img{display:block;}
+  .combo-cat-fallback{
+    position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;
+    text-align:center;font-family:'Space Mono',monospace;font-size:11px;letter-spacing:1px;color:var(--paper-dim);padding:14px;
+  }
+  .combo-cat-fallback svg{width:40px;height:40px;opacity:0.55;}
+  .combo-cat-ribbon{
+    position:absolute;top:14px;left:14px;z-index:2;
+    background:linear-gradient(135deg, var(--teal), var(--amber));color:var(--ink-black);
+    font-family:'Space Mono',monospace;font-size:10px;font-weight:800;letter-spacing:1.2px;text-transform:uppercase;
+    padding:6px 12px;border-radius:20px;box-shadow:0 4px 14px rgba(255,210,74,0.4);
+  }
+  .combo-cat-save{
+    position:absolute;top:14px;right:14px;z-index:2;
+    background:rgba(10,8,6,0.82);backdrop-filter:blur(4px);border:1px solid var(--teal);color:var(--teal);
+    font-family:'Space Mono',monospace;font-size:11px;font-weight:800;padding:5px 11px;border-radius:20px;
+  }
+  .combo-cat-label{background:linear-gradient(90deg, rgba(255,210,74,0.08), transparent);}
+  .combo-cat-label .cat-icon{filter:drop-shadow(0 0 6px rgba(255,210,74,0.5));}
   /* ===== OFFERS ===== */
   .offers-carousel{background:linear-gradient(90deg,var(--amber),var(--teal));overflow:hidden;cursor:pointer;padding:12px 0;}
   .offers-carousel-track{display:flex;width:max-content;white-space:nowrap;animation:offers-scroll 18s linear infinite;}
@@ -1413,6 +1441,19 @@
         <p>From your first protein shake to a serious pre-workout stack — pick a category and we'll show verified stock only.</p>
       </div>
       <div class="cat-img-grid">
+        <a href="#combos" class="cat-card-img combo-cat-card" id="combo-cat-tile" style="display:none;" onclick="showCombosSection();return false;">
+          <div class="cat-img-wrap">
+            <img src="assets/categories/combos.jpg" alt="Combo Offers"
+              onerror="this.style.display='none';this.nextElementSibling.style.display='flex';">
+            <div class="cat-img-fallback combo-cat-fallback" style="display:none;">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="7" width="18" height="13" rx="2"/><path d="M3 11h18M8 7V5a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+              <span>COMBO PHOTO<br>GOES HERE</span>
+            </div>
+            <span class="combo-cat-ribbon">Bundle &amp; Save</span>
+            <span class="combo-cat-save" id="combo-cat-save" style="display:none;"></span>
+          </div>
+          <div class="cat-label combo-cat-label"><span class="cat-icon">🎁</span> Combo Offers</div>
+        </a>
         <a href="#products" class="cat-card-img" onclick="filterByCategory('Health Supplements');return false;">
           <div class="cat-img-wrap">
             <img src="assets/categories/supplements.jpg" alt="Health Supplements"
@@ -1472,6 +1513,7 @@
         </div>
         <p>Handpicked bundles at a special price — better value than buying separately.</p>
       </div>
+      <a href="#categories" onclick="document.getElementById('combos').style.display='none';return true;" style="display:inline-flex;align-items:center;gap:6px;font-family:'Space Mono',monospace;font-size:12px;letter-spacing:0.5px;color:var(--paper-dim);margin-bottom:22px;">← Back to categories</a>
       <div class="combo-grid" id="combos-grid"></div>
     </div>
   </section>
@@ -2165,16 +2207,43 @@ async function loadProducts(){
 let COMBOS = [];
 async function loadCombos(){
   const section = document.getElementById('combos');
+  const tile = document.getElementById('combo-cat-tile');
   const grid = document.getElementById('combos-grid');
   const { data, error } = await sb.from('combo_offers').select('*').eq('active', true).order('created_at', { ascending:false });
   if(error || !data || data.length===0){
     if(section) section.style.display = 'none';
+    if(tile) tile.style.display = 'none';
     return;
   }
   COMBOS = data;
-  // Combos section is temporarily hidden on the storefront (admin panel / data still work as normal).
+  // The full combo grid stays hidden until the "Combo Offers" category tile is tapped.
   if(section) section.style.display = 'none';
   renderCombosStorefront(COMBOS);
+  populateComboCatTile(COMBOS);
+  if(tile) tile.style.display = '';
+}
+function populateComboCatTile(list){
+  const saveBadge = document.getElementById('combo-cat-save');
+  // savings badge: show the best discount % across all active combos
+  let bestPct = 0;
+  list.forEach(c=>{
+    const original = Number(c.original_price) || 0;
+    const offer = Number(c.offer_price) || 0;
+    if(original > offer && original > 0){
+      const pct = Math.round((1 - offer/original) * 100);
+      if(pct > bestPct) bestPct = pct;
+    }
+  });
+  if(saveBadge && bestPct > 0){
+    saveBadge.textContent = `Up to ${bestPct}% OFF`;
+    saveBadge.style.display = 'inline-block';
+  }
+}
+function showCombosSection(){
+  const section = document.getElementById('combos');
+  if(!section) return;
+  section.style.display = '';
+  section.scrollIntoView({ behavior:'smooth', block:'start' });
 }
 function renderCombosStorefront(list){
   const grid = document.getElementById('combos-grid');
