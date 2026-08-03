@@ -57,7 +57,7 @@ NF Naseem Fitness — Official Mumbai Branch
 Address: Ground Floor, Shop 2, Kajipura Haji Kasam Chawl No. 23, Maulana Azad Road, Nagpada, Two Tank, Mumbai, Maharashtra 400008
 Phone / WhatsApp: +91 77382 42258
 Hours: Mon–Sun, 10:00 AM – 9:30 PM
-Delivery: Free shipping across Mumbai on orders ₹999+, same-day delivery available
+Delivery: Mumbai 1–2 days | Rest of Maharashtra 1–3 business days | Rest of India 3–7 business days (estimates; may vary due to courier operations, weather, or holidays)
 Authenticity: Every tub sold is batch-verified before it reaches the customer — customers can verify their batch code on the "Verify Product" section of the site. 100% genuine stock, no fakes.
 Categories: Whey protein, creatine, pre-workouts, multivitamins, and general gym supplements.
 `;
