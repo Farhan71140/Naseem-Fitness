@@ -507,11 +507,11 @@
     letter-spacing:0.5px;color:var(--teal);text-transform:uppercase;
   }
   .combo-qv-photo{
-    width:100%;aspect-ratio:16/9;border-radius:12px;border:1px solid var(--line);
+    position:relative;width:100%;height:0;padding-top:56.25%;border-radius:12px;border:1px solid var(--line);
     background:linear-gradient(135deg, var(--iron) 0%, var(--steel) 60%);
-    overflow:hidden;margin-bottom:16px;display:flex;align-items:center;justify-content:center;
+    overflow:hidden;margin-bottom:16px;
   }
-  .combo-qv-photo img{width:100%;height:100%;object-fit:cover;}
+  .combo-qv-photo img{position:absolute;top:0;left:0;width:100%;height:100%;object-fit:cover;}
   .combo-qv-body ul{margin:10px 0 0;padding:0;list-style:none;display:flex;flex-direction:column;gap:10px;}
   .combo-qv-body ul li{font-size:14px;color:var(--paper);line-height:1.6;padding-left:22px;position:relative;}
   .combo-qv-body ul li::before{content:'✓';position:absolute;left:0;color:var(--teal);font-weight:800;}
@@ -528,12 +528,12 @@
   }
   .combo-card:hover{transform:translateY(-4px);border-color:var(--iron-light);box-shadow:0 20px 48px rgba(0,0,0,0.38);}
   .combo-photo{
-    position:relative;width:100%;aspect-ratio:16/9;
+    position:relative;width:100%;height:0;padding-top:56.25%; /* 16:9, matches the 1792x1024 combo photo */
     background:linear-gradient(135deg, var(--iron) 0%, var(--steel) 60%);
     overflow:hidden;
   }
-  .combo-photo img{width:100%;height:100%;object-fit:cover;display:block;}
-  .combo-photo > div{width:100%;height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;}
+  .combo-photo img{position:absolute;top:0;left:0;width:100%;height:100%;object-fit:cover;display:block;}
+  .combo-photo > div{position:absolute;top:0;left:0;width:100%;height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;}
   .combo-photo svg{width:52px;height:52px;opacity:0.5;margin-bottom:10px;}
   .combo-badge{
     position:absolute;top:16px;left:16px;background:var(--teal);color:var(--ink-black);
@@ -568,14 +568,13 @@
   /* full-bleed edge-to-edge image + card on phones for a bigger, punchier look */
   @media (max-width:700px){
     .combo-grid{gap:18px;}
-    .combo-photo{aspect-ratio:16/9;}
     .combo-footer{flex-direction:column;align-items:stretch;gap:14px;}
     .combo-add-btn{justify-content:center;width:100%;}
   }
   /* wide row layout once there's room — image sits alongside the details */
   @media (min-width:701px){
     .combo-card{grid-template-columns:44% 1fr;}
-    .combo-photo{aspect-ratio:auto;height:100%;min-height:300px;}
+    .combo-photo{padding-top:0;height:100%;min-height:300px;}
     .combo-body{display:flex;flex-direction:column;justify-content:center;padding:30px 34px;}
     .combo-footer{margin-top:22px;}
   }
