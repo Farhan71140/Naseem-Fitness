@@ -3665,10 +3665,68 @@ function renderOffersUI(){
   }
 }
 
+/* ---------- structured data (Product schema for Google rich results) ---------- */
+function injectProductSchema(){
+  document.querySelectorAll('script[data-product-schema]').forEach(el => el.remove());
+  if(!PRODUCTS.length) return;
+  const baseUrl = `${location.origin}${location.pathname}`;
+  PRODUCTS.forEach(p => {
+    const eff = getEffectivePricing(p);
+    const images = getProductImages(p).map(u => u.startsWith('http') ? u : `${location.origin}/${u.replace(/^\//,'')}`);
+    const stock = (p.stock === undefined || p.stock === null) ? null : Number(p.stock);
+    const outOfStock = stock !== null && stock <= 0;
+    const { avg, count } = getProductRatingStats(p.id);
+
+    const schema = {
+      '@context': 'https://schema.org/',
+      '@type': 'Product',
+      name: p.name,
+      sku: p.id,
+      url: `${baseUrl}?product=${encodeURIComponent(p.id)}`,
+      description: p.description || `${p.brand ? p.brand + ' ' : ''}${p.name} — genuine, 100% authentic supplement from NF Naseem Fitness, Mumbai.`,
+      brand: { '@type': 'Brand', name: p.brand || 'NF Naseem Fitness' },
+      offers: {
+        '@type': 'Offer',
+        priceCurrency: 'INR',
+        price: eff.price,
+        availability: outOfStock ? 'https://schema.org/OutOfStock' : 'https://schema.org/InStock',
+        url: `${baseUrl}?product=${encodeURIComponent(p.id)}`
+      }
+    };
+    if(images.length) schema.image = images;
+
+    if(count > 0){
+      schema.aggregateRating = {
+        '@type': 'AggregateRating',
+        ratingValue: avg.toFixed(1),
+        reviewCount: count
+      };
+      const sampleReviews = REVIEWS
+        .filter(r => r.product_id === p.id && isPublishedReview(r))
+        .slice(0, 5)
+        .map(r => ({
+          '@type': 'Review',
+          reviewRating: { '@type': 'Rating', ratingValue: String(r.rating), bestRating: '5' },
+          author: { '@type': 'Person', name: r.customer_name || 'Verified Customer' },
+          reviewBody: r.review_text || undefined,
+          datePublished: r.created_at ? new Date(r.created_at).toISOString().slice(0,10) : undefined
+        }));
+      if(sampleReviews.length) schema.review = sampleReviews;
+    }
+
+    const script = document.createElement('script');
+    script.type = 'application/ld+json';
+    script.setAttribute('data-product-schema', p.id);
+    script.textContent = JSON.stringify(schema);
+    document.head.appendChild(script);
+  });
+}
+
 async function initApp(){
   await Promise.all([loadProducts(), loadReviews(), loadStoreSettings(), loadCombos()]);
   if(PRODUCTS.length) applyFilters();
   renderGlobalReviews();
+  injectProductSchema();
   openSharedProductFromUrl();
 }
 initApp();
