@@ -3670,6 +3670,50 @@ function injectProductSchema(){
   document.querySelectorAll('script[data-product-schema]').forEach(el => el.remove());
   if(!PRODUCTS.length) return;
   const baseUrl = `${location.origin}${location.pathname}`;
+  const todayIso = new Date().toISOString().slice(0,10);
+
+  const shippingDetails = [
+    {
+      '@type': 'OfferShippingDetails',
+      shippingRate: { '@type': 'MonetaryAmount', value: '99', currency: 'INR' },
+      shippingDestination: { '@type': 'DefinedRegion', addressRegion: 'Mumbai', addressCountry: 'IN' },
+      deliveryTime: {
+        '@type': 'ShippingDeliveryTime',
+        handlingTime: { '@type': 'QuantitativeValue', minValue: 0, maxValue: 1, unitCode: 'DAY' },
+        transitTime: { '@type': 'QuantitativeValue', minValue: 1, maxValue: 2, unitCode: 'DAY' }
+      }
+    },
+    {
+      '@type': 'OfferShippingDetails',
+      shippingRate: { '@type': 'MonetaryAmount', value: '99', currency: 'INR' },
+      shippingDestination: { '@type': 'DefinedRegion', addressRegion: 'Maharashtra', addressCountry: 'IN' },
+      deliveryTime: {
+        '@type': 'ShippingDeliveryTime',
+        handlingTime: { '@type': 'QuantitativeValue', minValue: 0, maxValue: 1, unitCode: 'DAY' },
+        transitTime: { '@type': 'QuantitativeValue', minValue: 1, maxValue: 3, unitCode: 'DAY' }
+      }
+    },
+    {
+      '@type': 'OfferShippingDetails',
+      shippingRate: { '@type': 'MonetaryAmount', value: '99', currency: 'INR' },
+      shippingDestination: { '@type': 'DefinedRegion', addressCountry: 'IN' },
+      deliveryTime: {
+        '@type': 'ShippingDeliveryTime',
+        handlingTime: { '@type': 'QuantitativeValue', minValue: 0, maxValue: 2, unitCode: 'DAY' },
+        transitTime: { '@type': 'QuantitativeValue', minValue: 3, maxValue: 7, unitCode: 'DAY' }
+      }
+    }
+  ];
+
+  const returnPolicy = {
+    '@type': 'MerchantReturnPolicy',
+    applicableCountry: 'IN',
+    returnPolicyCategory: 'https://schema.org/MerchantReturnFiniteReturnWindow',
+    merchantReturnDays: 7,
+    returnMethod: 'https://schema.org/ReturnByMail',
+    returnFees: 'https://schema.org/ReturnFeesCustomerResponsibility'
+  };
+
   PRODUCTS.forEach(p => {
     const eff = getEffectivePricing(p);
     const images = getProductImages(p).map(u => u.startsWith('http') ? u : `${location.origin}/${u.replace(/^\//,'')}`);
@@ -3690,7 +3734,10 @@ function injectProductSchema(){
         priceCurrency: 'INR',
         price: eff.price,
         availability: outOfStock ? 'https://schema.org/OutOfStock' : 'https://schema.org/InStock',
-        url: `${baseUrl}?product=${encodeURIComponent(p.id)}`
+        url: `${baseUrl}?product=${encodeURIComponent(p.id)}`,
+        validFrom: p.created_at ? new Date(p.created_at).toISOString().slice(0,10) : todayIso,
+        shippingDetails: shippingDetails,
+        hasMerchantReturnPolicy: returnPolicy
       }
     };
     if(images.length) schema.image = images;
