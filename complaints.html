@@ -1,0 +1,796 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Complaints & Support | NF Naseem Fitness™</title>
+<link rel="icon" type="image/png" sizes="32x32" href="assets/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="assets/favicon-16x16.png">
+<link rel="apple-touch-icon" sizes="180x180" href="assets/apple-touch-icon.png">
+<link rel="shortcut icon" href="assets/favicon.ico">
+<meta name="theme-color" content="#0A0806">
+<meta name="description" content="Raise a complaint or support request with NF Naseem Fitness™ and track its status with your ticket ID.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Anton&family=Inter:wght@400;500;600;700;800&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+  :root{
+    --ink-black:#0A0806;
+    --steel:#17130D;
+    --iron:#241D13;
+    --iron-light:#3A2E1A;
+    --paper:#F5EEDD;
+    --paper-dim:#B8AD95;
+    --teal:#FFD24A;
+    --teal-dim:#4A3A0E;
+    --gold-light:#FFF2B5;
+    --good:#5CD68A;
+    --warn:#FFB84D;
+    --bad:#FF6B6B;
+    --line: rgba(255,210,74,0.18);
+    --line-strong: rgba(255,210,74,0.32);
+  }
+  *{box-sizing:border-box;margin:0;padding:0;}
+  body{
+    background:var(--ink-black);color:var(--paper);
+    font-family:'Inter',sans-serif;line-height:1.5;
+    -webkit-font-smoothing:antialiased;
+  }
+  h1,h2,h3{font-family:'Anton',sans-serif;font-weight:400;text-transform:uppercase;letter-spacing:0.5px;line-height:1.05;}
+  a{color:inherit;text-decoration:none;}
+  button{font-family:inherit;}
+  .wrap{max-width:1180px;margin:0 auto;padding:0 32px;}
+  .mono{font-family:'Space Mono',monospace;}
+  :focus-visible{outline:2px solid var(--teal);outline-offset:3px;}
+  .eyebrow{
+    display:inline-flex;align-items:center;gap:10px;
+    font-family:'Space Mono',monospace;font-size:12px;letter-spacing:3px;text-transform:uppercase;
+    color:var(--teal);margin-bottom:14px;
+  }
+  .eyebrow::before{content:'';width:22px;height:1px;background:var(--teal);}
+
+  /* ===== HEADER ===== */
+  header{
+    position:sticky;top:0;z-index:50;background:rgba(10,8,6,0.94);backdrop-filter:blur(10px);
+    border-bottom:1px solid var(--line);
+  }
+  nav.wrap{display:flex;align-items:center;justify-content:space-between;gap:24px;padding:16px 32px;}
+  .brand{display:flex;align-items:center;gap:10px;}
+  .brand-name{font-family:'Anton',sans-serif;font-size:19px;letter-spacing:0.5px;text-transform:uppercase;line-height:1.1;white-space:nowrap;}
+  .brand-name span{color:var(--teal);}
+  .brand-tag{display:block;font-family:'Space Mono',monospace;font-size:9px;letter-spacing:2px;color:var(--paper-dim);text-transform:uppercase;margin-top:2px;white-space:nowrap;}
+  .nf-mark{width:38px;height:38px;flex:none;}
+  .nav-links{display:flex;gap:24px;font-size:14px;font-weight:600;}
+  .nav-links a{opacity:0.85;transition:opacity .2s, color .2s;}
+  .nav-links a:hover{opacity:1;color:var(--teal);}
+  .nav-links a.active{opacity:1;color:var(--teal);}
+  .btn{
+    display:inline-flex;align-items:center;justify-content:center;gap:8px;
+    padding:11px 22px;border-radius:8px;font-size:14px;font-weight:700;
+    border:1px solid var(--line);white-space:nowrap;transition:border-color .2s, background .2s, transform .15s;
+    cursor:pointer;
+  }
+  .btn-primary{background:var(--teal);color:var(--ink-black);border-color:var(--teal);}
+  .btn-primary:hover{transform:translateY(-1px);}
+  .btn-primary:disabled{opacity:0.6;transform:none;cursor:not-allowed;}
+  .btn-ghost{border-color:var(--line);color:var(--paper);background:transparent;}
+  .btn-ghost:hover{border-color:var(--teal);}
+  .hamburger-btn{display:none;flex-direction:column;gap:5px;width:24px;cursor:pointer;flex:none;}
+  .hamburger-btn span{display:block;height:2px;width:100%;background:var(--paper);border-radius:2px;}
+  .nav-toggle-input{display:none;}
+  .mobile-menu{display:none;flex-direction:column;gap:4px;padding:10px 32px 24px;border-top:1px solid var(--line);background:var(--ink-black);}
+  .mobile-menu a{padding:12px 0;font-size:15px;font-weight:600;border-bottom:1px solid var(--line);}
+  .nav-toggle-input:checked ~ .mobile-menu{display:flex;}
+  @media (max-width:860px){
+    .nav-links{display:none;}
+    .header-cta{display:none;}
+    .hamburger-btn{display:flex;}
+  }
+
+  /* ===== HERO ===== */
+  .doc-hero{padding:64px 0 40px;border-bottom:1px solid var(--line);}
+  .doc-hero .eyebrow-row{display:flex;align-items:center;gap:10px;font-family:'Space Mono',monospace;font-size:12px;letter-spacing:1.5px;color:var(--paper-dim);text-transform:uppercase;margin-bottom:18px;flex-wrap:wrap;}
+  .doc-hero .eyebrow-row a:hover{color:var(--teal);}
+  .doc-hero .eyebrow-row .sep{color:var(--line-strong);}
+  .doc-hero h1{font-size:clamp(32px,4.6vw,50px);}
+  .doc-hero p.lead{color:var(--paper-dim);font-size:15.5px;max-width:560px;margin-top:16px;line-height:1.7;}
+  .updated-pill{
+    display:inline-flex;align-items:center;gap:8px;margin-top:24px;
+    font-family:'Space Mono',monospace;font-size:11px;letter-spacing:1.5px;text-transform:uppercase;
+    color:var(--paper-dim);border:1px solid var(--line);border-radius:30px;padding:8px 18px;
+  }
+  .updated-pill .dot{width:6px;height:6px;border-radius:50%;background:var(--teal);box-shadow:0 0 8px var(--teal);}
+
+  /* ===== DOC BODY / LAYOUT ===== */
+  .doc-section{padding:56px 0 30px;}
+  .doc-layout{display:grid;grid-template-columns:1fr 300px;gap:56px;align-items:start;}
+  .doc-article{max-width:680px;}
+
+  /* ===== MODE SWITCH ===== */
+  .mode-switch{display:flex;gap:10px;background:var(--steel);border:1px solid var(--line);border-radius:12px;padding:6px;margin-bottom:32px;}
+  .mode-btn{
+    flex:1;display:flex;align-items:center;justify-content:center;gap:8px;
+    padding:14px 16px;border-radius:8px;border:none;background:transparent;color:var(--paper-dim);
+    font-size:14px;font-weight:700;cursor:pointer;transition:background .2s, color .2s;
+  }
+  .mode-btn svg{width:17px;height:17px;flex:none;}
+  .mode-btn.active{background:var(--teal);color:var(--ink-black);}
+  @media (max-width:520px){ .mode-switch{flex-direction:column;} }
+
+  .panel-card{background:linear-gradient(165deg, var(--steel) 0%, var(--iron) 130%);border:1px solid var(--line);border-radius:16px;padding:32px;}
+  @media (max-width:600px){ .panel-card{padding:22px;} }
+  .panel-card h2{font-family:'Inter',sans-serif;font-weight:800;text-transform:none;letter-spacing:0;font-size:20px;color:var(--paper);margin-bottom:6px;}
+  .panel-card .sub{color:var(--paper-dim);font-size:13.5px;margin-bottom:26px;line-height:1.6;}
+
+  /* ===== FORM ===== */
+  .field{margin-bottom:18px;}
+  .field label{display:block;font-family:'Space Mono',monospace;font-size:11px;letter-spacing:1.5px;text-transform:uppercase;color:var(--paper-dim);margin-bottom:8px;}
+  .field .opt{color:var(--paper-dim);font-weight:400;text-transform:none;letter-spacing:0;font-family:'Inter',sans-serif;font-size:12px;}
+  .field input, .field textarea{
+    width:100%;background:var(--ink-black);border:1px solid var(--line);color:var(--paper);
+    border-radius:8px;padding:13px 14px;font-size:14.5px;font-family:'Inter',sans-serif;
+  }
+  .field input:focus, .field textarea:focus{outline:none;border-color:var(--teal);}
+  .field textarea{resize:vertical;min-height:110px;line-height:1.6;}
+  .field-row{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
+  @media (max-width:560px){ .field-row{grid-template-columns:1fr;} }
+
+  .cat-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;}
+  @media (max-width:560px){ .cat-grid{grid-template-columns:repeat(2,1fr);} }
+  .cat-pill{
+    display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;
+    padding:14px 8px;border-radius:10px;border:1px solid var(--line);background:var(--ink-black);
+    color:var(--paper-dim);cursor:pointer;font-size:12.5px;font-weight:600;text-align:center;
+    transition:border-color .2s, color .2s, background .2s;
+  }
+  .cat-pill svg{width:19px;height:19px;}
+  .cat-pill:hover{border-color:var(--line-strong);}
+  .cat-pill.active{border-color:var(--teal);color:var(--teal);background:rgba(255,210,74,0.08);}
+
+  .upload-zone{
+    border:1.5px dashed var(--line);border-radius:10px;padding:22px;text-align:center;cursor:pointer;
+    transition:border-color .2s, background .2s;background:var(--ink-black);
+  }
+  .upload-zone:hover{border-color:var(--teal);}
+  .upload-zone svg{width:26px;height:26px;color:var(--paper-dim);margin-bottom:8px;}
+  .upload-zone p{font-size:13px;color:var(--paper-dim);}
+  .upload-zone p strong{color:var(--teal);}
+  .upload-preview{position:relative;display:inline-block;margin-top:12px;}
+  .upload-preview img{max-height:140px;border-radius:8px;border:1px solid var(--line);display:block;}
+  .upload-preview .rm-img{
+    position:absolute;top:-8px;right:-8px;width:24px;height:24px;border-radius:50%;
+    background:var(--bad);color:#fff;border:2px solid var(--ink-black);cursor:pointer;font-size:13px;
+    display:flex;align-items:center;justify-content:center;line-height:1;
+  }
+  .upload-status{font-size:12px;color:var(--paper-dim);margin-top:8px;font-family:'Space Mono',monospace;}
+
+  .form-error{display:none;color:#FF8A8A;font-size:13px;margin:4px 0 16px;line-height:1.6;padding:12px 14px;background:rgba(255,107,107,0.08);border:1px solid rgba(255,107,107,0.25);border-radius:8px;}
+  .form-error.show{display:block;}
+  .submit-btn{width:100%;justify-content:center;padding:15px;font-size:15px;margin-top:6px;}
+
+  /* ===== SUCCESS STATE ===== */
+  .success-view{display:none;text-align:center;padding:10px 0;}
+  .success-view.show{display:block;}
+  .success-check{width:64px;height:64px;border-radius:50%;background:rgba(92,214,138,0.12);border:2px solid var(--good);color:var(--good);display:flex;align-items:center;justify-content:center;margin:0 auto 20px;}
+  .success-check svg{width:30px;height:30px;}
+  .success-view h3{font-family:'Inter',sans-serif;font-weight:800;text-transform:none;letter-spacing:0;font-size:19px;margin-bottom:8px;}
+  .success-view p{color:var(--paper-dim);font-size:14px;max-width:420px;margin:0 auto 22px;line-height:1.7;}
+  .ticket-box{
+    display:inline-flex;align-items:center;gap:14px;background:var(--ink-black);border:1px dashed var(--line-strong);
+    border-radius:12px;padding:18px 26px;margin-bottom:26px;
+  }
+  .ticket-box .tk-label{font-family:'Space Mono',monospace;font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--paper-dim);display:block;margin-bottom:4px;}
+  .ticket-box .tk-value{font-family:'Space Mono',monospace;font-size:22px;color:var(--teal);letter-spacing:1px;}
+  .copy-btn{background:transparent;border:1px solid var(--line);color:var(--paper-dim);border-radius:8px;padding:8px 10px;cursor:pointer;transition:border-color .2s, color .2s;}
+  .copy-btn:hover{border-color:var(--teal);color:var(--teal);}
+  .copy-btn svg{width:16px;height:16px;display:block;}
+  .success-actions{display:flex;gap:12px;justify-content:center;flex-wrap:wrap;}
+
+  /* ===== TRACK RESULT ===== */
+  .track-loading{display:none;align-items:center;gap:10px;margin-top:16px;font-family:'Space Mono',monospace;font-size:12px;color:var(--paper-dim);}
+  .track-spinner{width:15px;height:15px;border-radius:50%;border:2px solid var(--line);border-top-color:var(--teal);animation:track-spin .7s linear infinite;flex:none;}
+  @keyframes track-spin{to{transform:rotate(360deg);}}
+
+  .track-result{margin-top:28px;padding-top:26px;border-top:1px dashed var(--line);}
+  .track-result-head{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;margin-bottom:20px;}
+  .track-ref{font-family:'Space Mono',monospace;font-size:16px;color:var(--teal);letter-spacing:0.5px;}
+  .track-date{font-size:11.5px;color:var(--paper-dim);font-family:'Space Mono',monospace;}
+  .status-pill{font-family:'Space Mono',monospace;font-size:11px;letter-spacing:1px;text-transform:uppercase;padding:5px 12px;border-radius:20px;}
+  .status-pill.pending{background:rgba(184,173,149,0.15);color:var(--paper-dim);}
+  .status-pill.in_progress{background:rgba(255,184,77,0.15);color:var(--warn);}
+  .status-pill.resolved{background:rgba(92,214,138,0.15);color:var(--good);}
+
+  .track-timeline{list-style:none;margin:6px 0 26px;padding:0;}
+  .track-step{display:flex;gap:14px;position:relative;padding-bottom:26px;}
+  .track-step:last-child{padding-bottom:0;}
+  .track-step::before{content:'';position:absolute;left:11px;top:26px;bottom:0;width:2px;background:var(--line);}
+  .track-step:last-child::before{display:none;}
+  .track-step.done::before{background:var(--teal);}
+  .track-dot{
+    width:24px;height:24px;border-radius:50%;flex:none;
+    display:flex;align-items:center;justify-content:center;
+    background:var(--iron);border:2px solid var(--line);color:var(--paper-dim);
+  }
+  .track-dot svg{width:13px;height:13px;}
+  .track-step.done .track-dot{background:var(--teal);border-color:var(--teal);color:var(--ink-black);}
+  .track-step.current .track-dot{border-color:var(--teal);color:var(--teal);box-shadow:0 0 0 4px rgba(255,210,74,0.15);}
+  .track-step-title{font-size:14px;font-weight:700;color:var(--paper-dim);}
+  .track-step.done .track-step-title, .track-step.current .track-step-title{color:var(--paper);}
+  .track-step-sub{font-size:12px;color:var(--paper-dim);margin-top:3px;line-height:1.5;}
+
+  .track-info-card{background:var(--iron);border:1px solid var(--line);border-radius:10px;padding:16px 18px;margin-bottom:14px;}
+  .track-info-card h5{font-family:'Space Mono',monospace;font-size:10.5px;letter-spacing:1.2px;text-transform:uppercase;color:var(--paper-dim);margin-bottom:8px;}
+  .track-info-card p{font-size:13.5px;line-height:1.6;color:var(--paper);}
+  .track-info-card img{max-width:100%;max-height:180px;border-radius:8px;margin-top:10px;border:1px solid var(--line);}
+  .track-back-btn{background:none;border:none;color:var(--paper-dim);font-size:13px;text-decoration:underline;cursor:pointer;margin-top:8px;}
+  .track-back-btn:hover{color:var(--teal);}
+
+  /* ===== SIDE CARD ===== */
+  .side-card{
+    position:sticky;top:96px;background:linear-gradient(165deg, var(--steel) 0%, var(--iron) 130%);
+    border:1px solid var(--line);border-radius:14px;padding:30px 28px;
+  }
+  .side-card::before{
+    content:'';display:block;height:2px;margin:-30px -28px 24px;
+    background:linear-gradient(90deg, transparent, var(--teal) 30%, var(--teal) 70%, transparent);opacity:0.7;
+  }
+  .side-card .cert-tag{
+    font-family:'Space Mono',monospace;font-size:11px;letter-spacing:2px;text-transform:uppercase;
+    color:var(--teal);margin-bottom:14px;display:block;
+  }
+  .side-row{display:flex;justify-content:space-between;gap:14px;padding:12px 0;border-bottom:1px dashed var(--line);font-size:13.5px;}
+  .side-row:last-of-type{border-bottom:none;}
+  .side-row .k{color:var(--paper-dim);flex:none;}
+  .side-row .v{font-family:'Space Mono',monospace;text-align:right;color:var(--paper);}
+  .side-card .btn{width:100%;margin-top:20px;}
+  .side-note{font-size:12.5px;color:var(--paper-dim);line-height:1.7;margin-top:18px;padding-top:18px;border-top:1px dashed var(--line);}
+  @media (max-width:960px){ .doc-layout{grid-template-columns:1fr;} .side-card{position:static;} }
+
+  /* ===== CTA STRIP ===== */
+  .cta-strip{padding:20px 0 76px;}
+  .cta-panel{
+    position:relative;text-align:center;padding:56px 40px;border-radius:18px;
+    background:radial-gradient(120% 140% at 50% 0%, rgba(255,210,74,0.08) 0%, transparent 60%), var(--steel);
+    border:1px solid var(--line);
+  }
+  .cta-panel::before{content:'';position:absolute;inset:9px;border:1px solid var(--line);border-radius:13px;pointer-events:none;}
+  .cta-panel h2{font-size:clamp(22px,3.2vw,32px);margin-bottom:12px;position:relative;z-index:2;}
+  .cta-panel p{color:var(--paper-dim);max-width:460px;margin:0 auto 26px;font-size:14.5px;position:relative;z-index:2;}
+  .cta-row{display:flex;gap:14px;justify-content:center;flex-wrap:wrap;position:relative;z-index:2;}
+
+  /* ===== FOOTER ===== */
+  footer{border-top:1px solid var(--line);padding:36px 0 26px;text-align:center;}
+  footer p{color:var(--paper-dim);font-size:13px;}
+  footer a:hover{color:var(--teal);}
+</style>
+</head>
+<body>
+
+<header>
+  <input type="checkbox" id="nav-toggle" class="nav-toggle-input">
+  <nav class="wrap">
+    <a class="brand" href="index.html">
+      <svg class="nf-mark" viewBox="0 0 48 48" fill="none">
+        <rect x="1" y="1" width="46" height="46" rx="10" stroke="#FFD24A" stroke-width="1.5"/>
+        <text x="24" y="31" text-anchor="middle" font-family="Anton" font-size="20" fill="#FFD24A">NF</text>
+      </svg>
+      <div>
+        <div class="brand-name">Naseem <span>Fitness</span></div>
+        <span class="brand-tag">Strength · Discipline · Results</span>
+      </div>
+    </a>
+    <div class="nav-links">
+      <a href="index.html">Home</a>
+      <a href="index.html#categories">Shop</a>
+      <a href="index.html#authenticity">Verify Product</a>
+      <a href="licenses.html">Licenses</a>
+      <a href="shipping-policy.html">Shipping</a>
+      <a href="complaints.html" class="active">Support</a>
+    </div>
+    <a class="btn btn-primary header-cta" href="index.html">View Store</a>
+    <label for="nav-toggle" class="hamburger-btn" aria-label="Open menu">
+      <span></span><span></span><span></span>
+    </label>
+  </nav>
+  <div class="mobile-menu">
+    <a href="index.html">Home</a>
+    <a href="index.html#categories">Shop</a>
+    <a href="index.html#authenticity">Verify Product</a>
+    <a href="licenses.html">Licenses</a>
+    <a href="shipping-policy.html">Shipping</a>
+    <a href="complaints.html">Support</a>
+  </div>
+</header>
+
+<main>
+  <!-- HERO -->
+  <section class="doc-hero">
+    <div class="wrap">
+      <div class="eyebrow-row">
+        <a href="index.html">NF Naseem Fitness™</a>
+        <span class="sep">/</span>
+        <span>Complaints &amp; Support</span>
+      </div>
+      <h1>Customer <span style="color:var(--teal);">Support</span></h1>
+      <p class="lead">Raise a complaint about an order, delivery, product or payment — or track an existing ticket. No more chasing us on WhatsApp; every request is logged and tracked from start to resolution.</p>
+      <div class="updated-pill"><span class="dot"></span> Average first response within 24 hours</div>
+    </div>
+  </section>
+
+  <!-- DOC BODY -->
+  <section class="doc-section">
+    <div class="wrap doc-layout">
+      <article class="doc-article">
+
+        <div class="mode-switch">
+          <button class="mode-btn active" id="mode-btn-submit" onclick="setMode('submit')">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
+            Submit a Complaint
+          </button>
+          <button class="mode-btn" id="mode-btn-track" onclick="setMode('track')">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
+            Track My Complaint
+          </button>
+        </div>
+
+        <!-- ============ SUBMIT PANEL ============ -->
+        <div class="panel-card" id="submit-panel">
+
+          <div id="submit-form-view">
+            <h2>Tell us what went wrong</h2>
+            <p class="sub">Fill in the details below and we'll generate a Ticket ID you can use to track the status of your complaint anytime.</p>
+
+            <div class="form-error" id="submit-error"></div>
+
+            <div class="field-row">
+              <div class="field">
+                <label for="c-name">Customer Name</label>
+                <input type="text" id="c-name" placeholder="e.g. Rahul Sharma">
+              </div>
+              <div class="field">
+                <label for="c-mobile">Mobile Number</label>
+                <input type="tel" id="c-mobile" placeholder="e.g. 98765 43210" maxlength="10">
+              </div>
+            </div>
+
+            <div class="field-row">
+              <div class="field">
+                <label for="c-email">Email <span class="opt">(optional)</span></label>
+                <input type="email" id="c-email" placeholder="you@email.com">
+              </div>
+              <div class="field">
+                <label for="c-order">Order ID <span class="opt">(optional)</span></label>
+                <input type="text" id="c-order" placeholder="e.g. NF-A1B2C3D4">
+              </div>
+            </div>
+
+            <div class="field">
+              <label>Complaint Category</label>
+              <div class="cat-grid" id="cat-grid">
+                <div class="cat-pill active" data-cat="Order" onclick="selectCategory('Order')">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M6 2l1.5 4M18 2l-1.5 4M4 6h16l-1.5 12.5a2 2 0 0 1-2 1.5H7.5a2 2 0 0 1-2-1.5L4 6z"/></svg>
+                  Order
+                </div>
+                <div class="cat-pill" data-cat="Delivery" onclick="selectCategory('Delivery')">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="1" y="6" width="15" height="12" rx="2"/><path d="M16 10h4l3 4v4h-7z"/><circle cx="6" cy="19" r="1.8"/><circle cx="18" cy="19" r="1.8"/></svg>
+                  Delivery
+                </div>
+                <div class="cat-pill" data-cat="Product" onclick="selectCategory('Product')">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/></svg>
+                  Product
+                </div>
+                <div class="cat-pill" data-cat="Payment" onclick="selectCategory('Payment')">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="2" y="5" width="20" height="14" rx="2"/><path d="M2 10h20"/></svg>
+                  Payment
+                </div>
+                <div class="cat-pill" data-cat="Other" onclick="selectCategory('Other')">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 2-3 4"/><path d="M12 17.5v.01"/></svg>
+                  Other
+                </div>
+              </div>
+            </div>
+
+            <div class="field">
+              <label for="c-message">Complaint Details</label>
+              <textarea id="c-message" placeholder="Describe the issue in detail — what happened, when, and what resolution you'd like."></textarea>
+            </div>
+
+            <div class="field">
+              <label>Photo Proof <span class="opt">(optional)</span></label>
+              <div class="upload-zone" id="upload-zone" onclick="document.getElementById('c-image-file').click()">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="M17 8l-5-5-5 5"/><path d="M12 3v12"/></svg>
+                <p><strong>Click to upload</strong> a photo of the issue (JPG/PNG, max 5MB)</p>
+              </div>
+              <input type="file" id="c-image-file" accept="image/*" style="display:none;" onchange="handleComplaintImage(this.files)">
+              <div id="upload-preview-wrap"></div>
+              <div class="upload-status" id="upload-status"></div>
+            </div>
+
+            <button class="btn btn-primary submit-btn" id="submit-complaint-btn" onclick="submitComplaint()">Submit Complaint</button>
+          </div>
+
+          <!-- ============ SUCCESS VIEW ============ -->
+          <div class="success-view" id="success-view">
+            <div class="success-check">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6"><path d="M20 6L9 17l-5-5"/></svg>
+            </div>
+            <h3>Complaint Submitted</h3>
+            <p>We've received your complaint and our team will get back to you shortly. Save this Ticket ID — you'll need it to check your status.</p>
+            <div class="ticket-box">
+              <div>
+                <span class="tk-label">Ticket ID</span>
+                <span class="tk-value mono" id="success-ticket-id">NFC-000000</span>
+              </div>
+              <button class="copy-btn" onclick="copyTicketId()" title="Copy Ticket ID">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+              </button>
+            </div>
+            <div class="success-actions">
+              <button class="btn btn-primary" onclick="goTrackThisTicket()">Track This Ticket</button>
+              <a class="btn btn-ghost" id="success-wa-btn" href="#" target="_blank" rel="noopener">Notify us on WhatsApp</a>
+            </div>
+          </div>
+        </div>
+
+        <!-- ============ TRACK PANEL ============ -->
+        <div class="panel-card" id="track-panel" style="display:none;">
+          <h2>Check your complaint status</h2>
+          <p class="sub">Enter your Ticket ID and the mobile number you used when submitting the complaint.</p>
+
+          <div class="form-error" id="track-error"></div>
+
+          <div class="field-row">
+            <div class="field">
+              <label for="track-ticket-id">Ticket ID</label>
+              <input type="text" id="track-ticket-id" placeholder="e.g. NFC-4X7QZP" style="text-transform:uppercase;">
+            </div>
+            <div class="field">
+              <label for="track-mobile">Mobile Number</label>
+              <input type="tel" id="track-mobile" placeholder="e.g. 98765 43210" maxlength="10">
+            </div>
+          </div>
+
+          <button class="btn btn-primary submit-btn" id="track-submit-btn" onclick="submitTrackComplaint()">Check Status</button>
+          <div class="track-loading" id="track-loading"><div class="track-spinner"></div> Looking up your ticket…</div>
+
+          <div id="track-result-wrap"></div>
+        </div>
+
+      </article>
+
+      <aside class="side-card">
+        <span class="cert-tag">Need Immediate Help?</span>
+        <div class="side-row"><span class="k">Business</span><span class="v">NF Naseem Fitness</span></div>
+        <div class="side-row"><span class="k">Phone / WhatsApp</span><span class="v">+91 77382 42258</span></div>
+        <div class="side-row"><span class="k">Response Time</span><span class="v">~24 hrs</span></div>
+        <a class="btn btn-primary" href="https://wa.me/917738242258?text=Hi%2C%20I%20have%20a%20complaint%20I%27d%20like%20to%20raise" target="_blank" rel="noopener">WhatsApp Us</a>
+        <div class="side-note">Every complaint gets a unique Ticket ID so you can track it here instead of following up over chat. Status moves through <strong style="color:var(--paper);">Pending → In Progress → Resolved</strong>.</div>
+      </aside>
+    </div>
+  </section>
+
+  <!-- CTA -->
+  <section class="cta-strip">
+    <div class="wrap">
+      <div class="cta-panel">
+        <h2>Prefer to talk it through?</h2>
+        <p>Message us on WhatsApp anytime — we're happy to help directly, or point you back here to track your ticket.</p>
+        <div class="cta-row">
+          <a class="btn btn-primary" href="https://wa.me/917738242258" target="_blank" rel="noopener">Message on WhatsApp</a>
+          <a class="btn btn-ghost" href="index.html">Back to Store</a>
+        </div>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <div class="wrap">
+    <p>© 2026 NF Naseem Fitness™. All rights reserved. · Genuine supplements, Mumbai-verified.</p>
+  </div>
+</footer>
+
+<script>
+/* ============================================================
+   NF COMPLAINTS & GRIEVANCE SYSTEM — backed by Supabase
+   ------------------------------------------------------------
+   REQUIRED ONE-TIME SUPABASE SETUP (run in SQL Editor):
+
+   create extension if not exists pgcrypto;
+
+   create table public.complaints (
+     id uuid primary key default gen_random_uuid(),
+     ticket_id text unique not null,
+     customer_name text not null,
+     mobile text not null,
+     email text,
+     order_id text,
+     category text not null,
+     message text not null,
+     image_url text,
+     status text not null default 'pending',   -- pending | in_progress | resolved
+     admin_note text,
+     created_at timestamptz not null default now(),
+     updated_at timestamptz not null default now()
+   );
+
+   alter table public.complaints enable row level security;
+
+   -- Anyone (including anonymous storefront visitors) can file a complaint
+   create policy "Anyone can submit a complaint"
+     on public.complaints for insert
+     to anon, authenticated
+     with check (true);
+
+   -- Only logged-in admins can view the full list / update status
+   create policy "Admins can view all complaints"
+     on public.complaints for select
+     to authenticated
+     using (true);
+
+   create policy "Admins can update complaints"
+     on public.complaints for update
+     to authenticated
+     using (true);
+
+   -- Secure lookup function so customers can check status WITHOUT
+   -- being able to browse other people's complaints (same pattern as
+   -- track_order_by_ref used for order tracking).
+   create or replace function public.track_complaint(p_ticket text, p_mobile text)
+   returns setof public.complaints
+   language sql
+   security definer
+   set search_path = public
+   as $$
+     select * from public.complaints
+     where upper(ticket_id) = upper(p_ticket)
+       and right(regexp_replace(mobile, '\D', '', 'g'), 10) = right(regexp_replace(p_mobile, '\D', '', 'g'), 10)
+     limit 1;
+   $$;
+
+   grant execute on function public.track_complaint(text, text) to anon, authenticated;
+
+   -- Storage: create a PUBLIC bucket named "complaint-images"
+   -- (Supabase Dashboard → Storage → New bucket → name: complaint-images → Public)
+   ============================================================ */
+
+const SUPABASE_URL = 'https://rzibqgnhzphlmjkzwota.supabase.co';
+const SUPABASE_ANON_KEY = 'sb_publishable_CQawBi0OPWWHKBIUnHr1Dg_OK4cuKIh';
+const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+const COMPLAINT_IMAGE_BUCKET = 'complaint-images';
+
+/* ---------- mode switching ---------- */
+function setMode(mode){
+  const isSubmit = mode === 'submit';
+  document.getElementById('mode-btn-submit').classList.toggle('active', isSubmit);
+  document.getElementById('mode-btn-track').classList.toggle('active', !isSubmit);
+  document.getElementById('submit-panel').style.display = isSubmit ? 'block' : 'none';
+  document.getElementById('track-panel').style.display = isSubmit ? 'none' : 'block';
+}
+
+/* ---------- category selector ---------- */
+let SELECTED_CATEGORY = 'Order';
+function selectCategory(cat){
+  SELECTED_CATEGORY = cat;
+  document.querySelectorAll('.cat-pill').forEach(p=>p.classList.toggle('active', p.dataset.cat === cat));
+}
+
+/* ---------- image upload ---------- */
+let COMPLAINT_IMAGE_URL = null;
+async function handleComplaintImage(fileList){
+  const file = (fileList || [])[0];
+  document.getElementById('c-image-file').value = '';
+  if(!file) return;
+  if(file.size > 5 * 1024 * 1024){
+    document.getElementById('upload-status').textContent = 'Image is too large — please choose a file under 5MB.';
+    return;
+  }
+  const statusEl = document.getElementById('upload-status');
+  statusEl.textContent = 'Uploading…';
+  const safeName = file.name.toLowerCase().replace(/[^a-z0-9.]+/g, '-').replace(/-+/g,'-');
+  const path = `complaints/${Date.now()}-${Math.random().toString(36).slice(2,7)}-${safeName}`;
+  const { error: uploadError } = await sb.storage.from(COMPLAINT_IMAGE_BUCKET).upload(path, file, { upsert:false });
+  if(uploadError){
+    statusEl.innerHTML = `Upload failed: ${escapeHtml(uploadError.message)}. Make sure a public Storage bucket named "${COMPLAINT_IMAGE_BUCKET}" exists in Supabase, then try again.`;
+    return;
+  }
+  const { data } = sb.storage.from(COMPLAINT_IMAGE_BUCKET).getPublicUrl(path);
+  COMPLAINT_IMAGE_URL = data.publicUrl;
+  statusEl.textContent = 'Uploaded ✓';
+  document.getElementById('upload-preview-wrap').innerHTML = `
+    <div class="upload-preview">
+      <img src="${escapeHtml(COMPLAINT_IMAGE_URL)}" alt="Uploaded proof">
+      <div class="rm-img" onclick="removeComplaintImage()">✕</div>
+    </div>`;
+}
+function removeComplaintImage(){
+  COMPLAINT_IMAGE_URL = null;
+  document.getElementById('upload-preview-wrap').innerHTML = '';
+  document.getElementById('upload-status').textContent = '';
+}
+
+/* ---------- ticket id generation ---------- */
+const TICKET_CHARSET = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789'; // no 0/O/1/I to avoid confusion
+function generateTicketCode(){
+  let code = '';
+  for(let i=0;i<6;i++) code += TICKET_CHARSET[Math.floor(Math.random()*TICKET_CHARSET.length)];
+  return 'NFC-' + code;
+}
+async function generateUniqueTicketId(){
+  for(let attempt=0; attempt<5; attempt++){
+    const candidate = generateTicketCode();
+    const { data } = await sb.from('complaints').select('id').eq('ticket_id', candidate).limit(1);
+    if(!data || data.length === 0) return candidate;
+  }
+  return generateTicketCode() + Date.now().toString(36).slice(-3).toUpperCase();
+}
+
+/* ---------- submit complaint ---------- */
+function normalizePhone10(v){ return String(v||'').replace(/\D/g,'').slice(-10); }
+
+async function submitComplaint(){
+  const errBox = document.getElementById('submit-error');
+  errBox.classList.remove('show');
+
+  const name = document.getElementById('c-name').value.trim();
+  const mobile = normalizePhone10(document.getElementById('c-mobile').value);
+  const email = document.getElementById('c-email').value.trim();
+  const orderId = document.getElementById('c-order').value.trim();
+  const message = document.getElementById('c-message').value.trim();
+
+  if(!name){ return showSubmitError('Please enter your name.'); }
+  if(mobile.length < 10){ return showSubmitError('Please enter a valid 10-digit mobile number.'); }
+  if(email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)){ return showSubmitError('Please enter a valid email address, or leave it blank.'); }
+  if(!message || message.length < 8){ return showSubmitError('Please describe your complaint in a bit more detail.'); }
+
+  const btn = document.getElementById('submit-complaint-btn');
+  btn.disabled = true; btn.textContent = 'Submitting…';
+
+  try{
+    const ticketId = await generateUniqueTicketId();
+    const { error } = await sb.from('complaints').insert({
+      ticket_id: ticketId,
+      customer_name: name,
+      mobile: mobile,
+      email: email || null,
+      order_id: orderId || null,
+      category: SELECTED_CATEGORY,
+      message: message,
+      image_url: COMPLAINT_IMAGE_URL,
+      status: 'pending'
+    });
+
+    btn.disabled = false; btn.textContent = 'Submit Complaint';
+
+    if(error){
+      return showSubmitError("Something went wrong submitting your complaint. Please try again, or message us on WhatsApp.");
+    }
+
+    showSuccess(ticketId);
+  }catch(e){
+    btn.disabled = false; btn.textContent = 'Submit Complaint';
+    showSubmitError("Something went wrong. Please try again or message us on WhatsApp.");
+  }
+}
+function showSubmitError(msg){
+  const errBox = document.getElementById('submit-error');
+  errBox.textContent = msg;
+  errBox.classList.add('show');
+}
+function showSuccess(ticketId){
+  document.getElementById('submit-form-view').style.display = 'none';
+  document.getElementById('success-view').classList.add('show');
+  document.getElementById('success-ticket-id').textContent = ticketId;
+  const msg = encodeURIComponent(`Hi NF Naseem Fitness, I've just submitted a complaint. My Ticket ID is ${ticketId}.`);
+  document.getElementById('success-wa-btn').href = `https://wa.me/917738242258?text=${msg}`;
+}
+function copyTicketId(){
+  const id = document.getElementById('success-ticket-id').textContent;
+  navigator.clipboard?.writeText(id);
+  const btn = document.querySelector('.copy-btn');
+  const original = btn.innerHTML;
+  btn.innerHTML = '✓';
+  setTimeout(()=>{ btn.innerHTML = original; }, 1500);
+}
+function goTrackThisTicket(){
+  const id = document.getElementById('success-ticket-id').textContent;
+  setMode('track');
+  document.getElementById('track-ticket-id').value = id;
+  document.getElementById('track-mobile').focus();
+}
+
+/* ---------- track complaint ---------- */
+async function submitTrackComplaint(){
+  const errBox = document.getElementById('track-error');
+  const resultWrap = document.getElementById('track-result-wrap');
+  const loading = document.getElementById('track-loading');
+  const btn = document.getElementById('track-submit-btn');
+  errBox.classList.remove('show');
+  resultWrap.innerHTML = '';
+
+  const ticketId = document.getElementById('track-ticket-id').value.trim();
+  const mobile = normalizePhone10(document.getElementById('track-mobile').value);
+
+  if(ticketId.length < 4){ return showTrackError('Please enter a valid Ticket ID (e.g. NFC-4X7QZP).'); }
+  if(mobile.length < 10){ return showTrackError('Please enter the 10-digit mobile number used to submit the complaint.'); }
+
+  btn.disabled = true;
+  loading.style.display = 'flex';
+
+  try{
+    const { data, error } = await sb.rpc('track_complaint', { p_ticket: ticketId, p_mobile: mobile });
+    loading.style.display = 'none';
+    btn.disabled = false;
+
+    if(error){
+      return showTrackError("Couldn't reach our support system right now. Please try again in a moment.");
+    }
+    const match = (data || [])[0];
+    if(!match){
+      document.getElementById('track-error').innerHTML = "We couldn't find a ticket matching that ID and mobile number. Double-check both, or <a href=\"https://wa.me/917738242258?text=Hi%2C%20I%20need%20help%20finding%20my%20complaint%20ticket\" target=\"_blank\" rel=\"noopener\" style=\"color:var(--teal);text-decoration:underline;\">message us on WhatsApp</a>.";
+      document.getElementById('track-error').classList.add('show');
+      return;
+    }
+    renderComplaintTrackResult(match);
+  }catch(e){
+    loading.style.display = 'none';
+    btn.disabled = false;
+    showTrackError("Something went wrong. Please try again or message us on WhatsApp.");
+  }
+}
+function showTrackError(msg){
+  const errBox = document.getElementById('track-error');
+  errBox.textContent = msg;
+  errBox.classList.add('show');
+}
+
+function renderComplaintTrackResult(c){
+  const resultWrap = document.getElementById('track-result-wrap');
+  const placedDate = c.created_at ? new Date(c.created_at).toLocaleDateString('en-IN',{ day:'numeric', month:'short', year:'numeric', hour:'2-digit', minute:'2-digit' }) : '';
+  const checkIcon = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6"><path d="M20 6L9 17l-5-5"/></svg>';
+  const status = c.status || 'pending';
+  const statusLabel = status === 'pending' ? 'Pending' : status === 'in_progress' ? 'In Progress' : 'Resolved';
+
+  const steps = [
+    { title:'Complaint Received', sub:`Logged on ${placedDate}.`, done:true, current:false },
+    { title:'In Progress', sub: status==='in_progress' ? "Our team is currently working on this." : (status==='resolved' ? 'Reviewed and worked on by our team.' : 'Will begin once our team picks this up.'), done:(status==='in_progress'||status==='resolved'), current:status==='pending' },
+    { title:'Resolved', sub: status==='resolved' ? 'This complaint has been resolved.' : "We'll mark this complete once it's sorted.", done:status==='resolved', current:status==='in_progress' }
+  ];
+  const timelineHtml = steps.map(s=>{
+    const cls = s.done ? 'done' : (s.current ? 'current' : '');
+    return `<li class="track-step ${cls}"><div class="track-dot">${s.done ? checkIcon : ''}</div><div class="track-step-body"><div class="track-step-title">${s.title}</div><div class="track-step-sub">${escapeHtml(s.sub)}</div></div></li>`;
+  }).join('');
+
+  resultWrap.innerHTML = `
+    <div class="track-result">
+      <div class="track-result-head">
+        <span class="track-ref mono">${escapeHtml(c.ticket_id)}</span>
+        <span class="status-pill ${status}">${statusLabel}</span>
+      </div>
+      <div class="track-date" style="margin-bottom:20px;">Submitted ${placedDate} · ${escapeHtml(c.category)}${c.order_id ? ' · Order ' + escapeHtml(c.order_id) : ''}</div>
+      <ul class="track-timeline">${timelineHtml}</ul>
+      <div class="track-info-card">
+        <h5>Your Message</h5>
+        <p>${escapeHtml(c.message)}</p>
+        ${c.image_url ? `<img src="${escapeHtml(c.image_url)}" alt="Complaint proof">` : ''}
+      </div>
+      ${c.admin_note ? `<div class="track-info-card"><h5>Response From Our Team</h5><p>${escapeHtml(c.admin_note)}</p></div>` : ''}
+      <a class="btn btn-wa-fallback btn-primary" style="width:100%;justify-content:center;margin-bottom:10px;" href="https://wa.me/917738242258?text=${encodeURIComponent('Hi NF Naseem Fitness, following up on my ticket ' + c.ticket_id)}" target="_blank" rel="noopener">Follow Up on WhatsApp</a>
+      <div style="text-align:center;"><button class="track-back-btn" onclick="resetTrackPanel()">Track a different ticket</button></div>
+    </div>`;
+}
+function resetTrackPanel(){
+  document.getElementById('track-result-wrap').innerHTML = '';
+  document.getElementById('track-ticket-id').value = '';
+  document.getElementById('track-mobile').value = '';
+}
+
+/* ---------- utils ---------- */
+function escapeHtml(str){
+  return String(str ?? '').replace(/[&<>"']/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+}
+</script>
+
+</body>
+</html>
