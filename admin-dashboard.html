@@ -3103,110 +3103,154 @@ async function downloadBillPdf(){
   const b = buildBillData(o);
   const isCod = String(o.payment_method||'').toLowerCase() === 'cod';
 
-  const pageW = 80; // mm — standard receipt width
-  const margin = 4;
+  // Standard PDF fonts (Helvetica/Courier/Times) can't render emoji glyphs —
+  // strip them here so nothing prints as garbled boxes/accents in the PDF.
+  const stripEmoji = s => String(s || '')
+    .replace(/[\u{1F000}-\u{1FFFF}\u{2600}-\u{27BF}\u{2190}-\u{21FF}\u{2B00}-\u{2BFF}\uFE0F]/gu, '')
+    .replace(/\s+/g, ' ')
+    .trim();
+
+  const pageW = 80;              // mm — standard 80mm thermal receipt width
+  const margin = 6;              // generous margin so nothing touches the edge
   const contentW = pageW - margin*2;
   const centerX = pageW/2;
-  const lineH = 4.6;
 
-  // Estimate page height generously, then trim with a final crop-safe save.
-  const estLines = 42 + b.itemsArr.length*3;
-  const pageH = 30 + estLines*3.6;
+  // Build on an oversized canvas first; we trim the page to the exact
+  // content height at the very end, so nothing is ever cut off vertically
+  // and every line is wrapped/measured, so nothing is ever cut off horizontally.
+  const doc = new jsPDF({ unit:'mm', format:[pageW, 500] });
+  let y = margin;
 
-  const doc = new jsPDF({ unit:'mm', format:[pageW, pageH] });
-  let y = margin + 4;
+  const setF = (style, size) => { doc.setFont('helvetica', style); doc.setFontSize(size); };
 
-  const dash = () => {
-    doc.setLineDashPattern([0.8,0.8], 0);
+  const hr = (bold) => {
+    y += 1.2;
+    doc.setLineWidth(bold ? 0.5 : 0.2);
+    if(!bold) doc.setLineDashPattern([0.8,0.8], 0);
     doc.line(margin, y, pageW-margin, y);
     doc.setLineDashPattern([], 0);
-    y += 4;
-  };
-  const row = (label, val, bold) => {
-    doc.setFont('courier', bold ? 'bold' : 'normal');
-    doc.text(String(label), margin, y);
-    doc.text(String(val), pageW-margin, y, { align:'right' });
-    y += lineH;
-  };
-  const centerText = (text, size) => {
-    doc.setFontSize(size);
-    doc.text(text, centerX, y, { align:'center' });
-    y += size/2.4;
+    y += bold ? 3 : 3.4;
   };
 
-  doc.setFont('courier','bold');
-  centerText('NF NASEEM FITNESS', 11);
-  y += 1;
-  doc.setFont('courier','normal');
-  centerText('All Rights Reserved.', 8);
-  y += 1;
-  doc.setFontSize(7);
-  [
-    'NF NASEEM FITNESS - Official Mumbai Branch',
-    'Ground Floor, Shop No. 2, 23, Haji Kasam Chawl,',
-    'Maulana Azad Road, Two Tank, Mumbai Central,',
-    'Mumbai - 400008, Maharashtra',
-    `Ph: ${BILL_BUSINESS.phone}`,
-    `Website: ${BILL_BUSINESS.website}`,
-    BILL_BUSINESS.aiSupport
-  ].forEach(l => { doc.text(l, centerX, y, { align:'center' }); y += 3.6; });
-  y += 2;
-  doc.setFont('courier','bold');
-  centerText('RECEIPT', 9);
-  y += 1;
-  dash();
+  // Centered text, word-wrapped to fit inside the margins — long strings
+  // (like the AI-support line) now wrap onto a second line instead of
+  // running off the edge of the page.
+  const centerWrap = (text, size, style='normal', extraGap=1.4) => {
+    setF(style, size);
+    const lines = doc.splitTextToSize(String(text), contentW);
+    const lh = size * 0.42;
+    lines.forEach(l => { doc.text(l, centerX, y, { align:'center' }); y += lh; });
+    y += extraGap;
+  };
 
-  doc.setFontSize(8);
-  doc.setFont('courier','normal');
-  row(`Order #${o.id.slice(0,8).toUpperCase()}`, formatBillDate(o.created_at));
-  dash();
-  doc.setFont('courier','bold');
-  doc.text('DELIVERY DETAILS', margin, y); y += lineH;
-  doc.setFont('courier','normal');
-  doc.text(String(o.customer_name), margin, y); y += lineH;
-  doc.text(`Ph: ${o.phone||''}`, margin, y); y += lineH;
-  if(o.address){
-    doc.splitTextToSize(o.address, contentW).forEach(l => { doc.text(l, margin, y); y += 3.8; });
-  }
-  doc.text(billFulfilmentLabel(o), margin, y); y += lineH;
-  y += 1;
-  dash();
+  // Left-aligned block of wrapped lines
+  const leftWrap = (text, size, style='normal') => {
+    setF(style, size);
+    const lines = doc.splitTextToSize(String(text), contentW);
+    const lh = size * 0.42;
+    lines.forEach(l => { doc.text(l, margin, y); y += lh; });
+  };
 
-  doc.setFont('courier','bold');
-  doc.text('PRODUCT DETAILS', margin, y); y += lineH;
-  b.itemsArr.forEach(i => {
-    doc.setFont('courier','bold');
-    doc.splitTextToSize(String(i.name), contentW).forEach(l => { doc.text(l, margin, y); y += 3.8; });
-    doc.setFont('courier','normal');
-    doc.text(`Quantity: ${i.qty} x ${billMoney(i.price)}`, margin, y);
-    y += lineH;
+  // Label/value row — if both together are too wide for the page, the
+  // label wraps onto its own line(s) and the value drops to the next
+  // line, so figures never overlap or run off the receipt.
+  const row = (label, val, bold=false) => {
+    const size = 9;
+    setF(bold ? 'bold' : 'normal', size);
+    label = String(label); val = String(val);
+    const labelW = doc.getTextWidth(label);
+    const valW = doc.getTextWidth(val);
+    if(labelW + valW + 4 <= contentW){
+      doc.text(label, margin, y);
+      doc.text(val, pageW-margin, y, { align:'right' });
+      y += 5.2;
+    } else {
+      doc.splitTextToSize(label, contentW).forEach(l => { doc.text(l, margin, y); y += 4.6; });
+      doc.text(val, pageW-margin, y, { align:'right' });
+      y += 5.2;
+    }
+  };
+
+  const sectionLabel = (text) => {
+    setF('bold', 9);
+    doc.text(text.toUpperCase(), margin, y);
+    y += 5;
+  };
+
+  // ---------- HEADER ----------
+  centerWrap('NF NASEEM FITNESS', 15, 'bold', 1.2);
+  centerWrap('All Rights Reserved.', 8.5, 'normal', 1.6);
+  BILL_BUSINESS.addrLines.forEach((l, idx) => {
+    centerWrap(stripEmoji(l), 8, 'normal', idx === BILL_BUSINESS.addrLines.length-1 ? 1.8 : 0.2);
   });
-  dash();
+  centerWrap(`Ph: ${stripEmoji(BILL_BUSINESS.phone)}`, 8, 'normal', 0.6);
+  centerWrap(`Website: ${stripEmoji(BILL_BUSINESS.website)}`, 8, 'bold', 0.6);
+  centerWrap(stripEmoji(BILL_BUSINESS.aiSupport), 7.5, 'italic', 1.6);
+  centerWrap('RECEIPT', 12, 'bold', 0);
+  hr(true);
 
-  doc.setFont('courier','bold');
-  doc.text('PAYMENT SUMMARY', margin, y); y += lineH;
-  doc.setFont('courier','normal');
-  row('Subtotal', billMoney(b.subtotal));
-  if(b.discount > 0) row('Discount', '-'+billMoney(b.discount));
-  if(b.tax > 0) row('Tax', billMoney(b.tax));
-  row('TOTAL', billMoney(b.total), true);
+  // ---------- ORDER META ----------
+  row(`Order #${o.id.slice(0,8).toUpperCase()}`, formatBillDate(o.created_at), true);
+  hr(false);
+
+  // ---------- DELIVERY DETAILS ----------
+  sectionLabel('Delivery Details');
+  leftWrap(o.customer_name, 9, 'bold');
+  y += 4.6;
+  leftWrap(`Ph: ${o.phone||'—'}`, 9, 'normal');
+  y += 4.6;
+  if(o.address){ leftWrap(o.address, 8.5, 'normal'); }
+  leftWrap(billFulfilmentLabel(o), 9, 'normal');
+  y += 4.6 + 1.4;
+  hr(false);
+
+  // ---------- PRODUCT DETAILS ----------
+  sectionLabel('Product Details');
+  b.itemsArr.forEach(i => {
+    leftWrap(i.name, 9, 'bold');
+    y += 4.6;
+    leftWrap(`Quantity: ${i.qty} x Rs. ${billMoney(i.price)}`, 8.5, 'normal');
+    y += 4.6 + 1;
+  });
+  hr(false);
+
+  // ---------- PAYMENT SUMMARY ----------
+  sectionLabel('Payment Summary');
+  row('Subtotal', 'Rs. ' + billMoney(b.subtotal));
+  if(b.discount > 0) row('Discount', '-Rs. ' + billMoney(b.discount));
+  if(b.tax > 0) row('Tax', 'Rs. ' + billMoney(b.tax));
+  y += 1;
+  doc.setDrawColor(0); doc.setLineWidth(0.3);
+  doc.rect(margin, y-4, contentW, 7);
+  row('TOTAL', 'Rs. ' + billMoney(b.total), true);
+  y += 1.5;
   if(isCod){
-    row('Advance Paid', billMoney(b.advance));
-    row('BALANCE DUE (Cash)', billMoney(b.balance), true);
+    row('Advance Paid', 'Rs. ' + billMoney(b.advance));
+    doc.rect(margin, y-4, contentW, 7);
+    row('BALANCE DUE (Cash)', 'Rs. ' + billMoney(b.balance), true);
+    y += 1.5;
   }
-  dash();
-  doc.setFont('courier','bold');
-  doc.text('PAYMENT METHOD', margin, y); y += lineH;
-  doc.setFont('courier','normal');
-  doc.text(billPaymentLabel(o), margin, y); y += lineH;
-  dash();
-  centerText('Thank You! Visit Again.', 8);
-  doc.setFont('courier','bold');
-  centerText('NF NASEEM FITNESS', 8);
-  doc.setFont('courier','normal');
-  doc.setFontSize(7);
-  centerText('Premium Nutrition - Trusted Quality', 7);
-  centerText('Your Trust - Our Commitment', 7);
+  hr(false);
+
+  // ---------- PAYMENT METHOD ----------
+  sectionLabel('Payment Method');
+  leftWrap(billPaymentLabel(o), 9, 'normal');
+  y += 4.6 + 1.4;
+  hr(true);
+
+  // ---------- FOOTER ----------
+  centerWrap('Thank You! Visit Again.', 9, 'bold', 1.4);
+  centerWrap('NF NASEEM FITNESS', 9, 'bold', 1.2);
+  centerWrap('Premium Nutrition - Trusted Quality', 7.5, 'normal', 0.4);
+  centerWrap('Your Trust - Our Commitment', 7.5, 'normal', 0);
+
+  // Trim the oversized page down to exactly the content height so the
+  // final PDF has no wasted blank space and nothing is ever clipped.
+  const finalH = y + margin;
+  doc.internal.pageSize.height = finalH;
+  if(typeof doc.internal.pageSize.setHeight === 'function'){
+    doc.internal.pageSize.setHeight(finalH);
+  }
 
   doc.save(`NF-Bill-${o.id.slice(0,8)}.pdf`);
 }
