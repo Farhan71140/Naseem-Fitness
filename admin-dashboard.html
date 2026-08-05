@@ -738,6 +738,11 @@
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
         <span>Reviews</span>
       </button>
+      <button class="nav-btn" data-page="complaints" onclick="goPage('complaints')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="15.5" x2="12" y2="15.5"/></svg>
+        <span>Complaints</span>
+        <span class="tab-count" id="complaints-nav-badge" style="display:none;"></span>
+      </button>
       <button class="nav-btn" data-page="reports" onclick="goPage('reports')">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 3v18h18"/><rect x="7" y="12" width="3" height="6"/><rect x="12" y="8" width="3" height="10"/><rect x="17" y="5" width="3" height="13"/></svg>
         <span>Reports</span>
@@ -967,6 +972,56 @@
         <div id="reviews-list"></div>
         <div id="reviews-empty" class="empty-state" style="display:none;">
           <p>No reviews here yet. Customers can leave a review from your storefront.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ COMPLAINTS ============ -->
+    <section class="page" id="page-complaints">
+      <div class="page-head">
+        <div>
+          <span class="eyebrow">Support</span>
+          <h2>Complaints &amp; Grievances</h2>
+          <p>Every customer complaint gets a unique Ticket ID. Update its status as you work through it.</p>
+        </div>
+        <button class="btn btn-ghost" onclick="refreshComplaints()">↻ Refresh</button>
+      </div>
+
+      <div class="stat-grid">
+        <div class="stat-card">
+          <div class="stat-label">Pending</div>
+          <div class="stat-value" id="complaints-stat-pending">0</div>
+          <div class="stat-sub">Awaiting first response</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label dot-approved">In Progress</div>
+          <div class="stat-value" id="complaints-stat-progress">0</div>
+          <div class="stat-sub">Being worked on</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label dot-completed">Resolved</div>
+          <div class="stat-value" id="complaints-stat-resolved">0</div>
+          <div class="stat-sub">Closed out</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Total Tickets</div>
+          <div class="stat-value" id="complaints-stat-total">0</div>
+          <div class="stat-sub">All time</div>
+        </div>
+      </div>
+
+      <div style="display:flex;gap:10px;margin-bottom:20px;flex-wrap:wrap;">
+        <button class="preset-btn complaints-tab-btn active" data-tab="pending" onclick="setComplaintsTab('pending')">Pending <span class="tab-count" id="complaints-count-pending">0</span></button>
+        <button class="preset-btn complaints-tab-btn" data-tab="in_progress" onclick="setComplaintsTab('in_progress')">In Progress <span class="tab-count" id="complaints-count-in_progress">0</span></button>
+        <button class="preset-btn complaints-tab-btn" data-tab="resolved" onclick="setComplaintsTab('resolved')">Resolved <span class="tab-count" id="complaints-count-resolved">0</span></button>
+        <button class="preset-btn complaints-tab-btn" data-tab="all" onclick="setComplaintsTab('all')">All</button>
+      </div>
+
+      <div class="panel">
+        <div id="complaints-list"></div>
+        <div id="complaints-empty" class="empty-state" style="display:none;">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+          <p>No complaints here yet.</p>
         </div>
       </div>
     </section>
@@ -1496,6 +1551,72 @@
   </div>
 </div>
 
+<!-- ================= COMPLAINT MODAL ================= -->
+<div class="modal-overlay" id="complaint-modal">
+  <div class="modal">
+    <div class="modal-head">
+      <h3>Complaint <span class="mono" id="cm-ticket-id" style="color:var(--teal);"></span></h3>
+      <button class="modal-close" onclick="closeModal('complaint-modal')">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="field-row">
+        <div class="field">
+          <label>Customer</label>
+          <div class="mono" id="cm-customer" style="font-family:'Inter',sans-serif;padding:10px 12px;background:var(--iron);border-radius:6px;border:1px solid var(--line);"></div>
+        </div>
+        <div class="field">
+          <label>Mobile</label>
+          <div class="mono" id="cm-mobile" style="padding:10px 12px;background:var(--iron);border-radius:6px;border:1px solid var(--line);"></div>
+        </div>
+      </div>
+      <div class="field-row">
+        <div class="field">
+          <label>Email</label>
+          <div class="mono" id="cm-email" style="font-family:'Inter',sans-serif;padding:10px 12px;background:var(--iron);border-radius:6px;border:1px solid var(--line);"></div>
+        </div>
+        <div class="field">
+          <label>Order ID</label>
+          <div class="mono" id="cm-order" style="padding:10px 12px;background:var(--iron);border-radius:6px;border:1px solid var(--line);"></div>
+        </div>
+      </div>
+      <div class="field-row">
+        <div class="field">
+          <label>Category</label>
+          <div class="mono" id="cm-category" style="font-family:'Inter',sans-serif;padding:10px 12px;background:var(--iron);border-radius:6px;border:1px solid var(--line);"></div>
+        </div>
+        <div class="field">
+          <label>Submitted</label>
+          <div class="mono" id="cm-date" style="padding:10px 12px;background:var(--iron);border-radius:6px;border:1px solid var(--line);"></div>
+        </div>
+      </div>
+      <div class="field">
+        <label>Complaint Details</label>
+        <div id="cm-message" style="padding:12px 14px;background:var(--iron);border-radius:8px;border:1px solid var(--line);line-height:1.7;font-size:14px;"></div>
+      </div>
+      <div class="field" id="cm-image-wrap" style="display:none;">
+        <label>Photo Proof</label>
+        <img id="cm-image" src="" alt="Complaint proof" style="max-width:100%;max-height:280px;border-radius:8px;border:1px solid var(--line);display:block;">
+      </div>
+      <div class="field">
+        <label for="cm-status">Status</label>
+        <select id="cm-status">
+          <option value="pending">Pending</option>
+          <option value="in_progress">In Progress</option>
+          <option value="resolved">Resolved</option>
+        </select>
+      </div>
+      <div class="field">
+        <label for="cm-note">Response / Internal Note <span style="text-transform:none;font-family:'Inter',sans-serif;color:var(--paper-dim);">(visible to customer when tracking)</span></label>
+        <textarea id="cm-note" rows="3" placeholder="e.g. Replacement shipped via Shiprocket, AWB 123456789."></textarea>
+      </div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn btn-ghost" onclick="closeModal('complaint-modal')">Cancel</button>
+      <button class="btn btn-primary" onclick="saveComplaintUpdate()">Save Update</button>
+    </div>
+  </div>
+</div>
+
 <!-- ================= BILL MODAL ================= -->
 <div class="modal-overlay" id="bill-modal">
   <div class="modal" style="max-width:400px;">
@@ -1839,6 +1960,7 @@ function renderAll(){
   renderOffers();
   renderReports();
   renderReviews();
+  renderComplaints();
 }
 
 /* ---------- data access (Supabase) ---------- */
@@ -3190,6 +3312,126 @@ async function deleteReview(id){
   if(error){ showToast('Error: ' + error.message); return; }
   await renderReviews();
   showToast('Review deleted');
+}
+
+/* ---------- complaints ---------- */
+let ALL_COMPLAINTS_CACHE = [];
+let COMPLAINTS_TAB = 'pending';
+let CURRENT_COMPLAINT_ID = null;
+
+async function getComplaintsAdmin(){
+  const { data, error } = await sb.from('complaints').select('*').order('created_at', { ascending:false });
+  if(error){ showToast('Error loading complaints: ' + error.message); return []; }
+  return data;
+}
+async function renderComplaints(){
+  ALL_COMPLAINTS_CACHE = await getComplaintsAdmin();
+  renderComplaintsStats();
+  renderComplaintsTabCounts();
+  renderComplaintsList();
+}
+async function refreshComplaints(){
+  await renderComplaints();
+  showToast('Complaints refreshed');
+}
+function renderComplaintsStats(){
+  const counts = { pending:0, in_progress:0, resolved:0 };
+  ALL_COMPLAINTS_CACHE.forEach(c=>{ const s = c.status || 'pending'; if(counts[s] !== undefined) counts[s]++; });
+  document.getElementById('complaints-stat-pending').textContent = counts.pending;
+  document.getElementById('complaints-stat-progress').textContent = counts.in_progress;
+  document.getElementById('complaints-stat-resolved').textContent = counts.resolved;
+  document.getElementById('complaints-stat-total').textContent = ALL_COMPLAINTS_CACHE.length;
+  const badge = document.getElementById('complaints-nav-badge');
+  const openCount = counts.pending + counts.in_progress;
+  if(badge){
+    badge.textContent = openCount;
+    badge.style.display = openCount > 0 ? 'inline-block' : 'none';
+  }
+}
+function setComplaintsTab(tab){
+  COMPLAINTS_TAB = tab;
+  document.querySelectorAll('.complaints-tab-btn').forEach(b=>b.classList.toggle('active', b.dataset.tab===tab));
+  renderComplaintsList();
+}
+function renderComplaintsTabCounts(){
+  const counts = { pending:0, in_progress:0, resolved:0 };
+  ALL_COMPLAINTS_CACHE.forEach(c=>{ const s = c.status || 'pending'; if(counts[s] !== undefined) counts[s]++; });
+  document.getElementById('complaints-count-pending').textContent = counts.pending;
+  document.getElementById('complaints-count-in_progress').textContent = counts.in_progress;
+  document.getElementById('complaints-count-resolved').textContent = counts.resolved;
+}
+function complaintPillClass(status){
+  return status === 'pending' ? 'pending' : status === 'in_progress' ? 'approved' : 'completed';
+}
+function complaintStatusLabel(status){
+  return status === 'pending' ? 'Pending' : status === 'in_progress' ? 'In Progress' : 'Resolved';
+}
+function renderComplaintsList(){
+  let list = ALL_COMPLAINTS_CACHE;
+  if(COMPLAINTS_TAB !== 'all'){
+    list = list.filter(c => (c.status || 'pending') === COMPLAINTS_TAB);
+  }
+  const wrap = document.getElementById('complaints-list');
+  const empty = document.getElementById('complaints-empty');
+  if(list.length === 0){
+    wrap.innerHTML = '';
+    empty.style.display = 'block';
+    return;
+  }
+  empty.style.display = 'none';
+  wrap.innerHTML = list.map(c=>{
+    const status = c.status || 'pending';
+    return `
+      <div class="review-admin-card">
+        <div class="review-admin-head">
+          <span class="mono" style="color:var(--teal);">${escapeHtml(c.ticket_id)}</span>
+          <span class="review-admin-name">${escapeHtml(c.customer_name)}</span>
+          <span class="review-admin-product">${escapeHtml(c.category)}</span>
+          ${c.order_id ? `<span class="mono" style="font-size:12px;color:var(--paper-dim);">Order ${escapeHtml(c.order_id)}</span>` : ''}
+          <span class="status-pill ${complaintPillClass(status)}">${complaintStatusLabel(status)}</span>
+          <span class="review-admin-date">${formatDate(c.created_at)}</span>
+        </div>
+        <div class="review-admin-text">${escapeHtml((c.message||'').length > 160 ? c.message.slice(0,160)+'…' : (c.message||''))}</div>
+        <div class="review-admin-actions">
+          <button class="btn btn-primary btn-sm" onclick="openComplaintModal('${c.id}')">View / Update</button>
+          <a class="btn btn-ghost btn-sm" href="https://wa.me/91${c.mobile}" target="_blank" rel="noopener">WhatsApp Customer</a>
+        </div>
+      </div>
+    `;
+  }).join('');
+}
+function openComplaintModal(id){
+  const c = ALL_COMPLAINTS_CACHE.find(x => x.id === id);
+  if(!c) return;
+  CURRENT_COMPLAINT_ID = id;
+  document.getElementById('cm-ticket-id').textContent = c.ticket_id;
+  document.getElementById('cm-customer').textContent = c.customer_name;
+  document.getElementById('cm-mobile').textContent = c.mobile;
+  document.getElementById('cm-email').textContent = c.email || '—';
+  document.getElementById('cm-order').textContent = c.order_id || '—';
+  document.getElementById('cm-category').textContent = c.category;
+  document.getElementById('cm-date').textContent = formatDate(c.created_at);
+  document.getElementById('cm-message').textContent = c.message;
+  document.getElementById('cm-status').value = c.status || 'pending';
+  document.getElementById('cm-note').value = c.admin_note || '';
+  const imgWrap = document.getElementById('cm-image-wrap');
+  if(c.image_url){
+    imgWrap.style.display = 'block';
+    document.getElementById('cm-image').src = c.image_url;
+  } else {
+    imgWrap.style.display = 'none';
+  }
+  document.getElementById('complaint-modal').classList.add('active');
+}
+async function saveComplaintUpdate(){
+  if(!CURRENT_COMPLAINT_ID) return;
+  const status = document.getElementById('cm-status').value;
+  const admin_note = document.getElementById('cm-note').value.trim();
+  const { error } = await sb.from('complaints').update({ status, admin_note, updated_at: new Date().toISOString() }).eq('id', CURRENT_COMPLAINT_ID);
+  if(error){ showToast('Error: ' + error.message); return; }
+  closeModal('complaint-modal');
+  await renderComplaints();
+  showToast('Complaint updated');
 }
 
 /* ---------- settings ---------- */
