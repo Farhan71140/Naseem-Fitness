@@ -160,7 +160,7 @@
   .nav-search{
     display:flex;align-items:center;gap:8px;
     background:var(--iron);border:1px solid var(--line);border-radius:30px;
-    padding:9px 14px;flex:0 1 160px;min-width:0;
+    padding:9px 14px;flex:0 1 210px;min-width:0;
     transition:border-color .2s ease, background .2s ease;
   }
   .nav-search:focus-within{border-color:var(--teal);background:var(--steel);}
@@ -181,8 +181,16 @@
   .mic-btn.listening{color:var(--teal);animation:mic-pulse 1s ease-in-out infinite;}
   @keyframes mic-pulse{0%,100%{opacity:1;}50%{opacity:0.4;}}
   .mic-btn.unsupported{display:none;}
+  .cam-btn{
+    display:inline-flex;align-items:center;justify-content:center;
+    width:22px;height:22px;border-radius:50%;border:none;background:transparent;
+    color:var(--paper-dim);cursor:pointer;flex:none;padding:0;transition:color .2s ease;
+  }
+  .cam-btn svg{width:16px;height:16px;}
+  .cam-btn:hover{color:var(--teal);}
   .nav-search-mobile{display:none;}
   .mobile-icons{display:none;}
+  .mobile-right-group{display:flex;align-items:center;gap:14px;}
   .icon-btn{
     display:inline-flex;align-items:center;justify-content:center;
     width:40px;height:40px;border-radius:50%;
@@ -190,20 +198,13 @@
     cursor:pointer;position:relative;flex:none;
   }
   .icon-btn svg{width:18px;height:18px;}
-  .mobile-search-bar{display:none;padding:0 20px 16px;border-top:1px solid var(--line);align-items:center;gap:12px;background:var(--ink-black);}
-  .mobile-search-bar .nav-search{flex:1 1 auto;margin-top:14px;}
-  .search-close-btn{
-    display:none;margin-top:14px;color:var(--paper-dim);font-size:18px;cursor:pointer;flex:none;
-  }
-  #search-toggle:checked ~ nav .mobile-icons{ } /* keep icon row visible while search is open */
-  @media (max-width:1180px){
-    #search-toggle:checked ~ .mobile-search-bar{display:flex;}
-  }
+  .mobile-search-bar{display:none;padding:0 20px 14px;gap:12px;background:var(--ink-black);}
+  .mobile-search-bar .nav-search{flex:1 1 auto;width:100%;}
   @media (max-width:1180px){
     .nav-links{display:none;} .nav-cta{display:none;}
     .nav-search{display:none;}
     .mobile-icons{display:flex;gap:10px;align-items:center;}
-    .search-close-btn{display:block;}
+    .mobile-search-bar{display:flex;border-top:1px solid var(--line);padding-top:12px;}
     .mobile-search-bar .nav-search{display:flex;}
   }
 
@@ -911,6 +912,35 @@
   .drawer-close:hover{color:var(--teal);}
   .drawer-body{flex:1;overflow-y:auto;padding:18px 24px;}
   .drawer-foot{padding:20px 24px;border-top:1px solid var(--line);}
+
+  /* ===== PHOTO SEARCH ===== */
+  .photo-search-overlay{display:none;position:fixed;inset:0;background:rgba(10,8,6,0.7);backdrop-filter:blur(3px);z-index:220;align-items:center;justify-content:center;padding:20px;}
+  .photo-search-overlay.active{display:flex;}
+  .photo-search-card{
+    width:100%;max-width:360px;background:var(--steel);border:1px solid var(--line);border-radius:16px;
+    padding:26px 24px;text-align:center;
+  }
+  .photo-search-card h3{font-size:17px;margin-bottom:6px;}
+  .photo-search-card p{color:var(--paper-dim);font-size:13px;margin-bottom:20px;line-height:1.5;}
+  .photo-search-options{display:flex;flex-direction:column;gap:12px;}
+  .photo-search-option-btn{
+    display:flex;align-items:center;gap:12px;padding:14px 16px;border-radius:10px;
+    border:1px solid var(--line);background:var(--iron);color:var(--paper);cursor:pointer;
+    font-size:14px;font-weight:600;text-align:left;transition:border-color .2s ease;width:100%;
+  }
+  .photo-search-option-btn:hover{border-color:var(--teal);}
+  .photo-search-option-btn svg{width:20px;height:20px;color:var(--teal);flex:none;}
+  .photo-search-cancel{margin-top:16px;background:transparent;border:none;color:var(--paper-dim);font-size:13px;cursor:pointer;}
+  .photo-search-cancel:hover{color:var(--paper);}
+  .photo-search-loading{display:none;flex-direction:column;align-items:center;gap:16px;}
+  .photo-search-loading.active{display:flex;}
+  .photo-search-preview{width:96px;height:96px;border-radius:12px;object-fit:cover;border:1px solid var(--line);}
+  .photo-search-spinner{
+    width:34px;height:34px;border-radius:50%;border:3px solid var(--line);border-top-color:var(--teal);
+    animation:pss-spin 0.8s linear infinite;
+  }
+  @keyframes pss-spin{to{transform:rotate(360deg);}}
+  .photo-search-status{font-size:13px;color:var(--paper-dim);}
   .cart-line{display:flex;gap:12px;align-items:center;padding:14px 0;border-bottom:1px solid var(--line);}
   .cart-line-info{flex:1;min-width:0;}
   .cart-line-info h5{font-size:13.5px;font-weight:700;margin-bottom:3px;}
@@ -1326,7 +1356,6 @@
 <header>
   <div class="topbar"><div class="topbar-track" id="topbar-track"><span>100% GENUINE STOCK · VERIFY EVERY BATCH · FREE SHIPPING ACROSS INDIA ON ORDERS ₹899+</span><span>100% GENUINE STOCK · VERIFY EVERY BATCH · FREE SHIPPING ACROSS INDIA ON ORDERS ₹899+</span><span>100% GENUINE STOCK · VERIFY EVERY BATCH · FREE SHIPPING ACROSS INDIA ON ORDERS ₹899+</span><span>100% GENUINE STOCK · VERIFY EVERY BATCH · FREE SHIPPING ACROSS INDIA ON ORDERS ₹899+</span></div></div>
   <input type="checkbox" id="nav-toggle" class="nav-toggle-input">
-  <input type="checkbox" id="search-toggle" class="nav-toggle-input" onchange="if(this.checked){setTimeout(()=>document.getElementById('search-input-mobile-bar').focus(),80)}">
   <nav class="wrap">
     <a class="brand" href="#top">
       <img src="assets/logo.png" alt="NF Naseem Fitness logo">
@@ -1355,6 +1384,9 @@
         oninput="handleSearchInput(this.value)"
         onfocus="goToProducts()"
         onkeydown="if(event.key==='Enter'){goToProducts();this.blur();}">
+      <button type="button" class="cam-btn" id="cam-btn-desktop" aria-label="Search by photo" onclick="openPhotoSearchSheet('desktop')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 8a2 2 0 0 1 2-2h1.2l.9-1.4A1.8 1.8 0 0 1 9.6 4h4.8a1.8 1.8 0 0 1 1.5.9L16.8 6H18a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V8z"/><circle cx="12" cy="13" r="3.4"/></svg>
+      </button>
       <button type="button" class="mic-btn" id="mic-btn-desktop" aria-label="Search by voice" onclick="startVoiceSearch('desktop')">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 15a3 3 0 0 0 3-3V6a3 3 0 0 0-6 0v6a3 3 0 0 0 3 3z"/><path d="M19 11a7 7 0 0 1-14 0"/><path d="M12 18v3"/></svg>
       </button>
@@ -1366,21 +1398,20 @@
         <span class="cart-count" id="cart-count-desktop" style="display:none;">0</span>
       </button>
     </div>
-    <div class="mobile-icons">
-      <label for="search-toggle" class="icon-btn" aria-label="Search products">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
+    <div class="mobile-right-group">
+      <div class="mobile-icons">
+        <button class="icon-btn" aria-label="Track order" onclick="openTrackOrder()">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="1" y="6" width="14" height="11"/><path d="M15 9h4l3 3v5h-7z"/><circle cx="6" cy="19.5" r="1.6"/><circle cx="17.5" cy="19.5" r="1.6"/></svg>
+        </button>
+        <button class="icon-btn" aria-label="Open cart" onclick="openCart()">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><circle cx="9" cy="21" r="1.4"/><circle cx="19" cy="21" r="1.4"/><path d="M2.5 3h2l2.7 12.6a2 2 0 0 0 2 1.6h8.2a2 2 0 0 0 2-1.6L21 8H6"/></svg>
+          <span class="cart-count" id="cart-count-icon" style="display:none;">0</span>
+        </button>
+      </div>
+      <label for="nav-toggle" class="hamburger-btn" aria-label="Open menu">
+        <span></span><span></span><span></span>
       </label>
-      <button class="icon-btn" aria-label="Track order" onclick="openTrackOrder()">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="1" y="6" width="14" height="11"/><path d="M15 9h4l3 3v5h-7z"/><circle cx="6" cy="19.5" r="1.6"/><circle cx="17.5" cy="19.5" r="1.6"/></svg>
-      </button>
-      <button class="icon-btn" aria-label="Open cart" onclick="openCart()">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><circle cx="9" cy="21" r="1.4"/><circle cx="19" cy="21" r="1.4"/><path d="M2.5 3h2l2.7 12.6a2 2 0 0 0 2 1.6h8.2a2 2 0 0 0 2-1.6L21 8H6"/></svg>
-        <span class="cart-count" id="cart-count-icon" style="display:none;">0</span>
-      </button>
     </div>
-    <label for="nav-toggle" class="hamburger-btn" aria-label="Open menu">
-      <span></span><span></span><span></span>
-    </label>
   </nav>
   <div class="mobile-search-bar">
     <div class="nav-search">
@@ -1391,12 +1422,14 @@
         placeholder="Search products…"
         aria-label="Search products"
         oninput="handleSearchInput(this.value)"
-        onkeydown="if(event.key==='Enter'){goToProducts();this.blur();document.getElementById('search-toggle').checked=false;}">
+        onkeydown="if(event.key==='Enter'){goToProducts();this.blur();}">
+      <button type="button" class="cam-btn" id="cam-btn-mobile" aria-label="Search by photo" onclick="openPhotoSearchSheet('mobile')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 8a2 2 0 0 1 2-2h1.2l.9-1.4A1.8 1.8 0 0 1 9.6 4h4.8a1.8 1.8 0 0 1 1.5.9L16.8 6H18a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V8z"/><circle cx="12" cy="13" r="3.4"/></svg>
+      </button>
       <button type="button" class="mic-btn" id="mic-btn-mobile" aria-label="Search by voice" onclick="startVoiceSearch('mobile')">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 15a3 3 0 0 0 3-3V6a3 3 0 0 0-6 0v6a3 3 0 0 0 3 3z"/><path d="M19 11a7 7 0 0 1-14 0"/><path d="M12 18v3"/></svg>
       </button>
     </div>
-    <label for="search-toggle" class="search-close-btn" aria-label="Close search">✕</label>
   </div>
   <div class="mobile-menu">
     <a href="#top" onclick="document.getElementById('nav-toggle').checked=false">Home</a>
@@ -1413,6 +1446,35 @@
     </div>
   </div>
 </header>
+
+<!-- PHOTO SEARCH -->
+<input type="file" id="photo-search-camera-input" accept="image/*" capture="environment" style="display:none" onchange="handlePhotoSearchFile(this.files)">
+<input type="file" id="photo-search-gallery-input" accept="image/*" style="display:none" onchange="handlePhotoSearchFile(this.files)">
+<div class="photo-search-overlay" id="photo-search-overlay">
+  <div class="photo-search-card">
+    <div id="photo-search-choice-view">
+      <h3>Search by Photo</h3>
+      <p>Take a photo or choose one from your gallery — we'll match it to a product.</p>
+      <div class="photo-search-options">
+        <button type="button" class="photo-search-option-btn" onclick="triggerPhotoCapture()">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 8a2 2 0 0 1 2-2h1.2l.9-1.4A1.8 1.8 0 0 1 9.6 4h4.8a1.8 1.8 0 0 1 1.5.9L16.8 6H18a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V8z"/><circle cx="12" cy="13" r="3.4"/></svg>
+          Take Photo
+        </button>
+        <button type="button" class="photo-search-option-btn" onclick="triggerPhotoGallery()">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="m21 15-5-5L5 21"/></svg>
+          Choose From Gallery
+        </button>
+      </div>
+      <button type="button" class="photo-search-cancel" onclick="closePhotoSearchSheet()">Cancel</button>
+    </div>
+    <div class="photo-search-loading" id="photo-search-loading-view">
+      <img id="photo-search-preview-img" class="photo-search-preview" alt="Uploaded photo">
+      <div class="photo-search-spinner"></div>
+      <div class="photo-search-status" id="photo-search-status">Matching your photo to our products…</div>
+      <button type="button" class="photo-search-cancel" onclick="closePhotoSearchSheet()">Cancel</button>
+    </div>
+  </div>
+</div>
 
 <main id="top">
   <!-- HERO -->
@@ -2258,6 +2320,7 @@ async function loadProducts(){
   }
   PRODUCTS = data || [];
   window.PRODUCTS = PRODUCTS; // expose to ai-chat.js so the AI assistant sees the live catalog
+  PHOTO_SEARCH_HASH_CACHE = null; // invalidate photo-search cache so it re-hashes the fresh catalog
   if(PRODUCTS.length===0){
     grid.innerHTML = `<div class="prod-empty">New stock coming soon — check back shortly.</div>`;
     return;
@@ -2476,10 +2539,12 @@ function applyFilters(){
     list = list.filter(p => p.category && p.category.toLowerCase() === ACTIVE_CATEGORY.toLowerCase());
   }
   if(q){
+    const searchTokens = q.split(/\s+/).filter(Boolean);
     list = list.filter(p=>{
-      return (p.name && p.name.toLowerCase().includes(q))
-          || (p.brand && p.brand.toLowerCase().includes(q))
-          || (p.category && p.category.toLowerCase().includes(q));
+      const flavorNames = Array.isArray(p.flavors) ? p.flavors.map(f=>f.name || '').join(' ') : '';
+      const combined = [p.name, p.brand, p.category, flavorNames].filter(Boolean).join(' ').toLowerCase();
+      // every spoken/typed word should appear somewhere across the product's fields
+      return searchTokens.every(t => combined.includes(t));
     });
   }
   renderProducts(list);
@@ -2560,11 +2625,7 @@ function startVoiceSearch(which){
 
   recognition.onresult = (event) => {
     const transcript = event.results[0][0].transcript;
-    handleSearchInput(transcript);
-    goToProducts();
-    if(which === 'mobile'){
-      document.getElementById('search-input-mobile-bar').blur();
-    }
+    handleVoiceResult(transcript, which);
   };
 
   recognition.onerror = (event) => {
@@ -2588,6 +2649,242 @@ function startVoiceSearch(which){
     voiceRecognition = null;
     voiceListeningBtn = null;
   }
+}
+
+/* ---------- smart voice -> product matching ---------- */
+// common Hindi/Hinglish/English filler words spoken around a product name,
+// stripped out so only the meaningful product words remain
+const VOICE_FILLER_WORDS = new Set([
+  'mujhe','muje','mereko','mujhko','mera','meko','hume','humein',
+  'chahiye','chahiy','chaiye','chhaiye',
+  'please','kripya','kindly',
+  'dikhao','dikhaiye','dikhaye','dikha','dikhado','dikha do','batao','bataiye','batado',
+  'do','you','have','got','i','want','need','show','me','a','an','the',
+  'ek','ka','ki','ke','liye','hai','kya','wala','wali','vala','wale',
+  'search','find','look','for','of','se','ko','ki','ka','me','mein'
+]);
+
+function cleanVoiceTranscript(transcript){
+  const rawTokens = transcript.toLowerCase().trim().split(/\s+/).filter(Boolean);
+  const tokens = rawTokens.filter(w => !VOICE_FILLER_WORDS.has(w));
+  return tokens.length ? tokens : rawTokens; // never strip everything away
+}
+
+// scores every product against the spoken words and returns matches sorted
+// best-first, so we can tell a specific product apart from a broad category
+function scoreProductsAgainstVoice(tokens){
+  const searchText = tokens.join(' ');
+  if(!Array.isArray(PRODUCTS) || !PRODUCTS.length) return [];
+
+  const scored = PRODUCTS.map(p=>{
+    const nameLower = (p.name || '').toLowerCase();
+    const brandLower = (p.brand || '').toLowerCase();
+    const categoryLower = (p.category || '').toLowerCase();
+    const flavorLower = Array.isArray(p.flavors) ? p.flavors.map(f=>(f.name||'').toLowerCase()).join(' ') : '';
+
+    let score = 0;
+    if(nameLower && searchText.includes(nameLower)) score += 5;       // full product name spoken
+    if(brandLower && searchText.includes(brandLower)) score += 4;     // full brand spoken
+    if(categoryLower && searchText.includes(categoryLower)) score += 3; // full category spoken
+
+    const nameTokens = nameLower.split(/\s+/).filter(Boolean);
+    const brandTokens = brandLower.split(/\s+/).filter(Boolean);
+    const catTokens = categoryLower.split(/\s+/).filter(Boolean);
+    const flavorTokens = flavorLower.split(/\s+/).filter(Boolean);
+
+    tokens.forEach(t=>{
+      if(nameTokens.includes(t)) score += 1.2;
+      if(brandTokens.includes(t)) score += 1.2;
+      if(catTokens.includes(t)) score += 0.6;
+      if(flavorTokens.includes(t)) score += 0.6;
+    });
+
+    return { product: p, score };
+  }).filter(s => s.score > 0);
+
+  scored.sort((a,b)=> b.score - a.score);
+  return scored;
+}
+
+function handleVoiceResult(transcript, which){
+  const tokens = cleanVoiceTranscript(transcript);
+  const matches = scoreProductsAgainstVoice(tokens);
+
+  const top = matches[0];
+  const second = matches[1];
+  // "strong" = clearly points at one specific product (e.g. brand + product name spoken,
+  // or the product name alone strongly matched) rather than a broad category like "whey protein"
+  const isStrongSingleMatch = top && top.score >= 4.5 && (!second || (top.score - second.score) >= 2);
+
+  if(isStrongSingleMatch){
+    // reflect what we understood in the search box, then jump straight to that product
+    document.getElementById('search-input-desktop').value = top.product.name;
+    document.getElementById('search-input-mobile-bar').value = top.product.name;
+    ACTIVE_CATEGORY = '';
+    const catBar = document.getElementById('active-category-bar');
+    if(catBar) catBar.style.display = 'none';
+    applyFilters();
+    goToProducts();
+    if(which === 'mobile') document.getElementById('search-input-mobile-bar').blur();
+    setTimeout(()=> openQuickView(top.product.id), 450);
+    return;
+  }
+
+  // broader term (e.g. "whey protein", "protein bar", "shilajit") -> show all matching products
+  const cleanedQuery = tokens.join(' ');
+  handleSearchInput(cleanedQuery || transcript);
+  goToProducts();
+  if(which === 'mobile') document.getElementById('search-input-mobile-bar').blur();
+}
+
+/* ---------- photo search (image upload + perceptual-hash matching) ---------- */
+let PHOTO_SEARCH_HASH_CACHE = null; // cached {product, hash}[] so we don't re-hash every search
+
+function openPhotoSearchSheet(which){
+  document.getElementById('photo-search-choice-view').style.display = 'block';
+  document.getElementById('photo-search-loading-view').classList.remove('active');
+  document.getElementById('photo-search-overlay').classList.add('active');
+}
+function closePhotoSearchSheet(){
+  document.getElementById('photo-search-overlay').classList.remove('active');
+  document.getElementById('photo-search-camera-input').value = '';
+  document.getElementById('photo-search-gallery-input').value = '';
+}
+function triggerPhotoCapture(){
+  document.getElementById('photo-search-camera-input').click();
+}
+function triggerPhotoGallery(){
+  document.getElementById('photo-search-gallery-input').click();
+}
+
+function loadImageEl(src){
+  return new Promise((resolve, reject)=>{
+    const img = new Image();
+    img.crossOrigin = 'anonymous'; // needed to read pixel data from remote product photos
+    img.onload = () => resolve(img);
+    img.onerror = reject;
+    img.src = src;
+  });
+}
+
+// simple 8x8 average-hash (aHash): fast, free, runs entirely in the browser,
+// good enough to tell visually different products apart
+function computeImageHash(imgEl){
+  const size = 8;
+  const canvas = document.createElement('canvas');
+  canvas.width = size; canvas.height = size;
+  const ctx = canvas.getContext('2d');
+  ctx.drawImage(imgEl, 0, 0, size, size);
+  let data;
+  try{
+    data = ctx.getImageData(0, 0, size, size).data;
+  }catch(e){
+    return null; // image blocked by CORS - can't be read pixel-by-pixel, skip it
+  }
+  const gray = [];
+  for(let i = 0; i < data.length; i += 4){
+    gray.push((data[i] + data[i+1] + data[i+2]) / 3);
+  }
+  const avg = gray.reduce((a,b)=>a+b, 0) / gray.length;
+  return gray.map(g => g >= avg ? '1' : '0').join('');
+}
+function hashDistance(a, b){
+  if(!a || !b || a.length !== b.length) return Infinity;
+  let d = 0;
+  for(let i = 0; i < a.length; i++) if(a[i] !== b[i]) d++;
+  return d;
+}
+
+async function buildPhotoHashCache(){
+  if(PHOTO_SEARCH_HASH_CACHE) return PHOTO_SEARCH_HASH_CACHE;
+  const entries = await Promise.all(PRODUCTS.map(async (p) => {
+    const imgs = getProductImages(p);
+    if(!imgs.length) return null;
+    try{
+      const imgEl = await loadImageEl(imgs[0]);
+      const hash = computeImageHash(imgEl);
+      return hash ? { product: p, hash } : null;
+    }catch(e){
+      return null; // image failed to load / blocked - skip this product
+    }
+  }));
+  PHOTO_SEARCH_HASH_CACHE = entries.filter(Boolean);
+  return PHOTO_SEARCH_HASH_CACHE;
+}
+
+async function handlePhotoSearchFile(files){
+  if(!files || !files.length) return;
+  const file = files[0];
+
+  document.getElementById('photo-search-choice-view').style.display = 'none';
+  const loadingView = document.getElementById('photo-search-loading-view');
+  loadingView.classList.add('active');
+  const statusEl = document.getElementById('photo-search-status');
+  const previewImg = document.getElementById('photo-search-preview-img');
+  statusEl.textContent = 'Reading your photo…';
+
+  const reader = new FileReader();
+  reader.onload = async (e) => {
+    previewImg.src = e.target.result;
+    try{
+      const uploadedImg = await loadImageEl(e.target.result);
+      const uploadedHash = computeImageHash(uploadedImg);
+      if(!uploadedHash){
+        closePhotoSearchSheet();
+        alert('Could not read that photo. Please try a different one.');
+        return;
+      }
+
+      statusEl.textContent = 'Comparing with our products…';
+      const cache = await buildPhotoHashCache();
+
+      if(!cache.length){
+        closePhotoSearchSheet();
+        alert('Photo search could not compare against our catalog right now. Please try text or voice search instead.');
+        return;
+      }
+
+      let best = null;
+      cache.forEach(entry => {
+        const dist = hashDistance(uploadedHash, entry.hash);
+        if(!best || dist < best.dist) best = { product: entry.product, dist };
+      });
+
+      closePhotoSearchSheet();
+
+      if(best && best.dist <= 10){
+        // confident match — open that exact product
+        document.getElementById('search-input-desktop').value = best.product.name;
+        document.getElementById('search-input-mobile-bar').value = best.product.name;
+        ACTIVE_CATEGORY = '';
+        const catBar = document.getElementById('active-category-bar');
+        if(catBar) catBar.style.display = 'none';
+        applyFilters();
+        goToProducts();
+        setTimeout(()=> openQuickView(best.product.id), 350);
+      } else if(best && best.dist <= 20){
+        // not fully confident — show it as a suggestion in the grid rather than guessing
+        document.getElementById('search-input-desktop').value = best.product.name;
+        document.getElementById('search-input-mobile-bar').value = best.product.name;
+        ACTIVE_CATEGORY = '';
+        const catBar = document.getElementById('active-category-bar');
+        if(catBar) catBar.style.display = 'none';
+        applyFilters();
+        goToProducts();
+        alert("We couldn't find an exact match — here's the closest product we found. Try text or voice search if this isn't right.");
+      } else {
+        alert('Sorry, we could not match this photo to any product. Please try text or voice search instead.');
+      }
+    }catch(err){
+      closePhotoSearchSheet();
+      alert('Something went wrong processing the photo. Please try again.');
+    }
+  };
+  reader.onerror = () => {
+    closePhotoSearchSheet();
+    alert('Could not read that photo. Please try again.');
+  };
+  reader.readAsDataURL(file);
 }
 
 /* ---------- cart ---------- */
