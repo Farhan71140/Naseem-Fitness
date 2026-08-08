@@ -171,6 +171,16 @@
   }
   .nav-search input::placeholder{color:var(--paper-dim);}
   .nav-search input::-webkit-search-cancel-button{filter:invert(1);opacity:0.6;cursor:pointer;}
+  .mic-btn{
+    display:inline-flex;align-items:center;justify-content:center;
+    width:22px;height:22px;border-radius:50%;border:none;background:transparent;
+    color:var(--paper-dim);cursor:pointer;flex:none;padding:0;transition:color .2s ease;
+  }
+  .mic-btn svg{width:16px;height:16px;}
+  .mic-btn:hover{color:var(--teal);}
+  .mic-btn.listening{color:var(--teal);animation:mic-pulse 1s ease-in-out infinite;}
+  @keyframes mic-pulse{0%,100%{opacity:1;}50%{opacity:0.4;}}
+  .mic-btn.unsupported{display:none;}
   .nav-search-mobile{display:none;}
   .mobile-icons{display:none;}
   .icon-btn{
@@ -1345,6 +1355,9 @@
         oninput="handleSearchInput(this.value)"
         onfocus="goToProducts()"
         onkeydown="if(event.key==='Enter'){goToProducts();this.blur();}">
+      <button type="button" class="mic-btn" id="mic-btn-desktop" aria-label="Search by voice" onclick="startVoiceSearch('desktop')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 15a3 3 0 0 0 3-3V6a3 3 0 0 0-6 0v6a3 3 0 0 0 3 3z"/><path d="M19 11a7 7 0 0 1-14 0"/><path d="M12 18v3"/></svg>
+      </button>
     </div>
     <div class="nav-cta">
       <a class="btn btn-wa" href="https://wa.me/917738242258?text=Hi%20NF%20Naseem%20Fitness" target="_blank" rel="noopener">WhatsApp Us</a>
@@ -1379,6 +1392,9 @@
         aria-label="Search products"
         oninput="handleSearchInput(this.value)"
         onkeydown="if(event.key==='Enter'){goToProducts();this.blur();document.getElementById('search-toggle').checked=false;}">
+      <button type="button" class="mic-btn" id="mic-btn-mobile" aria-label="Search by voice" onclick="startVoiceSearch('mobile')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 15a3 3 0 0 0 3-3V6a3 3 0 0 0-6 0v6a3 3 0 0 0 3 3z"/><path d="M19 11a7 7 0 0 1-14 0"/><path d="M12 18v3"/></svg>
+      </button>
     </div>
     <label for="search-toggle" class="search-close-btn" aria-label="Close search">✕</label>
   </div>
@@ -2503,6 +2519,75 @@ function clearCategoryFilter(){
 }
 function goToProducts(){
   document.getElementById('products').scrollIntoView({behavior:'smooth'});
+}
+
+/* ---------- voice search (Web Speech API) ---------- */
+const SpeechRecognitionAPI = window.SpeechRecognition || window.webkitSpeechRecognition;
+let voiceRecognition = null;
+let voiceListeningBtn = null;
+
+if(!SpeechRecognitionAPI){
+  document.addEventListener('DOMContentLoaded', ()=>{
+    document.querySelectorAll('.mic-btn').forEach(b=>b.classList.add('unsupported'));
+  });
+}
+
+function startVoiceSearch(which){
+  if(!SpeechRecognitionAPI){
+    alert('Voice search is not supported on this browser. Please try Chrome on Android/Desktop.');
+    return;
+  }
+  const btn = document.getElementById(which === 'mobile' ? 'mic-btn-mobile' : 'mic-btn-desktop');
+
+  // If already listening, stop it (acts as a toggle)
+  if(voiceRecognition && voiceListeningBtn){
+    voiceRecognition.stop();
+    return;
+  }
+
+  const recognition = new SpeechRecognitionAPI();
+  voiceRecognition = recognition;
+  voiceListeningBtn = btn;
+
+  // Hinglish-friendly: hi-IN generally understands Hindi/Hinglish speech well
+  // and still recognizes common English product words.
+  recognition.lang = 'hi-IN';
+  recognition.continuous = false;
+  recognition.interimResults = false;
+  recognition.maxAlternatives = 1;
+
+  btn.classList.add('listening');
+
+  recognition.onresult = (event) => {
+    const transcript = event.results[0][0].transcript;
+    handleSearchInput(transcript);
+    goToProducts();
+    if(which === 'mobile'){
+      document.getElementById('search-input-mobile-bar').blur();
+    }
+  };
+
+  recognition.onerror = (event) => {
+    if(event.error === 'not-allowed' || event.error === 'service-not-allowed'){
+      alert('Please allow microphone access to use voice search.');
+    } else if(event.error !== 'no-speech' && event.error !== 'aborted'){
+      alert('Could not process voice search. Please try again.');
+    }
+  };
+
+  recognition.onend = () => {
+    btn.classList.remove('listening');
+    voiceRecognition = null;
+    voiceListeningBtn = null;
+  };
+
+  try{
+    recognition.start();
+  }catch(e){
+    btn.classList.remove('listening');
+    voiceRecognition = null;
+    voiceListeningBtn = null;
+  }
 }
 
 /* ---------- cart ---------- */
