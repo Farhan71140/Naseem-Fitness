@@ -198,32 +198,34 @@
     cursor:pointer;position:relative;flex:none;
   }
   .icon-btn svg{width:18px;height:18px;}
-  .mobile-search-bar{display:none;flex-basis:100%;width:100%;}
+  .mobile-search-bar{display:none;flex:1 1 auto;min-width:0;}
   .mobile-search-bar .nav-search{
-    flex:1 1 auto;width:100%;
+    flex:1 1 auto;width:100%;min-width:0;
     background:linear-gradient(165deg, var(--iron-light, var(--iron)) 0%, var(--iron) 100%);
     border:1px solid rgba(255,210,74,0.3);
     border-radius:999px;
-    padding:13px 18px;
-    box-shadow:0 10px 28px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.05);
+    padding:9px 12px;gap:6px;
+    box-shadow:0 6px 18px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.05);
     transition:border-color .2s ease, box-shadow .2s ease;
   }
   .mobile-search-bar .nav-search:focus-within{
     border-color:var(--teal);
-    box-shadow:0 0 0 3px rgba(255,210,74,0.14), 0 10px 28px rgba(0,0,0,0.45);
+    box-shadow:0 0 0 3px rgba(255,210,74,0.14), 0 6px 18px rgba(0,0,0,0.45);
   }
-  .mobile-search-bar .nav-search svg{width:18px;height:18px;color:var(--teal);}
-  .mobile-search-bar .nav-search input{font-size:15px;font-weight:500;}
+  .mobile-search-bar .nav-search svg{width:16px;height:16px;color:var(--teal);flex:none;}
+  .mobile-search-bar .nav-search input{font-size:13.5px;font-weight:500;min-width:0;}
   .mobile-search-bar .cam-btn,
-  .mobile-search-bar .mic-btn{width:26px;height:26px;}
+  .mobile-search-bar .mic-btn{width:22px;height:22px;flex:none;}
   .mobile-search-bar .cam-btn svg,
-  .mobile-search-bar .mic-btn svg{width:17px;height:17px;}
+  .mobile-search-bar .mic-btn svg{width:15px;height:15px;}
   @media (max-width:1180px){
     .nav-links{display:none;} .nav-cta{display:none;}
     .nav-search{display:none;}
     .mobile-icons{display:flex;gap:10px;align-items:center;}
-    nav.wrap{flex-wrap:wrap;}
     .mobile-search-bar{display:flex;}
+  }
+  @media (max-width:400px){
+    .mobile-search-bar .cam-btn{display:none;}
   }
 
   /* ===== MOBILE MENU ===== */
@@ -1382,6 +1384,24 @@
         <span class="brand-tag">Strength · Discipline · Results</span>
       </div>
     </a>
+    <div class="mobile-search-bar">
+      <div class="nav-search">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
+        <input
+          type="search"
+          id="search-input-mobile-bar"
+          placeholder="Search"
+          aria-label="Search products"
+          oninput="handleSearchInput(this.value)"
+          onkeydown="if(event.key==='Enter'){goToProducts();this.blur();}">
+        <button type="button" class="cam-btn" id="cam-btn-mobile" aria-label="Search by photo" onclick="openPhotoSearchSheet('mobile')">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 8a2 2 0 0 1 2-2h1.2l.9-1.4A1.8 1.8 0 0 1 9.6 4h4.8a1.8 1.8 0 0 1 1.5.9L16.8 6H18a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V8z"/><circle cx="12" cy="13" r="3.4"/></svg>
+        </button>
+        <button type="button" class="mic-btn" id="mic-btn-mobile" aria-label="Search by voice" onclick="startVoiceSearch('mobile')">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 15a3 3 0 0 0 3-3V6a3 3 0 0 0-6 0v6a3 3 0 0 0 3 3z"/><path d="M19 11a7 7 0 0 1-14 0"/><path d="M12 18v3"/></svg>
+        </button>
+      </div>
+    </div>
     <div class="nav-links">
       <a href="#top">Home</a>
       <a href="#categories">Shop</a>
@@ -1429,24 +1449,6 @@
       <label for="nav-toggle" class="hamburger-btn" aria-label="Open menu">
         <span></span><span></span><span></span>
       </label>
-    </div>
-    <div class="mobile-search-bar">
-      <div class="nav-search">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
-        <input
-          type="search"
-          id="search-input-mobile-bar"
-          placeholder="Search products…"
-          aria-label="Search products"
-          oninput="handleSearchInput(this.value)"
-          onkeydown="if(event.key==='Enter'){goToProducts();this.blur();}">
-        <button type="button" class="cam-btn" id="cam-btn-mobile" aria-label="Search by photo" onclick="openPhotoSearchSheet('mobile')">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 8a2 2 0 0 1 2-2h1.2l.9-1.4A1.8 1.8 0 0 1 9.6 4h4.8a1.8 1.8 0 0 1 1.5.9L16.8 6H18a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V8z"/><circle cx="12" cy="13" r="3.4"/></svg>
-        </button>
-        <button type="button" class="mic-btn" id="mic-btn-mobile" aria-label="Search by voice" onclick="startVoiceSearch('mobile')">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 15a3 3 0 0 0 3-3V6a3 3 0 0 0-6 0v6a3 3 0 0 0 3 3z"/><path d="M19 11a7 7 0 0 1-14 0"/><path d="M12 18v3"/></svg>
-        </button>
-      </div>
     </div>
   </nav>
   <div class="mobile-menu">
