@@ -514,7 +514,7 @@
     border-top:1px solid var(--bad,#FF6B6B);
   }
   .add-btn:disabled{opacity:0.4;cursor:not-allowed;}
-  .add-btn:disabled:hover{transform:none;}
+  .add-btn:disabled:hover{transform:none;filter:none;}
   .prod-body{padding:18px 18px 20px;}
   .prod-body .cat-tag{font-family:'Space Mono',monospace;font-size:10px;color:var(--amber);letter-spacing:1.5px;text-transform:uppercase;}
   .prod-body h4{font-size:16px;font-weight:700;margin-top:8px;font-family:'Inter',sans-serif;text-transform:none;}
@@ -522,14 +522,15 @@
   .prod-body .price{font-family:'Space Mono',monospace;font-size:15px;color:var(--paper);}
   .prod-body .price small{color:var(--paper-dim);font-size:11px;}
   .add-btn{
-    width:34px;height:34px;min-width:34px;min-height:34px;max-width:34px;max-height:34px;
+    width:44px;height:44px;min-width:44px;min-height:44px;max-width:44px;max-height:44px;
     flex:none;align-self:center;
-    border-radius:50%;background:var(--teal);color:var(--ink-black);
-    display:flex;align-items:center;justify-content:center;font-size:18px;font-weight:700;
-    border:none;cursor:pointer;transition:background .2s;
-    line-height:1;padding:0;
+    border-radius:50%;background:transparent;
+    display:flex;align-items:center;justify-content:center;
+    border:none;cursor:pointer;padding:0;
+    transition:transform .2s, filter .2s;
   }
-  .add-btn:hover{background:#FFF2B5;}
+  .add-btn:hover{transform:scale(1.08);filter:brightness(1.1);}
+  .add-btn img{width:44px;height:44px;object-fit:contain;display:block;}
   .prod-share-btn{
     position:absolute;top:10px;right:10px;z-index:2;
     width:32px;height:32px;border-radius:50%;
@@ -2542,7 +2543,7 @@ function renderProducts(list){
             <span class="price">₹${price.toLocaleString('en-IN')} ${p.unit ? `<small>/ ${escapeHtml(p.unit)}</small>` : ''}</span>
             ${hasDiscount ? `<span class="price-compare">₹${comparePrice.toLocaleString('en-IN')}</span><span class="discount-pill">-${pct}%</span>` : ''}
           </div>
-          <button class="add-btn" aria-label="Add to cart" ${outOfStock ? 'disabled' : ''} onclick="event.stopPropagation();addToCart('${p.id}')">+</button>
+          <button class="add-btn" aria-label="Add to cart" ${outOfStock ? 'disabled' : ''} onclick="event.stopPropagation();addToCart('${p.id}')"><img src="assets/add-to-cart-btn.png" alt="Add to cart"></button>
         </div>
       </div>
     </div>
