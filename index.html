@@ -383,6 +383,60 @@
   .trust-item .dot{width:8px;height:8px;border-radius:50%;background:var(--teal);flex:none;}
   @media (max-width:860px){ .trust .wrap{grid-template-columns:repeat(2,1fr);} }
 
+  /* ===== PROMO BANNER ===== */
+  .promo-banner-frame{
+    position:relative;border-radius:18px;
+    box-shadow:
+      0 0 0 2px rgba(255,210,74,0.5),
+      0 0 30px rgba(255,210,74,0.25),
+      0 0 60px rgba(255,210,74,0.12),
+      0 20px 60px rgba(0,0,0,0.6);
+    animation:promoBannerPulse 3s ease-in-out infinite;
+  }
+  @keyframes promoBannerPulse{
+    0%,100%{box-shadow:0 0 0 2px rgba(255,210,74,0.5),0 0 30px rgba(255,210,74,0.25),0 0 60px rgba(255,210,74,0.12),0 20px 60px rgba(0,0,0,0.6);}
+    50%{box-shadow:0 0 0 3px rgba(255,210,74,0.8),0 0 50px rgba(255,210,74,0.45),0 0 100px rgba(255,210,74,0.22),0 20px 60px rgba(0,0,0,0.6);}
+  }
+  .promo-banner-shimmer{
+    position:absolute;inset:0;z-index:2;border-radius:16px;pointer-events:none;
+    background:linear-gradient(115deg,transparent 30%,rgba(255,210,74,0.18) 50%,transparent 70%);
+    background-size:200% 100%;
+    animation:bannerShimmer 2.8s ease-in-out infinite;
+  }
+  @keyframes bannerShimmer{
+    0%{background-position:200% 0;}
+    100%{background-position:-200% 0;}
+  }
+  .promo-banner-sparkle{
+    position:absolute;z-index:3;width:18px;height:18px;pointer-events:none;
+    background:radial-gradient(circle, rgba(255,210,74,0.95) 0%, transparent 70%);
+    border-radius:50%;animation:sparkle 2s ease-in-out infinite;
+  }
+  .promo-banner-sparkle-tl{top:-4px;left:20px;animation-delay:0s;}
+  .promo-banner-sparkle-tr{top:-4px;right:20px;animation-delay:0.7s;}
+  .promo-banner-sparkle-bl{bottom:-4px;left:20px;animation-delay:1.4s;}
+  .promo-banner-sparkle-br{bottom:-4px;right:20px;animation-delay:2.1s;}
+  @keyframes sparkle{
+    0%,100%{opacity:0;transform:scale(0.5);}
+    50%{opacity:1;transform:scale(1.3);}
+  }
+  .promo-banner-title-overlay{
+    position:absolute;bottom:0;left:0;right:0;z-index:4;
+    padding:24px 28px 20px;
+    background:linear-gradient(0deg, rgba(0,0,0,0.82) 0%, transparent 100%);
+    border-radius:0 0 16px 16px;
+    font-family:'Anton',sans-serif;font-size:clamp(16px,2.5vw,26px);
+    letter-spacing:0.5px;color:#fff;text-shadow:0 2px 12px rgba(0,0,0,0.8);
+    text-transform:uppercase;
+  }
+  .promo-banner-title-overlay span{
+    display:inline-block;
+    background:linear-gradient(90deg,#FFD24A,#FFF2B5,#FFD24A);
+    -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
+    background-size:200%;animation:goldText 2s linear infinite;
+  }
+  @keyframes goldText{0%{background-position:0%}100%{background-position:200%}}
+
   section{padding:96px 0;}
   @media (max-width:860px){ section{padding:64px 0;} .wrap{padding:0 20px;} }
   @media (max-width:480px){
@@ -1552,6 +1606,27 @@
       <div class="trust-item"><span class="dot"></span>Best Price</div>
       <div class="trust-item"><span class="dot"></span>Fast Delivery</div>
       <div class="trust-item"><span class="dot"></span>FSSAI Licensed Store</div>
+    </div>
+  </div>
+
+  <!-- PROMO BANNER -->
+  <div id="promo-banner-section" style="display:none;">
+    <div class="wrap" style="padding-top:28px;padding-bottom:4px;">
+      <a id="promo-banner-anchor" href="#" onclick="return false;" style="display:block;position:relative;border-radius:18px;overflow:hidden;text-decoration:none;cursor:default;">
+        <!-- Shimmer border frame -->
+        <div class="promo-banner-frame">
+          <img id="promo-banner-img" src="" alt="Promo Banner" style="width:100%;display:block;border-radius:16px;max-height:300px;object-fit:cover;position:relative;z-index:1;">
+          <!-- Gold shimmer overlay -->
+          <div class="promo-banner-shimmer"></div>
+          <!-- Corner sparkles -->
+          <div class="promo-banner-sparkle promo-banner-sparkle-tl"></div>
+          <div class="promo-banner-sparkle promo-banner-sparkle-tr"></div>
+          <div class="promo-banner-sparkle promo-banner-sparkle-bl"></div>
+          <div class="promo-banner-sparkle promo-banner-sparkle-br"></div>
+          <!-- Title overlay -->
+          <div id="promo-banner-title-overlay" class="promo-banner-title-overlay" style="display:none;"></div>
+        </div>
+      </a>
     </div>
   </div>
 
@@ -4021,6 +4096,28 @@ function applyStoreSettings(s){
     if(track){
       const span = `<span>${escapeHtml(s.topbar_text)}</span>`;
       track.innerHTML = span.repeat(4);
+    }
+  }
+
+  /* ---- promo banner ---- */
+  if(s.promo_banner_enabled && s.promo_banner_url){
+    const section = document.getElementById('promo-banner-section');
+    const img = document.getElementById('promo-banner-img');
+    const anchor = document.getElementById('promo-banner-anchor');
+    const titleOverlay = document.getElementById('promo-banner-title-overlay');
+    if(section && img){
+      img.src = s.promo_banner_url;
+      img.alt = s.promo_banner_title || 'Promo Banner';
+      if(s.promo_banner_link){
+        anchor.href = s.promo_banner_link;
+        anchor.onclick = null;
+        anchor.style.cursor = 'pointer';
+      }
+      if(s.promo_banner_title && titleOverlay){
+        titleOverlay.innerHTML = '<span>' + escapeHtml(s.promo_banner_title) + '</span>';
+        titleOverlay.style.display = 'block';
+      }
+      section.style.display = 'block';
     }
   }
 
