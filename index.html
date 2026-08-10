@@ -913,7 +913,7 @@
   ::selection{background:var(--teal);color:var(--ink-black);}
 
   /* ===== CART & CHECKOUT ===== */
-  .cart-btn{position:relative;display:inline-flex;align-items:center;justify-content:center;width:44px;height:44px;border-radius:3px;border:1px solid var(--line);background:transparent;color:var(--paper);cursor:pointer;}
+  .cart-btn{position:relative;display:inline-flex;align-items:center;justify-content:center;width:44px;height:44px;border-radius:50%;border:none;background:transparent;color:var(--paper);cursor:pointer;}
   .cart-btn:hover{border-color:var(--teal);}
   .cart-btn svg{width:19px;height:19px;}
   .cart-count{position:absolute;top:-6px;right:-6px;background:var(--teal);color:var(--ink-black);font-family:'Space Mono',monospace;font-size:10px;font-weight:700;min-width:18px;height:18px;border-radius:9px;display:flex;align-items:center;justify-content:center;padding:0 4px;}
@@ -1433,7 +1433,7 @@
     <div class="nav-cta">
       <a class="btn btn-wa" href="https://wa.me/917738242258?text=Hi%20NF%20Naseem%20Fitness" target="_blank" rel="noopener">WhatsApp Us</a>
       <button class="cart-btn" aria-label="Open cart" onclick="openCart()">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><circle cx="9" cy="21" r="1.4"/><circle cx="19" cy="21" r="1.4"/><path d="M2.5 3h2l2.7 12.6a2 2 0 0 0 2 1.6h8.2a2 2 0 0 0 2-1.6L21 8H6"/></svg>
+        <img src="assets/add-to-cart-badge.png" alt="Cart" style="width:36px;height:36px;object-fit:contain;">
         <span class="cart-count" id="cart-count-desktop" style="display:none;">0</span>
       </button>
     </div>
@@ -1442,8 +1442,8 @@
         <button class="icon-btn" aria-label="Track order" onclick="openTrackOrder()">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="1" y="6" width="14" height="11"/><path d="M15 9h4l3 3v5h-7z"/><circle cx="6" cy="19.5" r="1.6"/><circle cx="17.5" cy="19.5" r="1.6"/></svg>
         </button>
-        <button class="icon-btn" aria-label="Open cart" onclick="openCart()">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><circle cx="9" cy="21" r="1.4"/><circle cx="19" cy="21" r="1.4"/><path d="M2.5 3h2l2.7 12.6a2 2 0 0 0 2 1.6h8.2a2 2 0 0 0 2-1.6L21 8H6"/></svg>
+        <button class="icon-btn" aria-label="Open cart" onclick="openCart()" style="width:34px;height:34px;">
+          <img src="assets/add-to-cart-badge.png" alt="Cart" style="width:26px;height:26px;object-fit:contain;">
           <span class="cart-count" id="cart-count-icon" style="display:none;">0</span>
         </button>
       </div>
