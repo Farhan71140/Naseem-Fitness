@@ -1598,6 +1598,26 @@
     </div>
   </section>
 
+  <!-- PROMO BANNER — below the 4 trust badges -->
+  <div id="promo-banner-section" style="display:none;background:var(--ink-black);padding:28px 0 20px;">
+    <div class="wrap">
+      <a id="promo-banner-anchor" href="#" onclick="return false;" style="display:block;text-decoration:none;cursor:default;">
+        <div class="promo-banner-frame">
+          <img id="promo-banner-img" src="" alt="Promo Banner" style="width:100%;display:block;border-radius:16px;max-height:320px;object-fit:cover;position:relative;z-index:1;">
+          <div class="promo-banner-shimmer"></div>
+          <div class="promo-banner-sparkle promo-banner-sparkle-tl"></div>
+          <div class="promo-banner-sparkle promo-banner-sparkle-tr"></div>
+          <div class="promo-banner-sparkle promo-banner-sparkle-bl"></div>
+          <div class="promo-banner-sparkle promo-banner-sparkle-br"></div>
+        </div>
+        <!-- Title BELOW the banner image -->
+        <div id="promo-banner-title-overlay" style="display:none;margin-top:14px;text-align:center;font-family:'Anton',sans-serif;font-size:clamp(15px,2.4vw,22px);letter-spacing:0.5px;text-transform:uppercase;">
+          <span style="background:linear-gradient(90deg,#FFD24A,#FFF2B5,#FFD24A);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;background-size:200%;animation:goldText 2s linear infinite;"></span>
+        </div>
+      </a>
+    </div>
+  </div>
+
   <!-- TRUST BAR -->
   <div class="trust">
     <div class="wrap">
@@ -1606,27 +1626,6 @@
       <div class="trust-item"><span class="dot"></span>Best Price</div>
       <div class="trust-item"><span class="dot"></span>Fast Delivery</div>
       <div class="trust-item"><span class="dot"></span>FSSAI Licensed Store</div>
-    </div>
-  </div>
-
-  <!-- PROMO BANNER -->
-  <div id="promo-banner-section" style="display:none;">
-    <div class="wrap" style="padding-top:28px;padding-bottom:4px;">
-      <a id="promo-banner-anchor" href="#" onclick="return false;" style="display:block;position:relative;border-radius:18px;overflow:hidden;text-decoration:none;cursor:default;">
-        <!-- Shimmer border frame -->
-        <div class="promo-banner-frame">
-          <img id="promo-banner-img" src="" alt="Promo Banner" style="width:100%;display:block;border-radius:16px;max-height:300px;object-fit:cover;position:relative;z-index:1;">
-          <!-- Gold shimmer overlay -->
-          <div class="promo-banner-shimmer"></div>
-          <!-- Corner sparkles -->
-          <div class="promo-banner-sparkle promo-banner-sparkle-tl"></div>
-          <div class="promo-banner-sparkle promo-banner-sparkle-tr"></div>
-          <div class="promo-banner-sparkle promo-banner-sparkle-bl"></div>
-          <div class="promo-banner-sparkle promo-banner-sparkle-br"></div>
-          <!-- Title overlay -->
-          <div id="promo-banner-title-overlay" class="promo-banner-title-overlay" style="display:none;"></div>
-        </div>
-      </a>
     </div>
   </div>
 
@@ -4100,7 +4099,7 @@ function applyStoreSettings(s){
   }
 
   /* ---- promo banner ---- */
-  if(s.promo_banner_enabled && s.promo_banner_url){
+  if(s.promo_banner_url && s.promo_banner_enabled !== false){
     const section = document.getElementById('promo-banner-section');
     const img = document.getElementById('promo-banner-img');
     const anchor = document.getElementById('promo-banner-anchor');
@@ -4114,7 +4113,8 @@ function applyStoreSettings(s){
         anchor.style.cursor = 'pointer';
       }
       if(s.promo_banner_title && titleOverlay){
-        titleOverlay.innerHTML = '<span>' + escapeHtml(s.promo_banner_title) + '</span>';
+        const span = titleOverlay.querySelector('span');
+        if(span) span.textContent = s.promo_banner_title;
         titleOverlay.style.display = 'block';
       }
       section.style.display = 'block';
