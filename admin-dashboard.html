@@ -1202,8 +1202,46 @@
         </div>
       </div>
 
+      <!-- PROMO BANNER PANEL -->
+      <div class="panel" style="max-width:760px;">
+        <div class="panel-head" style="margin-bottom:6px;">
+          <h3>🎉 Promo / Festival Banner</h3>
+          <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-size:13px;font-family:'Inter',sans-serif;text-transform:none;letter-spacing:0;font-weight:500;">
+            <input type="checkbox" id="promo-banner-enabled" style="width:16px;height:16px;accent-color:var(--teal);" onchange="togglePromoBannerEnabled()">
+            Show on storefront
+            <span class="toggle-badge" id="promo-banner-toggle-badge">Off</span>
+          </label>
+        </div>
+        <p style="font-size:13px;color:var(--paper-dim);margin-bottom:20px;">Upload a banner image for offers, festivals, or special occasions. It appears below the trust badges on the storefront with a premium glow effect.</p>
+
+        <!-- Image preview -->
+        <div id="promo-banner-preview-wrap" style="display:none;margin-bottom:18px;position:relative;border-radius:14px;overflow:hidden;border:1px solid var(--line);">
+          <img id="promo-banner-preview-img" src="" alt="Banner preview" style="width:100%;display:block;max-height:200px;object-fit:cover;">
+          <div style="position:absolute;inset:0;background:linear-gradient(180deg,transparent 60%,rgba(0,0,0,0.5));pointer-events:none;border-radius:14px;"></div>
+          <button onclick="clearPromoBanner()" style="position:absolute;top:10px;right:10px;background:rgba(0,0,0,0.7);border:1px solid var(--line);color:var(--paper);border-radius:6px;padding:4px 10px;font-size:12px;cursor:pointer;">✕ Remove</button>
+        </div>
+
+        <div class="field-row">
+          <div class="field">
+            <label>Upload Banner Image</label>
+            <input type="file" id="promo-banner-file" accept="image/*" onchange="previewPromoBanner(this)" style="padding:10px;background:var(--iron);border:1px dashed var(--line);border-radius:8px;cursor:pointer;color:var(--paper-dim);">
+            <div style="font-size:12px;color:var(--paper-dim);margin-top:6px;">Recommended: 1200×400px or wider. JPG/PNG/WEBP.</div>
+          </div>
+          <div class="field">
+            <label for="promo-banner-title">Banner Title / Caption — optional</label>
+            <input type="text" id="promo-banner-title" placeholder="e.g. 🎊 Independence Day Sale — Flat 20% OFF">
+            <div style="font-size:12px;color:var(--paper-dim);margin-top:6px;">Shown as overlay text on the banner. Leave blank to hide.</div>
+          </div>
+        </div>
+        <div class="field" style="max-width:480px;">
+          <label for="promo-banner-link">Click-through URL — optional</label>
+          <input type="url" id="promo-banner-link" placeholder="e.g. https://nfsupplementstore.com/#offers">
+          <div style="font-size:12px;color:var(--paper-dim);margin-top:6px;">Where tapping the banner takes the customer. Leave blank if not needed.</div>
+        </div>
+      </div>
+
       <div class="panel" style="max-width:760px;display:flex;justify-content:flex-end;">
-        <button class="btn btn-primary" onclick="saveOffers()">Save Offers</button>
+        <button class="btn btn-primary" onclick="saveOffers()">Save All Offer Settings</button>
       </div>
     </section>
 
@@ -2116,11 +2154,33 @@ async function renderOffers(){
   document.getElementById('sale-banner').value = (s && s.sale_banner_label) || '';
   document.getElementById('sale-starts').value = s ? toLocalInputValue(s.sale_starts_at) : '';
   document.getElementById('sale-ends').value = s ? toLocalInputValue(s.sale_ends_at) : '';
+  // Promo banner
+  const bannerOn = !!(s && s.promo_banner_enabled);
+  document.getElementById('promo-banner-enabled').checked = bannerOn;
+  togglePromoBannerEnabled();
+  document.getElementById('promo-banner-title').value = (s && s.promo_banner_title) || '';
+  document.getElementById('promo-banner-link').value = (s && s.promo_banner_link) || '';
+  if(s && s.promo_banner_url){
+    window._promoBannerUrl = s.promo_banner_url;
+    document.getElementById('promo-banner-preview-img').src = s.promo_banner_url;
+    document.getElementById('promo-banner-preview-wrap').style.display = 'block';
+  }
 }
 async function saveOffers(){
   const mode = (document.querySelector('input[name="offers-display"]:checked') || {}).value || 'tab';
   const enabled = document.getElementById('sale-enabled').checked;
   const discount = document.getElementById('sale-discount').value;
+
+  // Handle promo banner image upload if a new file selected
+  let bannerUrl = window._promoBannerUrl || null;
+  const fileInput = document.getElementById('promo-banner-file');
+  if(fileInput.files[0]){
+    showToast('Uploading banner image…');
+    bannerUrl = await uploadPromoBannerToSupabase(fileInput.files[0]);
+    if(!bannerUrl) return;
+    window._promoBannerUrl = bannerUrl;
+  }
+
   const payload = {
     id: 1,
     offers_display_mode: mode,
@@ -2129,11 +2189,47 @@ async function saveOffers(){
     sale_banner_label: document.getElementById('sale-banner').value.trim() || null,
     sale_starts_at: fromLocalInputValue(document.getElementById('sale-starts').value),
     sale_ends_at: fromLocalInputValue(document.getElementById('sale-ends').value),
+    promo_banner_enabled: document.getElementById('promo-banner-enabled').checked,
+    promo_banner_url: bannerUrl,
+    promo_banner_title: document.getElementById('promo-banner-title').value.trim() || null,
+    promo_banner_link: document.getElementById('promo-banner-link').value.trim() || null,
     updated_at: new Date().toISOString()
   };
   const { error } = await sb.from('store_settings').upsert(payload);
   if(error){ showToast('Error: ' + error.message); return; }
-  showToast('Offers saved');
+  showToast('✅ Offers & banner saved!');
+}
+
+/* ---------- promo banner ---------- */
+function togglePromoBannerEnabled(){
+  const cb = document.getElementById('promo-banner-enabled');
+  const badge = document.getElementById('promo-banner-toggle-badge');
+  badge.textContent = cb.checked ? 'On' : 'Off';
+  badge.classList.toggle('on', cb.checked);
+}
+function previewPromoBanner(input){
+  const file = input.files[0];
+  if(!file) return;
+  const reader = new FileReader();
+  reader.onload = e => {
+    document.getElementById('promo-banner-preview-img').src = e.target.result;
+    document.getElementById('promo-banner-preview-wrap').style.display = 'block';
+  };
+  reader.readAsDataURL(file);
+}
+function clearPromoBanner(){
+  document.getElementById('promo-banner-file').value = '';
+  document.getElementById('promo-banner-preview-img').src = '';
+  document.getElementById('promo-banner-preview-wrap').style.display = 'none';
+  window._promoBannerUrl = null;
+}
+async function uploadPromoBannerToSupabase(file){
+  const ext = file.name.split('.').pop();
+  const path = `promo-banner/banner.${ext}`;
+  const { error } = await sb.storage.from('store-assets').upload(path, file, { upsert: true, contentType: file.type });
+  if(error){ showToast('Upload error: ' + error.message); return null; }
+  const { data } = sb.storage.from('store-assets').getPublicUrl(path);
+  return data.publicUrl + '?t=' + Date.now();
 }
 
 /* ---------- reports ---------- */
