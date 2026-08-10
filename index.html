@@ -438,7 +438,12 @@
   @keyframes goldText{0%{background-position:0%}100%{background-position:200%}}
 
   section{padding:96px 0;}
-  @media (max-width:860px){ section{padding:64px 0;} .wrap{padding:0 20px;} }
+  .promo-banner-wrap{padding:28px 0 20px;}
+  @media (max-width:860px){
+    section{padding:64px 0;} .wrap{padding:0 20px;}
+    .promo-banner-wrap{padding:20px 0 4px;}
+    #categories{padding-top:32px;}
+  }
   @media (max-width:480px){
     .cat-grid{grid-template-columns:1fr;}
     .foot-grid{grid-template-columns:1fr;}
@@ -1600,7 +1605,7 @@
   </section>
 
   <!-- PROMO BANNER — below the 4 trust badges -->
-  <div id="promo-banner-section" style="display:none;background:var(--ink-black);padding:28px 0 20px;">
+  <div id="promo-banner-section" class="promo-banner-wrap" style="display:none;background:var(--ink-black);">
     <div class="wrap">
       <a id="promo-banner-anchor" href="#" onclick="return false;" style="display:block;text-decoration:none;cursor:default;">
         <div class="promo-banner-frame">
