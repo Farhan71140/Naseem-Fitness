@@ -36,7 +36,7 @@ module.exports = async function handler(req, res){
   const productUrls = (products || []).map(p => {
     const lastmod = (p.updated_at || p.created_at || '').slice(0, 10);
     return `  <url>
-    <loc>${escapeXml(`${SITE_URL}/?product=${p.id}`)}</loc>
+    <loc>${escapeXml(`${SITE_URL}/product/${p.id}`)}</loc>
     ${lastmod ? `<lastmod>${lastmod}</lastmod>` : ''}
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>

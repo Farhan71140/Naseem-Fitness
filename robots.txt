@@ -1,0 +1,5 @@
+User-agent: *
+Disallow: /admin-dashboard.html
+Allow: /
+
+Sitemap: https://nfsupplementstore.com/sitemap.xml

@@ -4,6 +4,9 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>NF Naseem Fitness™ | Genuine Protein, Creatine & Gym Supplements — Pan India Delivery</title>
+<meta name="description" content="Genuine, 100% authentic protein, creatine and gym supplements with pan-India delivery. Verified products, Mumbai-based, trusted by athletes.">
+<link rel="canonical" href="https://nfsupplementstore.com/">
+<!--SSR_OG_TAGS-->
 <link rel="icon" type="image/png" sizes="32x32" href="assets/favicon-32x32.png">
 <link rel="icon" type="image/png" sizes="16x16" href="assets/favicon-16x16.png">
 <link rel="apple-touch-icon" sizes="180x180" href="assets/apple-touch-icon.png">
@@ -3352,7 +3355,7 @@ async function shareProduct(id, evt){
   if(evt){ evt.stopPropagation(); evt.preventDefault(); }
   const p = PRODUCTS.find(x=>x.id===id);
   if(!p) return;
-  const shareUrl = `${location.origin}${location.pathname}?product=${encodeURIComponent(id)}`;
+  const shareUrl = `${location.origin}/product/${encodeURIComponent(id)}`;
   const eff = getEffectivePricing(p);
   const shareText = `${p.name}${p.brand ? ' - ' + p.brand : ''} — ₹${eff.price.toLocaleString('en-IN')} at NF Naseem Fitness`;
 
@@ -3375,8 +3378,12 @@ async function shareProduct(id, evt){
 }
 /* ---------- open product from shared link ---------- */
 function openSharedProductFromUrl(){
+  // 1) clean SEO URL: /product/{id}  (rendered server-side by api/product.js)
+  const ssrId = window.__SSR_PRODUCT_ID;
+  // 2) legacy share links: /?product={id}
   const params = new URLSearchParams(location.search);
-  const id = params.get('product');
+  const queryId = params.get('product');
+  const id = ssrId || queryId;
   if(id && PRODUCTS.some(p=>p.id===id)){
     openQuickView(id);
   }
@@ -4239,7 +4246,7 @@ function injectProductSchema(){
       '@type': 'Product',
       name: p.name,
       sku: p.id,
-      url: `${baseUrl}?product=${encodeURIComponent(p.id)}`,
+      url: `${location.origin}/product/${encodeURIComponent(p.id)}`,
       description: p.description || `${p.brand ? p.brand + ' ' : ''}${p.name} — genuine, 100% authentic supplement from NF Naseem Fitness, Mumbai.`,
       brand: { '@type': 'Brand', name: p.brand || 'NF Naseem Fitness' },
       offers: {
@@ -4247,7 +4254,7 @@ function injectProductSchema(){
         priceCurrency: 'INR',
         price: eff.price,
         availability: outOfStock ? 'https://schema.org/OutOfStock' : 'https://schema.org/InStock',
-        url: `${baseUrl}?product=${encodeURIComponent(p.id)}`,
+        url: `${location.origin}/product/${encodeURIComponent(p.id)}`,
         validFrom: p.created_at ? new Date(p.created_at).toISOString().slice(0,10) : todayIso,
         shippingDetails: shippingDetails,
         hasMerchantReturnPolicy: returnPolicy
