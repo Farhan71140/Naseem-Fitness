@@ -4058,10 +4058,11 @@ async function loadStoreSettings(){
   }catch(e){ /* fail silently — storefront still works without settings */ }
 }
 function applyStoreSettings(s){
-  if(s.seo_title){
+  const onProductPage = !!window.__SSR_PRODUCT_ID;
+  if(s.seo_title && !onProductPage){
     document.title = s.seo_title;
   }
-  if(s.seo_description){
+  if(s.seo_description && !onProductPage){
     let metaDesc = document.querySelector('meta[name="description"]');
     if(!metaDesc){
       metaDesc = document.createElement('meta');
