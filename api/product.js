@@ -28,6 +28,53 @@ function escapeHtml(str) {
   }[c]));
 }
 
+// Reads just enough bytes of an image to determine its pixel dimensions,
+// without downloading the whole file. WhatsApp (and Facebook/Twitter) use
+// og:image:width / og:image:height as a strong hint for picking the large,
+// top-of-card image layout — without them, previews often fall back to a
+// small thumbnail or no image at all, even though og:image is valid.
+async function getImageDimensions(url) {
+  try {
+    const resp = await fetch(url, { headers: { Range: 'bytes=0-65535' } });
+    if (!resp.ok && resp.status !== 206) return null;
+    const buf = new Uint8Array(await resp.arrayBuffer());
+    if (buf.length < 24) return null;
+
+    // PNG: signature, then IHDR chunk holds width/height as big-endian uint32s
+    if (buf[0] === 0x89 && buf[1] === 0x50 && buf[2] === 0x4e && buf[3] === 0x47) {
+      const width = (buf[16] << 24) | (buf[17] << 16) | (buf[18] << 8) | buf[19];
+      const height = (buf[20] << 24) | (buf[21] << 16) | (buf[22] << 8) | buf[23];
+      if (width > 0 && height > 0) return { width, height };
+      return null;
+    }
+
+    // JPEG: walk the marker segments until we hit a Start-Of-Frame marker
+    if (buf[0] === 0xff && buf[1] === 0xd8) {
+      let pos = 2;
+      while (pos + 9 < buf.length) {
+        if (buf[pos] !== 0xff) { pos++; continue; }
+        const marker = buf[pos + 1];
+        if (marker === 0xd8 || marker === 0xd9) { pos += 2; continue; }
+        if (marker >= 0xd0 && marker <= 0xd7) { pos += 2; continue; }
+        const segLen = (buf[pos + 2] << 8) | buf[pos + 3];
+        const isSOF = (marker >= 0xc0 && marker <= 0xcf) && marker !== 0xc4 && marker !== 0xc8 && marker !== 0xcc;
+        if (isSOF) {
+          const height = (buf[pos + 5] << 8) | buf[pos + 6];
+          const width = (buf[pos + 7] << 8) | buf[pos + 8];
+          if (width > 0 && height > 0) return { width, height };
+          return null;
+        }
+        pos += 2 + segLen;
+      }
+      return null;
+    }
+
+    return null; // unsupported format (e.g. webp) — caller falls back gracefully
+  } catch (e) {
+    return null;
+  }
+}
+
 module.exports = async function handler(req, res) {
   const id = req.query.id;
 
@@ -89,6 +136,7 @@ module.exports = async function handler(req, res) {
     else if (typeof product.image_url === 'string') image = product.image_url;
   } catch (e) { /* noop */ }
   if (image && !image.startsWith('http')) image = `${SITE_URL}/${image.replace(/^\//, '')}`;
+  const imageDims = image ? await getImageDimensions(image) : null;
 
   const stock = (product.stock === undefined || product.stock === null) ? null : Number(product.stock);
   const outOfStock = stock !== null && stock <= 0;
@@ -131,6 +179,12 @@ module.exports = async function handler(req, res) {
 <meta property="og:description" content="${escapeHtml(description).slice(0, 300)}">
 <meta property="og:url" content="${productUrl}">
 ${image ? `<meta property="og:image" content="${escapeHtml(image)}">` : ''}
+${imageDims ? `<meta property="og:image:width" content="${imageDims.width}">
+<meta property="og:image:height" content="${imageDims.height}">` : ''}
+${image ? `<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="${escapeHtml(title)}">
+<meta name="twitter:description" content="${escapeHtml(description).slice(0, 200)}">
+<meta name="twitter:image" content="${escapeHtml(image)}">` : ''}
 <script type="application/ld+json">${JSON.stringify(jsonLd)}</script>
 <script>window.__SSR_PRODUCT_ID = ${JSON.stringify(product.id)};</script>`
   );
