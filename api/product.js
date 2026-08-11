@@ -85,8 +85,8 @@ module.exports = async function handler(req, res) {
 
   let image = '';
   try {
-    if (Array.isArray(product.images) && product.images.length) image = product.images[0];
-    else if (typeof product.image === 'string') image = product.image;
+    if (Array.isArray(product.image_urls) && product.image_urls.length) image = product.image_urls[0];
+    else if (typeof product.image_url === 'string') image = product.image_url;
   } catch (e) { /* noop */ }
   if (image && !image.startsWith('http')) image = `${SITE_URL}/${image.replace(/^\//, '')}`;
 
