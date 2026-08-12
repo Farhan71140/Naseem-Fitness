@@ -22,6 +22,15 @@ const SUPABASE_URL = 'https://rzibqgnhzphlmjkzwota.supabase.co';
 const SUPABASE_ANON_KEY = 'sb_publishable_CQawBi0OPWWHKBIUnHr1Dg_OK4cuKIh';
 const SITE_URL = 'https://nfsupplementstore.com';
 
+function guessImageMimeType(url) {
+  const clean = String(url || '').split('?')[0].toLowerCase();
+  if (clean.endsWith('.png')) return 'image/png';
+  if (clean.endsWith('.jpg') || clean.endsWith('.jpeg')) return 'image/jpeg';
+  if (clean.endsWith('.webp')) return 'image/webp';
+  if (clean.endsWith('.gif')) return 'image/gif';
+  return 'image/png'; // safe default — your product images are PNG
+}
+
 function escapeHtml(str) {
   return String(str || '').replace(/[<>&'"]/g, c => ({
     '<': '&lt;', '>': '&gt;', '&': '&amp;', "'": '&apos;', '"': '&quot;'
@@ -160,6 +169,18 @@ module.exports = async function handler(req, res) {
   };
 
   // --- Rewrite <head> metadata so this URL is unique & self-referencing ---
+
+  // This page is served at /product/{id}, but the HTML (borrowed as-is from
+  // index.html) uses relative paths like "assets/logo.png" or "licenses.html".
+  // Without a <base> tag those resolve against /product/{id}/ instead of the
+  // site root, breaking the logo, hero video, nav links, cart icon, etc.
+  // Injecting <base href="SITE_URL/"> fixes every relative URL on the page
+  // in one shot, with no other markup changes needed.
+  html = html.replace(
+    /<head>/,
+    `<head>\n<base href="${SITE_URL}/">`
+  );
+
   html = html.replace(
     /<title>[\s\S]*?<\/title>/,
     `<title>${escapeHtml(title)}</title>`
@@ -178,7 +199,9 @@ module.exports = async function handler(req, res) {
 <meta property="og:title" content="${escapeHtml(title)}">
 <meta property="og:description" content="${escapeHtml(description).slice(0, 300)}">
 <meta property="og:url" content="${productUrl}">
-${image ? `<meta property="og:image" content="${escapeHtml(image)}">` : ''}
+${image ? `<meta property="og:image" content="${escapeHtml(image)}">
+<meta property="og:image:secure_url" content="${escapeHtml(image)}">
+<meta property="og:image:type" content="${escapeHtml(guessImageMimeType(image))}">` : ''}
 ${imageDims ? `<meta property="og:image:width" content="${imageDims.width}">
 <meta property="og:image:height" content="${imageDims.height}">` : ''}
 ${image ? `<meta name="twitter:card" content="summary_large_image">
