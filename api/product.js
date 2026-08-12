@@ -22,15 +22,6 @@ const SUPABASE_URL = 'https://rzibqgnhzphlmjkzwota.supabase.co';
 const SUPABASE_ANON_KEY = 'sb_publishable_CQawBi0OPWWHKBIUnHr1Dg_OK4cuKIh';
 const SITE_URL = 'https://nfsupplementstore.com';
 
-function guessImageMimeType(url) {
-  const clean = String(url || '').split('?')[0].toLowerCase();
-  if (clean.endsWith('.png')) return 'image/png';
-  if (clean.endsWith('.jpg') || clean.endsWith('.jpeg')) return 'image/jpeg';
-  if (clean.endsWith('.webp')) return 'image/webp';
-  if (clean.endsWith('.gif')) return 'image/gif';
-  return 'image/png'; // safe default — your product images are PNG
-}
-
 function escapeHtml(str) {
   return String(str || '').replace(/[<>&'"]/g, c => ({
     '<': '&lt;', '>': '&gt;', '&': '&amp;', "'": '&apos;', '"': '&quot;'
@@ -147,6 +138,27 @@ module.exports = async function handler(req, res) {
   if (image && !image.startsWith('http')) image = `${SITE_URL}/${image.replace(/^\//, '')}`;
   const imageDims = image ? await getImageDimensions(image) : null;
 
+  // WhatsApp's link-preview crawler is much stricter than Facebook's Sharing
+  // Debugger about image weight/dimensions — very large source photos (e.g.
+  // 2500x2500 originals) get silently dropped by WhatsApp even though the
+  // Facebook debugger renders them fine. Route the preview image through a
+  // free resize/compress proxy (images.weserv.nl) capped at 1200px on the
+  // long edge and re-encoded as a quality-80 JPEG, so previews stay small
+  // and reliable regardless of how large the original product photo is.
+  // The original, full-quality image is untouched everywhere else on site.
+  let ogImage = image;
+  let ogImageDims = imageDims;
+  if (image) {
+    ogImage = `https://images.weserv.nl/?url=${encodeURIComponent(image)}&w=1200&h=1200&fit=inside&output=jpg&q=80`;
+    if (imageDims && imageDims.width && imageDims.height) {
+      const scale = Math.min(1, 1200 / Math.max(imageDims.width, imageDims.height));
+      ogImageDims = {
+        width: Math.round(imageDims.width * scale),
+        height: Math.round(imageDims.height * scale)
+      };
+    }
+  }
+
   const stock = (product.stock === undefined || product.stock === null) ? null : Number(product.stock);
   const outOfStock = stock !== null && stock <= 0;
 
@@ -199,15 +211,15 @@ module.exports = async function handler(req, res) {
 <meta property="og:title" content="${escapeHtml(title)}">
 <meta property="og:description" content="${escapeHtml(description).slice(0, 300)}">
 <meta property="og:url" content="${productUrl}">
-${image ? `<meta property="og:image" content="${escapeHtml(image)}">
-<meta property="og:image:secure_url" content="${escapeHtml(image)}">
-<meta property="og:image:type" content="${escapeHtml(guessImageMimeType(image))}">` : ''}
-${imageDims ? `<meta property="og:image:width" content="${imageDims.width}">
-<meta property="og:image:height" content="${imageDims.height}">` : ''}
-${image ? `<meta name="twitter:card" content="summary_large_image">
+${ogImage ? `<meta property="og:image" content="${escapeHtml(ogImage)}">
+<meta property="og:image:secure_url" content="${escapeHtml(ogImage)}">
+<meta property="og:image:type" content="image/jpeg">` : ''}
+${ogImageDims ? `<meta property="og:image:width" content="${ogImageDims.width}">
+<meta property="og:image:height" content="${ogImageDims.height}">` : ''}
+${ogImage ? `<meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:title" content="${escapeHtml(title)}">
 <meta name="twitter:description" content="${escapeHtml(description).slice(0, 200)}">
-<meta name="twitter:image" content="${escapeHtml(image)}">` : ''}
+<meta name="twitter:image" content="${escapeHtml(ogImage)}">` : ''}
 <script type="application/ld+json">${JSON.stringify(jsonLd)}</script>
 <script>window.__SSR_PRODUCT_ID = ${JSON.stringify(product.id)};</script>`
   );
