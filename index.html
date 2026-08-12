@@ -363,7 +363,8 @@
   .mini-item span{font-size:14px;font-weight:600;color:var(--paper-dim);line-height:1.4;}
   .mini-icon-img{width:100%;height:100%;object-fit:cover;border-radius:50%;}
   .mini-item-image{padding:0;overflow:hidden;position:relative;}
-  .mini-badge-img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block;border-radius:11px;}
+  .mini-badge-img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block;border-radius:11px;z-index:0;}
+  .mini-item-image::before{z-index:2;pointer-events:none;}
   @media (max-width:860px){
     .hero-mini-trust{grid-template-columns:repeat(4,1fr);gap:10px;}
     .mini-item{padding:14px 8px;min-height:120px;gap:10px;}
