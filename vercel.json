@@ -1,14 +1,4 @@
 {
-  "redirects": [
-    {
-      "source": "/:path*",
-      "has": [
-        { "type": "host", "value": "www.nfsupplementstore.com" }
-      ],
-      "destination": "https://nfsupplementstore.com/:path*",
-      "permanent": true
-    }
-  ],
   "rewrites": [
     { "source": "/sitemap.xml", "destination": "/api/sitemap" },
     { "source": "/product/:id", "destination": "/api/product?id=:id" }
