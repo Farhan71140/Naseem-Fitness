@@ -20,8 +20,7 @@
 
 const SUPABASE_URL = 'https://rzibqgnhzphlmjkzwota.supabase.co';
 const SUPABASE_ANON_KEY = 'sb_publishable_CQawBi0OPWWHKBIUnHr1Dg_OK4cuKIh';
-const SITE_URL = 'https://nfsupplementstore.com';
-
+const SITE_URL = 'https://www.nfsupplementstore.com';
 function escapeHtml(str) {
   return String(str || '').replace(/[<>&'"]/g, c => ({
     '<': '&lt;', '>': '&gt;', '&': '&amp;', "'": '&apos;', '"': '&quot;'
