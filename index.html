@@ -1260,6 +1260,25 @@
   .delivery-info-banner p{font-size:12.5px;line-height:1.6;color:var(--paper-dim);margin:0;}
   .delivery-info-banner p strong{color:var(--paper);font-family:'Anton',sans-serif;font-weight:400;font-size:13px;letter-spacing:0.2px;}
 
+  /* ===== FAST DELIVERY / PIN CODE ===== */
+  .pincode-status{font-size:12px;margin-top:6px;min-height:16px;}
+  .pincode-status.checking{color:var(--paper-dim);}
+  .pincode-status.available{color:var(--teal);}
+  .pincode-status.unavailable{color:var(--paper-dim);}
+  .delivery-option-list{display:flex;flex-direction:column;gap:10px;margin:14px 0;}
+  .delivery-option{
+    display:flex;align-items:flex-start;gap:12px;padding:13px 14px;border-radius:10px;
+    border:1px solid var(--line);cursor:pointer;transition:border-color .2s, background .2s;
+  }
+  .delivery-option:hover{border-color:var(--line-strong);}
+  .delivery-option.is-selected{border-color:var(--teal);background:rgba(255,210,74,0.08);}
+  .delivery-option input{margin-top:3px;flex:none;accent-color:var(--teal);}
+  .delivery-option-main{flex:1;min-width:0;}
+  .delivery-option-main strong{display:block;font-size:14px;font-family:'Inter',sans-serif;font-weight:700;}
+  .delivery-option-main small{display:block;font-size:12px;color:var(--paper-dim);margin-top:2px;line-height:1.5;}
+  .delivery-option-price{flex:none;font-family:'Space Mono',monospace;font-size:13.5px;font-weight:700;color:var(--teal);}
+  .delivery-option-price.free{color:var(--paper-dim);}
+
   .payment-option{position:relative;align-items:center;padding:14px;}
   .payment-option-icon{
     display:flex;align-items:center;justify-content:center;flex:none;
@@ -2010,6 +2029,12 @@
         <textarea id="chk-address" rows="3" placeholder="Where should we deliver this? Or tap 'Use My Current Location' above."></textarea>
       </div>
       <div class="checkout-field">
+        <label for="chk-pincode">Delivery PIN Code</label>
+        <input type="tel" id="chk-pincode" inputmode="numeric" maxlength="6" placeholder="6-digit PIN code" oninput="onPincodeInput(this.value)">
+        <div class="pincode-status" id="pincode-status"></div>
+      </div>
+      <div class="delivery-option-list" id="delivery-option-list" style="display:none;"></div>
+      <div class="checkout-field">
         <label>Payment Method</label>
         <label class="payment-option" id="pm-cod-option">
           <input type="radio" name="payment-method" value="cod" onchange="updatePaymentSummary()">
@@ -2225,6 +2250,10 @@ const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 let PRODUCTS = [];
 let REVIEWS = [];
 let CART = []; // [{id, name, price, unit, qty}]
+
+/* ---------- fast delivery state ---------- */
+let FAST_DELIVERY = { pincode:'', available:false, charge:0, eta:'', selected:false };
+let pincodeCheckTimer = null;
 
 function escapeHtml(str){
   return String(str ?? '').replace(/[&<>"']/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
@@ -3038,8 +3067,107 @@ function getDeliveryFee(subtotal){
   if(subtotal <= 0) return 0;
   return subtotal >= FREE_DELIVERY_THRESHOLD ? 0 : DELIVERY_FEE;
 }
+// Standard delivery fee stays as-is even when Fast Delivery is available for a
+// PIN code — Fast Delivery is an optional paid upgrade the customer selects,
+// it never replaces the free-delivery threshold on its own.
+function getEffectiveDeliveryFee(subtotal){
+  if(FAST_DELIVERY.selected && FAST_DELIVERY.available) return FAST_DELIVERY.charge;
+  return getDeliveryFee(subtotal);
+}
 function getOrderTotal(subtotal){
-  return subtotal + getDeliveryFee(subtotal);
+  return subtotal + getEffectiveDeliveryFee(subtotal);
+}
+
+/* ---------- fast delivery (PIN code serviceability) ---------- */
+function resetFastDeliveryUI(){
+  FAST_DELIVERY = { pincode:'', available:false, charge:0, eta:'', selected:false };
+  const statusEl = document.getElementById('pincode-status');
+  const listEl = document.getElementById('delivery-option-list');
+  if(statusEl){ statusEl.textContent = ''; statusEl.className = 'pincode-status'; }
+  if(listEl){ listEl.style.display = 'none'; listEl.innerHTML = ''; }
+}
+function onPincodeInput(val){
+  const digits = String(val || '').replace(/\D/g,'').slice(0,6);
+  const input = document.getElementById('chk-pincode');
+  if(input && input.value !== digits) input.value = digits;
+  clearTimeout(pincodeCheckTimer);
+  if(digits.length === 6){
+    const statusEl = document.getElementById('pincode-status');
+    if(statusEl){ statusEl.textContent = 'Checking Fast Delivery availability…'; statusEl.className = 'pincode-status checking'; }
+    pincodeCheckTimer = setTimeout(()=>checkFastDeliveryPincode(digits), 400);
+  }else{
+    resetFastDeliveryUI();
+  }
+}
+async function checkFastDeliveryPincode(pincode){
+  const statusEl = document.getElementById('pincode-status');
+  try{
+    const { data, error } = await sb.from('fast_delivery_pincodes').select('*').eq('pincode', pincode).eq('active', true).maybeSingle();
+    if(error) throw error;
+    if(data){
+      FAST_DELIVERY = { pincode, available:true, charge:Number(data.charge)||0, eta:data.delivery_time || '', selected:false };
+      if(statusEl){ statusEl.textContent = '⚡ Fast Delivery is available at this PIN code!'; statusEl.className = 'pincode-status available'; }
+    }else{
+      FAST_DELIVERY = { pincode, available:false, charge:0, eta:'', selected:false };
+      if(statusEl){ statusEl.textContent = 'Fast Delivery isn\'t available at this PIN code — standard delivery applies.'; statusEl.className = 'pincode-status unavailable'; }
+    }
+  }catch(e){
+    FAST_DELIVERY = { pincode, available:false, charge:0, eta:'', selected:false };
+    if(statusEl){ statusEl.textContent = ''; statusEl.className = 'pincode-status'; }
+  }
+  renderDeliveryOptions();
+  updateCheckoutTotals();
+  updatePaymentSummary();
+}
+function selectDeliveryType(type){
+  FAST_DELIVERY.selected = (type === 'fast');
+  renderDeliveryOptions();
+  updateCheckoutTotals();
+  updatePaymentSummary();
+}
+function renderDeliveryOptions(){
+  const listEl = document.getElementById('delivery-option-list');
+  if(!listEl) return;
+  if(!FAST_DELIVERY.available){ listEl.style.display = 'none'; listEl.innerHTML = ''; return; }
+  const subtotal = cartTotal();
+  const standardFee = getDeliveryFee(subtotal);
+  listEl.style.display = 'flex';
+  listEl.innerHTML = `
+    <label class="delivery-option ${!FAST_DELIVERY.selected ? 'is-selected' : ''}">
+      <input type="radio" name="delivery-type" value="standard" ${!FAST_DELIVERY.selected ? 'checked' : ''} onchange="selectDeliveryType('standard')">
+      <span class="delivery-option-main">
+        <strong>Standard Delivery</strong>
+        <small>Mumbai: 1–2 Days | Maharashtra: 1–3 Days | Rest of India: 3–7 Days</small>
+      </span>
+      <span class="delivery-option-price ${standardFee===0 ? 'free' : ''}">${standardFee===0 ? 'FREE' : '₹'+standardFee.toLocaleString('en-IN')}</span>
+    </label>
+    <label class="delivery-option ${FAST_DELIVERY.selected ? 'is-selected' : ''}">
+      <input type="radio" name="delivery-type" value="fast" ${FAST_DELIVERY.selected ? 'checked' : ''} onchange="selectDeliveryType('fast')">
+      <span class="delivery-option-main">
+        <strong>⚡ Fast Delivery (Air Express)</strong>
+        <small>${escapeHtml(FAST_DELIVERY.eta || 'Priority shipping')}</small>
+      </span>
+      <span class="delivery-option-price">+₹${FAST_DELIVERY.charge.toLocaleString('en-IN')}</span>
+    </label>
+  `;
+}
+function cartWeightKg(){
+  return CART.reduce((sum, l)=>{
+    const p = PRODUCTS.find(x=>x.id===l.id);
+    const w = p && p.weight_kg ? Number(p.weight_kg) : 0;
+    return sum + (w * l.qty);
+  }, 0);
+}
+function updateCheckoutTotals(){
+  const subtotal = cartTotal();
+  const deliveryFee = getEffectiveDeliveryFee(subtotal);
+  const subEl = document.getElementById('checkout-subtotal');
+  const feeEl = document.getElementById('checkout-delivery-fee');
+  const totEl = document.getElementById('checkout-total');
+  if(subEl) subEl.textContent = '₹'+subtotal.toLocaleString('en-IN');
+  if(feeEl) feeEl.textContent = deliveryFee===0 ? 'FREE' : '₹'+deliveryFee.toLocaleString('en-IN');
+  if(totEl) totEl.textContent = '₹'+getOrderTotal(subtotal).toLocaleString('en-IN');
+  renderDeliveryBanner(document.getElementById('checkout-delivery-banner'), subtotal);
 }
 function renderDeliveryBanner(el, subtotal){
   if(!el) return;
@@ -3449,6 +3577,8 @@ function useCurrentLocation(){
       const data = await resp.json();
       const formatted = data.display_name || `${latitude.toFixed(6)}, ${longitude.toFixed(6)}`;
       addressField.value = formatted;
+      const postcode = data.address && data.address.postcode ? String(data.address.postcode).replace(/\D/g,'').slice(0,6) : '';
+      if(postcode.length === 6){ document.getElementById('chk-pincode').value = postcode; onPincodeInput(postcode); }
       status.textContent = '✓ Location detected — please check the address is correct and edit if needed.';
       status.className = 'location-status success';
     }catch(err){
@@ -3632,11 +3762,9 @@ function openCheckout(){
   if(CART.length===0) return;
   closeCart();
   const subtotal = cartTotal();
-  const deliveryFee = getDeliveryFee(subtotal);
-  document.getElementById('checkout-subtotal').textContent = '₹'+subtotal.toLocaleString('en-IN');
-  document.getElementById('checkout-delivery-fee').textContent = deliveryFee===0 ? 'FREE' : '₹'+deliveryFee.toLocaleString('en-IN');
-  document.getElementById('checkout-total').textContent = '₹'+getOrderTotal(subtotal).toLocaleString('en-IN');
-  renderDeliveryBanner(document.getElementById('checkout-delivery-banner'), subtotal);
+  document.getElementById('chk-pincode').value = '';
+  resetFastDeliveryUI();
+  updateCheckoutTotals();
   document.getElementById('checkout-error').style.display='none';
   document.getElementById('location-status').textContent = '';
   document.getElementById('location-status').className = 'location-status';
@@ -3653,10 +3781,16 @@ async function submitOrder(){
   const name = document.getElementById('chk-name').value.trim();
   const phone = document.getElementById('chk-phone').value.trim();
   const address = document.getElementById('chk-address').value.trim();
+  const pincode = document.getElementById('chk-pincode').value.trim();
   const errBox = document.getElementById('checkout-error');
 
   if(!name || !phone){
     errBox.textContent = 'Please enter your name and phone number.';
+    errBox.style.display = 'block';
+    return;
+  }
+  if(!/^\d{6}$/.test(pincode)){
+    errBox.textContent = 'Please enter a valid 6-digit delivery PIN code.';
     errBox.style.display = 'block';
     return;
   }
@@ -3692,7 +3826,8 @@ async function submitOrder(){
 
   const items = CART.map(l=>({ name:l.name, price:l.price, qty:l.qty }));
   const subtotal = cartTotal();
-  const deliveryFee = getDeliveryFee(subtotal);
+  const usingFastDelivery = FAST_DELIVERY.available && FAST_DELIVERY.selected;
+  const deliveryFee = getEffectiveDeliveryFee(subtotal);
   const amount = getOrderTotal(subtotal);
   const advanceAmount = paymentMethod === 'cod' ? getCodAdvance(amount) : 0;
   const remainingAmount = paymentMethod === 'cod' ? getCodRemaining(amount) : amount;
@@ -3707,7 +3842,12 @@ async function submitOrder(){
     payment_method: paymentMethod,
     advance_amount: advanceAmount,
     remaining_amount: remainingAmount,
-    advance_paid: false
+    advance_paid: false,
+    delivery_type: usingFastDelivery ? 'fast' : 'standard',
+    delivery_pincode: pincode,
+    delivery_fee: deliveryFee,
+    fast_delivery_eta: usingFastDelivery ? FAST_DELIVERY.eta : null,
+    order_weight_kg: cartWeightKg() || null
   };
   // TODO: once a real payment-gateway backend (Razorpay/Cashfree etc.) is wired up,
   // verify the UPI payment here BEFORE inserting the order. For now, both the full
@@ -3737,6 +3877,7 @@ async function submitOrder(){
   if(window.fbq) fbq('track', 'Purchase', { value: amount, currency: 'INR' });
   CART = [];
   renderCart();
+  resetFastDeliveryUI();
   let paymentNote = '';
   if(paymentMethod === 'cod'){
     paymentNote = `<p style="margin-top:10px;">We're verifying your 15% advance of <strong>₹${advanceAmount.toLocaleString('en-IN')}</strong> (Ref: ${escapeHtml(window.upiTxnRef || '')}). Pay the remaining <strong>₹${remainingAmount.toLocaleString('en-IN')}</strong> in cash when your order is delivered.</p>`;
