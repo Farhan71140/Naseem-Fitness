@@ -2,4 +2,4 @@ User-agent: *
 Disallow: /admin-dashboard.html
 Allow: /
 
-Sitemap: https://nfsupplementstore.com/sitemap.xml
+Sitemap: https://www.nfsupplementstore.com/sitemap.xml
