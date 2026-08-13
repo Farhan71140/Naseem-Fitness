@@ -958,11 +958,12 @@
           </div>
           <button class="btn btn-primary btn-sm" onclick="openFastDeliveryModal()">+ Add PIN Code</button>
         </div>
-        <p style="font-size:13px;color:var(--paper-dim);padding:0 22px 16px;">Add every PIN code where Shiprocket's Air Express (or another fast courier) can deliver. Customers in these PIN codes will see a paid Fast Delivery option at checkout — everyone else only sees standard delivery. When you get a Fast Delivery order, book it as Air Express in Shiprocket.</p>
+        <p style="font-size:13px;color:var(--paper-dim);padding:0 22px 4px;">Add every PIN code where Shiprocket's Air Express (or another fast courier) can deliver. Customers in these PIN codes will see a paid Fast Delivery option at checkout — everyone else only sees standard delivery. When you get a Fast Delivery order, book it as Air Express in Shiprocket.</p>
+        <p style="font-size:13px;color:var(--paper-dim);padding:0 22px 16px;">Fast Delivery pricing is fixed site-wide, not set per PIN code: <strong style="color:var(--paper);">₹180</strong> on orders under ₹899, and <strong style="color:var(--paper);">₹99</strong> on orders ₹899 and above (same tier where standard delivery becomes free).</p>
         <div style="overflow-x:auto;padding:0 22px 22px;">
           <table class="responsive-table">
             <thead>
-              <tr><th>PIN Code</th><th>Charge</th><th>Delivery Time</th><th>Status</th><th></th></tr>
+              <tr><th>PIN Code</th><th>Delivery Time</th><th>Status</th><th></th></tr>
             </thead>
             <tbody id="fast-delivery-tbody"></tbody>
           </table>
@@ -1485,10 +1486,6 @@
         <input type="text" id="fd-pincode" placeholder="e.g. 786001" maxlength="6" inputmode="numeric">
       </div>
       <div class="field">
-        <label for="fd-charge">Fast Delivery Charge (₹)</label>
-        <input type="number" id="fd-charge" placeholder="e.g. 79" min="0">
-      </div>
-      <div class="field">
         <label for="fd-time">Delivery Time</label>
         <input type="text" id="fd-time" placeholder="e.g. 1–2 Days">
       </div>
@@ -1496,6 +1493,7 @@
         <input type="checkbox" id="fd-active" style="width:auto;" checked>
         <label for="fd-active" style="margin:0;">Active (shows to customers at checkout)</label>
       </div>
+      <p class="photo-upload-hint">Fast Delivery charge is fixed site-wide (₹180 under ₹899, ₹99 at ₹899+) — it's not set per PIN code.</p>
     </div>
     <div class="modal-foot">
       <button class="btn btn-ghost" onclick="closeModal('fast-delivery-modal')">Cancel</button>
@@ -2105,7 +2103,6 @@ async function renderFastDeliveryTable(){
   tbody.innerHTML = rows.map(r => `
     <tr>
       <td class="mono" data-label="PIN Code">${escapeHtml(r.pincode)}</td>
-      <td class="mono" data-label="Charge">₹${Number(r.charge).toLocaleString('en-IN')}</td>
       <td data-label="Delivery Time">${escapeHtml(r.delivery_time || '—')}</td>
       <td data-label="Status">
         <label style="display:flex;align-items:center;gap:6px;cursor:pointer;">
@@ -2130,7 +2127,6 @@ function openFastDeliveryModal(row){
   document.getElementById('fast-delivery-modal-title').textContent = row ? 'Edit Fast Delivery PIN Code' : 'Add Fast Delivery PIN Code';
   document.getElementById('fd-id').value = row ? row.id : '';
   document.getElementById('fd-pincode').value = row ? row.pincode : '';
-  document.getElementById('fd-charge').value = row ? row.charge : '';
   document.getElementById('fd-time').value = row ? (row.delivery_time || '') : '';
   document.getElementById('fd-active').checked = row ? !!row.active : true;
   document.getElementById('fast-delivery-modal').classList.add('active');
@@ -2138,12 +2134,10 @@ function openFastDeliveryModal(row){
 async function saveFastDeliveryPincode(){
   const id = document.getElementById('fd-id').value;
   const pincode = document.getElementById('fd-pincode').value.trim().replace(/\D/g,'');
-  const charge = document.getElementById('fd-charge').value;
   const deliveryTime = document.getElementById('fd-time').value.trim();
   const active = document.getElementById('fd-active').checked;
   if(!/^\d{6}$/.test(pincode)){ showToast('Enter a valid 6-digit PIN code'); return; }
-  if(charge === ''){ showToast('Enter the Fast Delivery charge'); return; }
-  const payload = { pincode, charge: Number(charge), delivery_time: deliveryTime || '1–2 Days', active };
+  const payload = { pincode, delivery_time: deliveryTime || '1–2 Days', active };
   let error;
   if(id){
     ({ error } = await sb.from('fast_delivery_pincodes').update(payload).eq('id', id));
