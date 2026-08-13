@@ -953,24 +953,12 @@
       <div class="panel" style="margin-top:22px;">
         <div class="panel-head">
           <div>
-            <h3>⚡ Fast Delivery Zones (Air Express)</h3>
-            <span class="mono" style="font-size:12px;color:var(--paper-dim);">PIN codes where paid Fast Delivery shows at checkout</span>
+            <h3>⚡ Fast Delivery (Air Express)</h3>
+            <span class="mono" style="font-size:12px;color:var(--paper-dim);">Now checked live via Shiprocket — no manual PIN list</span>
           </div>
-          <button class="btn btn-primary btn-sm" onclick="openFastDeliveryModal()">+ Add PIN Code</button>
         </div>
-        <p style="font-size:13px;color:var(--paper-dim);padding:0 22px 4px;">Add every PIN code where Shiprocket's Air Express (or another fast courier) can deliver. Customers in these PIN codes will see a paid Fast Delivery option at checkout — everyone else only sees standard delivery. When you get a Fast Delivery order, book it as Air Express in Shiprocket.</p>
-        <p style="font-size:13px;color:var(--paper-dim);padding:0 22px 16px;">Fast Delivery pricing is fixed site-wide, not set per PIN code: <strong style="color:var(--paper);">₹180</strong> on orders under ₹899, and <strong style="color:var(--paper);">₹99</strong> on orders ₹899 and above (same tier where standard delivery becomes free).</p>
-        <div style="overflow-x:auto;padding:0 22px 22px;">
-          <table class="responsive-table">
-            <thead>
-              <tr><th>PIN Code</th><th>Delivery Time</th><th>Status</th><th></th></tr>
-            </thead>
-            <tbody id="fast-delivery-tbody"></tbody>
-          </table>
-        </div>
-        <div id="fast-delivery-empty" class="empty-state" style="display:none;">
-          <p>No Fast Delivery PIN codes added yet. Add one to start offering paid Air Express delivery at checkout.</p>
-        </div>
+        <p style="font-size:13px;color:var(--paper-dim);padding:0 22px 4px;">Fast Delivery at checkout is no longer a manual PIN code list — it now calls Shiprocket's live Courier Serviceability API for every PIN code a customer enters, using your pickup PIN code <strong class="mono" style="color:var(--paper);">400008</strong> and the cart's real weight. If Shiprocket has an Air Express courier serviceable for that PIN code right now, the customer automatically sees the paid Fast Delivery option — nothing to add or maintain here.</p>
+        <p style="font-size:13px;color:var(--paper-dim);padding:0 22px 16px;">Fast Delivery pricing is still fixed site-wide: <strong style="color:var(--paper);">₹180</strong> on orders under ₹899, and <strong style="color:var(--paper);">₹99</strong> on orders ₹899 and above. When a Fast Delivery order comes in, book it as Air Express in Shiprocket as usual.</p>
       </div>
     </section>
 
@@ -1468,36 +1456,6 @@
     <div class="modal-foot">
       <button class="btn btn-ghost" onclick="closeModal('product-modal')">Cancel</button>
       <button class="btn btn-primary" onclick="saveProduct()">Save Product</button>
-    </div>
-  </div>
-</div>
-
-<!-- ================= FAST DELIVERY PIN CODE MODAL ================= -->
-<div class="modal-overlay" id="fast-delivery-modal">
-  <div class="modal">
-    <div class="modal-head">
-      <h3 id="fast-delivery-modal-title">Add Fast Delivery PIN Code</h3>
-      <button class="modal-close" onclick="closeModal('fast-delivery-modal')">✕</button>
-    </div>
-    <div class="modal-body">
-      <input type="hidden" id="fd-id">
-      <div class="field">
-        <label for="fd-pincode">PIN Code</label>
-        <input type="text" id="fd-pincode" placeholder="e.g. 786001" maxlength="6" inputmode="numeric">
-      </div>
-      <div class="field">
-        <label for="fd-time">Delivery Time</label>
-        <input type="text" id="fd-time" placeholder="e.g. 1–2 Days">
-      </div>
-      <div class="field" style="display:flex;align-items:center;gap:10px;flex-direction:row;">
-        <input type="checkbox" id="fd-active" style="width:auto;" checked>
-        <label for="fd-active" style="margin:0;">Active (shows to customers at checkout)</label>
-      </div>
-      <p class="photo-upload-hint">Fast Delivery charge is fixed site-wide (₹180 under ₹899, ₹99 at ₹899+) — it's not set per PIN code.</p>
-    </div>
-    <div class="modal-foot">
-      <button class="btn btn-ghost" onclick="closeModal('fast-delivery-modal')">Cancel</button>
-      <button class="btn btn-primary" onclick="saveFastDeliveryPincode()">Save</button>
     </div>
   </div>
 </div>
@@ -2080,86 +2038,6 @@ async function renderDelivery(){
 
   renderDeliveryPartnerList('del-shiprocket-list', 'del-shiprocket-empty', shiprocket);
   renderDeliveryPartnerList('del-borzo-list', 'del-borzo-empty', borzo);
-  renderFastDeliveryTable();
-}
-
-/* ---------- fast delivery pincodes ---------- */
-async function getFastDeliveryPincodes(){
-  const { data, error } = await sb.from('fast_delivery_pincodes').select('*').order('pincode', { ascending:true });
-  if(error){ showToast('Error loading Fast Delivery PIN codes: ' + error.message); return []; }
-  return data;
-}
-async function renderFastDeliveryTable(){
-  const rows = await getFastDeliveryPincodes();
-  const tbody = document.getElementById('fast-delivery-tbody');
-  const empty = document.getElementById('fast-delivery-empty');
-  if(!tbody) return;
-  if(rows.length === 0){
-    tbody.innerHTML = '';
-    if(empty) empty.style.display = 'block';
-    return;
-  }
-  if(empty) empty.style.display = 'none';
-  tbody.innerHTML = rows.map(r => `
-    <tr>
-      <td class="mono" data-label="PIN Code">${escapeHtml(r.pincode)}</td>
-      <td data-label="Delivery Time">${escapeHtml(r.delivery_time || '—')}</td>
-      <td data-label="Status">
-        <label style="display:flex;align-items:center;gap:6px;cursor:pointer;">
-          <input type="checkbox" ${r.active ? 'checked' : ''} onchange="toggleFastDeliveryActive('${r.id}', this.checked)">
-          <span>${r.active ? 'Active' : 'Inactive'}</span>
-        </label>
-      </td>
-      <td data-label="Actions">
-        <div class="row-actions">
-          <button class="icon-btn" title="Edit" onclick='openFastDeliveryModal(${JSON.stringify(r).replace(/'/g,"&#39;")})'>
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.12 2.12 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
-          </button>
-          <button class="icon-btn danger" title="Delete" onclick="deleteFastDeliveryPincode('${r.id}')">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 6h18M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2m3 0l-1 14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2L4 6h16z"/></svg>
-          </button>
-        </div>
-      </td>
-    </tr>
-  `).join('');
-}
-function openFastDeliveryModal(row){
-  document.getElementById('fast-delivery-modal-title').textContent = row ? 'Edit Fast Delivery PIN Code' : 'Add Fast Delivery PIN Code';
-  document.getElementById('fd-id').value = row ? row.id : '';
-  document.getElementById('fd-pincode').value = row ? row.pincode : '';
-  document.getElementById('fd-time').value = row ? (row.delivery_time || '') : '';
-  document.getElementById('fd-active').checked = row ? !!row.active : true;
-  document.getElementById('fast-delivery-modal').classList.add('active');
-}
-async function saveFastDeliveryPincode(){
-  const id = document.getElementById('fd-id').value;
-  const pincode = document.getElementById('fd-pincode').value.trim().replace(/\D/g,'');
-  const deliveryTime = document.getElementById('fd-time').value.trim();
-  const active = document.getElementById('fd-active').checked;
-  if(!/^\d{6}$/.test(pincode)){ showToast('Enter a valid 6-digit PIN code'); return; }
-  const payload = { pincode, delivery_time: deliveryTime || '1–2 Days', active };
-  let error;
-  if(id){
-    ({ error } = await sb.from('fast_delivery_pincodes').update(payload).eq('id', id));
-  } else {
-    ({ error } = await sb.from('fast_delivery_pincodes').insert(payload));
-  }
-  if(error){ showToast('Error: ' + error.message); return; }
-  closeModal('fast-delivery-modal');
-  renderFastDeliveryTable();
-  showToast(id ? 'Fast Delivery PIN code updated' : 'Fast Delivery PIN code added');
-}
-async function toggleFastDeliveryActive(id, active){
-  const { error } = await sb.from('fast_delivery_pincodes').update({ active }).eq('id', id);
-  if(error){ showToast('Error: ' + error.message); renderFastDeliveryTable(); return; }
-  showToast(active ? 'PIN code activated' : 'PIN code deactivated');
-}
-async function deleteFastDeliveryPincode(id){
-  if(!confirm('Delete this Fast Delivery PIN code? Customers there will no longer see the Fast Delivery option.')) return;
-  const { error } = await sb.from('fast_delivery_pincodes').delete().eq('id', id);
-  if(error){ showToast('Error: ' + error.message); return; }
-  renderFastDeliveryTable();
-  showToast('Fast Delivery PIN code deleted');
 }
 
 function renderDeliveryPartnerList(listId, emptyId, orders){

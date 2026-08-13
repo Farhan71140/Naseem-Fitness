@@ -3111,10 +3111,15 @@ function onPincodeInput(val){
 async function checkFastDeliveryPincode(pincode){
   const statusEl = document.getElementById('pincode-status');
   try{
-    const { data, error } = await sb.from('fast_delivery_pincodes').select('*').eq('pincode', pincode).eq('active', true).maybeSingle();
-    if(error) throw error;
-    if(data){
-      FAST_DELIVERY = { pincode, available:true, eta:data.delivery_time || '', selected:false };
+    // Live check against Shiprocket's Courier Serviceability API (server-side,
+    // via /api/shiprocket-serviceability) instead of a manually-maintained
+    // PIN code list — this reflects real Air Express coverage automatically,
+    // including whenever Shiprocket adds/drops couriers for a PIN code.
+    const weight = Math.max(cartWeightKg() || 0, 0.5);
+    const resp = await fetch(`/api/shiprocket-serviceability?pincode=${encodeURIComponent(pincode)}&weight=${encodeURIComponent(weight)}`);
+    const data = await resp.json();
+    if(data && data.available){
+      FAST_DELIVERY = { pincode, available:true, eta:data.eta || '', selected:false };
       if(statusEl){ statusEl.textContent = '⚡ Fast Delivery is available at this PIN code!'; statusEl.className = 'pincode-status available'; }
     }else{
       FAST_DELIVERY = { pincode, available:false, eta:'', selected:false };
