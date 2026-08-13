@@ -2252,7 +2252,7 @@ let REVIEWS = [];
 let CART = []; // [{id, name, price, unit, qty}]
 
 /* ---------- fast delivery state ---------- */
-let FAST_DELIVERY = { pincode:'', available:false, charge:0, eta:'', selected:false };
+let FAST_DELIVERY = { pincode:'', available:false, eta:'', selected:false };
 let pincodeCheckTimer = null;
 
 function escapeHtml(str){
@@ -3062,16 +3062,25 @@ function cartTotal(){
 /* ---------- delivery fee ---------- */
 const FREE_DELIVERY_THRESHOLD = 899;
 const DELIVERY_FEE = 99;
+// Fast Delivery (Air Express) is a fixed, site-wide rate — not set per PIN
+// code. Orders under the free-delivery threshold pay ₹180 for Fast Delivery;
+// orders at/above the threshold (where standard delivery is already free)
+// pay a lower ₹99 for Fast Delivery.
+const FAST_DELIVERY_FEE_BELOW_THRESHOLD = 180;
+const FAST_DELIVERY_FEE_AT_OR_ABOVE_THRESHOLD = 99;
 
 function getDeliveryFee(subtotal){
   if(subtotal <= 0) return 0;
   return subtotal >= FREE_DELIVERY_THRESHOLD ? 0 : DELIVERY_FEE;
 }
+function getFastDeliveryFee(subtotal){
+  return subtotal >= FREE_DELIVERY_THRESHOLD ? FAST_DELIVERY_FEE_AT_OR_ABOVE_THRESHOLD : FAST_DELIVERY_FEE_BELOW_THRESHOLD;
+}
 // Standard delivery fee stays as-is even when Fast Delivery is available for a
 // PIN code — Fast Delivery is an optional paid upgrade the customer selects,
 // it never replaces the free-delivery threshold on its own.
 function getEffectiveDeliveryFee(subtotal){
-  if(FAST_DELIVERY.selected && FAST_DELIVERY.available) return FAST_DELIVERY.charge;
+  if(FAST_DELIVERY.selected && FAST_DELIVERY.available) return getFastDeliveryFee(subtotal);
   return getDeliveryFee(subtotal);
 }
 function getOrderTotal(subtotal){
@@ -3080,7 +3089,7 @@ function getOrderTotal(subtotal){
 
 /* ---------- fast delivery (PIN code serviceability) ---------- */
 function resetFastDeliveryUI(){
-  FAST_DELIVERY = { pincode:'', available:false, charge:0, eta:'', selected:false };
+  FAST_DELIVERY = { pincode:'', available:false, eta:'', selected:false };
   const statusEl = document.getElementById('pincode-status');
   const listEl = document.getElementById('delivery-option-list');
   if(statusEl){ statusEl.textContent = ''; statusEl.className = 'pincode-status'; }
@@ -3105,14 +3114,14 @@ async function checkFastDeliveryPincode(pincode){
     const { data, error } = await sb.from('fast_delivery_pincodes').select('*').eq('pincode', pincode).eq('active', true).maybeSingle();
     if(error) throw error;
     if(data){
-      FAST_DELIVERY = { pincode, available:true, charge:Number(data.charge)||0, eta:data.delivery_time || '', selected:false };
+      FAST_DELIVERY = { pincode, available:true, eta:data.delivery_time || '', selected:false };
       if(statusEl){ statusEl.textContent = '⚡ Fast Delivery is available at this PIN code!'; statusEl.className = 'pincode-status available'; }
     }else{
-      FAST_DELIVERY = { pincode, available:false, charge:0, eta:'', selected:false };
+      FAST_DELIVERY = { pincode, available:false, eta:'', selected:false };
       if(statusEl){ statusEl.textContent = 'Fast Delivery isn\'t available at this PIN code — standard delivery applies.'; statusEl.className = 'pincode-status unavailable'; }
     }
   }catch(e){
-    FAST_DELIVERY = { pincode, available:false, charge:0, eta:'', selected:false };
+    FAST_DELIVERY = { pincode, available:false, eta:'', selected:false };
     if(statusEl){ statusEl.textContent = ''; statusEl.className = 'pincode-status'; }
   }
   renderDeliveryOptions();
@@ -3131,6 +3140,7 @@ function renderDeliveryOptions(){
   if(!FAST_DELIVERY.available){ listEl.style.display = 'none'; listEl.innerHTML = ''; return; }
   const subtotal = cartTotal();
   const standardFee = getDeliveryFee(subtotal);
+  const fastFee = getFastDeliveryFee(subtotal);
   listEl.style.display = 'flex';
   listEl.innerHTML = `
     <label class="delivery-option ${!FAST_DELIVERY.selected ? 'is-selected' : ''}">
@@ -3147,7 +3157,7 @@ function renderDeliveryOptions(){
         <strong>⚡ Fast Delivery (Air Express)</strong>
         <small>${escapeHtml(FAST_DELIVERY.eta || 'Priority shipping')}</small>
       </span>
-      <span class="delivery-option-price">+₹${FAST_DELIVERY.charge.toLocaleString('en-IN')}</span>
+      <span class="delivery-option-price">+₹${fastFee.toLocaleString('en-IN')}</span>
     </label>
   `;
 }
