@@ -51,6 +51,7 @@ module.exports = async function handler(req, res) {
 
   const pincode = String(req.query.pincode || '').trim();
   const weightRaw = Number(req.query.weight);
+  const debug = req.query.debug === '1';
   // Shiprocket needs a minimum parcel weight; 0.5kg is a safe floor for a
   // supplement order (protein tubs etc. will report their real weight).
   const weight = Number.isFinite(weightRaw) && weightRaw > 0 ? weightRaw : 0.5;
@@ -74,22 +75,26 @@ module.exports = async function handler(req, res) {
     });
 
     if (!resp.ok) {
+      const bodyText = await resp.text().catch(() => '');
+      console.error(`[shiprocket-serviceability] Serviceability API returned ${resp.status} for pincode ${pincode}:`, bodyText);
       // Serviceability lookup failed — fail safe, just don't offer Fast
       // Delivery rather than breaking checkout.
       res.statusCode = 200;
-      return res.json({ available: false });
+      return res.json({ available: false, ...(debug ? { debug_error: `Shiprocket API ${resp.status}`, debug_body: bodyText } : {}) });
     }
 
     const data = await resp.json();
     const couriers = (data && data.data && data.data.available_courier_companies) || [];
+    console.log(`[shiprocket-serviceability] pincode ${pincode}: ${couriers.length} total couriers, response status: ${data && data.status_code}`);
 
     // Shiprocket flags each courier with is_surface: true (surface/road) or
     // false (air). We only want couriers actually offering Air/Express.
     const airCouriers = couriers.filter(c => c && c.is_surface === false);
+    console.log(`[shiprocket-serviceability] pincode ${pincode}: ${airCouriers.length} air couriers among them`);
 
     if (airCouriers.length === 0) {
       res.statusCode = 200;
-      return res.json({ available: false });
+      return res.json({ available: false, ...(debug ? { debug_total_couriers: couriers.length, debug_air_couriers: 0, debug_raw_status: data && data.status_code, debug_raw_message: data && data.message } : {}) });
     }
 
     // Pick the fastest ETD among available air couriers.
@@ -115,8 +120,9 @@ module.exports = async function handler(req, res) {
       courier_name: best.courier_name || null
     });
   } catch (e) {
+    console.error(`[shiprocket-serviceability] Exception for pincode ${pincode}:`, e.message);
     // Any failure (credentials missing, Shiprocket down, etc.) — fail safe.
     res.statusCode = 200;
-    return res.json({ available: false });
+    return res.json({ available: false, ...(debug ? { debug_error: e.message } : {}) });
   }
 };
