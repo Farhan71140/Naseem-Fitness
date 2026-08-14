@@ -3153,10 +3153,10 @@ function renderDeliveryOptions(){
     </label>
     <label class="delivery-option ${FAST_DELIVERY.selected ? 'is-selected' : ''}">
       <input type="radio" name="delivery-type" value="fast" ${FAST_DELIVERY.selected ? 'checked' : ''} onchange="selectDeliveryType('fast')">
-      <span class="delivery-option-icon">⚡</span>
+      <span class="delivery-option-icon" style="font-size:15px;letter-spacing:-2px;">⚡✈️</span>
       <span class="delivery-option-main">
-        <strong>Fast Delivery <span class="do-badge">Priority</span></strong>
-        <small>Expedited dispatch &amp; priority courier handling</small>
+        <strong>Air Express Delivery <span class="do-badge">Priority</span></strong>
+        <small>Mumbai &amp; Maharashtra: 1–2 Days · All India: 3–4 Days</small>
       </span>
       <span class="delivery-option-price">+₹${fastFee.toLocaleString('en-IN')}</span>
       <span class="do-check">${checkSvg}</span>
