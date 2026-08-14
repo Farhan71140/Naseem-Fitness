@@ -2252,7 +2252,7 @@ let REVIEWS = [];
 let CART = []; // [{id, name, price, unit, qty}]
 
 /* ---------- fast delivery state ---------- */
-let FAST_DELIVERY = { pincode:'', available:false, eta:'', selected:false };
+let FAST_DELIVERY = { pincode:'', available:false, eta:'', rate:null, selected:false };
 let pincodeCheckTimer = null;
 
 function escapeHtml(str){
@@ -3062,10 +3062,12 @@ function cartTotal(){
 /* ---------- delivery fee ---------- */
 const FREE_DELIVERY_THRESHOLD = 899;
 const DELIVERY_FEE = 99;
-// Fast Delivery (Air Express) is a fixed, site-wide rate — not set per PIN
-// code. Orders under the free-delivery threshold pay ₹180 for Fast Delivery;
-// orders at/above the threshold (where standard delivery is already free)
-// pay a lower ₹99 for Fast Delivery.
+// Fast Delivery (Air Express) pricing now comes LIVE from Shiprocket's
+// Serviceability API — it's the actual computed cost for this exact
+// pickup→delivery PIN code pair and cart weight, so it varies by distance
+// instead of being one flat site-wide number. The fixed tiers below are
+// kept ONLY as a safety-net fallback for the rare case Shiprocket doesn't
+// return a rate (e.g. a transient API hiccup) so checkout never breaks.
 const FAST_DELIVERY_FEE_BELOW_THRESHOLD = 180;
 const FAST_DELIVERY_FEE_AT_OR_ABOVE_THRESHOLD = 99;
 
@@ -3074,6 +3076,7 @@ function getDeliveryFee(subtotal){
   return subtotal >= FREE_DELIVERY_THRESHOLD ? 0 : DELIVERY_FEE;
 }
 function getFastDeliveryFee(subtotal){
+  if(FAST_DELIVERY.rate && FAST_DELIVERY.rate > 0) return FAST_DELIVERY.rate;
   return subtotal >= FREE_DELIVERY_THRESHOLD ? FAST_DELIVERY_FEE_AT_OR_ABOVE_THRESHOLD : FAST_DELIVERY_FEE_BELOW_THRESHOLD;
 }
 // Standard delivery fee stays as-is even when Fast Delivery is available for a
@@ -3089,7 +3092,7 @@ function getOrderTotal(subtotal){
 
 /* ---------- fast delivery (PIN code serviceability) ---------- */
 function resetFastDeliveryUI(){
-  FAST_DELIVERY = { pincode:'', available:false, eta:'', selected:false };
+  FAST_DELIVERY = { pincode:'', available:false, eta:'', rate:null, selected:false };
   const statusEl = document.getElementById('pincode-status');
   const listEl = document.getElementById('delivery-option-list');
   if(statusEl){ statusEl.textContent = ''; statusEl.className = 'pincode-status'; }
@@ -3119,14 +3122,14 @@ async function checkFastDeliveryPincode(pincode){
     const resp = await fetch(`/api/shiprocket-serviceability?pincode=${encodeURIComponent(pincode)}&weight=${encodeURIComponent(weight)}`);
     const data = await resp.json();
     if(data && data.available){
-      FAST_DELIVERY = { pincode, available:true, eta:data.eta || '', selected:false };
+      FAST_DELIVERY = { pincode, available:true, eta:data.eta || '', rate:(typeof data.rate === 'number' && data.rate > 0) ? data.rate : null, selected:false };
       if(statusEl){ statusEl.textContent = '⚡ Fast Delivery is available at this PIN code!'; statusEl.className = 'pincode-status available'; }
     }else{
-      FAST_DELIVERY = { pincode, available:false, eta:'', selected:false };
+      FAST_DELIVERY = { pincode, available:false, eta:'', rate:null, selected:false };
       if(statusEl){ statusEl.textContent = 'Fast Delivery isn\'t available at this PIN code — standard delivery applies.'; statusEl.className = 'pincode-status unavailable'; }
     }
   }catch(e){
-    FAST_DELIVERY = { pincode, available:false, eta:'', selected:false };
+    FAST_DELIVERY = { pincode, available:false, eta:'', rate:null, selected:false };
     if(statusEl){ statusEl.textContent = ''; statusEl.className = 'pincode-status'; }
   }
   renderDeliveryOptions();

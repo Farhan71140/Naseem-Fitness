@@ -958,7 +958,7 @@
           </div>
         </div>
         <p style="font-size:13px;color:var(--paper-dim);padding:0 22px 4px;">Fast Delivery at checkout is no longer a manual PIN code list — it now calls Shiprocket's live Courier Serviceability API for every PIN code a customer enters, using your pickup PIN code <strong class="mono" style="color:var(--paper);">400008</strong> and the cart's real weight. If Shiprocket has an Air Express courier serviceable for that PIN code right now, the customer automatically sees the paid Fast Delivery option — nothing to add or maintain here.</p>
-        <p style="font-size:13px;color:var(--paper-dim);padding:0 22px 16px;">Fast Delivery pricing is still fixed site-wide: <strong style="color:var(--paper);">₹180</strong> on orders under ₹899, and <strong style="color:var(--paper);">₹99</strong> on orders ₹899 and above. When a Fast Delivery order comes in, book it as Air Express in Shiprocket as usual.</p>
+        <p style="font-size:13px;color:var(--paper-dim);padding:0 22px 16px;">Fast Delivery pricing is now <strong style="color:var(--paper);">live per PIN code</strong> too — the customer sees the exact Air Express cost Shiprocket calculates for their specific delivery PIN code and cart weight, not a flat site-wide charge. (If Shiprocket's rate lookup ever fails, checkout falls back to a flat ₹180 under ₹899 / ₹99 at ₹899+ so nothing breaks.) When a Fast Delivery order comes in, book it as Air Express in Shiprocket as usual.</p>
       </div>
     </section>
 
