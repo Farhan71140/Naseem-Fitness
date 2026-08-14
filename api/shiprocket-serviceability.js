@@ -113,10 +113,19 @@ module.exports = async function handler(req, res) {
       }
     }
 
+    // Shiprocket returns the actual computed shipping cost for THIS
+    // pickup→delivery pincode pair + weight in `rate` (and sometimes
+    // `freight_charge`/`other_charges` separately — `rate` is already the
+    // combined total). Round up to the nearest rupee for a clean customer-
+    // facing price.
+    const rawRate = Number(best.rate);
+    const rate = Number.isFinite(rawRate) && rawRate > 0 ? Math.ceil(rawRate) : null;
+
     res.statusCode = 200;
     return res.json({
       available: true,
       eta,
+      rate,
       courier_name: best.courier_name || null
     });
   } catch (e) {
