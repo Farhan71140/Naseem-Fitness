@@ -3062,7 +3062,7 @@ function cartTotal(){
 /* ---------- delivery fee ---------- */
 const FREE_DELIVERY_THRESHOLD = 899;
 const DELIVERY_FEE = 99;
-// Fast Delivery (Air Express) pricing now comes LIVE from Shiprocket's
+// Fast Delivery (Shiprocket Quick) pricing now comes LIVE from Shiprocket's
 // Serviceability API — it's the actual computed cost for this exact
 // pickup→delivery PIN code pair and cart weight, so it varies by distance
 // instead of being one flat site-wide number. The fixed tiers below are
@@ -3116,7 +3116,7 @@ async function checkFastDeliveryPincode(pincode){
   try{
     // Live check against Shiprocket's Courier Serviceability API (server-side,
     // via /api/shiprocket-serviceability) instead of a manually-maintained
-    // PIN code list — this reflects real Air Express coverage automatically,
+    // PIN code list — this reflects real Shiprocket Quick coverage automatically,
     // including whenever Shiprocket adds/drops couriers for a PIN code.
     const weight = Math.max(cartWeightKg() || 0, 0.5);
     const resp = await fetch(`/api/shiprocket-serviceability?pincode=${encodeURIComponent(pincode)}&weight=${encodeURIComponent(weight)}`);
@@ -3162,7 +3162,7 @@ function renderDeliveryOptions(){
     <label class="delivery-option ${FAST_DELIVERY.selected ? 'is-selected' : ''}">
       <input type="radio" name="delivery-type" value="fast" ${FAST_DELIVERY.selected ? 'checked' : ''} onchange="selectDeliveryType('fast')">
       <span class="delivery-option-main">
-        <strong>⚡ Fast Delivery (Air Express)</strong>
+        <strong>⚡ Fast Delivery (Shiprocket Quick)</strong>
         <small>${escapeHtml(FAST_DELIVERY.eta || 'Priority shipping')}</small>
       </span>
       <span class="delivery-option-price">+₹${fastFee.toLocaleString('en-IN')}</span>

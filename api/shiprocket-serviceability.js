@@ -2,9 +2,12 @@
 //
 // Replaces the old manually-maintained "Fast Delivery PIN codes" table.
 // Called from the checkout PIN code field — checks LIVE against
-// Shiprocket's Courier Serviceability API whether an Air/Express courier
-// can deliver to the customer's PIN code for the current cart weight, and
-// returns the fastest ETA if so.
+// Shiprocket's Courier Serviceability API whether SHIPROCKET QUICK
+// (same-day/instant hyperlocal delivery) can deliver to the customer's
+// PIN code for the current cart weight, and returns Quick's actual
+// computed rate + ETA if so. Shiprocket Quick shows up as one entry
+// (courier_name: "Shiprocket Quick") in the normal serviceability
+// response — no separate Hyperlocal endpoint needed.
 //
 // Shiprocket credentials are read from environment variables, never
 // exposed to the browser:
@@ -84,49 +87,44 @@ module.exports = async function handler(req, res) {
     }
 
     const data = await resp.json();
-    const couriers = (data && data.data && data.data.available_courier_companies) || [];
-    console.log(`[shiprocket-serviceability] pincode ${pincode}: ${couriers.length} total couriers, response status: ${data && data.status_code}`);
+    // The response shape can vary slightly (available_courier_companies is the
+    // common key; some Hyperlocal docs show `data` as the array directly) —
+    // handle both.
+    const couriers = (data && data.data && Array.isArray(data.data.available_courier_companies))
+      ? data.data.available_courier_companies
+      : (data && Array.isArray(data.data) ? data.data : []);
+    console.log(`[shiprocket-serviceability] pincode ${pincode}: ${couriers.length} total couriers returned`);
 
-    // Shiprocket flags each courier with is_surface: true (surface/road) or
-    // false (air). We only want couriers actually offering Air/Express.
-    const airCouriers = couriers.filter(c => c && c.is_surface === false);
-    console.log(`[shiprocket-serviceability] pincode ${pincode}: ${airCouriers.length} air couriers among them`);
+    // "Fast Delivery" on the site specifically means Shiprocket QUICK
+    // (same-day/instant hyperlocal delivery) — not just any Air Express
+    // courier. Shiprocket Quick shows up as one entry in this same
+    // serviceability response, named "Shiprocket Quick", when it's
+    // serviceable for this PIN code pair.
+    const quick = couriers.find(c => c && c.courier_name && /quick/i.test(c.courier_name));
 
-    if (airCouriers.length === 0) {
+    if (!quick) {
       res.statusCode = 200;
-      return res.json({ available: false, ...(debug ? { debug_total_couriers: couriers.length, debug_air_couriers: 0, debug_raw_status: data && data.status_code, debug_raw_message: data && data.message } : {}) });
+      return res.json({ available: false, ...(debug ? { debug_total_couriers: couriers.length, debug_courier_names: couriers.map(c => c && c.courier_name) } : {}) });
     }
 
-    // Pick the fastest ETD among available air couriers.
-    const parseEtd = (c) => {
-      const d = c.etd ? new Date(c.etd) : null;
-      return d && !isNaN(d) ? d.getTime() : Infinity;
-    };
-    airCouriers.sort((a, b) => parseEtd(a) - parseEtd(b));
-    const best = airCouriers[0];
+    // Rate sometimes comes back as a string ("345.3") rather than a number.
+    const rawRate = Number(quick.rate ?? quick.rates);
+    const rate = Number.isFinite(rawRate) && rawRate > 0 ? Math.ceil(rawRate) : null;
 
-    let eta = 'Priority Air Express shipping';
-    if (best.etd) {
-      const d = new Date(best.etd);
+    let eta = 'Same-day delivery via Shiprocket Quick';
+    if (quick.etd) {
+      const d = new Date(quick.etd);
       if (!isNaN(d)) {
-        eta = `Estimated delivery by ${d.toLocaleDateString('en-IN', { day: 'numeric', month: 'short' })} via Air Express`;
+        eta = `Estimated delivery by ${d.toLocaleDateString('en-IN', { day: 'numeric', month: 'short' })} via Shiprocket Quick`;
       }
     }
-
-    // Shiprocket returns the actual computed shipping cost for THIS
-    // pickup→delivery pincode pair + weight in `rate` (and sometimes
-    // `freight_charge`/`other_charges` separately — `rate` is already the
-    // combined total). Round up to the nearest rupee for a clean customer-
-    // facing price.
-    const rawRate = Number(best.rate);
-    const rate = Number.isFinite(rawRate) && rawRate > 0 ? Math.ceil(rawRate) : null;
 
     res.statusCode = 200;
     return res.json({
       available: true,
       eta,
       rate,
-      courier_name: best.courier_name || null
+      courier_name: quick.courier_name
     });
   } catch (e) {
     console.error(`[shiprocket-serviceability] Exception for pincode ${pincode}:`, e.message);

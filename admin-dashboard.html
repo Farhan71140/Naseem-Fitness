@@ -953,12 +953,12 @@
       <div class="panel" style="margin-top:22px;">
         <div class="panel-head">
           <div>
-            <h3>⚡ Fast Delivery (Air Express)</h3>
+            <h3>⚡ Fast Delivery (Shiprocket Quick)</h3>
             <span class="mono" style="font-size:12px;color:var(--paper-dim);">Now checked live via Shiprocket — no manual PIN list</span>
           </div>
         </div>
-        <p style="font-size:13px;color:var(--paper-dim);padding:0 22px 4px;">Fast Delivery at checkout is no longer a manual PIN code list — it now calls Shiprocket's live Courier Serviceability API for every PIN code a customer enters, using your pickup PIN code <strong class="mono" style="color:var(--paper);">400008</strong> and the cart's real weight. If Shiprocket has an Air Express courier serviceable for that PIN code right now, the customer automatically sees the paid Fast Delivery option — nothing to add or maintain here.</p>
-        <p style="font-size:13px;color:var(--paper-dim);padding:0 22px 16px;">Fast Delivery pricing is now <strong style="color:var(--paper);">live per PIN code</strong> too — the customer sees the exact Air Express cost Shiprocket calculates for their specific delivery PIN code and cart weight, not a flat site-wide charge. (If Shiprocket's rate lookup ever fails, checkout falls back to a flat ₹180 under ₹899 / ₹99 at ₹899+ so nothing breaks.) When a Fast Delivery order comes in, book it as Air Express in Shiprocket as usual.</p>
+        <p style="font-size:13px;color:var(--paper-dim);padding:0 22px 4px;">Fast Delivery at checkout is no longer a manual PIN code list — it now calls Shiprocket's live Courier Serviceability API for every PIN code a customer enters, using your pickup PIN code <strong class="mono" style="color:var(--paper);">400008</strong> and the cart's real weight, and looks specifically for <strong style="color:var(--paper);">Shiprocket Quick</strong> (same-day/instant delivery) being serviceable there. If Quick is serviceable for that PIN code right now, the customer automatically sees the paid Fast Delivery option — nothing to add or maintain here.</p>
+        <p style="font-size:13px;color:var(--paper-dim);padding:0 22px 16px;">Fast Delivery pricing is now <strong style="color:var(--paper);">live per PIN code</strong> too — the customer sees the exact Shiprocket Quick cost Shiprocket calculates for their specific delivery PIN code and cart weight, not a flat site-wide charge. (If Shiprocket's rate lookup ever fails, checkout falls back to a flat ₹180 under ₹899 / ₹99 at ₹899+ so nothing breaks.) When a Fast Delivery order comes in, book/fulfil it via Shiprocket Quick as usual — select "Shiprocket Quick" as the delivery partner in the Delivery page below.</p>
       </div>
     </section>
 
@@ -1423,7 +1423,7 @@
       <div class="field">
         <label for="product-weight">Weight (kg)</label>
         <input type="number" id="product-weight" placeholder="e.g. 1.2" min="0" step="0.01">
-        <div class="photo-upload-hint">Used to calculate the total parcel weight at checkout, and when booking Fast/Air Express delivery.</div>
+        <div class="photo-upload-hint">Used to calculate the total parcel weight at checkout, and when booking Fast/Shiprocket Quick delivery.</div>
       </div>
       <div class="field">
         <label>Product Photos (up to 5 — first photo is the cover shown in listings)</label>
