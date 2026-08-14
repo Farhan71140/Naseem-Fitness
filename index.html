@@ -1260,24 +1260,52 @@
   .delivery-info-banner p{font-size:12.5px;line-height:1.6;color:var(--paper-dim);margin:0;}
   .delivery-info-banner p strong{color:var(--paper);font-family:'Anton',sans-serif;font-weight:400;font-size:13px;letter-spacing:0.2px;}
 
-  /* ===== FAST DELIVERY / PIN CODE ===== */
-  .pincode-status{font-size:12px;margin-top:6px;min-height:16px;}
-  .pincode-status.checking{color:var(--paper-dim);}
-  .pincode-status.available{color:var(--teal);}
-  .pincode-status.unavailable{color:var(--paper-dim);}
-  .delivery-option-list{display:flex;flex-direction:column;gap:10px;margin:14px 0;}
+  /* ===== DELIVERY OPTIONS (ultra premium) ===== */
+  .delivery-option-list{display:flex;flex-direction:column;gap:12px;margin:16px 0;}
   .delivery-option{
-    display:flex;align-items:flex-start;gap:12px;padding:13px 14px;border-radius:10px;
-    border:1px solid var(--line);cursor:pointer;transition:border-color .2s, background .2s;
+    position:relative;display:flex;align-items:center;gap:14px;padding:16px;border-radius:14px;
+    border:1px solid var(--line);cursor:pointer;overflow:hidden;
+    background:linear-gradient(160deg, rgba(255,255,255,0.025), rgba(255,255,255,0) 60%);
+    transition:border-color .25s ease, background .25s ease, box-shadow .25s ease, transform .15s ease;
   }
-  .delivery-option:hover{border-color:var(--line-strong);}
-  .delivery-option.is-selected{border-color:var(--teal);background:rgba(255,210,74,0.08);}
-  .delivery-option input{margin-top:3px;flex:none;accent-color:var(--teal);}
+  .delivery-option::after{
+    content:'';position:absolute;inset:0;border-radius:14px;padding:1px;pointer-events:none;opacity:0;
+    background:linear-gradient(120deg, transparent, rgba(255,210,74,0.5), transparent);
+    -webkit-mask:linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+    -webkit-mask-composite:xor; mask-composite:exclude;
+    transition:opacity .25s ease;
+  }
+  .delivery-option:hover{border-color:var(--line-strong);transform:translateY(-1px);}
+  .delivery-option.is-selected{
+    border-color:var(--teal);
+    background:linear-gradient(160deg, rgba(255,210,74,0.14), rgba(255,210,74,0.02) 70%);
+    box-shadow:0 10px 28px -12px rgba(255,210,74,0.4);
+  }
+  .delivery-option.is-selected::after{opacity:1;}
+  .delivery-option input{position:absolute;opacity:0;width:1px;height:1px;pointer-events:none;}
+  .delivery-option-icon{
+    flex:none;width:42px;height:42px;border-radius:11px;display:flex;align-items:center;justify-content:center;
+    font-size:19px;background:rgba(255,210,74,0.08);border:1px solid var(--line);
+    transition:background .25s ease, border-color .25s ease, color .25s ease;
+  }
+  .delivery-option.is-selected .delivery-option-icon{background:var(--teal);border-color:var(--teal);color:var(--ink-black);}
   .delivery-option-main{flex:1;min-width:0;}
-  .delivery-option-main strong{display:block;font-size:14px;font-family:'Inter',sans-serif;font-weight:700;}
-  .delivery-option-main small{display:block;font-size:12px;color:var(--paper-dim);margin-top:2px;line-height:1.5;}
-  .delivery-option-price{flex:none;font-family:'Space Mono',monospace;font-size:13.5px;font-weight:700;color:var(--teal);}
+  .delivery-option-main strong{display:flex;align-items:center;flex-wrap:wrap;gap:8px;font-size:14.5px;font-family:'Inter',sans-serif;font-weight:700;}
+  .delivery-option-main small{display:block;font-size:12px;color:var(--paper-dim);margin-top:3px;line-height:1.55;}
+  .delivery-option-price{flex:none;font-family:'Space Mono',monospace;font-size:14px;font-weight:700;color:var(--teal);}
   .delivery-option-price.free{color:var(--paper-dim);}
+  .do-badge{
+    display:inline-flex;align-items:center;font-family:'Space Mono',monospace;font-size:9px;letter-spacing:1.5px;
+    padding:2.5px 8px;border-radius:20px;background:var(--teal);color:var(--ink-black);font-weight:700;
+    text-transform:uppercase;
+  }
+  .do-check{
+    flex:none;width:20px;height:20px;border-radius:50%;border:1.5px solid var(--line-strong);
+    display:flex;align-items:center;justify-content:center;transition:background .2s ease, border-color .2s ease;
+  }
+  .delivery-option.is-selected .do-check{background:var(--teal);border-color:var(--teal);}
+  .do-check svg{width:11px;height:11px;opacity:0;transition:opacity .15s ease;}
+  .delivery-option.is-selected .do-check svg{opacity:1;}
 
   .payment-option{position:relative;align-items:center;padding:14px;}
   .payment-option-icon{
@@ -2031,9 +2059,11 @@
       <div class="checkout-field">
         <label for="chk-pincode">Delivery PIN Code</label>
         <input type="tel" id="chk-pincode" inputmode="numeric" maxlength="6" placeholder="6-digit PIN code" oninput="onPincodeInput(this.value)">
-        <div class="pincode-status" id="pincode-status"></div>
       </div>
-      <div class="delivery-option-list" id="delivery-option-list" style="display:none;"></div>
+      <div class="checkout-field">
+        <label>Delivery Speed</label>
+        <div class="delivery-option-list" id="delivery-option-list"></div>
+      </div>
       <div class="checkout-field">
         <label>Payment Method</label>
         <label class="payment-option" id="pm-cod-option">
@@ -2252,8 +2282,7 @@ let REVIEWS = [];
 let CART = []; // [{id, name, price, unit, qty}]
 
 /* ---------- fast delivery state ---------- */
-let FAST_DELIVERY = { pincode:'', available:false, eta:'', rate:null, selected:false };
-let pincodeCheckTimer = null;
+let FAST_DELIVERY = { selected:false };
 
 function escapeHtml(str){
   return String(str ?? '').replace(/[&<>"']/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
@@ -3062,79 +3091,41 @@ function cartTotal(){
 /* ---------- delivery fee ---------- */
 const FREE_DELIVERY_THRESHOLD = 899;
 const DELIVERY_FEE = 99;
-// Fast Delivery (Shiprocket Quick) pricing now comes LIVE from Shiprocket's
-// Serviceability API — it's the actual computed cost for this exact
-// pickup→delivery PIN code pair and cart weight, so it varies by distance
-// instead of being one flat site-wide number. The fixed tiers below are
-// kept ONLY as a safety-net fallback for the rare case Shiprocket doesn't
-// return a rate (e.g. a transient API hiccup) so checkout never breaks.
-const FAST_DELIVERY_FEE_BELOW_THRESHOLD = 180;
-const FAST_DELIVERY_FEE_AT_OR_ABOVE_THRESHOLD = 99;
+// Fast Delivery is a flat, fixed-price paid upgrade — ₹149 site-wide,
+// regardless of cart value, weight or PIN code. No live courier
+// serviceability lookup is performed; the customer can always pick it,
+// and their PIN code is used purely for the shipping address/label.
+const FAST_DELIVERY_FEE = 149;
 
 function getDeliveryFee(subtotal){
   if(subtotal <= 0) return 0;
   return subtotal >= FREE_DELIVERY_THRESHOLD ? 0 : DELIVERY_FEE;
 }
-function getFastDeliveryFee(subtotal){
-  if(FAST_DELIVERY.rate && FAST_DELIVERY.rate > 0) return FAST_DELIVERY.rate;
-  return subtotal >= FREE_DELIVERY_THRESHOLD ? FAST_DELIVERY_FEE_AT_OR_ABOVE_THRESHOLD : FAST_DELIVERY_FEE_BELOW_THRESHOLD;
+function getFastDeliveryFee(){
+  return FAST_DELIVERY_FEE;
 }
-// Standard delivery fee stays as-is even when Fast Delivery is available for a
-// PIN code — Fast Delivery is an optional paid upgrade the customer selects,
-// it never replaces the free-delivery threshold on its own.
+// Standard delivery fee stays as-is even when Fast Delivery is selected —
+// Fast Delivery is an optional paid upgrade the customer chooses, it never
+// replaces the free-delivery threshold on its own.
 function getEffectiveDeliveryFee(subtotal){
-  if(FAST_DELIVERY.selected && FAST_DELIVERY.available) return getFastDeliveryFee(subtotal);
+  if(FAST_DELIVERY.selected) return getFastDeliveryFee();
   return getDeliveryFee(subtotal);
 }
 function getOrderTotal(subtotal){
   return subtotal + getEffectiveDeliveryFee(subtotal);
 }
 
-/* ---------- fast delivery (PIN code serviceability) ---------- */
+/* ---------- delivery options UI ---------- */
 function resetFastDeliveryUI(){
-  FAST_DELIVERY = { pincode:'', available:false, eta:'', rate:null, selected:false };
-  const statusEl = document.getElementById('pincode-status');
-  const listEl = document.getElementById('delivery-option-list');
-  if(statusEl){ statusEl.textContent = ''; statusEl.className = 'pincode-status'; }
-  if(listEl){ listEl.style.display = 'none'; listEl.innerHTML = ''; }
+  FAST_DELIVERY = { selected:false };
+  renderDeliveryOptions();
 }
 function onPincodeInput(val){
+  // PIN code is only used for the delivery address/label — it no longer
+  // triggers any Fast Delivery availability lookup.
   const digits = String(val || '').replace(/\D/g,'').slice(0,6);
   const input = document.getElementById('chk-pincode');
   if(input && input.value !== digits) input.value = digits;
-  clearTimeout(pincodeCheckTimer);
-  if(digits.length === 6){
-    const statusEl = document.getElementById('pincode-status');
-    if(statusEl){ statusEl.textContent = 'Checking Fast Delivery availability…'; statusEl.className = 'pincode-status checking'; }
-    pincodeCheckTimer = setTimeout(()=>checkFastDeliveryPincode(digits), 400);
-  }else{
-    resetFastDeliveryUI();
-  }
-}
-async function checkFastDeliveryPincode(pincode){
-  const statusEl = document.getElementById('pincode-status');
-  try{
-    // Live check against Shiprocket's Courier Serviceability API (server-side,
-    // via /api/shiprocket-serviceability) instead of a manually-maintained
-    // PIN code list — this reflects real Shiprocket Quick coverage automatically,
-    // including whenever Shiprocket adds/drops couriers for a PIN code.
-    const weight = Math.max(cartWeightKg() || 0, 0.5);
-    const resp = await fetch(`/api/shiprocket-serviceability?pincode=${encodeURIComponent(pincode)}&weight=${encodeURIComponent(weight)}`);
-    const data = await resp.json();
-    if(data && data.available){
-      FAST_DELIVERY = { pincode, available:true, eta:data.eta || '', rate:(typeof data.rate === 'number' && data.rate > 0) ? data.rate : null, selected:false };
-      if(statusEl){ statusEl.textContent = '⚡ Fast Delivery is available at this PIN code!'; statusEl.className = 'pincode-status available'; }
-    }else{
-      FAST_DELIVERY = { pincode, available:false, eta:'', rate:null, selected:false };
-      if(statusEl){ statusEl.textContent = 'Fast Delivery isn\'t available at this PIN code — standard delivery applies.'; statusEl.className = 'pincode-status unavailable'; }
-    }
-  }catch(e){
-    FAST_DELIVERY = { pincode, available:false, eta:'', rate:null, selected:false };
-    if(statusEl){ statusEl.textContent = ''; statusEl.className = 'pincode-status'; }
-  }
-  renderDeliveryOptions();
-  updateCheckoutTotals();
-  updatePaymentSummary();
 }
 function selectDeliveryType(type){
   FAST_DELIVERY.selected = (type === 'fast');
@@ -3145,27 +3136,30 @@ function selectDeliveryType(type){
 function renderDeliveryOptions(){
   const listEl = document.getElementById('delivery-option-list');
   if(!listEl) return;
-  if(!FAST_DELIVERY.available){ listEl.style.display = 'none'; listEl.innerHTML = ''; return; }
   const subtotal = cartTotal();
   const standardFee = getDeliveryFee(subtotal);
-  const fastFee = getFastDeliveryFee(subtotal);
-  listEl.style.display = 'flex';
+  const fastFee = getFastDeliveryFee();
+  const checkSvg = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>`;
   listEl.innerHTML = `
     <label class="delivery-option ${!FAST_DELIVERY.selected ? 'is-selected' : ''}">
       <input type="radio" name="delivery-type" value="standard" ${!FAST_DELIVERY.selected ? 'checked' : ''} onchange="selectDeliveryType('standard')">
+      <span class="delivery-option-icon">🚚</span>
       <span class="delivery-option-main">
         <strong>Standard Delivery</strong>
-        <small>Mumbai: 1–2 Days | Maharashtra: 1–3 Days | Rest of India: 3–7 Days</small>
+        <small>Mumbai: 1–2 Days · Maharashtra: 1–3 Days · Rest of India: 3–7 Days</small>
       </span>
       <span class="delivery-option-price ${standardFee===0 ? 'free' : ''}">${standardFee===0 ? 'FREE' : '₹'+standardFee.toLocaleString('en-IN')}</span>
+      <span class="do-check">${checkSvg}</span>
     </label>
     <label class="delivery-option ${FAST_DELIVERY.selected ? 'is-selected' : ''}">
       <input type="radio" name="delivery-type" value="fast" ${FAST_DELIVERY.selected ? 'checked' : ''} onchange="selectDeliveryType('fast')">
+      <span class="delivery-option-icon">⚡</span>
       <span class="delivery-option-main">
-        <strong>⚡ Fast Delivery (Shiprocket Quick)</strong>
-        <small>${escapeHtml(FAST_DELIVERY.eta || 'Priority shipping')}</small>
+        <strong>Fast Delivery <span class="do-badge">Priority</span></strong>
+        <small>Expedited dispatch &amp; priority courier handling</small>
       </span>
       <span class="delivery-option-price">+₹${fastFee.toLocaleString('en-IN')}</span>
+      <span class="do-check">${checkSvg}</span>
     </label>
   `;
 }
@@ -3844,7 +3838,7 @@ async function submitOrder(){
 
   const items = CART.map(l=>({ name:l.name, price:l.price, qty:l.qty }));
   const subtotal = cartTotal();
-  const usingFastDelivery = FAST_DELIVERY.available && FAST_DELIVERY.selected;
+  const usingFastDelivery = FAST_DELIVERY.selected;
   const deliveryFee = getEffectiveDeliveryFee(subtotal);
   const amount = getOrderTotal(subtotal);
   const advanceAmount = paymentMethod === 'cod' ? getCodAdvance(amount) : 0;
@@ -3864,7 +3858,6 @@ async function submitOrder(){
     delivery_type: usingFastDelivery ? 'fast' : 'standard',
     delivery_pincode: pincode,
     delivery_fee: deliveryFee,
-    fast_delivery_eta: usingFastDelivery ? FAST_DELIVERY.eta : null,
     order_weight_kg: cartWeightKg() || null
   };
   // TODO: once a real payment-gateway backend (Razorpay/Cashfree etc.) is wired up,
