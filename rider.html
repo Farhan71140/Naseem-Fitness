@@ -1,0 +1,365 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>Delivery Tracking | NF Naseem Fitness™</title>
+<meta name="robots" content="noindex, nofollow">
+<link rel="icon" type="image/png" sizes="32x32" href="assets/favicon-32x32.png">
+<link rel="shortcut icon" href="assets/favicon.ico">
+<meta name="theme-color" content="#0A0806">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Anton&family=Inter:wght@400;500;600;700;800&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+<style>
+  :root{
+    --ink-black:#0A0806; --steel:#17130D; --iron:#241D13; --iron-light:#3A2E1A;
+    --paper:#F5EEDD; --paper-dim:#B8AD95; --teal:#FFD24A; --teal-dim:#4A3A0E;
+    --gold-light:#FFF2B5; --good:#5CD68A; --bad:#FF6B6B;
+    --line: rgba(255,210,74,0.18); --line-strong: rgba(255,210,74,0.32);
+  }
+  *{box-sizing:border-box;margin:0;padding:0;}
+  html,body{height:100%;}
+  body{
+    background:var(--ink-black);color:var(--paper);font-family:'Inter',sans-serif;
+    line-height:1.5;-webkit-font-smoothing:antialiased;
+    min-height:100vh;display:flex;flex-direction:column;
+  }
+  h1,h2{font-family:'Anton',sans-serif;font-weight:400;text-transform:uppercase;letter-spacing:0.5px;}
+  .mono{font-family:'Space Mono',monospace;}
+  .wrap{max-width:520px;margin:0 auto;width:100%;padding:0 20px;}
+
+  header{padding:22px 0 16px;border-bottom:1px solid var(--line);}
+  .brand{display:flex;align-items:center;gap:10px;}
+  .nf-mark{width:36px;height:36px;flex:none;}
+  .brand-name{font-family:'Anton',sans-serif;font-size:17px;letter-spacing:0.5px;text-transform:uppercase;}
+  .brand-name span{color:var(--teal);}
+  .brand-tag{display:block;font-family:'Space Mono',monospace;font-size:9px;letter-spacing:2px;color:var(--paper-dim);text-transform:uppercase;margin-top:2px;}
+
+  main{flex:1;padding:26px 0 40px;}
+
+  .card{
+    background:linear-gradient(165deg, var(--steel) 0%, var(--iron) 130%);
+    border:1px solid var(--line);border-radius:16px;padding:24px 22px;margin-bottom:18px;
+  }
+  .eyebrow{font-family:'Space Mono',monospace;font-size:11px;letter-spacing:2.5px;text-transform:uppercase;color:var(--teal);margin-bottom:8px;}
+  .order-ref{font-family:'Space Mono',monospace;font-size:14px;color:var(--paper-dim);margin-bottom:18px;}
+  .deliver-name{font-size:19px;font-weight:800;margin-bottom:4px;}
+  .deliver-addr{font-size:14px;color:var(--paper-dim);line-height:1.6;}
+
+  .status-badge{
+    display:inline-flex;align-items:center;gap:8px;margin-top:16px;
+    font-family:'Space Mono',monospace;font-size:11px;letter-spacing:1.5px;text-transform:uppercase;
+    color:var(--paper-dim);border:1px solid var(--line);border-radius:30px;padding:8px 16px;
+  }
+  .status-badge .dot{width:7px;height:7px;border-radius:50%;background:var(--paper-dim);flex:none;}
+  .status-badge.live{color:var(--good);border-color:rgba(92,214,138,0.35);}
+  .status-badge.live .dot{background:var(--good);box-shadow:0 0 8px var(--good);animation:pulse-dot 1.4s ease-in-out infinite;}
+  @keyframes pulse-dot{0%,100%{opacity:1;}50%{opacity:0.35;}}
+
+  .share-btn{
+    display:flex;align-items:center;justify-content:center;gap:10px;width:100%;
+    padding:18px 20px;border-radius:12px;font-size:16px;font-weight:800;
+    font-family:'Inter',sans-serif;text-transform:uppercase;letter-spacing:0.5px;
+    border:1px solid var(--teal);background:var(--teal);color:var(--ink-black);
+    cursor:pointer;transition:transform .15s, opacity .15s;
+  }
+  .share-btn:active{transform:scale(0.98);}
+  .share-btn.stop{background:transparent;color:var(--bad);border-color:rgba(255,107,107,0.4);}
+  .share-btn:disabled{opacity:0.5;cursor:not-allowed;}
+
+  .stage-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:14px;}
+  .stage-btn{
+    padding:14px 10px;border-radius:10px;border:1px solid var(--line);background:var(--iron);
+    color:var(--paper);font-size:12.5px;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;
+    cursor:pointer;transition:border-color .15s, background .15s;
+  }
+  .stage-btn:hover{border-color:var(--teal);}
+  .stage-btn.active{border-color:var(--teal);background:rgba(255,210,74,0.1);color:var(--teal);}
+  .stage-btn.delivered{grid-column:1 / -1;border-color:rgba(92,214,138,0.4);color:var(--good);}
+  .stage-btn.delivered.active{background:rgba(92,214,138,0.12);border-color:var(--good);}
+
+  #rider-map{height:200px;border-radius:12px;margin-top:16px;border:1px solid var(--line);display:none;}
+  #rider-map.show{display:block;}
+
+  .hint{font-size:12.5px;color:var(--paper-dim);line-height:1.6;margin-top:14px;}
+  .hint strong{color:var(--paper);}
+  .error-box{
+    display:none;margin-top:14px;padding:12px 14px;border-radius:10px;
+    background:rgba(255,107,107,0.08);border:1px solid rgba(255,107,107,0.3);
+    color:var(--bad);font-size:13px;line-height:1.5;
+  }
+  .meta-row{display:flex;justify-content:space-between;font-size:11.5px;color:var(--paper-dim);margin-top:10px;font-family:'Space Mono',monospace;}
+
+  footer{padding:18px 0 30px;text-align:center;}
+  footer p{color:var(--paper-dim);font-size:12px;}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="wrap brand">
+    <svg class="nf-mark" viewBox="0 0 48 48" fill="none">
+      <rect x="1" y="1" width="46" height="46" rx="10" stroke="#FFD24A" stroke-width="1.5"/>
+      <text x="24" y="31" text-anchor="middle" font-family="Anton" font-size="20" fill="#FFD24A">NF</text>
+    </svg>
+    <div>
+      <div class="brand-name">Naseem <span>Fitness</span></div>
+      <span class="brand-tag">Rider Delivery Portal</span>
+    </div>
+  </div>
+</header>
+
+<main>
+  <div class="wrap">
+
+    <div id="rider-loading" class="card">
+      <p class="mono" style="font-size:13px;color:var(--paper-dim);">Loading delivery details…</p>
+    </div>
+
+    <div id="rider-invalid" class="card" style="display:none;">
+      <h2 style="font-size:20px;margin-bottom:8px;color:var(--bad);">Link not valid</h2>
+      <p style="font-size:13.5px;color:var(--paper-dim);line-height:1.6;">This delivery link has expired, was already completed, or is incorrect. Please ask the store for a fresh link.</p>
+    </div>
+
+    <div id="rider-app" style="display:none;">
+      <div class="card">
+        <div class="eyebrow">Delivering To</div>
+        <div class="order-ref mono" id="rider-order-ref"></div>
+        <div class="deliver-name" id="rider-name"></div>
+        <div class="deliver-addr" id="rider-address"></div>
+        <div class="status-badge" id="rider-status-badge"><span class="dot"></span><span id="rider-status-text">Not sharing location</span></div>
+      </div>
+
+      <div class="card">
+        <div class="eyebrow">Live Location</div>
+        <p class="hint" style="margin-top:0;">Tap below to start sharing your live GPS location with the customer and store. Keep this page open in your browser while you deliver — you can lock your phone, but don't close the tab.</p>
+        <button class="share-btn" id="rider-share-btn" onclick="toggleSharing()">📍 Start Sharing Location</button>
+        <div id="rider-map"></div>
+        <div class="meta-row" id="rider-meta-row" style="display:none;">
+          <span id="rider-last-ping">—</span>
+          <span id="rider-accuracy">—</span>
+        </div>
+        <div class="error-box" id="rider-error"></div>
+      </div>
+
+      <div class="card">
+        <div class="eyebrow">Delivery Stage</div>
+        <div class="stage-grid">
+          <button class="stage-btn" data-stage="picked_up" onclick="setStage('picked_up')">📦 Picked Up</button>
+          <button class="stage-btn" data-stage="out_for_delivery" onclick="setStage('out_for_delivery')">🛵 Out for Delivery</button>
+          <button class="stage-btn" data-stage="arriving" onclick="setStage('arriving')">📍 Arriving Now</button>
+          <button class="stage-btn delivered" data-stage="delivered" onclick="setStage('delivered')">✅ Mark Delivered</button>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</main>
+
+<footer>
+  <div class="wrap"><p>NF Naseem Fitness™ · Rider Portal · Keep customer details confidential</p></div>
+</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script>
+const SUPABASE_URL = 'https://rzibqgnhzphlmjkzwota.supabase.co';
+const SUPABASE_ANON_KEY = 'sb_publishable_CQawBi0OPWWHKBIUnHr1Dg_OK4cuKIh';
+const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+const params = new URLSearchParams(location.search);
+const ORDER_ID = params.get('oid') || '';
+const TOKEN = params.get('tok') || '';
+
+let watchId = null;
+let sharing = false;
+let map = null, marker = null, accCircle = null;
+let currentStage = null;
+let pingTimer = null;
+let lastPosition = null;
+
+function escapeHtml(str){
+  return String(str||'').replace(/[<>&'"]/g, c => ({'<':'&lt;','>':'&gt;','&':'&amp;',"'":'&apos;','"':'&quot;'}[c]));
+}
+
+async function init(){
+  if(!ORDER_ID || !TOKEN){ showInvalid(); return; }
+  try{
+    const { data, error } = await sb.rpc('get_rider_order_by_token', { p_order_id: ORDER_ID, p_token: TOKEN });
+    if(error || !data || !data.length){ showInvalid(); return; }
+    const o = data[0];
+    document.getElementById('rider-loading').style.display = 'none';
+    document.getElementById('rider-app').style.display = 'block';
+    document.getElementById('rider-order-ref').textContent = 'NF-' + o.id.slice(0,8).toUpperCase();
+    document.getElementById('rider-name').textContent = o.customer_name || 'Customer';
+    document.getElementById('rider-address').textContent = o.address || 'Address on file';
+    currentStage = o.delivery_stage || null;
+    highlightStage(currentStage);
+    if(o.rider_tracking_active){ setStatusBadge(true); }
+    if(currentStage === 'delivered'){
+      document.getElementById('rider-share-btn').disabled = true;
+      document.getElementById('rider-share-btn').textContent = '✅ Delivery Completed';
+    }
+  }catch(e){
+    showInvalid();
+  }
+}
+
+function showInvalid(){
+  document.getElementById('rider-loading').style.display = 'none';
+  document.getElementById('rider-invalid').style.display = 'block';
+}
+
+function setStatusBadge(live){
+  const badge = document.getElementById('rider-status-badge');
+  const text = document.getElementById('rider-status-text');
+  if(live){
+    badge.classList.add('live');
+    text.textContent = 'Live — sharing location';
+  }else{
+    badge.classList.remove('live');
+    text.textContent = 'Not sharing location';
+  }
+}
+
+function highlightStage(stage){
+  document.querySelectorAll('.stage-btn').forEach(b=>{
+    b.classList.toggle('active', b.dataset.stage === stage);
+  });
+}
+
+function toggleSharing(){
+  if(sharing){ stopSharing(); } else { startSharing(); }
+}
+
+function startSharing(){
+  const errBox = document.getElementById('rider-error');
+  errBox.style.display = 'none';
+  if(!navigator.geolocation){
+    errBox.textContent = 'This browser does not support location sharing. Try Chrome on Android.';
+    errBox.style.display = 'block';
+    return;
+  }
+  const btn = document.getElementById('rider-share-btn');
+  btn.textContent = 'Requesting location permission…';
+  btn.disabled = true;
+
+  watchId = navigator.geolocation.watchPosition(
+    onPosition,
+    onPositionError,
+    { enableHighAccuracy: true, maximumAge: 5000, timeout: 20000 }
+  );
+}
+
+function onPosition(pos){
+  sharing = true;
+  lastPosition = pos;
+  const btn = document.getElementById('rider-share-btn');
+  btn.disabled = false;
+  btn.textContent = '⏹ Stop Sharing Location';
+  btn.classList.add('stop');
+  setStatusBadge(true);
+  document.getElementById('rider-error').style.display = 'none';
+
+  const { latitude, longitude, heading, accuracy } = pos.coords;
+  renderMap(latitude, longitude, accuracy);
+  document.getElementById('rider-meta-row').style.display = 'flex';
+  document.getElementById('rider-last-ping').textContent = 'Updated ' + new Date().toLocaleTimeString('en-IN');
+  document.getElementById('rider-accuracy').textContent = accuracy ? `±${Math.round(accuracy)}m accuracy` : '';
+
+  // Throttle writes to the DB to roughly once every 6 seconds
+  if(!pingTimer){
+    sendPing(latitude, longitude, heading, accuracy);
+    pingTimer = setInterval(() => {
+      if(lastPosition){
+        const c = lastPosition.coords;
+        sendPing(c.latitude, c.longitude, c.heading, c.accuracy);
+      }
+    }, 6000);
+  }
+}
+
+function onPositionError(err){
+  const errBox = document.getElementById('rider-error');
+  const btn = document.getElementById('rider-share-btn');
+  btn.disabled = false;
+  btn.textContent = '📍 Start Sharing Location';
+  btn.classList.remove('stop');
+  if(err.code === err.PERMISSION_DENIED){
+    errBox.textContent = 'Location permission denied. Please allow location access in your browser settings and try again.';
+  }else{
+    errBox.textContent = 'Could not get your location. Make sure GPS is on and try again.';
+  }
+  errBox.style.display = 'block';
+}
+
+async function sendPing(lat, lng, heading, accuracy){
+  try{
+    await sb.rpc('update_rider_location', {
+      p_order_id: ORDER_ID, p_token: TOKEN,
+      p_lat: lat, p_lng: lng,
+      p_heading: (heading === null || isNaN(heading)) ? null : heading,
+      p_accuracy: accuracy || null,
+      p_stage: currentStage
+    });
+  }catch(e){ /* silent — will retry on next tick */ }
+}
+
+function stopSharing(){
+  if(watchId !== null) navigator.geolocation.clearWatch(watchId);
+  if(pingTimer) clearInterval(pingTimer);
+  watchId = null; pingTimer = null; sharing = false;
+  const btn = document.getElementById('rider-share-btn');
+  btn.textContent = '📍 Start Sharing Location';
+  btn.classList.remove('stop');
+  setStatusBadge(false);
+}
+
+function renderMap(lat, lng, accuracy){
+  const el = document.getElementById('rider-map');
+  el.classList.add('show');
+  if(!map){
+    map = L.map('rider-map', { zoomControl:false, attributionControl:false }).setView([lat,lng], 16);
+    L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', { maxZoom:19 }).addTo(map);
+    const icon = L.divIcon({
+      className: '', html: `<div style="width:18px;height:18px;border-radius:50%;background:#FFD24A;border:3px solid #0A0806;box-shadow:0 0 0 4px rgba(255,210,74,0.25);"></div>`,
+      iconSize:[18,18], iconAnchor:[9,9]
+    });
+    marker = L.marker([lat,lng], { icon }).addTo(map);
+    if(accuracy){ accCircle = L.circle([lat,lng], { radius: accuracy, color:'#FFD24A', weight:1, fillOpacity:0.08 }).addTo(map); }
+  }else{
+    marker.setLatLng([lat,lng]);
+    if(accCircle) accCircle.setLatLng([lat,lng]).setRadius(accuracy || 30);
+    map.panTo([lat,lng]);
+  }
+}
+
+async function setStage(stage){
+  currentStage = stage;
+  highlightStage(stage);
+  if(lastPosition){
+    const c = lastPosition.coords;
+    await sendPing(c.latitude, c.longitude, c.heading, c.accuracy);
+  }else{
+    // No GPS yet — still record the stage change
+    try{
+      await sb.rpc('update_rider_location', {
+        p_order_id: ORDER_ID, p_token: TOKEN,
+        p_lat: null, p_lng: null, p_heading: null, p_accuracy: null, p_stage: stage
+      });
+    }catch(e){}
+  }
+  if(stage === 'delivered'){
+    stopSharing();
+    const btn = document.getElementById('rider-share-btn');
+    btn.disabled = true;
+    btn.textContent = '✅ Delivery Completed';
+  }
+}
+
+window.addEventListener('beforeunload', stopSharing);
+init();
+</script>
+</body>
+</html>

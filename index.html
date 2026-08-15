@@ -14,6 +14,7 @@
 <meta name="theme-color" content="#0A0806">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Anton&family=Inter:wght@400;500;600;700;800&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
 <style>
   :root{
     --ink-black:#0A0806;
@@ -1140,6 +1141,38 @@
     color:var(--paper-dim);font-size:12.5px;text-decoration:underline;cursor:pointer;font-family:'Inter',sans-serif;
   }
   .track-back-btn:hover{color:var(--teal);}
+  /* ===== LIVE RIDER TRACKING ===== */
+  .live-track-card{
+    margin-top:22px;background:linear-gradient(165deg, var(--iron) 0%, var(--steel) 130%);
+    border:1px solid var(--line);border-radius:14px;padding:20px 20px 22px;position:relative;overflow:hidden;
+  }
+  .live-track-card::before{
+    content:'';display:block;height:2px;margin:-20px -20px 18px;
+    background:linear-gradient(90deg, transparent, var(--teal) 30%, var(--teal) 70%, transparent);opacity:0.7;
+  }
+  .live-track-head{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:14px;flex-wrap:wrap;}
+  .live-track-title{display:flex;align-items:center;gap:8px;font-family:'Space Mono',monospace;font-size:11.5px;letter-spacing:2px;text-transform:uppercase;color:var(--teal);}
+  .live-dot{width:8px;height:8px;border-radius:50%;background:var(--good, #5CD68A);box-shadow:0 0 8px var(--good, #5CD68A);flex:none;animation:live-pulse 1.4s ease-in-out infinite;}
+  @keyframes live-pulse{0%,100%{opacity:1;}50%{opacity:0.3;}}
+  .stage-pill{
+    font-family:'Space Mono',monospace;font-size:10.5px;letter-spacing:1px;text-transform:uppercase;
+    padding:4px 12px;border-radius:20px;border:1px solid var(--line);color:var(--paper-dim);
+  }
+  .stage-pill.active{color:var(--teal);border-color:rgba(255,210,74,0.4);background:rgba(255,210,74,0.08);}
+  #live-track-map{
+    width:100%;height:220px;border-radius:10px;border:1px solid var(--line);background:var(--iron);
+  }
+  .live-track-updated{font-family:'Space Mono',monospace;font-size:11px;color:var(--paper-dim);margin-top:10px;text-align:center;}
+  .live-track-waiting{
+    display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;
+    height:120px;color:var(--paper-dim);font-size:13px;text-align:center;
+  }
+  .live-track-waiting .track-spinner{width:16px;height:16px;}
+  .live-track-delivered{
+    display:flex;align-items:center;gap:10px;padding:16px;border-radius:10px;
+    background:rgba(92,214,138,0.08);border:1px solid rgba(92,214,138,0.3);color:#5CD68A;font-size:13.5px;
+  }
+
   .track-find-id-link{
     display:block;width:100%;text-align:left;margin:-6px 0 16px;background:transparent;border:none;
     color:var(--teal);font-size:13px;font-weight:600;cursor:pointer;font-family:'Inter',sans-serif;padding:0;
@@ -2265,6 +2298,7 @@
 </a>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script>
 /* ============================================================
    NF NASEEM FITNESS — live products + cart + checkout (Supabase)
@@ -3924,6 +3958,7 @@ function closeTrackOrder(){
   document.getElementById('track-order-overlay').classList.remove('active');
   document.getElementById('find-id-view').style.display = 'none';
   document.getElementById('track-main-view').style.display = 'block';
+  stopLiveTracking();
 }
 function normalizeOrderRef(raw){
   return String(raw||'').trim().toUpperCase().replace(/^NF-?/,'').replace(/[^A-Z0-9]/g,'');
@@ -3932,6 +3967,7 @@ function normalizePhone(raw){
   return String(raw||'').replace(/\D/g,'').slice(-10);
 }
 function resetTrackForm(){
+  stopLiveTracking();
   document.getElementById('track-result').innerHTML = '';
   document.getElementById('track-order-id').value = '';
   document.getElementById('track-phone').value = '';
@@ -4055,6 +4091,7 @@ async function submitTrackOrder(){
 
   errBox.style.display = 'none';
   resultBox.innerHTML = '';
+  stopLiveTracking();
 
   const ref = normalizeOrderRef(refInput);
   const phone = normalizePhone(phoneInput);
@@ -4094,7 +4131,7 @@ async function submitTrackOrder(){
       return;
     }
 
-    renderTrackResult(match);
+    renderTrackResult(match, ref, phone);
   }catch(e){
     loading.style.display = 'none';
     btn.disabled = false;
@@ -4138,7 +4175,7 @@ function trackWaButton(o){
   </a>`;
 }
 
-function renderTrackResult(o){
+function renderTrackResult(o, lookupRef, lookupPhone){
   const resultBox = document.getElementById('track-result');
   const ref = 'NF-' + o.id.slice(0,8).toUpperCase();
   const placedDate = o.created_at ? new Date(o.created_at).toLocaleDateString('en-IN',{ day:'numeric', month:'short', year:'numeric' }) : '';
@@ -4165,11 +4202,20 @@ function renderTrackResult(o){
     return;
   }
 
-  const shipped = !!(o.tracking_id);
+  const isSelfDelivery = o.delivery_partner === 'Self Delivery';
+  const shipped = !!(o.tracking_id) || (isSelfDelivery && !!o.delivery_stage);
+  let shippedSub = "We'll update this once it's dispatched.";
+  if(shipped){
+    if(isSelfDelivery && DELIVERY_STAGE_LABELS[o.delivery_stage] && o.delivery_stage !== 'delivered'){
+      shippedSub = `${DELIVERY_STAGE_LABELS[o.delivery_stage]} by our own rider — live location below.`;
+    }else{
+      shippedSub = `Handed to ${o.delivery_partner || 'our courier partner'}${o.tracking_id ? ' — Tracking ID: ' + o.tracking_id : ''}`;
+    }
+  }
   const steps = [
     { title:'Order Placed', sub:`We received your order on ${placedDate}.`, done:true, current:false },
     { title:'Confirmed', sub:'Your order has been reviewed and approved.', done:(o.status==='approved' || o.status==='completed'), current:o.status==='pending' },
-    { title:'Shipped', sub: shipped ? `Handed to ${o.delivery_partner || 'our courier partner'}${o.tracking_id ? ' — Tracking ID: ' + o.tracking_id : ''}` : "We'll update this once it's dispatched.", done: shipped, current:(!shipped && o.status==='approved') },
+    { title:'Shipped', sub: shippedSub, done: shipped, current:(!shipped && o.status==='approved') },
     { title:'Delivered', sub: o.status==='completed' ? 'Your order has been delivered. Enjoy!' : 'Marked complete once delivered to you.', done:o.status==='completed', current:(o.status==='approved' && shipped) }
   ];
 
@@ -4192,6 +4238,7 @@ function renderTrackResult(o){
         <span class="track-date">${placedDate}</span>
       </div>
       <ul class="track-timeline">${timelineHtml}</ul>
+      <div id="live-track-slot"></div>
       <div class="track-info-grid">
         <div class="track-info-card">
           <h5>Delivering To</h5>
@@ -4206,6 +4253,110 @@ function renderTrackResult(o){
       ${trackWaButton(o)}
       <button class="track-back-btn" onclick="resetTrackForm()">Track a different order</button>
     </div>`;
+
+  const canGoLive = shipped && o.delivery_partner === 'Self Delivery' && o.status !== 'completed';
+  if(canGoLive && lookupRef && lookupPhone){
+    startLiveTracking(lookupRef, lookupPhone);
+  }
+}
+
+/* ---------- live rider GPS tracking (Self Delivery orders) ---------- */
+let liveTrackTimer = null;
+let liveTrackMap = null;
+let liveTrackMarker = null;
+let liveTrackAccCircle = null;
+
+function stopLiveTracking(){
+  if(liveTrackTimer){ clearInterval(liveTrackTimer); liveTrackTimer = null; }
+  if(liveTrackMap){ liveTrackMap.remove(); liveTrackMap = null; liveTrackMarker = null; liveTrackAccCircle = null; }
+}
+
+const DELIVERY_STAGE_LABELS = {
+  assigned: 'Assigned to rider',
+  picked_up: 'Picked up from store',
+  out_for_delivery: 'Out for delivery',
+  arriving: 'Arriving now',
+  delivered: 'Delivered'
+};
+
+function startLiveTracking(ref, phone){
+  const slot = document.getElementById('live-track-slot');
+  if(!slot) return;
+  slot.innerHTML = `
+    <div class="live-track-card" id="live-track-card">
+      <div class="live-track-head">
+        <div class="live-track-title"><span class="live-dot"></span> Live Tracking</div>
+        <span class="stage-pill" id="live-stage-pill">Connecting…</span>
+      </div>
+      <div id="live-track-body">
+        <div class="live-track-waiting"><span class="track-spinner"></span> Connecting to your rider's live location…</div>
+      </div>
+      <div class="live-track-updated" id="live-track-updated" style="display:none;"></div>
+    </div>`;
+
+  const poll = async () => {
+    try{
+      const { data, error } = await sb.rpc('get_rider_location', { p_ref: ref, p_phone: phone });
+      if(error || !data || !data.length) return;
+      renderLiveTrackingUpdate(data[0]);
+    }catch(e){ /* keep retrying silently */ }
+  };
+  poll();
+  liveTrackTimer = setInterval(poll, 7000);
+}
+
+function renderLiveTrackingUpdate(loc){
+  const pill = document.getElementById('live-stage-pill');
+  const body = document.getElementById('live-track-body');
+  const updated = document.getElementById('live-track-updated');
+  if(!pill || !body) return;
+
+  const stageLabel = DELIVERY_STAGE_LABELS[loc.delivery_stage] || 'On the way';
+  pill.textContent = stageLabel;
+  pill.classList.add('active');
+
+  if(loc.delivery_stage === 'delivered'){
+    body.innerHTML = `<div class="live-track-delivered">✅ Your order has been delivered. Enjoy!</div>`;
+    if(updated) updated.style.display = 'none';
+    stopLiveTracking();
+    return;
+  }
+
+  if(loc.rider_lat == null || loc.rider_lng == null){
+    body.innerHTML = `<div class="live-track-waiting"><span class="track-spinner"></span> Waiting for your rider to start sharing their location…</div>`;
+    if(updated) updated.style.display = 'none';
+    return;
+  }
+
+  if(!document.getElementById('live-track-map')){
+    body.innerHTML = `<div id="live-track-map"></div>`;
+  }
+  renderLiveMap(loc.rider_lat, loc.rider_lng, loc.rider_accuracy);
+
+  if(updated){
+    updated.style.display = 'block';
+    const secondsAgo = loc.rider_location_updated_at ? Math.max(0, Math.round((Date.now() - new Date(loc.rider_location_updated_at).getTime())/1000)) : null;
+    updated.textContent = secondsAgo !== null ? `Updated ${secondsAgo < 60 ? secondsAgo + 's' : Math.round(secondsAgo/60) + 'm'} ago` : 'Live';
+  }
+}
+
+function renderLiveMap(lat, lng, accuracy){
+  if(typeof L === 'undefined') return;
+  if(!liveTrackMap){
+    liveTrackMap = L.map('live-track-map', { zoomControl:false, attributionControl:false }).setView([lat,lng], 15);
+    L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', { maxZoom:19 }).addTo(liveTrackMap);
+    const icon = L.divIcon({
+      className:'', html:`<div style="width:18px;height:18px;border-radius:50%;background:#FFD24A;border:3px solid #0A0806;box-shadow:0 0 0 4px rgba(255,210,74,0.25);"></div>`,
+      iconSize:[18,18], iconAnchor:[9,9]
+    });
+    liveTrackMarker = L.marker([lat,lng], { icon }).addTo(liveTrackMap);
+    if(accuracy){ liveTrackAccCircle = L.circle([lat,lng], { radius: accuracy, color:'#FFD24A', weight:1, fillOpacity:0.08 }).addTo(liveTrackMap); }
+  }else{
+    liveTrackMarker.setLatLng([lat,lng]);
+    if(liveTrackAccCircle) liveTrackAccCircle.setLatLng([lat,lng]).setRadius(accuracy || 30);
+    liveTrackMap.panTo([lat,lng]);
+    liveTrackMap.invalidateSize();
+  }
 }
 
 /* ---------- store settings (Marketing & SEO) ---------- */

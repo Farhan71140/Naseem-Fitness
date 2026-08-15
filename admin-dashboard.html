@@ -12,8 +12,10 @@
 <meta name="theme-color" content="#0A0806">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Anton&family=Inter:wght@400;500;600;700;800&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <style>
   :root{
     --ink-black:#0A0806;
@@ -411,6 +413,24 @@
   .modal-body{padding:22px;}
   .modal-foot{display:flex;justify-content:flex-end;gap:10px;padding:16px 22px;border-top:1px solid var(--line);}
   .field-row{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+
+  /* ===== SELF DELIVERY / LIVE GPS ===== */
+  .self-del-row{border:1px solid var(--line);border-radius:10px;padding:14px 16px;margin-bottom:12px;}
+  .self-del-row:last-child{margin-bottom:0;}
+  .self-del-top{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;margin-bottom:6px;}
+  .self-del-addr{font-size:13px;color:var(--paper-dim);margin-bottom:10px;}
+  .self-del-actions{display:flex;gap:8px;flex-wrap:wrap;align-items:center;}
+  .stage-pill{
+    font-family:'Space Mono',monospace;font-size:10.5px;letter-spacing:1px;text-transform:uppercase;
+    padding:4px 12px;border-radius:20px;border:1px solid var(--line);color:var(--paper-dim);
+  }
+  .stage-pill.active{color:var(--teal);border-color:rgba(255,210,74,0.4);background:rgba(255,210,74,0.08);}
+  .stage-pill.live{color:var(--good, #5CD68A);border-color:rgba(92,214,138,0.4);background:rgba(92,214,138,0.08);}
+  .stage-pill.delivered{color:var(--good, #5CD68A);border-color:rgba(92,214,138,0.4);}
+  .live-dot-sm{display:inline-block;width:6px;height:6px;border-radius:50%;background:var(--good,#5CD68A);box-shadow:0 0 6px var(--good,#5CD68A);margin-right:6px;animation:live-pulse-sm 1.4s ease-in-out infinite;}
+  @keyframes live-pulse-sm{0%,100%{opacity:1;}50%{opacity:0.3;}}
+  #live-loc-map{width:100%;height:260px;border-radius:10px;border:1px solid var(--line);margin-top:14px;}
+  .live-loc-head{display:flex;align-items:center;justify-content:space-between;gap:10px;}
 
   /* ===== OFFERS ===== */
   .offer-option{display:flex;align-items:flex-start;gap:14px;border:1px solid var(--line);border-radius:10px;padding:16px 18px;margin-bottom:12px;cursor:pointer;transition:border-color .15s ease, background .15s ease;}
@@ -947,6 +967,20 @@
           <div id="del-borzo-empty" class="empty-state" style="display:none;">
             <p>No orders currently assigned to Borzo.</p>
           </div>
+        </div>
+      </div>
+
+      <div class="panel" style="margin-top:22px;">
+        <div class="panel-head">
+          <div>
+            <h3>🛵 Self Delivery — Live GPS Tracking</h3>
+            <span class="mono" style="font-size:12px;color:var(--paper-dim);">Real-time rider location, no third-party courier needed</span>
+          </div>
+        </div>
+        <p style="font-size:13px;color:var(--paper-dim);padding:0 22px 16px;">Generate a rider link for each order and send it to your delivery person on WhatsApp. When they open it and tap "Start Sharing Location", their live GPS position streams here and on the customer's tracking page in real time.</p>
+        <div id="del-self-list" style="padding:0 22px 22px;"></div>
+        <div id="del-self-empty" class="empty-state" style="display:none;">
+          <p>No orders currently assigned to Self Delivery.</p>
         </div>
       </div>
 
@@ -1690,6 +1724,28 @@
   </div>
 </div>
 
+<div class="modal-overlay" id="live-location-modal">
+  <div class="modal" style="max-width:460px;">
+    <div class="modal-head">
+      <h3>🛵 Live Rider Location</h3>
+      <button class="modal-close" onclick="closeLiveLocationModal()">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="live-loc-head">
+        <span class="stage-pill" id="live-loc-stage">—</span>
+        <span class="mono" id="live-loc-updated" style="font-size:11.5px;color:var(--paper-dim);">—</span>
+      </div>
+      <div id="live-loc-map"></div>
+      <div id="live-loc-waiting" class="empty-state" style="padding:30px 10px;display:none;">
+        <p>Waiting for the rider to start sharing their location…</p>
+      </div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn btn-ghost" onclick="closeLiveLocationModal()">Close</button>
+    </div>
+  </div>
+</div>
+
 <div class="toast" id="toast">
   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6L9 17l-5-5"/></svg>
   <span id="toast-msg">Saved</span>
@@ -1983,7 +2039,14 @@ async function renderOrders(){
             <option value="Shiprocket Quick" ${o.delivery_partner==='Shiprocket Quick'?'selected':''}>Shiprocket Quick</option>
             <option value="Borzo" ${o.delivery_partner==='Borzo'?'selected':''}>Borzo</option>
           </select>
-          ${o.delivery_partner ? `
+          ${o.delivery_partner === 'Self Delivery' ? `
+            <div class="delivery-track-row">
+              <span class="stage-pill ${o.delivery_stage==='delivered'?'delivered':(o.rider_tracking_active?'live':(o.delivery_stage?'active':''))}" style="font-size:9.5px;">${o.rider_tracking_active ? '<span class="live-dot-sm"></span>' : ''}${ADMIN_DELIVERY_STAGE_LABELS[o.delivery_stage] || 'Not started'}</span>
+              <button class="delivery-mini-btn" onclick="copyRiderLink('${o.id}')">🔗 ${o.rider_token ? 'Copy' : 'Get'} Link</button>
+            </div>
+            ${o.rider_lat != null ? `<button class="delivery-mini-btn" onclick="openLiveLocationModal('${o.id}')">📍 Live Map</button>` : ''}
+            ${o.phone ? `<button class="delivery-mini-btn" onclick="notifyDeliveryWhatsApp('${o.id}')">📩 Notify customer</button>` : ''}
+          ` : o.delivery_partner ? `
             <div class="delivery-track-row">
               <span class="mono" title="${escapeHtml(o.tracking_id || 'No tracking ID yet')}">${o.tracking_id ? escapeHtml(o.tracking_id) : 'No tracking ID'}</span>
               <button class="delivery-mini-btn" onclick="editTrackingId('${o.id}', ${JSON.stringify(o.tracking_id || '').replace(/"/g,'&quot;')})">${o.tracking_id ? 'Edit' : '+ Add'}</button>
@@ -2038,6 +2101,135 @@ async function renderDelivery(){
 
   renderDeliveryPartnerList('del-shiprocket-list', 'del-shiprocket-empty', shiprocket);
   renderDeliveryPartnerList('del-borzo-list', 'del-borzo-empty', borzo);
+  renderSelfDeliveryList(selfDelivery);
+}
+
+const ADMIN_DELIVERY_STAGE_LABELS = {
+  assigned: 'Assigned',
+  picked_up: 'Picked Up',
+  out_for_delivery: 'Out for Delivery',
+  arriving: 'Arriving Now',
+  delivered: 'Delivered'
+};
+
+function riderLinkFor(o){
+  return `${location.origin}/rider.html?oid=${o.id}&tok=${o.rider_token}`;
+}
+
+function renderSelfDeliveryList(orders){
+  const list = document.getElementById('del-self-list');
+  const empty = document.getElementById('del-self-empty');
+  if(!list || !empty) return;
+  if(orders.length === 0){
+    list.innerHTML = '';
+    empty.style.display = 'block';
+    return;
+  }
+  empty.style.display = 'none';
+  list.innerHTML = orders.map(o => {
+    const stage = o.delivery_stage;
+    const stageLabel = ADMIN_DELIVERY_STAGE_LABELS[stage] || 'Not started';
+    const isLive = !!o.rider_tracking_active;
+    const isDelivered = stage === 'delivered';
+    const hasLocation = o.rider_lat != null && o.rider_lng != null;
+    let pillClass = 'stage-pill';
+    if(isDelivered) pillClass += ' delivered';
+    else if(isLive) pillClass += ' live';
+    else if(stage) pillClass += ' active';
+    return `
+    <div class="self-del-row">
+      <div class="self-del-top">
+        <div>
+          <span class="mono" style="color:var(--paper-dim);">#${o.id.slice(0,8)}</span>
+          <strong style="margin-left:8px;">${escapeHtml(o.customer_name)}</strong>
+        </div>
+        <span class="${pillClass}">${isLive ? '<span class="live-dot-sm"></span>' : ''}${stageLabel}</span>
+      </div>
+      <div class="self-del-addr">${o.address ? escapeHtml(o.address) : 'No address on file'}</div>
+      <div class="self-del-actions">
+        ${o.address ? `<button class="delivery-mini-btn" onclick="copyAddress(${JSON.stringify(o.address).replace(/"/g,'&quot;')})">📋 Copy Address</button>` : ''}
+        <button class="delivery-mini-btn" onclick="copyRiderLink('${o.id}')">🔗 ${o.rider_token ? 'Copy' : 'Generate'} Rider Link</button>
+        ${hasLocation ? `<button class="delivery-mini-btn" onclick="openLiveLocationModal('${o.id}')">📍 View Live Map</button>` : ''}
+        ${o.phone ? `<button class="delivery-mini-btn" onclick="notifyDeliveryWhatsApp('${o.id}')">📩 Notify customer</button>` : ''}
+      </div>
+    </div>`;
+  }).join('');
+}
+
+async function copyRiderLink(id){
+  const orders = await getOrders();
+  const o = orders.find(x => x.id === id);
+  if(!o) return;
+  let token = o.rider_token;
+  if(!token){
+    token = (crypto.randomUUID ? crypto.randomUUID() : String(Math.random())).replace(/-/g,'').slice(0,20);
+    const { error } = await sb.from('orders').update({ rider_token: token }).eq('id', id);
+    if(error){ showToast('Error: ' + error.message); return; }
+  }
+  const link = riderLinkFor({ id: o.id, rider_token: token });
+  try{
+    await navigator.clipboard.writeText(link);
+    showToast('Rider link copied — send it to your delivery person on WhatsApp');
+  }catch(e){
+    prompt('Copy this rider link:', link);
+  }
+  renderDelivery();
+  renderOrders();
+}
+
+/* ---------- live rider location (admin view) ---------- */
+let adminLiveMap = null, adminLiveMarker = null, adminLiveAccCircle = null, adminLivePollTimer = null;
+
+async function openLiveLocationModal(orderId){
+  document.getElementById('live-location-modal').classList.add('active');
+  const pollOnce = async () => {
+    const orders = await getOrders();
+    const o = orders.find(x => x.id === orderId);
+    if(!o) return;
+    const stagePill = document.getElementById('live-loc-stage');
+    const updatedEl = document.getElementById('live-loc-updated');
+    const waiting = document.getElementById('live-loc-waiting');
+    const mapEl = document.getElementById('live-loc-map');
+    stagePill.textContent = ADMIN_DELIVERY_STAGE_LABELS[o.delivery_stage] || 'Not started';
+    stagePill.className = 'stage-pill' + (o.delivery_stage === 'delivered' ? ' delivered' : (o.rider_tracking_active ? ' live' : ''));
+
+    if(o.rider_lat == null || o.rider_lng == null){
+      mapEl.style.display = 'none';
+      waiting.style.display = 'block';
+      updatedEl.textContent = '';
+      return;
+    }
+    mapEl.style.display = 'block';
+    waiting.style.display = 'none';
+    if(o.rider_location_updated_at){
+      const secs = Math.max(0, Math.round((Date.now() - new Date(o.rider_location_updated_at).getTime())/1000));
+      updatedEl.textContent = secs < 60 ? `Updated ${secs}s ago` : `Updated ${Math.round(secs/60)}m ago`;
+    }
+    if(!adminLiveMap){
+      adminLiveMap = L.map('live-loc-map', { zoomControl:true, attributionControl:false }).setView([o.rider_lat, o.rider_lng], 15);
+      L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', { maxZoom:19 }).addTo(adminLiveMap);
+      const icon = L.divIcon({
+        className:'', html:`<div style="width:18px;height:18px;border-radius:50%;background:#FFD24A;border:3px solid #0A0806;box-shadow:0 0 0 4px rgba(255,210,74,0.25);"></div>`,
+        iconSize:[18,18], iconAnchor:[9,9]
+      });
+      adminLiveMarker = L.marker([o.rider_lat, o.rider_lng], { icon }).addTo(adminLiveMap);
+      if(o.rider_accuracy){ adminLiveAccCircle = L.circle([o.rider_lat, o.rider_lng], { radius:o.rider_accuracy, color:'#FFD24A', weight:1, fillOpacity:0.08 }).addTo(adminLiveMap); }
+    }else{
+      adminLiveMarker.setLatLng([o.rider_lat, o.rider_lng]);
+      if(adminLiveAccCircle) adminLiveAccCircle.setLatLng([o.rider_lat, o.rider_lng]).setRadius(o.rider_accuracy || 30);
+      adminLiveMap.panTo([o.rider_lat, o.rider_lng]);
+      adminLiveMap.invalidateSize();
+    }
+  };
+  await pollOnce();
+  if(adminLivePollTimer) clearInterval(adminLivePollTimer);
+  adminLivePollTimer = setInterval(pollOnce, 7000);
+}
+
+function closeLiveLocationModal(){
+  document.getElementById('live-location-modal').classList.remove('active');
+  if(adminLivePollTimer){ clearInterval(adminLivePollTimer); adminLivePollTimer = null; }
+  if(adminLiveMap){ adminLiveMap.remove(); adminLiveMap = null; adminLiveMarker = null; adminLiveAccCircle = null; }
 }
 
 function renderDeliveryPartnerList(listId, emptyId, orders){
@@ -3084,7 +3276,10 @@ async function notifyDeliveryWhatsApp(id){
   const o = orders.find(x => x.id === id);
   if(!o || !o.phone) { showToast('No phone number on this order'); return; }
   const phoneDigits = o.phone.replace(/\D/g, '');
-  const msg = `Hi ${o.customer_name}, your NF Naseem Fitness order is on its way via ${o.delivery_partner}! Track it here: ${o.tracking_id}`;
+  const ref = 'NF-' + o.id.slice(0,8).toUpperCase();
+  const msg = o.delivery_partner === 'Self Delivery'
+    ? `Hi ${o.customer_name}, your NF Naseem Fitness order is on its way! Track your rider live at ${location.origin}/ — tap "Track Order", enter Order ID ${ref} and your phone number to see live location.`
+    : `Hi ${o.customer_name}, your NF Naseem Fitness order is on its way via ${o.delivery_partner}! Track it here: ${o.tracking_id}`;
   window.open(`https://wa.me/${phoneDigits}?text=${encodeURIComponent(msg)}`, '_blank');
 }
 
