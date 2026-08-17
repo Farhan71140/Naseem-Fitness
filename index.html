@@ -563,12 +563,47 @@
     font-family:'Space Mono',monospace;font-size:9px;letter-spacing:1px;
     padding:4px 8px;border-radius:20px;
   }
+  .prod-badges{
+    position:absolute;top:10px;left:10px;z-index:2;
+    display:flex;flex-direction:column;align-items:flex-start;gap:6px;
+  }
   .badge-new{
-    position:absolute;top:10px;left:10px;
     background:var(--teal);color:var(--ink-black);
     font-family:'Space Mono',monospace;font-size:9px;letter-spacing:1.5px;font-weight:700;
     padding:4px 10px;border-radius:20px;
     box-shadow:0 2px 8px rgba(255,210,74,0.4);
+  }
+  .badge-sale{
+    position:relative;overflow:hidden;
+    display:inline-flex;align-items:center;gap:4px;
+    font-family:'Space Mono',monospace;font-size:9px;letter-spacing:1.5px;font-weight:700;
+    padding:4px 10px;border-radius:20px;
+    color:#FFEFC2;text-transform:uppercase;
+    background:linear-gradient(135deg,#6E0A1B 0%,#C4102F 40%,#F0435C 65%,#6E0A1B 100%);
+    background-size:220% 220%;
+    border:1px solid rgba(255,226,122,0.55);
+    box-shadow:0 2px 10px rgba(196,16,47,0.55), inset 0 0 6px rgba(255,255,255,0.12);
+    animation:saleDrift 3.6s ease-in-out infinite, saleGlow 2.4s ease-in-out infinite;
+  }
+  .badge-sale::before{
+    content:'';position:absolute;top:0;left:-65%;width:35%;height:100%;
+    background:linear-gradient(115deg, transparent, rgba(255,255,255,0.65), transparent);
+    transform:skewX(-18deg);
+    animation:saleShine 2.8s ease-in-out infinite;
+  }
+  @keyframes saleShine{
+    0%{left:-65%;}
+    50%{left:135%;}
+    100%{left:135%;}
+  }
+  @keyframes saleGlow{
+    0%,100%{box-shadow:0 2px 10px rgba(196,16,47,0.5), inset 0 0 6px rgba(255,255,255,0.12);}
+    50%{box-shadow:0 2px 16px rgba(240,67,92,0.9), inset 0 0 9px rgba(255,255,255,0.22);}
+  }
+  @keyframes saleDrift{
+    0%{background-position:0% 50%;}
+    50%{background-position:100% 50%;}
+    100%{background-position:0% 50%;}
   }
   .prod-card.out-of-stock{opacity:0.5;}
   .prod-card.out-of-stock:hover{transform:none;}
@@ -2675,6 +2710,10 @@ function isNewProduct(p){
   return p.is_new === true;
 }
 
+function isOnSale(p){
+  return p.is_sale === true;
+}
+
 function renderProducts(list){
   const grid = document.getElementById('products-grid');
   if(list.length===0){
@@ -2698,7 +2737,10 @@ function renderProducts(list){
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="6" y="3" width="12" height="18" rx="2"/><path d="M9 3v3h6V3"/></svg>
               <div class="ph-label">PRODUCT PHOTO<br>GOES HERE</div>
             </div>`; })()}
-        ${!outOfStock && isNewProduct(p) ? `<span class="badge-new">NEW</span>` : ''}
+        ${!outOfStock && (isNewProduct(p) || isOnSale(p)) ? `<div class="prod-badges">
+          ${isNewProduct(p) ? `<span class="badge-new">NEW</span>` : ''}
+          ${isOnSale(p) ? `<span class="badge-sale">SALE</span>` : ''}
+        </div>` : ''}
         <span class="badge-genuine">✓ GENUINE</span>
         <button type="button" class="prod-share-btn" aria-label="Share this product" onclick="event.stopPropagation();shareProduct('${p.id}', event)">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.6" y1="10.6" x2="15.4" y2="6.4"/><line x1="8.6" y1="13.4" x2="15.4" y2="17.6"/></svg>
