@@ -1486,6 +1486,11 @@
         <input type="checkbox" id="product-is-new" style="width:auto;">
         <label for="product-is-new" style="margin:0;">Mark as "New Arrival" (shows a NEW tag to customers)</label>
       </div>
+      <div class="field" style="display:flex;align-items:center;gap:10px;flex-direction:row;">
+        <input type="checkbox" id="product-is-sale" style="width:auto;">
+        <label for="product-is-sale" style="margin:0;">Mark as "On Sale" (shows an animated SALE tag to customers)</label>
+      </div>
+      <div class="photo-upload-hint" style="margin-top:-10px;">This is a separate on/off tag for this one product — independent of the store-wide sale in Settings and the strike-through price above. Turn it on any time you want this specific product to stand out as a sale item.</div>
     </div>
     <div class="modal-foot">
       <button class="btn btn-ghost" onclick="closeModal('product-modal')">Cancel</button>
@@ -1932,6 +1937,10 @@ async function renderProducts(){
       </div>
       <div class="prod-admin-body">
         <div class="prod-admin-cat">${escapeHtml(p.category)}</div>
+        ${p.is_new || p.is_sale ? `<div style="display:flex;gap:6px;margin-top:4px;">
+          ${p.is_new ? `<span style="font-family:'Space Mono',monospace;font-size:9px;letter-spacing:1px;font-weight:700;padding:2px 7px;border-radius:10px;background:var(--teal);color:var(--ink-black);">NEW</span>` : ''}
+          ${p.is_sale ? `<span style="font-family:'Space Mono',monospace;font-size:9px;letter-spacing:1px;font-weight:700;padding:2px 7px;border-radius:10px;background:linear-gradient(135deg,#7A0C1E,#E63950);color:#FFE9B0;">SALE</span>` : ''}
+        </div>` : ''}
         <h4>${escapeHtml(p.name)}</h4>
         ${p.brand ? `<div style="font-family:'Space Mono',monospace;font-size:10px;color:var(--paper-dim);letter-spacing:1px;text-transform:uppercase;margin-top:2px;">${escapeHtml(p.brand)}</div>` : ''}
         ${Array.isArray(p.flavors) && p.flavors.length ? `
@@ -2865,6 +2874,7 @@ async function openProductModal(){
   renderPhotoUploadGrid();
   document.getElementById('product-desc').value = '';
   document.getElementById('product-is-new').checked = true;
+  document.getElementById('product-is-sale').checked = false;
   PRODUCT_FLAVORS = [];
   renderFlavorList();
   document.getElementById('product-modal').classList.add('active');
@@ -2892,6 +2902,7 @@ async function editProduct(id){
   renderPhotoUploadGrid();
   document.getElementById('product-desc').value = p.description || '';
   document.getElementById('product-is-new').checked = !!p.is_new;
+  document.getElementById('product-is-sale').checked = !!p.is_sale;
   PRODUCT_FLAVORS = Array.isArray(p.flavors) ? p.flavors.map(f => ({...f})) : [];
   renderFlavorList();
   document.getElementById('product-modal').classList.add('active');
@@ -2917,6 +2928,7 @@ async function saveProduct(){
     image_urls: PRODUCT_IMAGES,
     description: document.getElementById('product-desc').value.trim(),
     is_new: document.getElementById('product-is-new').checked,
+    is_sale: document.getElementById('product-is-sale').checked,
     flavors: PRODUCT_FLAVORS
       .filter(f => f.name && f.name.trim())
       .map(f => ({ id: f.id, name: f.name.trim(), color: f.color || '#FFD24A', image_url: f.image_url || '', in_stock: f.in_stock !== false }))
