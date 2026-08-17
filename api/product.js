@@ -161,6 +161,20 @@ module.exports = async function handler(req, res) {
   const stock = (product.stock === undefined || product.stock === null) ? null : Number(product.stock);
   const outOfStock = stock !== null && stock <= 0;
 
+  // Google Merchant Listings structured data requires "offers" to declare
+  // either priceValidUntil or validThrough, or it flags a (currently
+  // non-critical) "Either validThrough or priceValidUntil should be
+  // specified" issue in Search Console. We generate this dynamically per
+  // request rather than hardcoding a date, so it's always a real date in
+  // the future and never needs manual upkeep: it's set to exactly one year
+  // from the moment the page is rendered, capped to a plain YYYY-MM-DD
+  // (schema.org Date format). The 10-minute edge cache (s-maxage=600) on
+  // this response means the value effectively refreshes at least every 10
+  // minutes, so it stays correctly "far in the future" indefinitely.
+  const priceValidUntil = new Date(Date.now() + 365 * 24 * 60 * 60 * 1000)
+    .toISOString()
+    .slice(0, 10);
+
   const jsonLd = {
     '@context': 'https://schema.org/',
     '@type': 'Product',
@@ -174,6 +188,7 @@ module.exports = async function handler(req, res) {
       '@type': 'Offer',
       priceCurrency: 'INR',
       price,
+      priceValidUntil,
       availability: outOfStock ? 'https://schema.org/OutOfStock' : 'https://schema.org/InStock',
       url: productUrl
     }
