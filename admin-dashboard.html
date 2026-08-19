@@ -1483,18 +1483,18 @@
         <textarea id="product-desc" rows="4" placeholder="One point per line, e.g.&#10;Supports daily energy metabolism&#10;Helps maintain immunity&#10;Supports overall health and wellness"></textarea>
       </div>
       <div class="field" style="display:flex;align-items:center;gap:10px;flex-direction:row;">
-        <input type="checkbox" id="product-is-new" style="width:auto;">
+        <input type="checkbox" id="product-is-new" style="width:auto;" onchange="enforceSingleBadgeChoice('product-is-new')">
         <label for="product-is-new" style="margin:0;">Mark as "New Arrival" (shows a NEW tag to customers)</label>
       </div>
       <div class="field" style="display:flex;align-items:center;gap:10px;flex-direction:row;">
-        <input type="checkbox" id="product-is-sale" style="width:auto;">
+        <input type="checkbox" id="product-is-sale" style="width:auto;" onchange="enforceSingleBadgeChoice('product-is-sale')">
         <label for="product-is-sale" style="margin:0;">Mark as "On Sale" (shows an animated SALE tag to customers)</label>
       </div>
       <div class="field" style="display:flex;align-items:center;gap:10px;flex-direction:row;">
-        <input type="checkbox" id="product-is-choice" style="width:auto;">
+        <input type="checkbox" id="product-is-choice" style="width:auto;" onchange="enforceSingleBadgeChoice('product-is-choice')">
         <label for="product-is-choice" style="margin:0;">Mark as "NF Choice" (shows a premium shimmering NF Choice tag — use for standout / staff-picked products)</label>
       </div>
-      <div class="photo-upload-hint" style="margin-top:-10px;">This is a separate on/off tag for this one product — independent of the store-wide sale in Settings and the strike-through price above. Turn it on any time you want this specific product to stand out as a sale item.</div>
+      <div class="photo-upload-hint" style="margin-top:-10px;">Only one badge can be shown per product — ticking one automatically clears the others. This tag is independent of the store-wide sale in Settings and the strike-through price above.</div>
     </div>
     <div class="modal-foot">
       <button class="btn btn-ghost" onclick="closeModal('product-modal')">Cancel</button>
@@ -2861,6 +2861,14 @@ async function uploadFlavorImage(file){
 
 /* ---------- product CRUD ---------- */
 let allProductsCache = [];
+const BADGE_CHECKBOX_IDS = ['product-is-new','product-is-sale','product-is-choice'];
+function enforceSingleBadgeChoice(activeId){
+  const activeEl = document.getElementById(activeId);
+  if(!activeEl.checked) return; // unticking is always fine
+  BADGE_CHECKBOX_IDS.forEach(id=>{
+    if(id !== activeId) document.getElementById(id).checked = false;
+  });
+}
 async function openProductModal(){
   document.getElementById('product-modal-title').textContent = 'Add Product';
   document.getElementById('product-id').value = '';
