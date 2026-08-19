@@ -1942,7 +1942,7 @@ async function renderProducts(){
       <div class="prod-admin-body">
         <div class="prod-admin-cat">${escapeHtml(p.category)}</div>
         ${p.is_new || p.is_sale || p.is_choice ? `<div style="display:flex;gap:6px;margin-top:4px;flex-wrap:wrap;">
-          ${p.is_choice ? `<span style="font-family:'Space Mono',monospace;font-size:9px;letter-spacing:1px;font-weight:700;padding:2px 7px;border-radius:10px;background:linear-gradient(135deg,#1B0E2E,#8A4FD1,#1B0E2E);color:#F5F0FF;border:1px solid rgba(216,180,254,0.6);">NF CHOICE</span>` : ''}
+          ${p.is_choice ? `<span style="font-family:'Space Mono',monospace;font-size:9px;letter-spacing:1px;font-weight:700;padding:2px 7px;border-radius:10px;background:linear-gradient(135deg,#B8860B,#FFD24A,#FFF2B5,#FFD24A,#B8860B);color:#0A0806;border:1.5px solid #0A0806;">★ NF CHOICE</span>` : ''}
           ${p.is_new ? `<span style="font-family:'Space Mono',monospace;font-size:9px;letter-spacing:1px;font-weight:700;padding:2px 7px;border-radius:10px;background:var(--teal);color:var(--ink-black);">NEW</span>` : ''}
           ${p.is_sale ? `<span style="font-family:'Space Mono',monospace;font-size:9px;letter-spacing:1px;font-weight:700;padding:2px 7px;border-radius:10px;background:linear-gradient(135deg,#7A0C1E,#E63950);color:#FFE9B0;">SALE</span>` : ''}
         </div>` : ''}
