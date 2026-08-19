@@ -1490,6 +1490,10 @@
         <input type="checkbox" id="product-is-sale" style="width:auto;">
         <label for="product-is-sale" style="margin:0;">Mark as "On Sale" (shows an animated SALE tag to customers)</label>
       </div>
+      <div class="field" style="display:flex;align-items:center;gap:10px;flex-direction:row;">
+        <input type="checkbox" id="product-is-choice" style="width:auto;">
+        <label for="product-is-choice" style="margin:0;">Mark as "NF Choice" (shows a premium shimmering NF Choice tag — use for standout / staff-picked products)</label>
+      </div>
       <div class="photo-upload-hint" style="margin-top:-10px;">This is a separate on/off tag for this one product — independent of the store-wide sale in Settings and the strike-through price above. Turn it on any time you want this specific product to stand out as a sale item.</div>
     </div>
     <div class="modal-foot">
@@ -1937,7 +1941,8 @@ async function renderProducts(){
       </div>
       <div class="prod-admin-body">
         <div class="prod-admin-cat">${escapeHtml(p.category)}</div>
-        ${p.is_new || p.is_sale ? `<div style="display:flex;gap:6px;margin-top:4px;">
+        ${p.is_new || p.is_sale || p.is_choice ? `<div style="display:flex;gap:6px;margin-top:4px;flex-wrap:wrap;">
+          ${p.is_choice ? `<span style="font-family:'Space Mono',monospace;font-size:9px;letter-spacing:1px;font-weight:700;padding:2px 7px;border-radius:10px;background:linear-gradient(135deg,#1B0E2E,#8A4FD1,#1B0E2E);color:#F5F0FF;border:1px solid rgba(216,180,254,0.6);">NF CHOICE</span>` : ''}
           ${p.is_new ? `<span style="font-family:'Space Mono',monospace;font-size:9px;letter-spacing:1px;font-weight:700;padding:2px 7px;border-radius:10px;background:var(--teal);color:var(--ink-black);">NEW</span>` : ''}
           ${p.is_sale ? `<span style="font-family:'Space Mono',monospace;font-size:9px;letter-spacing:1px;font-weight:700;padding:2px 7px;border-radius:10px;background:linear-gradient(135deg,#7A0C1E,#E63950);color:#FFE9B0;">SALE</span>` : ''}
         </div>` : ''}
@@ -2875,6 +2880,7 @@ async function openProductModal(){
   document.getElementById('product-desc').value = '';
   document.getElementById('product-is-new').checked = true;
   document.getElementById('product-is-sale').checked = false;
+  document.getElementById('product-is-choice').checked = false;
   PRODUCT_FLAVORS = [];
   renderFlavorList();
   document.getElementById('product-modal').classList.add('active');
@@ -2903,6 +2909,7 @@ async function editProduct(id){
   document.getElementById('product-desc').value = p.description || '';
   document.getElementById('product-is-new').checked = !!p.is_new;
   document.getElementById('product-is-sale').checked = !!p.is_sale;
+  document.getElementById('product-is-choice').checked = !!p.is_choice;
   PRODUCT_FLAVORS = Array.isArray(p.flavors) ? p.flavors.map(f => ({...f})) : [];
   renderFlavorList();
   document.getElementById('product-modal').classList.add('active');
@@ -2929,6 +2936,7 @@ async function saveProduct(){
     description: document.getElementById('product-desc').value.trim(),
     is_new: document.getElementById('product-is-new').checked,
     is_sale: document.getElementById('product-is-sale').checked,
+    is_choice: document.getElementById('product-is-choice').checked,
     flavors: PRODUCT_FLAVORS
       .filter(f => f.name && f.name.trim())
       .map(f => ({ id: f.id, name: f.name.trim(), color: f.color || '#FFD24A', image_url: f.image_url || '', in_stock: f.in_stock !== false }))
