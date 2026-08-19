@@ -599,6 +599,38 @@
     50%{background-position:100% 50%;}
     100%{background-position:0% 50%;}
   }
+  .badge-choice{
+    position:relative;overflow:hidden;
+    display:inline-flex;align-items:center;gap:4px;
+    font-family:'Space Mono',monospace;font-size:9px;letter-spacing:1.5px;font-weight:700;
+    padding:4px 10px;border-radius:20px;
+    color:#F5F0FF;text-transform:uppercase;
+    background:linear-gradient(135deg,#1B0E2E 0%,#4A2472 30%,#8A4FD1 50%,#4A2472 70%,#1B0E2E 100%);
+    background-size:220% 220%;
+    border:1px solid rgba(216,180,254,0.6);
+    box-shadow:0 2px 10px rgba(138,79,209,0.55), inset 0 0 6px rgba(216,180,254,0.25);
+    animation:choiceDrift 3.6s ease-in-out infinite, choiceGlow 2.4s ease-in-out infinite;
+  }
+  .badge-choice::before{
+    content:'';position:absolute;top:0;left:-65%;width:35%;height:100%;
+    background:linear-gradient(115deg, transparent, rgba(230,200,255,0.85), transparent);
+    transform:skewX(-18deg);
+    animation:choiceShine 2.8s ease-in-out infinite;
+  }
+  @keyframes choiceShine{
+    0%{left:-65%;}
+    50%{left:135%;}
+    100%{left:135%;}
+  }
+  @keyframes choiceGlow{
+    0%,100%{box-shadow:0 2px 10px rgba(138,79,209,0.45), inset 0 0 6px rgba(216,180,254,0.22);}
+    50%{box-shadow:0 2px 18px rgba(180,120,255,0.9), inset 0 0 10px rgba(230,200,255,0.4);}
+  }
+  @keyframes choiceDrift{
+    0%{background-position:0% 50%;}
+    50%{background-position:100% 50%;}
+    100%{background-position:0% 50%;}
+  }
   .badge-sale{
     position:relative;overflow:hidden;
     display:inline-flex;align-items:center;gap:4px;
@@ -2740,6 +2772,10 @@ function isOnSale(p){
   return p.is_sale === true;
 }
 
+function isNfChoice(p){
+  return p.is_choice === true;
+}
+
 function renderProducts(list){
   const grid = document.getElementById('products-grid');
   if(list.length===0){
@@ -2763,7 +2799,8 @@ function renderProducts(list){
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="6" y="3" width="12" height="18" rx="2"/><path d="M9 3v3h6V3"/></svg>
               <div class="ph-label">PRODUCT PHOTO<br>GOES HERE</div>
             </div>`; })()}
-        ${!outOfStock && (isNewProduct(p) || isOnSale(p)) ? `<div class="prod-badges">
+        ${!outOfStock && (isNewProduct(p) || isOnSale(p) || isNfChoice(p)) ? `<div class="prod-badges">
+          ${isNfChoice(p) ? `<span class="badge-choice">NF Choice</span>` : ''}
           ${isNewProduct(p) ? `<span class="badge-new">NEW</span>` : ''}
           ${isOnSale(p) ? `<span class="badge-sale">SALE</span>` : ''}
         </div>` : ''}
