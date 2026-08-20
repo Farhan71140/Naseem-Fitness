@@ -530,6 +530,39 @@
   }
   .combo-cat-label{background:linear-gradient(90deg, rgba(255,210,74,0.08), transparent);}
   .combo-cat-label .cat-icon{filter:drop-shadow(0 0 6px rgba(255,210,74,0.5));}
+
+  /* ===== FITNESS LIFESTYLE — auto-scrolling slider (new category only; every other
+     category/section keeps its existing grid layout completely untouched) ===== */
+  .fl-slider-section .section-head{margin-bottom:22px;}
+  .fl-slider-viewport{
+    position:relative;overflow-x:auto;overflow-y:hidden;
+    scrollbar-width:none;-ms-overflow-style:none;
+    cursor:grab;padding-bottom:4px;
+  }
+  .fl-slider-viewport::-webkit-scrollbar{display:none;}
+  .fl-slider-viewport.dragging{cursor:grabbing;}
+  .fl-slider-track{display:flex;gap:18px;width:max-content;}
+  .fl-card{flex:none;width:220px;user-select:none;}
+  .fl-card .prod-photo{aspect-ratio:1/1;}
+  @media (max-width:600px){ .fl-card{width:168px;} }
+  .fl-viewmore-wrap{text-align:center;margin-top:26px;}
+  .btn-view-more{
+    display:inline-flex;align-items:center;gap:8px;cursor:pointer;
+    padding:12px 26px;border-radius:8px;font-size:14px;font-weight:700;
+    background:var(--teal);color:var(--ink-black);border:1px solid var(--teal);
+    transition:transform .15s;font-family:inherit;
+  }
+  .btn-view-more:hover{transform:translateY(-2px);}
+
+  /* ===== FITNESS LIFESTYLE — full category page (opens on "View More") ===== */
+  .fl-subcat-chips{display:flex;flex-wrap:wrap;gap:10px;margin:22px 0 28px;}
+  .fl-chip{
+    font-family:'Space Mono',monospace;font-size:12px;letter-spacing:0.5px;
+    padding:8px 16px;border-radius:20px;border:1px solid var(--line);color:var(--paper-dim);
+    cursor:pointer;transition:border-color .2s, color .2s, background .2s;background:transparent;
+  }
+  .fl-chip:hover{border-color:var(--teal);color:var(--teal);}
+  .fl-chip.active{background:var(--teal);border-color:var(--teal);color:var(--ink-black);font-weight:700;}
   /* ===== OFFERS ===== */
   .offers-carousel{background:linear-gradient(90deg,var(--amber),var(--teal));overflow:hidden;cursor:pointer;padding:12px 0;}
   .offers-carousel-track{display:flex;width:max-content;white-space:nowrap;animation:offers-scroll 18s linear infinite;}
@@ -1882,12 +1915,56 @@
           </div>
           <div class="cat-label"><span class="cat-icon">🏋️</span> Gym Accessories</div>
         </a>
+        <a href="#fitness-lifestyle" class="cat-card-img" onclick="document.getElementById('fitness-lifestyle').scrollIntoView({behavior:'smooth',block:'start'});return false;">
+          <div class="cat-img-wrap">
+            <img src="assets/categories/fitness-lifestyle.jpg" alt="Fitness Lifestyle"
+              onerror="this.style.display='none';this.nextElementSibling.style.display='flex';">
+            <div class="cat-img-fallback" style="display:none;">FITNESS LIFESTYLE<br>PHOTO GOES HERE</div>
+          </div>
+          <div class="cat-label"><span class="cat-icon">🕶️</span> Fitness Lifestyle</div>
+        </a>
       </div>
       <div id="active-category-bar" style="display:none;align-items:center;gap:12px;margin-top:20px;">
         <span style="font-size:13px;color:var(--paper-dim);">Showing:</span>
         <span id="active-category-label" style="font-size:13px;font-weight:700;color:var(--teal);"></span>
         <button onclick="clearCategoryFilter()" style="background:transparent;border:1px solid var(--line);color:var(--paper);border-radius:20px;padding:5px 14px;font-size:12px;cursor:pointer;">Clear ✕</button>
       </div>
+    </div>
+  </section>
+
+  <!-- FITNESS LIFESTYLE — auto-scrolling slider. This is a NEW system that applies ONLY to
+       this category; Gym Accessories and every other category keep their existing layout. -->
+  <section id="fitness-lifestyle" class="fl-slider-section" style="display:none;">
+    <div class="wrap">
+      <div class="section-head">
+        <div>
+          <div class="eyebrow">New Category</div>
+          <h2>Fitness Lifestyle</h2>
+        </div>
+        <p>Watches, sunglasses, wallets &amp; gadgets built for the athlete lifestyle.</p>
+      </div>
+      <div class="fl-slider-viewport" id="fl-slider-viewport">
+        <div class="fl-slider-track" id="fl-slider-track"></div>
+      </div>
+      <div class="fl-viewmore-wrap">
+        <button type="button" class="btn-view-more" onclick="openFitnessLifestylePage()">View More →</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- FITNESS LIFESTYLE — full category page, opens when "View More" is tapped -->
+  <section id="fitness-lifestyle-page" style="display:none;">
+    <div class="wrap">
+      <a href="#fitness-lifestyle" onclick="closeFitnessLifestylePage();return true;" style="display:inline-flex;align-items:center;gap:6px;font-family:'Space Mono',monospace;font-size:12px;letter-spacing:0.5px;color:var(--paper-dim);margin-bottom:22px;">← Back</a>
+      <div class="section-head">
+        <div>
+          <div class="eyebrow">Full Category</div>
+          <h2>Fitness Lifestyle</h2>
+        </div>
+        <p>Browse everything, or tap a subcategory to narrow it down.</p>
+      </div>
+      <div class="fl-subcat-chips" id="fl-subcat-chips"></div>
+      <div class="prod-grid" id="fl-page-grid"></div>
     </div>
   </section>
 
@@ -2623,6 +2700,7 @@ async function loadProducts(){
     return;
   }
   renderProducts(PRODUCTS);
+  renderFitnessLifestyleSlider(PRODUCTS);
 }
 
 /* ---------- load combo offers ---------- */
@@ -2835,6 +2913,195 @@ function renderProducts(list){
       </div>
     </div>
   `;}).join('');
+}
+
+/* ==========================================================================
+   FITNESS LIFESTYLE — dedicated auto-scrolling slider + full category page.
+   This system applies ONLY to the "Fitness Lifestyle" category. Gym
+   Accessories and every other existing category keep using renderProducts()
+   above, completely untouched.
+   ========================================================================== */
+let FITNESS_LIFESTYLE_PRODUCTS = [];
+const FL_SUBCATEGORIES = ['Watches','Smart/Fitness Watches','Sunglasses','Wallets','Fitness Gadgets','Lifestyle Accessories'];
+
+function flProductCardHTML(p, sliderMode){
+  const eff = getEffectivePricing(p);
+  const price = eff.price;
+  const comparePrice = eff.compare;
+  const hasDiscount = eff.hasDiscount;
+  const pct = eff.pct;
+  const stock = (p.stock === undefined || p.stock === null) ? null : Number(p.stock);
+  const outOfStock = stock !== null && stock <= 0;
+  const imgs = getProductImages(p);
+  return `
+    <div class="prod-card${sliderMode ? ' fl-card' : ''}${outOfStock ? ' out-of-stock' : ''}" onclick="openQuickView('${p.id}')">
+      <div class="prod-photo">
+        ${imgs[0]
+          ? `<img src="${escapeHtml(imgs[0])}" alt="${escapeHtml(p.name)}" style="width:100%;height:100%;object-fit:cover;" onerror="this.parentElement.innerHTML='<div><svg viewBox=\\'0 0 24 24\\' fill=\\'none\\' stroke=\\'currentColor\\' stroke-width=\\'1.5\\'><rect x=\\'6\\' y=\\'3\\' width=\\'12\\' height=\\'18\\' rx=\\'2\\'/></svg><div class=\\'ph-label\\'>IMAGE UNAVAILABLE</div></div>'">${imgs.length>1 ? `<span class="prod-photo-count">📷 ${imgs.length}</span>` : ''}`
+          : `<div>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="6" y="3" width="12" height="18" rx="2"/><path d="M9 3v3h6V3"/></svg>
+              <div class="ph-label">PRODUCT PHOTO<br>GOES HERE</div>
+            </div>`}
+        ${!outOfStock && (isNewProduct(p) || isOnSale(p) || isNfChoice(p)) ? `<div class="prod-badges">
+          ${isNfChoice(p) ? `<span class="badge-choice"><span class="badge-choice-star">★</span>NF Choice</span>` : ''}
+          ${isNewProduct(p) ? `<span class="badge-new">NEW</span>` : ''}
+          ${isOnSale(p) ? `<span class="badge-sale">SALE</span>` : ''}
+        </div>` : ''}
+        <span class="badge-genuine">✓ GENUINE</span>
+        <button type="button" class="prod-share-btn" aria-label="Share this product" onclick="event.stopPropagation();shareProduct('${p.id}', event)">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.6" y1="10.6" x2="15.4" y2="6.4"/><line x1="8.6" y1="13.4" x2="15.4" y2="17.6"/></svg>
+        </button>
+        ${outOfStock ? `<div class="oos-bar">Out of Stock</div>` : ''}
+      </div>
+      <div class="prod-body">
+        <div class="cat-tag">${escapeHtml(p.subcategory || p.category)}</div>
+        <h4>${escapeHtml(p.name)}</h4>
+        ${p.brand ? `<span class="brand-tag">${escapeHtml(p.brand)}</span>` : ''}
+        ${Array.isArray(p.flavors) && p.flavors.length ? `
+          <div class="prod-flavor-row">
+            ${p.flavors.slice(0,5).map(f=>`<span class="fdot" style="background:${escapeHtml(f.color||'#FFD24A')};" title="${escapeHtml(f.name)}"></span>`).join('')}
+            ${p.flavors.length>5 ? `<span class="fmore">+${p.flavors.length-5}</span>` : ''}
+          </div>
+        ` : ''}
+        ${renderRatingSummary(p.id)}
+        <div class="price-row">
+          <div class="price-wrap">
+            <span class="price">₹${price.toLocaleString('en-IN')} ${p.unit ? `<small>/ ${escapeHtml(p.unit)}</small>` : ''}</span>
+            ${hasDiscount ? `<span class="price-compare">₹${comparePrice.toLocaleString('en-IN')}</span><span class="discount-pill">-${pct}%</span>` : ''}
+          </div>
+          <button class="add-btn" aria-label="Add to cart" ${outOfStock ? 'disabled' : ''} onclick="event.stopPropagation();addToCart('${p.id}')"><img src="assets/add-to-cart-btn.png" alt="Add to cart"></button>
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+function renderFitnessLifestyleSlider(all){
+  FITNESS_LIFESTYLE_PRODUCTS = (all || []).filter(p => (p.category || '').toLowerCase() === 'fitness lifestyle');
+  const section = document.getElementById('fitness-lifestyle');
+  const track = document.getElementById('fl-slider-track');
+  if(!section || !track) return;
+  if(FITNESS_LIFESTYLE_PRODUCTS.length === 0){
+    section.style.display = 'none';
+    return;
+  }
+  section.style.display = '';
+  // Product list is duplicated back-to-back so the auto-scroll can loop seamlessly.
+  const cardsHtml = FITNESS_LIFESTYLE_PRODUCTS.map(p => flProductCardHTML(p, true)).join('');
+  track.innerHTML = cardsHtml + cardsHtml;
+  initFlAutoScroll();
+}
+
+/* ---- slow, smooth auto-scroll with manual swipe/drag support ---- */
+let flScrollRAF = null;
+let flIsPaused = false;
+let flIsDragging = false;
+let flDragStartX = 0;
+let flDragStartScroll = 0;
+let flDragDistance = 0;
+let flResumeTimer = null;
+let flListenersBound = false;
+
+function initFlAutoScroll(){
+  const viewport = document.getElementById('fl-slider-viewport');
+  if(!viewport) return;
+  viewport.scrollLeft = 0;
+  flIsPaused = false;
+
+  if(flScrollRAF) cancelAnimationFrame(flScrollRAF);
+  const SPEED = 0.35; // px per frame — deliberately slow & smooth
+  function step(){
+    if(!flIsPaused && !flIsDragging && viewport.scrollWidth > viewport.clientWidth){
+      viewport.scrollLeft += SPEED;
+      const half = viewport.scrollWidth / 2;
+      if(viewport.scrollLeft >= half){
+        viewport.scrollLeft -= half; // seamless loop back to the start
+      }
+    }
+    flScrollRAF = requestAnimationFrame(step);
+  }
+  flScrollRAF = requestAnimationFrame(step);
+
+  if(flListenersBound) return; // avoid stacking duplicate listeners on re-render
+  flListenersBound = true;
+
+  function pauseAndScheduleResume(){
+    flIsPaused = true;
+    clearTimeout(flResumeTimer);
+    flResumeTimer = setTimeout(()=>{ flIsPaused = false; }, 2500);
+  }
+
+  viewport.addEventListener('touchstart', pauseAndScheduleResume, {passive:true});
+  viewport.addEventListener('touchmove', ()=>{ clearTimeout(flResumeTimer); flIsPaused = true; }, {passive:true});
+  viewport.addEventListener('touchend', pauseAndScheduleResume, {passive:true});
+  viewport.addEventListener('wheel', pauseAndScheduleResume, {passive:true});
+
+  // desktop click-and-drag scrolling
+  viewport.addEventListener('mousedown', (e)=>{
+    flIsDragging = true;
+    flDragDistance = 0;
+    viewport.classList.add('dragging');
+    flDragStartX = e.pageX;
+    flDragStartScroll = viewport.scrollLeft;
+    clearTimeout(flResumeTimer);
+    flIsPaused = true;
+  });
+  window.addEventListener('mousemove', (e)=>{
+    if(!flIsDragging) return;
+    const dx = e.pageX - flDragStartX;
+    flDragDistance = Math.abs(dx);
+    viewport.scrollLeft = flDragStartScroll - dx;
+  });
+  window.addEventListener('mouseup', ()=>{
+    if(!flIsDragging) return;
+    flIsDragging = false;
+    viewport.classList.remove('dragging');
+    pauseAndScheduleResume();
+  });
+  // if the mouse-down turned into a real drag, swallow the click so it
+  // doesn't accidentally open the quick-view modal for that card
+  viewport.addEventListener('click', (e)=>{
+    if(flDragDistance > 6){ e.stopPropagation(); e.preventDefault(); }
+  }, true);
+
+  viewport.addEventListener('mouseenter', ()=>{ if(!flIsDragging) flIsPaused = true; });
+  viewport.addEventListener('mouseleave', ()=>{ if(!flIsDragging){ clearTimeout(flResumeTimer); flIsPaused = false; } });
+}
+
+/* ---- "View More" → full Fitness Lifestyle category page ---- */
+function openFitnessLifestylePage(){
+  const section = document.getElementById('fitness-lifestyle-page');
+  if(!section) return;
+  section.style.display = '';
+  renderFlSubcatChips();
+  filterFlPage('__ALL__');
+  section.scrollIntoView({ behavior:'smooth', block:'start' });
+}
+function closeFitnessLifestylePage(){
+  const section = document.getElementById('fitness-lifestyle-page');
+  if(section) section.style.display = 'none';
+}
+function renderFlSubcatChips(){
+  const wrap = document.getElementById('fl-subcat-chips');
+  if(!wrap) return;
+  const chips = ['__ALL__', ...FL_SUBCATEGORIES];
+  wrap.innerHTML = chips.map(c=>{
+    const label = c === '__ALL__' ? 'All' : c;
+    return `<button type="button" class="fl-chip" data-fl-subcat="${escapeHtml(c)}" onclick="filterFlPage('${escapeHtml(c)}')">${escapeHtml(label)}</button>`;
+  }).join('');
+}
+function filterFlPage(subcat){
+  document.querySelectorAll('#fl-subcat-chips .fl-chip').forEach(btn=>{
+    btn.classList.toggle('active', btn.getAttribute('data-fl-subcat') === subcat);
+  });
+  const list = subcat === '__ALL__'
+    ? FITNESS_LIFESTYLE_PRODUCTS
+    : FITNESS_LIFESTYLE_PRODUCTS.filter(p => (p.subcategory || '').toLowerCase() === subcat.toLowerCase());
+  const grid = document.getElementById('fl-page-grid');
+  if(!grid) return;
+  grid.innerHTML = list.length
+    ? list.map(p => flProductCardHTML(p, false)).join('')
+    : `<div class="prod-empty">No products in this subcategory yet.</div>`;
 }
 
 /* ---------- search + category filter ---------- */
