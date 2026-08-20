@@ -1424,13 +1424,14 @@
       <div class="field-row">
         <div class="field">
           <label for="product-category">Category</label>
-          <select id="product-category">
+          <select id="product-category" onchange="toggleFlSubcategoryField()">
             <option>Health Supplements</option>
             <option>Whey Protein</option>
             <option>Creatine</option>
             <option>Pre-Workout</option>
             <option>Gym Accessories</option>
             <option>Multivitamin</option>
+            <option>Fitness Lifestyle</option>
             <option>Other</option>
           </select>
         </div>
@@ -1438,6 +1439,18 @@
           <label for="product-unit">Unit / Size</label>
           <input type="text" id="product-unit" placeholder="e.g. 1kg">
         </div>
+      </div>
+      <div class="field" id="product-subcategory-wrap" style="display:none;">
+        <label for="product-subcategory">Subcategory (Fitness Lifestyle)</label>
+        <select id="product-subcategory">
+          <option value="Watches">Watches</option>
+          <option value="Smart/Fitness Watches">Smart/Fitness Watches</option>
+          <option value="Sunglasses">Sunglasses</option>
+          <option value="Wallets">Wallets</option>
+          <option value="Fitness Gadgets">Fitness Gadgets</option>
+          <option value="Lifestyle Accessories">Lifestyle Accessories</option>
+        </select>
+        <div class="photo-upload-hint">Shown on the storefront's Fitness Lifestyle category page as a filter chip.</div>
       </div>
       <div class="field-row">
         <div class="field">
@@ -2869,12 +2882,20 @@ function enforceSingleBadgeChoice(activeId){
     if(id !== activeId) document.getElementById(id).checked = false;
   });
 }
+function toggleFlSubcategoryField(){
+  const wrap = document.getElementById('product-subcategory-wrap');
+  const category = document.getElementById('product-category').value;
+  if(!wrap) return;
+  wrap.style.display = (category === 'Fitness Lifestyle') ? '' : 'none';
+}
 async function openProductModal(){
   document.getElementById('product-modal-title').textContent = 'Add Product';
   document.getElementById('product-id').value = '';
   document.getElementById('product-name').value = '';
   document.getElementById('product-brand').value = '';
   document.getElementById('product-category').value = 'Health Supplements';
+  document.getElementById('product-subcategory').value = 'Watches';
+  toggleFlSubcategoryField();
   document.getElementById('product-unit').value = '';
   document.getElementById('product-price').value = '';
   document.getElementById('product-compare-price').value = '';
@@ -2902,6 +2923,8 @@ async function editProduct(id){
   document.getElementById('product-name').value = p.name;
   document.getElementById('product-brand').value = p.brand || '';
   document.getElementById('product-category').value = p.category;
+  document.getElementById('product-subcategory').value = p.subcategory || 'Watches';
+  toggleFlSubcategoryField();
   document.getElementById('product-unit').value = p.unit || '';
   document.getElementById('product-price').value = p.price;
   document.getElementById('product-compare-price').value = p.compare_price || '';
@@ -2934,6 +2957,9 @@ async function saveProduct(){
     name,
     brand: document.getElementById('product-brand').value.trim(),
     category: document.getElementById('product-category').value,
+    subcategory: document.getElementById('product-category').value === 'Fitness Lifestyle'
+      ? document.getElementById('product-subcategory').value
+      : null,
     unit: document.getElementById('product-unit').value.trim(),
     price: Number(price),
     compare_price: comparePrice === '' ? null : Number(comparePrice),
