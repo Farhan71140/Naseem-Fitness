@@ -481,8 +481,8 @@
 
   /* ===== CATEGORY IMAGE CARDS ===== */
   .cat-img-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:18px;}
-  @media (max-width:860px){ .cat-img-grid{grid-template-columns:repeat(2,1fr);} }
-  @media (max-width:480px){ .cat-img-grid{grid-template-columns:1fr;} }
+  @media (max-width:860px){ .cat-img-grid{grid-template-columns:repeat(2,1fr);gap:14px;} }
+  @media (max-width:480px){ .cat-img-grid{gap:10px;} }
   .cat-card-img{
     display:block;background:var(--steel);border:1px solid var(--line);border-radius:12px;
     overflow:hidden;transition:border-color .2s, transform .2s;
@@ -491,7 +491,7 @@
   .cat-img-wrap{
     width:100%;aspect-ratio:4/5;background:var(--iron);position:relative;overflow:hidden;
   }
-  .cat-img-wrap img{width:100%;height:100%;object-fit:cover;display:block;}
+  .cat-img-wrap img{width:100%;height:100%;object-fit:cover;object-position:center top;display:block;image-rendering:auto;}
   .cat-img-wrap .cat-img-fallback{
     position:absolute;inset:0;display:flex;align-items:center;justify-content:center;
     text-align:center;font-family:'Space Mono',monospace;font-size:11px;letter-spacing:1px;
@@ -501,7 +501,11 @@
     display:flex;align-items:center;gap:10px;padding:16px 18px;
     font-family:'Anton',sans-serif;font-size:18px;text-transform:uppercase;letter-spacing:0.4px;
   }
-  .cat-label .cat-icon{font-size:20px;line-height:1;}
+  .cat-label .cat-icon{font-size:20px;line-height:1;flex:none;}
+  @media (max-width:480px){
+    .cat-label{padding:10px 10px;gap:6px;font-size:12.5px;letter-spacing:0.2px;}
+    .cat-label .cat-icon{font-size:14px;}
+  }
 
   /* ===== COMBO CATEGORY TILE — visually distinct from plain category tiles ===== */
   .combo-cat-card{
@@ -530,6 +534,85 @@
   }
   .combo-cat-label{background:linear-gradient(90deg, rgba(255,210,74,0.08), transparent);}
   .combo-cat-label .cat-icon{filter:drop-shadow(0 0 6px rgba(255,210,74,0.5));}
+  @media (max-width:480px){
+    .combo-cat-ribbon{top:8px;left:8px;font-size:8px;padding:4px 8px;}
+    .combo-cat-save{top:8px;right:8px;font-size:9px;padding:3px 8px;}
+    .combo-cat-fallback svg{width:28px;height:28px;}
+    .combo-cat-fallback{font-size:9px;padding:8px;gap:6px;}
+  }
+
+  /* ===== FITNESS LIFESTYLE — auto-scrolling slider (new category only; every other
+     category/section keeps its existing grid layout completely untouched) ===== */
+  .fl-slider-section .section-head{margin-bottom:22px;}
+  .fl-slider-viewport{
+    position:relative;overflow-x:auto;overflow-y:hidden;
+    scrollbar-width:none;-ms-overflow-style:none;
+    cursor:grab;padding-bottom:4px;
+  }
+  .fl-slider-viewport::-webkit-scrollbar{display:none;}
+  .fl-slider-viewport.dragging{cursor:grabbing;}
+  .fl-slider-track{display:flex;gap:18px;width:max-content;}
+  .fl-card{flex:none;width:220px;user-select:none;}
+  .fl-card .prod-photo{aspect-ratio:1/1;}
+  @media (max-width:600px){ .fl-card{width:168px;} }
+  .fl-viewmore-wrap{text-align:center;margin-top:26px;}
+  .btn-view-more{
+    display:inline-flex;align-items:center;gap:8px;cursor:pointer;
+    padding:12px 26px;border-radius:8px;font-size:14px;font-weight:700;
+    background:var(--teal);color:var(--ink-black);border:1px solid var(--teal);
+    transition:transform .15s;font-family:inherit;
+  }
+  .btn-view-more:hover{transform:translateY(-2px);}
+
+  /* ===== FITNESS LIFESTYLE — full category page (opens on "View More") =====
+     Subcategory rail: circular photo tiles in a horizontally-scrollable row
+     (Amazon-style "shop by category" strip), swipeable on mobile and
+     click-drag on desktop. Selecting a circle filters fl-page-grid below. */
+  .fl-subcat-viewport{
+    overflow-x:auto;overflow-y:hidden;scrollbar-width:none;-ms-overflow-style:none;
+    cursor:grab;margin:24px 0 32px;padding:6px 2px 16px;
+  }
+  .fl-subcat-viewport::-webkit-scrollbar{display:none;}
+  .fl-subcat-viewport.dragging{cursor:grabbing;}
+  .fl-subcat-track{display:flex;gap:28px;width:max-content;}
+  .fl-subcat-item{
+    flex:none;width:100px;display:flex;flex-direction:column;align-items:center;gap:11px;
+    background:transparent;border:none;cursor:pointer;font-family:inherit;padding:0;user-select:none;
+  }
+  .fl-subcat-circle{
+    position:relative;width:92px;height:92px;border-radius:50%;overflow:hidden;
+    background:linear-gradient(150deg, var(--iron) 0%, var(--steel) 100%);
+    border:1.5px solid var(--line);
+    display:flex;align-items:center;justify-content:center;
+    transition:border-color .25s, box-shadow .25s, transform .2s;
+  }
+  .fl-subcat-circle img{width:100%;height:100%;object-fit:cover;}
+  .fl-subcat-fallback{font-size:32px;filter:grayscale(0.1);}
+  .fl-subcat-circle-all{
+    background:linear-gradient(150deg, var(--iron-light) 0%, var(--iron) 100%);
+    border-color:rgba(255,210,74,0.35);
+  }
+  .fl-subcat-all-icon{font-size:25px;color:var(--teal);}
+  .fl-subcat-item:hover .fl-subcat-circle{
+    transform:translateY(-3px);border-color:var(--teal);
+    box-shadow:0 8px 20px rgba(255,210,74,0.18);
+  }
+  .fl-subcat-item.active .fl-subcat-circle{
+    border-color:var(--teal);
+    box-shadow:0 0 0 3px rgba(255,210,74,0.14), 0 10px 22px rgba(255,210,74,0.3);
+  }
+  .fl-subcat-label{
+    font-family:'Space Mono',monospace;font-size:11.5px;letter-spacing:0.3px;
+    text-align:center;color:var(--paper-dim);line-height:1.3;transition:color .2s;
+  }
+  .fl-subcat-item:hover .fl-subcat-label,
+  .fl-subcat-item.active .fl-subcat-label{color:var(--teal);font-weight:700;}
+  @media (max-width:600px){
+    .fl-subcat-circle{width:76px;height:76px;}
+    .fl-subcat-item{width:82px;}
+    .fl-subcat-label{font-size:10.5px;}
+    .fl-subcat-track{gap:20px;}
+  }
   /* ===== OFFERS ===== */
   .offers-carousel{background:linear-gradient(90deg,var(--amber),var(--teal));overflow:hidden;cursor:pointer;padding:12px 0;}
   .offers-carousel-track{display:flex;width:max-content;white-space:nowrap;animation:offers-scroll 18s linear infinite;}
@@ -568,10 +651,72 @@
     display:flex;flex-direction:column;align-items:flex-start;gap:6px;
   }
   .badge-new{
-    background:var(--teal);color:var(--ink-black);
+    position:relative;overflow:hidden;
+    display:inline-flex;align-items:center;gap:4px;
     font-family:'Space Mono',monospace;font-size:9px;letter-spacing:1.5px;font-weight:700;
     padding:4px 10px;border-radius:20px;
-    box-shadow:0 2px 8px rgba(255,210,74,0.4);
+    color:#3A2A00;text-transform:uppercase;
+    background:linear-gradient(135deg,#B8860B 0%,#FFD24A 35%,#FFF2B5 55%,#E8A93A 75%,#B8860B 100%);
+    background-size:220% 220%;
+    border:1px solid rgba(255,242,181,0.7);
+    box-shadow:0 2px 10px rgba(184,134,11,0.5), inset 0 0 6px rgba(255,255,255,0.35);
+    animation:newDrift 3.6s ease-in-out infinite, newGlow 2.4s ease-in-out infinite;
+  }
+  .badge-new::before{
+    content:'';position:absolute;top:0;left:-65%;width:35%;height:100%;
+    background:linear-gradient(115deg, transparent, rgba(255,255,255,0.85), transparent);
+    transform:skewX(-18deg);
+    animation:newShine 2.8s ease-in-out infinite;
+  }
+  @keyframes newShine{
+    0%{left:-65%;}
+    50%{left:135%;}
+    100%{left:135%;}
+  }
+  @keyframes newGlow{
+    0%,100%{box-shadow:0 2px 10px rgba(184,134,11,0.45), inset 0 0 6px rgba(255,255,255,0.3);}
+    50%{box-shadow:0 2px 18px rgba(255,210,74,0.85), inset 0 0 10px rgba(255,255,255,0.5);}
+  }
+  @keyframes newDrift{
+    0%{background-position:0% 50%;}
+    50%{background-position:100% 50%;}
+    100%{background-position:0% 50%;}
+  }
+  .badge-choice{
+    position:relative;overflow:hidden;
+    display:inline-flex;align-items:center;gap:4px;
+    font-family:'Space Mono',monospace;font-size:9px;letter-spacing:1.5px;font-weight:700;
+    padding:4px 10px 4px 8px;border-radius:20px;
+    color:#0A0806;text-transform:uppercase;
+    background:linear-gradient(135deg,#B8860B 0%,#FFD24A 25%,#FFF2B5 45%,#FFD24A 65%,#E8A93A 85%,#B8860B 100%);
+    background-size:260% 260%;
+    border:1.5px solid #0A0806;
+    box-shadow:0 2px 10px rgba(255,210,74,0.55), inset 0 0 6px rgba(255,255,255,0.4);
+    animation:choiceDrift 3.6s ease-in-out infinite, choiceGlow 2.4s ease-in-out infinite;
+  }
+  .badge-choice-star{
+    font-size:11px;line-height:1;color:#0A0806;
+    filter:drop-shadow(0 0 2px rgba(255,255,255,0.9));
+  }
+  .badge-choice::before{
+    content:'';position:absolute;top:0;left:-65%;width:35%;height:100%;
+    background:linear-gradient(115deg, transparent, rgba(255,255,255,0.9), transparent);
+    transform:skewX(-18deg);
+    animation:choiceShine 2.8s ease-in-out infinite;
+  }
+  @keyframes choiceShine{
+    0%{left:-65%;}
+    50%{left:135%;}
+    100%{left:135%;}
+  }
+  @keyframes choiceGlow{
+    0%,100%{box-shadow:0 2px 10px rgba(184,134,11,0.5), inset 0 0 6px rgba(255,255,255,0.3);}
+    50%{box-shadow:0 2px 20px rgba(255,210,74,0.95), inset 0 0 10px rgba(255,255,255,0.55);}
+  }
+  @keyframes choiceDrift{
+    0%{background-position:0% 50%;}
+    50%{background-position:100% 50%;}
+    100%{background-position:0% 50%;}
   }
   .badge-sale{
     position:relative;overflow:hidden;
@@ -637,14 +782,14 @@
     position:absolute;top:10px;right:10px;z-index:2;
     width:32px;height:32px;border-radius:50%;
     background:rgba(11,12,14,0.75);backdrop-filter:blur(3px);
-    border:1px solid var(--line);color:var(--paper);
+    border:1px solid var(--line-strong);color:var(--teal);
     display:flex;align-items:center;justify-content:center;
     cursor:pointer;transition:border-color .2s, color .2s, background .2s;
   }
   .prod-share-btn svg{width:15px;height:15px;}
   .prod-share-btn:hover{border-color:var(--teal);color:var(--teal);background:rgba(11,12,14,0.92);}
   .qv-share-btn{
-    background:transparent;border:1px solid var(--line);color:var(--paper-dim);
+    background:transparent;border:1px solid var(--line-strong);color:var(--teal);
     cursor:pointer;width:34px;height:34px;border-radius:8px;
     display:flex;align-items:center;justify-content:center;transition:border-color .2s, color .2s;
   }
@@ -1590,6 +1735,7 @@
       <a href="#top">Home</a>
       <a href="#categories">Shop</a>
       <a href="#products">Bestsellers</a>
+      <a href="#" onclick="document.getElementById('order-system').scrollIntoView({behavior:'smooth',block:'start'});return false;">Order</a>
       <a href="#authenticity">Verify Product</a>
       <a href="licenses.html">Licenses</a>
       <a href="#visit">Visit Store</a>
@@ -1639,6 +1785,7 @@
     <a href="#top" onclick="document.getElementById('nav-toggle').checked=false">Home</a>
     <a href="#categories" onclick="document.getElementById('nav-toggle').checked=false">Shop</a>
     <a href="#products" onclick="document.getElementById('nav-toggle').checked=false">Bestsellers</a>
+    <a href="#" onclick="document.getElementById('nav-toggle').checked=false;document.getElementById('order-system').scrollIntoView({behavior:'smooth',block:'start'});return false;">Order</a>
     <a href="#authenticity" onclick="document.getElementById('nav-toggle').checked=false">Verify Product</a>
     <a href="licenses.html" onclick="document.getElementById('nav-toggle').checked=false">Licenses</a>
     <a href="#visit" onclick="document.getElementById('nav-toggle').checked=false">Visit Store</a>
@@ -1767,6 +1914,38 @@
         <p>From your first protein shake to a serious pre-workout stack — pick a category and we'll show verified stock only.</p>
       </div>
       <div class="cat-img-grid">
+        <a href="#products" class="cat-card-img" onclick="filterByCategory('Whey Protein');return false;">
+          <div class="cat-img-wrap">
+            <img src="assets/categories/whey-protein.jpg" alt="Whey Protein"
+              onerror="this.style.display='none';this.nextElementSibling.style.display='flex';">
+            <div class="cat-img-fallback" style="display:none;">WHEY PROTEIN<br>PHOTO GOES HERE</div>
+          </div>
+          <div class="cat-label"><span class="cat-icon">🥛</span> Whey Protein</div>
+        </a>
+        <a href="#products" class="cat-card-img" onclick="filterByCategory('Mass Gainer');return false;">
+          <div class="cat-img-wrap">
+            <img src="assets/categories/mass-gainer.jpg" alt="Mass Gainer"
+              onerror="this.style.display='none';this.nextElementSibling.style.display='flex';">
+            <div class="cat-img-fallback" style="display:none;">MASS GAINER<br>PHOTO GOES HERE</div>
+          </div>
+          <div class="cat-label"><span class="cat-icon">🍫</span> Mass Gainer</div>
+        </a>
+        <a href="#products" class="cat-card-img" onclick="filterByCategory('Creatine');return false;">
+          <div class="cat-img-wrap">
+            <img src="assets/categories/creatine.jpg" alt="Creatine"
+              onerror="this.style.display='none';this.nextElementSibling.style.display='flex';">
+            <div class="cat-img-fallback" style="display:none;">CREATINE<br>PHOTO GOES HERE</div>
+          </div>
+          <div class="cat-label"><span class="cat-icon">💪</span> Creatine</div>
+        </a>
+        <a href="#products" class="cat-card-img" onclick="filterByCategory('Pre-Workout');return false;">
+          <div class="cat-img-wrap">
+            <img src="assets/categories/pre-workout.jpg" alt="Pre-Workout"
+              onerror="this.style.display='none';this.nextElementSibling.style.display='flex';">
+            <div class="cat-img-fallback" style="display:none;">PRE-WORKOUT<br>PHOTO GOES HERE</div>
+          </div>
+          <div class="cat-label"><span class="cat-icon">⚡</span> Pre-Workout</div>
+        </a>
         <a href="#combos" class="cat-card-img combo-cat-card" id="combo-cat-tile" style="display:none;" onclick="showCombosSection();return false;">
           <div class="cat-img-wrap">
             <img src="assets/categories/combos.jpg" alt="Combo Offers"
@@ -1788,30 +1967,6 @@
           </div>
           <div class="cat-label"><span class="cat-icon">🛡️</span> Health Supplements</div>
         </a>
-        <a href="#products" class="cat-card-img" onclick="filterByCategory('Whey Protein');return false;">
-          <div class="cat-img-wrap">
-            <img src="assets/categories/whey-protein.jpg" alt="Whey Protein"
-              onerror="this.style.display='none';this.nextElementSibling.style.display='flex';">
-            <div class="cat-img-fallback" style="display:none;">WHEY PROTEIN<br>PHOTO GOES HERE</div>
-          </div>
-          <div class="cat-label"><span class="cat-icon">🥛</span> Whey Protein</div>
-        </a>
-        <a href="#products" class="cat-card-img" onclick="filterByCategory('Creatine');return false;">
-          <div class="cat-img-wrap">
-            <img src="assets/categories/creatine.jpg" alt="Creatine"
-              onerror="this.style.display='none';this.nextElementSibling.style.display='flex';">
-            <div class="cat-img-fallback" style="display:none;">CREATINE<br>PHOTO GOES HERE</div>
-          </div>
-          <div class="cat-label"><span class="cat-icon">💪</span> Creatine</div>
-        </a>
-        <a href="#products" class="cat-card-img" onclick="filterByCategory('Pre-Workout');return false;">
-          <div class="cat-img-wrap">
-            <img src="assets/categories/pre-workout.jpg" alt="Pre-Workout"
-              onerror="this.style.display='none';this.nextElementSibling.style.display='flex';">
-            <div class="cat-img-fallback" style="display:none;">PRE-WORKOUT<br>PHOTO GOES HERE</div>
-          </div>
-          <div class="cat-label"><span class="cat-icon">⚡</span> Pre-Workout</div>
-        </a>
         <a href="#products" class="cat-card-img" onclick="filterByCategory('Gym Accessories');return false;">
           <div class="cat-img-wrap">
             <img src="assets/categories/gym-accessories.jpg" alt="Gym Accessories"
@@ -1820,12 +1975,58 @@
           </div>
           <div class="cat-label"><span class="cat-icon">🏋️</span> Gym Accessories</div>
         </a>
+        <a href="#fitness-lifestyle" class="cat-card-img" onclick="openFitnessLifestylePage();return false;">
+          <div class="cat-img-wrap">
+            <img src="assets/categories/fitness-lifestyle.jpg" alt="Fitness Lifestyle"
+              onerror="this.style.display='none';this.nextElementSibling.style.display='flex';">
+            <div class="cat-img-fallback" style="display:none;">FITNESS LIFESTYLE<br>PHOTO GOES HERE</div>
+          </div>
+          <div class="cat-label"><span class="cat-icon">🕶️</span> Fitness Lifestyle</div>
+        </a>
       </div>
       <div id="active-category-bar" style="display:none;align-items:center;gap:12px;margin-top:20px;">
         <span style="font-size:13px;color:var(--paper-dim);">Showing:</span>
         <span id="active-category-label" style="font-size:13px;font-weight:700;color:var(--teal);"></span>
         <button onclick="clearCategoryFilter()" style="background:transparent;border:1px solid var(--line);color:var(--paper);border-radius:20px;padding:5px 14px;font-size:12px;cursor:pointer;">Clear ✕</button>
       </div>
+    </div>
+  </section>
+
+  <!-- FITNESS LIFESTYLE — auto-scrolling slider. This is a NEW system that applies ONLY to
+       this category; Gym Accessories and every other category keep their existing layout. -->
+  <section id="fitness-lifestyle" class="fl-slider-section" style="display:none;">
+    <div class="wrap">
+      <div class="section-head">
+        <div>
+          <div class="eyebrow">New Category</div>
+          <h2>Fitness Lifestyle</h2>
+        </div>
+        <p>Watches, sunglasses, wallets &amp; gadgets built for the athlete lifestyle.</p>
+      </div>
+      <div class="fl-slider-viewport" id="fl-slider-viewport">
+        <div class="fl-slider-track" id="fl-slider-track"></div>
+      </div>
+      <div class="fl-viewmore-wrap">
+        <button type="button" class="btn-view-more" onclick="openFitnessLifestylePage()">View More →</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- FITNESS LIFESTYLE — full category page, opens when "View More" is tapped -->
+  <section id="fitness-lifestyle-page" style="display:none;">
+    <div class="wrap">
+      <a href="#fitness-lifestyle" onclick="closeFitnessLifestylePage();return true;" style="display:inline-flex;align-items:center;gap:6px;font-family:'Space Mono',monospace;font-size:12px;letter-spacing:0.5px;color:var(--paper-dim);margin-bottom:22px;">← Back</a>
+      <div class="section-head">
+        <div>
+          <div class="eyebrow">Full Category</div>
+          <h2>Fitness Lifestyle</h2>
+        </div>
+        <p>Browse everything, or tap a subcategory to narrow it down.</p>
+      </div>
+      <div class="fl-subcat-viewport" id="fl-subcat-viewport">
+        <div class="fl-subcat-track" id="fl-subcat-track"></div>
+      </div>
+      <div class="prod-grid" id="fl-page-grid"></div>
     </div>
   </section>
 
@@ -1857,6 +2058,21 @@
       <div class="prod-grid" id="products-grid">
         <div class="prod-loading">Loading products…</div>
       </div>
+    </div>
+  </section>
+
+  <!-- ORDER SYSTEM — a separate section for one-off / special products that don't
+       fit any existing category. Kept deliberately apart from Shop by Category. -->
+  <section id="order-system" style="display:none;">
+    <div class="wrap">
+      <div class="section-head">
+        <div>
+          <div class="eyebrow">Something Different</div>
+          <h2>Order System</h2>
+        </div>
+        <p>Special / one-off products that don't fit our regular categories — browse and order them here.</p>
+      </div>
+      <div class="prod-grid" id="order-system-grid"></div>
     </div>
   </section>
 
@@ -2561,6 +2777,8 @@ async function loadProducts(){
     return;
   }
   renderProducts(PRODUCTS);
+  renderFitnessLifestyleSlider(PRODUCTS);
+  renderOrderSystem(PRODUCTS);
 }
 
 /* ---------- load combo offers ---------- */
@@ -2714,6 +2932,10 @@ function isOnSale(p){
   return p.is_sale === true;
 }
 
+function isNfChoice(p){
+  return p.is_choice === true;
+}
+
 function renderProducts(list){
   const grid = document.getElementById('products-grid');
   if(list.length===0){
@@ -2737,7 +2959,8 @@ function renderProducts(list){
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="6" y="3" width="12" height="18" rx="2"/><path d="M9 3v3h6V3"/></svg>
               <div class="ph-label">PRODUCT PHOTO<br>GOES HERE</div>
             </div>`; })()}
-        ${!outOfStock && (isNewProduct(p) || isOnSale(p)) ? `<div class="prod-badges">
+        ${!outOfStock && (isNewProduct(p) || isOnSale(p) || isNfChoice(p)) ? `<div class="prod-badges">
+          ${isNfChoice(p) ? `<span class="badge-choice"><span class="badge-choice-star">★</span>NF Choice</span>` : ''}
           ${isNewProduct(p) ? `<span class="badge-new">NEW</span>` : ''}
           ${isOnSale(p) ? `<span class="badge-sale">SALE</span>` : ''}
         </div>` : ''}
@@ -2768,6 +2991,286 @@ function renderProducts(list){
       </div>
     </div>
   `;}).join('');
+}
+
+/* ==========================================================================
+   FITNESS LIFESTYLE — dedicated auto-scrolling slider + full category page.
+   This system applies ONLY to the "Fitness Lifestyle" category. Gym
+   Accessories and every other existing category keep using renderProducts()
+   above, completely untouched.
+   ========================================================================== */
+let FITNESS_LIFESTYLE_PRODUCTS = [];
+const FL_SUBCATEGORIES = ['T-Shirts','Shorts / Track Pants','Watches','Sunglasses','Wallets','Caps','Attar','Perfumes','Fragrance Gift Sets'];
+
+// Emoji fallback shown inside a subcategory circle if its photo (see
+// flSubcatImagePath below) hasn't been uploaded yet or fails to load.
+const FL_SUBCAT_ICONS = {
+  'T-Shirts': '👕',
+  'Shorts / Track Pants': '🩳',
+  'Watches': '⌚',
+  'Sunglasses': '🕶️',
+  'Wallets': '👛',
+  'Caps': '🧢',
+  'Attar': '🧴',
+  'Perfumes': '🌸',
+  'Fragrance Gift Sets': '🎁'
+};
+
+// Turns a subcategory name into a filename slug, e.g.
+// "Shorts / Track Pants" -> "shorts-track-pants".
+function flSubcatSlug(name){
+  return String(name).toLowerCase().replace(/\//g, ' ').replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
+}
+// Where each subcategory's circle photo is expected to live. Drop a square
+// (ideally 1:1, at least 300x300px) JPG/PNG for each of the 9 subcategories
+// at these exact paths and the circles above will pick them up automatically
+// — no code changes needed. Until a photo exists, that circle just shows its
+// emoji fallback instead.
+function flSubcatImagePath(name){
+  return `assets/categories/fitness-lifestyle/${flSubcatSlug(name)}.jpg`;
+}
+
+function flProductCardHTML(p, sliderMode){
+  const eff = getEffectivePricing(p);
+  const price = eff.price;
+  const comparePrice = eff.compare;
+  const hasDiscount = eff.hasDiscount;
+  const pct = eff.pct;
+  const stock = (p.stock === undefined || p.stock === null) ? null : Number(p.stock);
+  const outOfStock = stock !== null && stock <= 0;
+  const imgs = getProductImages(p);
+  return `
+    <div class="prod-card${sliderMode ? ' fl-card' : ''}${outOfStock ? ' out-of-stock' : ''}" onclick="openQuickView('${p.id}')">
+      <div class="prod-photo">
+        ${imgs[0]
+          ? `<img src="${escapeHtml(imgs[0])}" alt="${escapeHtml(p.name)}" style="width:100%;height:100%;object-fit:cover;" onerror="this.parentElement.innerHTML='<div><svg viewBox=\\'0 0 24 24\\' fill=\\'none\\' stroke=\\'currentColor\\' stroke-width=\\'1.5\\'><rect x=\\'6\\' y=\\'3\\' width=\\'12\\' height=\\'18\\' rx=\\'2\\'/></svg><div class=\\'ph-label\\'>IMAGE UNAVAILABLE</div></div>'">${imgs.length>1 ? `<span class="prod-photo-count">📷 ${imgs.length}</span>` : ''}`
+          : `<div>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="6" y="3" width="12" height="18" rx="2"/><path d="M9 3v3h6V3"/></svg>
+              <div class="ph-label">PRODUCT PHOTO<br>GOES HERE</div>
+            </div>`}
+        ${!outOfStock && (isNewProduct(p) || isOnSale(p) || isNfChoice(p)) ? `<div class="prod-badges">
+          ${isNfChoice(p) ? `<span class="badge-choice"><span class="badge-choice-star">★</span>NF Choice</span>` : ''}
+          ${isNewProduct(p) ? `<span class="badge-new">NEW</span>` : ''}
+          ${isOnSale(p) ? `<span class="badge-sale">SALE</span>` : ''}
+        </div>` : ''}
+        <span class="badge-genuine">✓ GENUINE</span>
+        <button type="button" class="prod-share-btn" aria-label="Share this product" onclick="event.stopPropagation();shareProduct('${p.id}', event)">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.6" y1="10.6" x2="15.4" y2="6.4"/><line x1="8.6" y1="13.4" x2="15.4" y2="17.6"/></svg>
+        </button>
+        ${outOfStock ? `<div class="oos-bar">Out of Stock</div>` : ''}
+      </div>
+      <div class="prod-body">
+        <div class="cat-tag">${escapeHtml(p.subcategory || p.category)}</div>
+        <h4>${escapeHtml(p.name)}</h4>
+        ${p.brand ? `<span class="brand-tag">${escapeHtml(p.brand)}</span>` : ''}
+        ${Array.isArray(p.flavors) && p.flavors.length ? `
+          <div class="prod-flavor-row">
+            ${p.flavors.slice(0,5).map(f=>`<span class="fdot" style="background:${escapeHtml(f.color||'#FFD24A')};" title="${escapeHtml(f.name)}"></span>`).join('')}
+            ${p.flavors.length>5 ? `<span class="fmore">+${p.flavors.length-5}</span>` : ''}
+          </div>
+        ` : ''}
+        ${renderRatingSummary(p.id)}
+        <div class="price-row">
+          <div class="price-wrap">
+            <span class="price">₹${price.toLocaleString('en-IN')} ${p.unit ? `<small>/ ${escapeHtml(p.unit)}</small>` : ''}</span>
+            ${hasDiscount ? `<span class="price-compare">₹${comparePrice.toLocaleString('en-IN')}</span><span class="discount-pill">-${pct}%</span>` : ''}
+          </div>
+          <button class="add-btn" aria-label="Add to cart" ${outOfStock ? 'disabled' : ''} onclick="event.stopPropagation();addToCart('${p.id}')"><img src="assets/add-to-cart-btn.png" alt="Add to cart"></button>
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+function renderFitnessLifestyleSlider(all){
+  FITNESS_LIFESTYLE_PRODUCTS = (all || []).filter(p => (p.category || '').toLowerCase() === 'fitness lifestyle');
+  const section = document.getElementById('fitness-lifestyle');
+  const track = document.getElementById('fl-slider-track');
+  if(!section || !track) return;
+  if(FITNESS_LIFESTYLE_PRODUCTS.length === 0){
+    section.style.display = 'none';
+    return;
+  }
+  section.style.display = '';
+  // Product list is duplicated back-to-back so the auto-scroll can loop seamlessly.
+  const cardsHtml = FITNESS_LIFESTYLE_PRODUCTS.map(p => flProductCardHTML(p, true)).join('');
+  track.innerHTML = cardsHtml + cardsHtml;
+  initFlAutoScroll();
+}
+
+/* ---- slow, smooth auto-scroll with manual swipe/drag support ---- */
+let flScrollRAF = null;
+let flIsPaused = false;
+let flIsDragging = false;
+let flDragStartX = 0;
+let flDragStartScroll = 0;
+let flDragDistance = 0;
+let flResumeTimer = null;
+let flListenersBound = false;
+
+function initFlAutoScroll(){
+  const viewport = document.getElementById('fl-slider-viewport');
+  if(!viewport) return;
+  viewport.scrollLeft = 0;
+  flIsPaused = false;
+
+  if(flScrollRAF) cancelAnimationFrame(flScrollRAF);
+  const SPEED = 0.35; // px per frame — deliberately slow & smooth
+  function step(){
+    if(!flIsPaused && !flIsDragging && viewport.scrollWidth > viewport.clientWidth){
+      viewport.scrollLeft += SPEED;
+      const half = viewport.scrollWidth / 2;
+      if(viewport.scrollLeft >= half){
+        viewport.scrollLeft -= half; // seamless loop back to the start
+      }
+    }
+    flScrollRAF = requestAnimationFrame(step);
+  }
+  flScrollRAF = requestAnimationFrame(step);
+
+  if(flListenersBound) return; // avoid stacking duplicate listeners on re-render
+  flListenersBound = true;
+
+  function pauseAndScheduleResume(){
+    flIsPaused = true;
+    clearTimeout(flResumeTimer);
+    flResumeTimer = setTimeout(()=>{ flIsPaused = false; }, 2500);
+  }
+
+  viewport.addEventListener('touchstart', pauseAndScheduleResume, {passive:true});
+  viewport.addEventListener('touchmove', ()=>{ clearTimeout(flResumeTimer); flIsPaused = true; }, {passive:true});
+  viewport.addEventListener('touchend', pauseAndScheduleResume, {passive:true});
+  viewport.addEventListener('wheel', pauseAndScheduleResume, {passive:true});
+
+  // desktop click-and-drag scrolling
+  viewport.addEventListener('mousedown', (e)=>{
+    flIsDragging = true;
+    flDragDistance = 0;
+    viewport.classList.add('dragging');
+    flDragStartX = e.pageX;
+    flDragStartScroll = viewport.scrollLeft;
+    clearTimeout(flResumeTimer);
+    flIsPaused = true;
+  });
+  window.addEventListener('mousemove', (e)=>{
+    if(!flIsDragging) return;
+    const dx = e.pageX - flDragStartX;
+    flDragDistance = Math.abs(dx);
+    viewport.scrollLeft = flDragStartScroll - dx;
+  });
+  window.addEventListener('mouseup', ()=>{
+    if(!flIsDragging) return;
+    flIsDragging = false;
+    viewport.classList.remove('dragging');
+    pauseAndScheduleResume();
+  });
+  // if the mouse-down turned into a real drag, swallow the click so it
+  // doesn't accidentally open the quick-view modal for that card
+  viewport.addEventListener('click', (e)=>{
+    if(flDragDistance > 6){ e.stopPropagation(); e.preventDefault(); }
+  }, true);
+
+  viewport.addEventListener('mouseenter', ()=>{ if(!flIsDragging) flIsPaused = true; });
+  viewport.addEventListener('mouseleave', ()=>{ if(!flIsDragging){ clearTimeout(flResumeTimer); flIsPaused = false; } });
+}
+
+/* ---- "View More" → full Fitness Lifestyle category page ---- */
+function openFitnessLifestylePage(){
+  const section = document.getElementById('fitness-lifestyle-page');
+  if(!section) return;
+  section.style.display = '';
+  renderFlSubcatChips();
+  filterFlPage('__ALL__');
+  section.scrollIntoView({ behavior:'smooth', block:'start' });
+}
+function closeFitnessLifestylePage(){
+  const section = document.getElementById('fitness-lifestyle-page');
+  if(section) section.style.display = 'none';
+}
+function renderFlSubcatChips(){
+  const track = document.getElementById('fl-subcat-track');
+  if(!track) return;
+  const itemsHtml = ['__ALL__', ...FL_SUBCATEGORIES].map(c => {
+    if(c === '__ALL__'){
+      return `
+        <button type="button" class="fl-subcat-item" data-fl-subcat="__ALL__" onclick="filterFlPage('__ALL__')">
+          <div class="fl-subcat-circle fl-subcat-circle-all"><span class="fl-subcat-all-icon">✦</span></div>
+          <div class="fl-subcat-label">All</div>
+        </button>`;
+    }
+    const icon = FL_SUBCAT_ICONS[c] || '✦';
+    return `
+      <button type="button" class="fl-subcat-item" data-fl-subcat="${escapeHtml(c)}" onclick="filterFlPage('${escapeHtml(c)}')">
+        <div class="fl-subcat-circle">
+          <img src="${flSubcatImagePath(c)}" alt="${escapeHtml(c)}" loading="lazy"
+            onerror="this.style.display='none';this.nextElementSibling.style.display='flex';">
+          <div class="fl-subcat-fallback" style="display:none;">${icon}</div>
+        </div>
+        <div class="fl-subcat-label">${escapeHtml(c)}</div>
+      </button>`;
+  }).join('');
+  track.innerHTML = itemsHtml;
+  bindFlSubcatDrag();
+}
+
+/* click-and-drag horizontal scroll for the subcategory circle rail (desktop);
+   touch devices already scroll it natively */
+function bindFlSubcatDrag(){
+  const viewport = document.getElementById('fl-subcat-viewport');
+  if(!viewport) return;
+  let isDown = false, startX = 0, startScroll = 0, moved = 0;
+  viewport.addEventListener('mousedown', (e)=>{
+    isDown = true; moved = 0;
+    viewport.classList.add('dragging');
+    startX = e.pageX; startScroll = viewport.scrollLeft;
+  });
+  window.addEventListener('mousemove', (e)=>{
+    if(!isDown) return;
+    const dx = e.pageX - startX;
+    moved = Math.abs(dx);
+    viewport.scrollLeft = startScroll - dx;
+  });
+  window.addEventListener('mouseup', ()=>{
+    if(!isDown) return;
+    isDown = false;
+    viewport.classList.remove('dragging');
+  });
+  // if the mouse-down turned into a real drag, swallow the click so it
+  // doesn't accidentally trigger filterFlPage on the circle underneath
+  viewport.addEventListener('click', (e)=>{
+    if(moved > 6){ e.stopPropagation(); e.preventDefault(); }
+  }, true);
+}
+function filterFlPage(subcat){
+  document.querySelectorAll('#fl-subcat-track .fl-subcat-item').forEach(btn=>{
+    btn.classList.toggle('active', btn.getAttribute('data-fl-subcat') === subcat);
+  });
+  const list = subcat === '__ALL__'
+    ? FITNESS_LIFESTYLE_PRODUCTS
+    : FITNESS_LIFESTYLE_PRODUCTS.filter(p => (p.subcategory || '').toLowerCase() === subcat.toLowerCase());
+  const grid = document.getElementById('fl-page-grid');
+  if(!grid) return;
+  grid.innerHTML = list.length
+    ? list.map(p => flProductCardHTML(p, false)).join('')
+    : `<div class="prod-empty">No products in this subcategory yet.</div>`;
+}
+
+/* ==========================================================================
+   ORDER SYSTEM — a separate, standalone bucket for one-off / special products
+   that don't fit any existing category. Independent of Fitness Lifestyle and
+   every other category; just a plain grid, no auto-scroll slider needed.
+   ========================================================================== */
+function renderOrderSystem(all){
+  const orderProducts = (all || []).filter(p => (p.category || '').toLowerCase() === 'order system');
+  const section = document.getElementById('order-system');
+  const grid = document.getElementById('order-system-grid');
+  if(!section || !grid) return;
+  if(orderProducts.length === 0){
+    section.style.display = 'none';
+    return;
+  }
+  section.style.display = '';
+  grid.innerHTML = orderProducts.map(p => flProductCardHTML(p, false)).join('');
 }
 
 /* ---------- search + category filter ---------- */

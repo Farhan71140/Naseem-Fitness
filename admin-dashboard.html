@@ -1424,13 +1424,16 @@
       <div class="field-row">
         <div class="field">
           <label for="product-category">Category</label>
-          <select id="product-category">
+          <select id="product-category" onchange="toggleFlSubcategoryField()">
             <option>Health Supplements</option>
             <option>Whey Protein</option>
+            <option>Mass Gainer</option>
             <option>Creatine</option>
             <option>Pre-Workout</option>
             <option>Gym Accessories</option>
             <option>Multivitamin</option>
+            <option>Fitness Lifestyle</option>
+            <option>Order System</option>
             <option>Other</option>
           </select>
         </div>
@@ -1439,6 +1442,22 @@
           <input type="text" id="product-unit" placeholder="e.g. 1kg">
         </div>
       </div>
+      <div class="field" id="product-subcategory-wrap" style="display:none;">
+        <label for="product-subcategory">Subcategory (Fitness Lifestyle)</label>
+        <select id="product-subcategory">
+          <option value="T-Shirts">T-Shirts</option>
+          <option value="Shorts / Track Pants">Shorts / Track Pants</option>
+          <option value="Watches">Watches</option>
+          <option value="Sunglasses">Sunglasses</option>
+          <option value="Wallets">Wallets</option>
+          <option value="Caps">Caps</option>
+          <option value="Attar">Attar</option>
+          <option value="Perfumes">Perfumes</option>
+          <option value="Fragrance Gift Sets">Fragrance Gift Sets</option>
+        </select>
+        <div class="photo-upload-hint">Shown on the storefront's Fitness Lifestyle category page as a filter chip.</div>
+      </div>
+      <div class="photo-upload-hint" id="order-system-hint" style="display:none;margin-top:-10px;">This product will appear in the separate "Order System" section on the storefront — for one-off items that don't fit any regular category. No subcategory needed here.</div>
       <div class="field-row">
         <div class="field">
           <label for="product-price">Selling Price (₹)</label>
@@ -1483,14 +1502,18 @@
         <textarea id="product-desc" rows="4" placeholder="One point per line, e.g.&#10;Supports daily energy metabolism&#10;Helps maintain immunity&#10;Supports overall health and wellness"></textarea>
       </div>
       <div class="field" style="display:flex;align-items:center;gap:10px;flex-direction:row;">
-        <input type="checkbox" id="product-is-new" style="width:auto;">
+        <input type="checkbox" id="product-is-new" style="width:auto;" onchange="enforceSingleBadgeChoice('product-is-new')">
         <label for="product-is-new" style="margin:0;">Mark as "New Arrival" (shows a NEW tag to customers)</label>
       </div>
       <div class="field" style="display:flex;align-items:center;gap:10px;flex-direction:row;">
-        <input type="checkbox" id="product-is-sale" style="width:auto;">
+        <input type="checkbox" id="product-is-sale" style="width:auto;" onchange="enforceSingleBadgeChoice('product-is-sale')">
         <label for="product-is-sale" style="margin:0;">Mark as "On Sale" (shows an animated SALE tag to customers)</label>
       </div>
-      <div class="photo-upload-hint" style="margin-top:-10px;">This is a separate on/off tag for this one product — independent of the store-wide sale in Settings and the strike-through price above. Turn it on any time you want this specific product to stand out as a sale item.</div>
+      <div class="field" style="display:flex;align-items:center;gap:10px;flex-direction:row;">
+        <input type="checkbox" id="product-is-choice" style="width:auto;" onchange="enforceSingleBadgeChoice('product-is-choice')">
+        <label for="product-is-choice" style="margin:0;">Mark as "NF Choice" (shows a premium shimmering NF Choice tag — use for standout / staff-picked products)</label>
+      </div>
+      <div class="photo-upload-hint" style="margin-top:-10px;">Only one badge can be shown per product — ticking one automatically clears the others. This tag is independent of the store-wide sale in Settings and the strike-through price above.</div>
     </div>
     <div class="modal-foot">
       <button class="btn btn-ghost" onclick="closeModal('product-modal')">Cancel</button>
@@ -1937,7 +1960,8 @@ async function renderProducts(){
       </div>
       <div class="prod-admin-body">
         <div class="prod-admin-cat">${escapeHtml(p.category)}</div>
-        ${p.is_new || p.is_sale ? `<div style="display:flex;gap:6px;margin-top:4px;">
+        ${p.is_new || p.is_sale || p.is_choice ? `<div style="display:flex;gap:6px;margin-top:4px;flex-wrap:wrap;">
+          ${p.is_choice ? `<span style="font-family:'Space Mono',monospace;font-size:9px;letter-spacing:1px;font-weight:700;padding:2px 7px;border-radius:10px;background:linear-gradient(135deg,#B8860B,#FFD24A,#FFF2B5,#FFD24A,#B8860B);color:#0A0806;border:1.5px solid #0A0806;">★ NF CHOICE</span>` : ''}
           ${p.is_new ? `<span style="font-family:'Space Mono',monospace;font-size:9px;letter-spacing:1px;font-weight:700;padding:2px 7px;border-radius:10px;background:var(--teal);color:var(--ink-black);">NEW</span>` : ''}
           ${p.is_sale ? `<span style="font-family:'Space Mono',monospace;font-size:9px;letter-spacing:1px;font-weight:700;padding:2px 7px;border-radius:10px;background:linear-gradient(135deg,#7A0C1E,#E63950);color:#FFE9B0;">SALE</span>` : ''}
         </div>` : ''}
@@ -2856,12 +2880,29 @@ async function uploadFlavorImage(file){
 
 /* ---------- product CRUD ---------- */
 let allProductsCache = [];
+const BADGE_CHECKBOX_IDS = ['product-is-new','product-is-sale','product-is-choice'];
+function enforceSingleBadgeChoice(activeId){
+  const activeEl = document.getElementById(activeId);
+  if(!activeEl.checked) return; // unticking is always fine
+  BADGE_CHECKBOX_IDS.forEach(id=>{
+    if(id !== activeId) document.getElementById(id).checked = false;
+  });
+}
+function toggleFlSubcategoryField(){
+  const wrap = document.getElementById('product-subcategory-wrap');
+  const orderHint = document.getElementById('order-system-hint');
+  const category = document.getElementById('product-category').value;
+  if(wrap) wrap.style.display = (category === 'Fitness Lifestyle') ? '' : 'none';
+  if(orderHint) orderHint.style.display = (category === 'Order System') ? '' : 'none';
+}
 async function openProductModal(){
   document.getElementById('product-modal-title').textContent = 'Add Product';
   document.getElementById('product-id').value = '';
   document.getElementById('product-name').value = '';
   document.getElementById('product-brand').value = '';
   document.getElementById('product-category').value = 'Health Supplements';
+  document.getElementById('product-subcategory').value = 'T-Shirts';
+  toggleFlSubcategoryField();
   document.getElementById('product-unit').value = '';
   document.getElementById('product-price').value = '';
   document.getElementById('product-compare-price').value = '';
@@ -2875,6 +2916,7 @@ async function openProductModal(){
   document.getElementById('product-desc').value = '';
   document.getElementById('product-is-new').checked = true;
   document.getElementById('product-is-sale').checked = false;
+  document.getElementById('product-is-choice').checked = false;
   PRODUCT_FLAVORS = [];
   renderFlavorList();
   document.getElementById('product-modal').classList.add('active');
@@ -2888,6 +2930,8 @@ async function editProduct(id){
   document.getElementById('product-name').value = p.name;
   document.getElementById('product-brand').value = p.brand || '';
   document.getElementById('product-category').value = p.category;
+  document.getElementById('product-subcategory').value = p.subcategory || 'T-Shirts';
+  toggleFlSubcategoryField();
   document.getElementById('product-unit').value = p.unit || '';
   document.getElementById('product-price').value = p.price;
   document.getElementById('product-compare-price').value = p.compare_price || '';
@@ -2903,6 +2947,7 @@ async function editProduct(id){
   document.getElementById('product-desc').value = p.description || '';
   document.getElementById('product-is-new').checked = !!p.is_new;
   document.getElementById('product-is-sale').checked = !!p.is_sale;
+  document.getElementById('product-is-choice').checked = !!p.is_choice;
   PRODUCT_FLAVORS = Array.isArray(p.flavors) ? p.flavors.map(f => ({...f})) : [];
   renderFlavorList();
   document.getElementById('product-modal').classList.add('active');
@@ -2919,6 +2964,9 @@ async function saveProduct(){
     name,
     brand: document.getElementById('product-brand').value.trim(),
     category: document.getElementById('product-category').value,
+    subcategory: document.getElementById('product-category').value === 'Fitness Lifestyle'
+      ? document.getElementById('product-subcategory').value
+      : null,
     unit: document.getElementById('product-unit').value.trim(),
     price: Number(price),
     compare_price: comparePrice === '' ? null : Number(comparePrice),
@@ -2929,6 +2977,7 @@ async function saveProduct(){
     description: document.getElementById('product-desc').value.trim(),
     is_new: document.getElementById('product-is-new').checked,
     is_sale: document.getElementById('product-is-sale').checked,
+    is_choice: document.getElementById('product-is-choice').checked,
     flavors: PRODUCT_FLAVORS
       .filter(f => f.name && f.name.trim())
       .map(f => ({ id: f.id, name: f.name.trim(), color: f.color || '#FFD24A', image_url: f.image_url || '', in_stock: f.in_stock !== false }))
