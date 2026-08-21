@@ -1432,6 +1432,7 @@
             <option>Gym Accessories</option>
             <option>Multivitamin</option>
             <option>Fitness Lifestyle</option>
+            <option>Order System</option>
             <option>Other</option>
           </select>
         </div>
@@ -1443,15 +1444,19 @@
       <div class="field" id="product-subcategory-wrap" style="display:none;">
         <label for="product-subcategory">Subcategory (Fitness Lifestyle)</label>
         <select id="product-subcategory">
+          <option value="T-Shirts">T-Shirts</option>
+          <option value="Shorts / Track Pants">Shorts / Track Pants</option>
           <option value="Watches">Watches</option>
-          <option value="Smart/Fitness Watches">Smart/Fitness Watches</option>
           <option value="Sunglasses">Sunglasses</option>
           <option value="Wallets">Wallets</option>
-          <option value="Fitness Gadgets">Fitness Gadgets</option>
-          <option value="Lifestyle Accessories">Lifestyle Accessories</option>
+          <option value="Caps">Caps</option>
+          <option value="Attar">Attar</option>
+          <option value="Perfumes">Perfumes</option>
+          <option value="Fragrance Gift Sets">Fragrance Gift Sets</option>
         </select>
         <div class="photo-upload-hint">Shown on the storefront's Fitness Lifestyle category page as a filter chip.</div>
       </div>
+      <div class="photo-upload-hint" id="order-system-hint" style="display:none;margin-top:-10px;">This product will appear in the separate "Order System" section on the storefront — for one-off items that don't fit any regular category. No subcategory needed here.</div>
       <div class="field-row">
         <div class="field">
           <label for="product-price">Selling Price (₹)</label>
@@ -2884,9 +2889,10 @@ function enforceSingleBadgeChoice(activeId){
 }
 function toggleFlSubcategoryField(){
   const wrap = document.getElementById('product-subcategory-wrap');
+  const orderHint = document.getElementById('order-system-hint');
   const category = document.getElementById('product-category').value;
-  if(!wrap) return;
-  wrap.style.display = (category === 'Fitness Lifestyle') ? '' : 'none';
+  if(wrap) wrap.style.display = (category === 'Fitness Lifestyle') ? '' : 'none';
+  if(orderHint) orderHint.style.display = (category === 'Order System') ? '' : 'none';
 }
 async function openProductModal(){
   document.getElementById('product-modal-title').textContent = 'Add Product';
@@ -2894,7 +2900,7 @@ async function openProductModal(){
   document.getElementById('product-name').value = '';
   document.getElementById('product-brand').value = '';
   document.getElementById('product-category').value = 'Health Supplements';
-  document.getElementById('product-subcategory').value = 'Watches';
+  document.getElementById('product-subcategory').value = 'T-Shirts';
   toggleFlSubcategoryField();
   document.getElementById('product-unit').value = '';
   document.getElementById('product-price').value = '';
@@ -2923,7 +2929,7 @@ async function editProduct(id){
   document.getElementById('product-name').value = p.name;
   document.getElementById('product-brand').value = p.brand || '';
   document.getElementById('product-category').value = p.category;
-  document.getElementById('product-subcategory').value = p.subcategory || 'Watches';
+  document.getElementById('product-subcategory').value = p.subcategory || 'T-Shirts';
   toggleFlSubcategoryField();
   document.getElementById('product-unit').value = p.unit || '';
   document.getElementById('product-price').value = p.price;
