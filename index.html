@@ -481,8 +481,8 @@
 
   /* ===== CATEGORY IMAGE CARDS ===== */
   .cat-img-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:18px;}
-  @media (max-width:860px){ .cat-img-grid{grid-template-columns:repeat(2,1fr);} }
-  @media (max-width:480px){ .cat-img-grid{grid-template-columns:1fr;} }
+  @media (max-width:860px){ .cat-img-grid{grid-template-columns:repeat(2,1fr);gap:14px;} }
+  @media (max-width:480px){ .cat-img-grid{gap:10px;} }
   .cat-card-img{
     display:block;background:var(--steel);border:1px solid var(--line);border-radius:12px;
     overflow:hidden;transition:border-color .2s, transform .2s;
@@ -491,7 +491,7 @@
   .cat-img-wrap{
     width:100%;aspect-ratio:4/5;background:var(--iron);position:relative;overflow:hidden;
   }
-  .cat-img-wrap img{width:100%;height:100%;object-fit:cover;display:block;}
+  .cat-img-wrap img{width:100%;height:100%;object-fit:cover;object-position:center top;display:block;image-rendering:auto;}
   .cat-img-wrap .cat-img-fallback{
     position:absolute;inset:0;display:flex;align-items:center;justify-content:center;
     text-align:center;font-family:'Space Mono',monospace;font-size:11px;letter-spacing:1px;
@@ -501,7 +501,11 @@
     display:flex;align-items:center;gap:10px;padding:16px 18px;
     font-family:'Anton',sans-serif;font-size:18px;text-transform:uppercase;letter-spacing:0.4px;
   }
-  .cat-label .cat-icon{font-size:20px;line-height:1;}
+  .cat-label .cat-icon{font-size:20px;line-height:1;flex:none;}
+  @media (max-width:480px){
+    .cat-label{padding:10px 10px;gap:6px;font-size:12.5px;letter-spacing:0.2px;}
+    .cat-label .cat-icon{font-size:14px;}
+  }
 
   /* ===== COMBO CATEGORY TILE — visually distinct from plain category tiles ===== */
   .combo-cat-card{
@@ -530,6 +534,12 @@
   }
   .combo-cat-label{background:linear-gradient(90deg, rgba(255,210,74,0.08), transparent);}
   .combo-cat-label .cat-icon{filter:drop-shadow(0 0 6px rgba(255,210,74,0.5));}
+  @media (max-width:480px){
+    .combo-cat-ribbon{top:8px;left:8px;font-size:8px;padding:4px 8px;}
+    .combo-cat-save{top:8px;right:8px;font-size:9px;padding:3px 8px;}
+    .combo-cat-fallback svg{width:28px;height:28px;}
+    .combo-cat-fallback{font-size:9px;padding:8px;gap:6px;}
+  }
 
   /* ===== FITNESS LIFESTYLE — auto-scrolling slider (new category only; every other
      category/section keeps its existing grid layout completely untouched) ===== */
@@ -1917,7 +1927,7 @@
           </div>
           <div class="cat-label"><span class="cat-icon">🏋️</span> Gym Accessories</div>
         </a>
-        <a href="#fitness-lifestyle" class="cat-card-img" onclick="document.getElementById('fitness-lifestyle').scrollIntoView({behavior:'smooth',block:'start'});return false;">
+        <a href="#fitness-lifestyle" class="cat-card-img" onclick="openFitnessLifestylePage();return false;">
           <div class="cat-img-wrap">
             <img src="assets/categories/fitness-lifestyle.jpg" alt="Fitness Lifestyle"
               onerror="this.style.display='none';this.nextElementSibling.style.display='flex';">
