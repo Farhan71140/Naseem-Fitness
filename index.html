@@ -3115,7 +3115,7 @@ function initFlAutoScroll(){
   flIsPaused = false;
 
   if(flScrollRAF) cancelAnimationFrame(flScrollRAF);
-  const SPEED = 1.4; // px per frame — increased again for a faster scroll
+  const SPEED = 2; // px per frame
   function step(){
     if(!flIsPaused && !flIsDragging && viewport.scrollWidth > viewport.clientWidth){
       viewport.scrollLeft += SPEED;
