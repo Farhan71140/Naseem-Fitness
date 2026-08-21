@@ -564,15 +564,55 @@
   }
   .btn-view-more:hover{transform:translateY(-2px);}
 
-  /* ===== FITNESS LIFESTYLE — full category page (opens on "View More") ===== */
-  .fl-subcat-chips{display:flex;flex-wrap:wrap;gap:10px;margin:22px 0 28px;}
-  .fl-chip{
-    font-family:'Space Mono',monospace;font-size:12px;letter-spacing:0.5px;
-    padding:8px 16px;border-radius:20px;border:1px solid var(--line);color:var(--paper-dim);
-    cursor:pointer;transition:border-color .2s, color .2s, background .2s;background:transparent;
+  /* ===== FITNESS LIFESTYLE — full category page (opens on "View More") =====
+     Subcategory rail: circular photo tiles in a horizontally-scrollable row
+     (Amazon-style "shop by category" strip), swipeable on mobile and
+     click-drag on desktop. Selecting a circle filters fl-page-grid below. */
+  .fl-subcat-viewport{
+    overflow-x:auto;overflow-y:hidden;scrollbar-width:none;-ms-overflow-style:none;
+    cursor:grab;margin:24px 0 32px;padding:6px 2px 16px;
   }
-  .fl-chip:hover{border-color:var(--teal);color:var(--teal);}
-  .fl-chip.active{background:var(--teal);border-color:var(--teal);color:var(--ink-black);font-weight:700;}
+  .fl-subcat-viewport::-webkit-scrollbar{display:none;}
+  .fl-subcat-viewport.dragging{cursor:grabbing;}
+  .fl-subcat-track{display:flex;gap:28px;width:max-content;}
+  .fl-subcat-item{
+    flex:none;width:100px;display:flex;flex-direction:column;align-items:center;gap:11px;
+    background:transparent;border:none;cursor:pointer;font-family:inherit;padding:0;user-select:none;
+  }
+  .fl-subcat-circle{
+    position:relative;width:92px;height:92px;border-radius:50%;overflow:hidden;
+    background:linear-gradient(150deg, var(--iron) 0%, var(--steel) 100%);
+    border:1.5px solid var(--line);
+    display:flex;align-items:center;justify-content:center;
+    transition:border-color .25s, box-shadow .25s, transform .2s;
+  }
+  .fl-subcat-circle img{width:100%;height:100%;object-fit:cover;}
+  .fl-subcat-fallback{font-size:32px;filter:grayscale(0.1);}
+  .fl-subcat-circle-all{
+    background:linear-gradient(150deg, var(--iron-light) 0%, var(--iron) 100%);
+    border-color:rgba(255,210,74,0.35);
+  }
+  .fl-subcat-all-icon{font-size:25px;color:var(--teal);}
+  .fl-subcat-item:hover .fl-subcat-circle{
+    transform:translateY(-3px);border-color:var(--teal);
+    box-shadow:0 8px 20px rgba(255,210,74,0.18);
+  }
+  .fl-subcat-item.active .fl-subcat-circle{
+    border-color:var(--teal);
+    box-shadow:0 0 0 3px rgba(255,210,74,0.14), 0 10px 22px rgba(255,210,74,0.3);
+  }
+  .fl-subcat-label{
+    font-family:'Space Mono',monospace;font-size:11.5px;letter-spacing:0.3px;
+    text-align:center;color:var(--paper-dim);line-height:1.3;transition:color .2s;
+  }
+  .fl-subcat-item:hover .fl-subcat-label,
+  .fl-subcat-item.active .fl-subcat-label{color:var(--teal);font-weight:700;}
+  @media (max-width:600px){
+    .fl-subcat-circle{width:76px;height:76px;}
+    .fl-subcat-item{width:82px;}
+    .fl-subcat-label{font-size:10.5px;}
+    .fl-subcat-track{gap:20px;}
+  }
   /* ===== OFFERS ===== */
   .offers-carousel{background:linear-gradient(90deg,var(--amber),var(--teal));overflow:hidden;cursor:pointer;padding:12px 0;}
   .offers-carousel-track{display:flex;width:max-content;white-space:nowrap;animation:offers-scroll 18s linear infinite;}
@@ -1983,7 +2023,9 @@
         </div>
         <p>Browse everything, or tap a subcategory to narrow it down.</p>
       </div>
-      <div class="fl-subcat-chips" id="fl-subcat-chips"></div>
+      <div class="fl-subcat-viewport" id="fl-subcat-viewport">
+        <div class="fl-subcat-track" id="fl-subcat-track"></div>
+      </div>
       <div class="prod-grid" id="fl-page-grid"></div>
     </div>
   </section>
@@ -2960,6 +3002,34 @@ function renderProducts(list){
 let FITNESS_LIFESTYLE_PRODUCTS = [];
 const FL_SUBCATEGORIES = ['T-Shirts','Shorts / Track Pants','Watches','Sunglasses','Wallets','Caps','Attar','Perfumes','Fragrance Gift Sets'];
 
+// Emoji fallback shown inside a subcategory circle if its photo (see
+// flSubcatImagePath below) hasn't been uploaded yet or fails to load.
+const FL_SUBCAT_ICONS = {
+  'T-Shirts': '👕',
+  'Shorts / Track Pants': '🩳',
+  'Watches': '⌚',
+  'Sunglasses': '🕶️',
+  'Wallets': '👛',
+  'Caps': '🧢',
+  'Attar': '🧴',
+  'Perfumes': '🌸',
+  'Fragrance Gift Sets': '🎁'
+};
+
+// Turns a subcategory name into a filename slug, e.g.
+// "Shorts / Track Pants" -> "shorts-track-pants".
+function flSubcatSlug(name){
+  return String(name).toLowerCase().replace(/\//g, ' ').replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
+}
+// Where each subcategory's circle photo is expected to live. Drop a square
+// (ideally 1:1, at least 300x300px) JPG/PNG for each of the 9 subcategories
+// at these exact paths and the circles above will pick them up automatically
+// — no code changes needed. Until a photo exists, that circle just shows its
+// emoji fallback instead.
+function flSubcatImagePath(name){
+  return `assets/categories/fitness-lifestyle/${flSubcatSlug(name)}.jpg`;
+}
+
 function flProductCardHTML(p, sliderMode){
   const eff = getEffectivePricing(p);
   const price = eff.price;
@@ -3118,16 +3188,61 @@ function closeFitnessLifestylePage(){
   if(section) section.style.display = 'none';
 }
 function renderFlSubcatChips(){
-  const wrap = document.getElementById('fl-subcat-chips');
-  if(!wrap) return;
-  const chips = ['__ALL__', ...FL_SUBCATEGORIES];
-  wrap.innerHTML = chips.map(c=>{
-    const label = c === '__ALL__' ? 'All' : c;
-    return `<button type="button" class="fl-chip" data-fl-subcat="${escapeHtml(c)}" onclick="filterFlPage('${escapeHtml(c)}')">${escapeHtml(label)}</button>`;
+  const track = document.getElementById('fl-subcat-track');
+  if(!track) return;
+  const itemsHtml = ['__ALL__', ...FL_SUBCATEGORIES].map(c => {
+    if(c === '__ALL__'){
+      return `
+        <button type="button" class="fl-subcat-item" data-fl-subcat="__ALL__" onclick="filterFlPage('__ALL__')">
+          <div class="fl-subcat-circle fl-subcat-circle-all"><span class="fl-subcat-all-icon">✦</span></div>
+          <div class="fl-subcat-label">All</div>
+        </button>`;
+    }
+    const icon = FL_SUBCAT_ICONS[c] || '✦';
+    return `
+      <button type="button" class="fl-subcat-item" data-fl-subcat="${escapeHtml(c)}" onclick="filterFlPage('${escapeHtml(c)}')">
+        <div class="fl-subcat-circle">
+          <img src="${flSubcatImagePath(c)}" alt="${escapeHtml(c)}" loading="lazy"
+            onerror="this.style.display='none';this.nextElementSibling.style.display='flex';">
+          <div class="fl-subcat-fallback" style="display:none;">${icon}</div>
+        </div>
+        <div class="fl-subcat-label">${escapeHtml(c)}</div>
+      </button>`;
   }).join('');
+  track.innerHTML = itemsHtml;
+  bindFlSubcatDrag();
+}
+
+/* click-and-drag horizontal scroll for the subcategory circle rail (desktop);
+   touch devices already scroll it natively */
+function bindFlSubcatDrag(){
+  const viewport = document.getElementById('fl-subcat-viewport');
+  if(!viewport) return;
+  let isDown = false, startX = 0, startScroll = 0, moved = 0;
+  viewport.addEventListener('mousedown', (e)=>{
+    isDown = true; moved = 0;
+    viewport.classList.add('dragging');
+    startX = e.pageX; startScroll = viewport.scrollLeft;
+  });
+  window.addEventListener('mousemove', (e)=>{
+    if(!isDown) return;
+    const dx = e.pageX - startX;
+    moved = Math.abs(dx);
+    viewport.scrollLeft = startScroll - dx;
+  });
+  window.addEventListener('mouseup', ()=>{
+    if(!isDown) return;
+    isDown = false;
+    viewport.classList.remove('dragging');
+  });
+  // if the mouse-down turned into a real drag, swallow the click so it
+  // doesn't accidentally trigger filterFlPage on the circle underneath
+  viewport.addEventListener('click', (e)=>{
+    if(moved > 6){ e.stopPropagation(); e.preventDefault(); }
+  }, true);
 }
 function filterFlPage(subcat){
-  document.querySelectorAll('#fl-subcat-chips .fl-chip').forEach(btn=>{
+  document.querySelectorAll('#fl-subcat-track .fl-subcat-item').forEach(btn=>{
     btn.classList.toggle('active', btn.getAttribute('data-fl-subcat') === subcat);
   });
   const list = subcat === '__ALL__'
