@@ -1685,6 +1685,7 @@
       <a href="#top">Home</a>
       <a href="#categories">Shop</a>
       <a href="#products">Bestsellers</a>
+      <a href="#" onclick="document.getElementById('order-system').scrollIntoView({behavior:'smooth',block:'start'});return false;">Order</a>
       <a href="#authenticity">Verify Product</a>
       <a href="licenses.html">Licenses</a>
       <a href="#visit">Visit Store</a>
@@ -1734,6 +1735,7 @@
     <a href="#top" onclick="document.getElementById('nav-toggle').checked=false">Home</a>
     <a href="#categories" onclick="document.getElementById('nav-toggle').checked=false">Shop</a>
     <a href="#products" onclick="document.getElementById('nav-toggle').checked=false">Bestsellers</a>
+    <a href="#" onclick="document.getElementById('nav-toggle').checked=false;document.getElementById('order-system').scrollIntoView({behavior:'smooth',block:'start'});return false;">Order</a>
     <a href="#authenticity" onclick="document.getElementById('nav-toggle').checked=false">Verify Product</a>
     <a href="licenses.html" onclick="document.getElementById('nav-toggle').checked=false">Licenses</a>
     <a href="#visit" onclick="document.getElementById('nav-toggle').checked=false">Visit Store</a>
@@ -1996,6 +1998,21 @@
       <div class="prod-grid" id="products-grid">
         <div class="prod-loading">Loading products…</div>
       </div>
+    </div>
+  </section>
+
+  <!-- ORDER SYSTEM — a separate section for one-off / special products that don't
+       fit any existing category. Kept deliberately apart from Shop by Category. -->
+  <section id="order-system" style="display:none;">
+    <div class="wrap">
+      <div class="section-head">
+        <div>
+          <div class="eyebrow">Something Different</div>
+          <h2>Order System</h2>
+        </div>
+        <p>Special / one-off products that don't fit our regular categories — browse and order them here.</p>
+      </div>
+      <div class="prod-grid" id="order-system-grid"></div>
     </div>
   </section>
 
@@ -2701,6 +2718,7 @@ async function loadProducts(){
   }
   renderProducts(PRODUCTS);
   renderFitnessLifestyleSlider(PRODUCTS);
+  renderOrderSystem(PRODUCTS);
 }
 
 /* ---------- load combo offers ---------- */
@@ -2922,7 +2940,7 @@ function renderProducts(list){
    above, completely untouched.
    ========================================================================== */
 let FITNESS_LIFESTYLE_PRODUCTS = [];
-const FL_SUBCATEGORIES = ['Watches','Smart/Fitness Watches','Sunglasses','Wallets','Fitness Gadgets','Lifestyle Accessories'];
+const FL_SUBCATEGORIES = ['T-Shirts','Shorts / Track Pants','Watches','Sunglasses','Wallets','Caps','Attar','Perfumes','Fragrance Gift Sets'];
 
 function flProductCardHTML(p, sliderMode){
   const eff = getEffectivePricing(p);
@@ -3102,6 +3120,24 @@ function filterFlPage(subcat){
   grid.innerHTML = list.length
     ? list.map(p => flProductCardHTML(p, false)).join('')
     : `<div class="prod-empty">No products in this subcategory yet.</div>`;
+}
+
+/* ==========================================================================
+   ORDER SYSTEM — a separate, standalone bucket for one-off / special products
+   that don't fit any existing category. Independent of Fitness Lifestyle and
+   every other category; just a plain grid, no auto-scroll slider needed.
+   ========================================================================== */
+function renderOrderSystem(all){
+  const orderProducts = (all || []).filter(p => (p.category || '').toLowerCase() === 'order system');
+  const section = document.getElementById('order-system');
+  const grid = document.getElementById('order-system-grid');
+  if(!section || !grid) return;
+  if(orderProducts.length === 0){
+    section.style.display = 'none';
+    return;
+  }
+  section.style.display = '';
+  grid.innerHTML = orderProducts.map(p => flProductCardHTML(p, false)).join('');
 }
 
 /* ---------- search + category filter ---------- */
