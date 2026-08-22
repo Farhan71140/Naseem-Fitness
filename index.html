@@ -2778,7 +2778,10 @@ async function loadProducts(){
     grid.innerHTML = `<div class="prod-empty">New stock coming soon — check back shortly.</div>`;
     return;
   }
-  renderProducts(PRODUCTS);
+  // "Fitness Lifestyle" products live in their own dedicated section/page
+  // (the circle-subcategory browser) — keep them out of the normal
+  // "Straight from the shop floor" grid entirely.
+  renderProducts(PRODUCTS.filter(p => (p.category || '').toLowerCase() !== 'fitness lifestyle'));
   renderFitnessLifestyleSlider(PRODUCTS);
   renderOrderSystem(PRODUCTS);
 }
@@ -3279,7 +3282,9 @@ function renderOrderSystem(all){
 let ACTIVE_CATEGORY = '';
 function applyFilters(){
   const q = (document.getElementById('search-input-desktop').value || '').trim().toLowerCase();
-  let list = PRODUCTS;
+  // Fitness Lifestyle has its own dedicated browsing page — never mix its
+  // products into the normal listing/search/offers grid.
+  let list = PRODUCTS.filter(p => (p.category || '').toLowerCase() !== 'fitness lifestyle');
   if(ACTIVE_CATEGORY === '__OFFERS__'){
     list = list.filter(p => getEffectivePricing(p).hasDiscount);
   } else if(ACTIVE_CATEGORY){
