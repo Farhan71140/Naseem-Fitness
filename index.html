@@ -447,10 +447,16 @@
 
   section{padding:96px 0;}
   .promo-banner-wrap{padding:28px 0 20px;}
+  /* Fitness Lifestyle slider sits directly beneath the category cover images —
+     tighten the gap between them instead of stacking two full section paddings,
+     and add a subtle divider line so the transition still feels intentional. */
+  #categories{padding-bottom:28px;}
+  .fl-slider-section{padding-top:28px;border-top:1px solid var(--line);}
   @media (max-width:860px){
     section{padding:64px 0;} .wrap{padding:0 20px;}
     .promo-banner-wrap{padding:20px 0 4px;}
-    #categories{padding-top:32px;}
+    #categories{padding-top:32px;padding-bottom:18px;}
+    .fl-slider-section{padding-top:18px;}
   }
   @media (max-width:480px){
     .cat-grid{grid-template-columns:1fr;}
