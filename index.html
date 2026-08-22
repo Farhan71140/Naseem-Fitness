@@ -587,7 +587,12 @@
      badge file at assets/badges/active-essentials-badge.png (square, at
      least 500x500px, transparent or white background both work) — it's
      picked up automatically, no code changes needed. */
-  .fl-badge{display:flex;align-items:center;justify-content:center;width:100%;}
+  /* Badge sits directly beside the "Fitness Lifestyle" heading text at every
+     screen size — wraps beneath it only if there's genuinely no room. Drop
+     the badge file at assets/badges/active-essentials-badge.png (square,
+     at least 500x500px) — it's picked up automatically. */
+  .fl-heading-row{display:flex;align-items:center;gap:16px;flex-wrap:wrap;}
+  .fl-badge{display:flex;align-items:center;justify-content:center;}
   .fl-badge-img{
     width:132px;height:132px;object-fit:contain;border-radius:50%;
     filter:drop-shadow(0 6px 18px rgba(255,210,74,0.28)) drop-shadow(0 2px 6px rgba(0,0,0,0.5));
@@ -597,8 +602,8 @@
     transform:translateY(-3px) scale(1.03);
     filter:drop-shadow(0 10px 26px rgba(255,210,74,0.4)) drop-shadow(0 2px 6px rgba(0,0,0,0.5));
   }
-  @media (max-width:1080px){
-    .fl-badge{order:2;margin:6px 0 -4px;}
+  @media (max-width:600px){
+    .fl-badge-img{width:104px;height:104px;}
   }
   @media (max-width:600px){
     .fl-badge-img{width:104px;height:104px;}
@@ -2060,11 +2065,13 @@
       <div class="section-head">
         <div>
           <div class="eyebrow">New Category</div>
-          <h2>Fitness Lifestyle</h2>
-        </div>
-        <div class="fl-badge" aria-hidden="true">
-          <img class="fl-badge-img" src="assets/badges/active-essentials-badge.png" alt=""
-            onerror="this.parentElement.style.display='none';">
+          <div class="fl-heading-row">
+            <h2>Fitness Lifestyle</h2>
+            <div class="fl-badge" aria-hidden="true">
+              <img class="fl-badge-img" src="assets/badges/active-essentials-badge.png" alt=""
+                onerror="this.parentElement.style.display='none';">
+            </div>
+          </div>
         </div>
         <p class="fl-tagline">
           <span class="fl-tagline-main">Stay Fit, Stay Stylish, Create Your Identity.</span>
