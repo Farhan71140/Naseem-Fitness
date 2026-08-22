@@ -550,6 +550,18 @@
   /* ===== FITNESS LIFESTYLE — auto-scrolling slider (new category only; every other
      category/section keeps its existing grid layout completely untouched) ===== */
   .fl-slider-section .section-head{margin-bottom:22px;}
+  .fl-tagline{max-width:460px;}
+  .fl-tagline .fl-tagline-main{
+    font-family:'Anton',sans-serif;font-weight:400;text-transform:uppercase;
+    font-size:clamp(16px,2.1vw,20px);letter-spacing:0.4px;line-height:1.35;
+    background:linear-gradient(100deg, var(--gold-light) 0%, var(--teal) 45%, var(--amber) 70%, var(--gold-light) 100%);
+    background-size:200% auto;-webkit-background-clip:text;background-clip:text;color:transparent;
+    animation:goldText 3.5s linear infinite;
+    display:block;margin-bottom:8px;
+  }
+  .fl-tagline .fl-tagline-sub{
+    font-family:'Inter',sans-serif;font-size:14.5px;font-weight:500;color:var(--paper-dim);line-height:1.6;
+  }
   .fl-slider-viewport{
     position:relative;overflow-x:auto;overflow-y:hidden;
     scrollbar-width:none;-ms-overflow-style:none;
@@ -2009,7 +2021,10 @@
           <div class="eyebrow">New Category</div>
           <h2>Fitness Lifestyle</h2>
         </div>
-        <p>Watches, sunglasses, wallets &amp; gadgets built for the athlete lifestyle.</p>
+        <p class="fl-tagline">
+          <span class="fl-tagline-main">Stay Fit, Stay Stylish, Create Your Identity.</span>
+          <span class="fl-tagline-sub">Specially curated products for your lifestyle.</span>
+        </p>
       </div>
       <div class="fl-slider-viewport" id="fl-slider-viewport">
         <div class="fl-slider-track" id="fl-slider-track"></div>
