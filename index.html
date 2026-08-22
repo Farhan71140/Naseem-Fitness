@@ -557,13 +557,19 @@
     background:linear-gradient(100deg,
       var(--teal) 0%, var(--teal) 38%, #FFFFFF 48%, var(--gold-light) 52%, var(--teal) 62%, var(--teal) 100%);
     background-size:300% auto;-webkit-background-clip:text;background-clip:text;color:transparent;
-    animation:flTaglineFlash 1s ease-in-out infinite;
+    animation:flTaglineFlash 1s ease-in-out infinite, flTaglineSlide 2.2s ease-in-out infinite;
     display:block;margin-bottom:8px;
+    position:relative;
   }
   @keyframes flTaglineFlash{
-    0%{background-position:-60% 0;}
-    55%{background-position:160% 0;}
-    100%{background-position:160% 0;}
+    0%{background-position:160% 0;}
+    55%{background-position:-60% 0;}
+    100%{background-position:-60% 0;}
+  }
+  @keyframes flTaglineSlide{
+    0%{transform:translateX(-18px);}
+    55%{transform:translateX(0);}
+    100%{transform:translateX(0);}
   }
   .fl-tagline .fl-tagline-sub{
     font-family:'Inter',sans-serif;font-size:14.5px;font-weight:500;color:var(--paper-dim);line-height:1.6;
