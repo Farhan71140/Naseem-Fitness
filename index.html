@@ -554,10 +554,16 @@
   .fl-tagline .fl-tagline-main{
     font-family:'Anton',sans-serif;font-weight:400;text-transform:uppercase;
     font-size:clamp(16px,2.1vw,20px);letter-spacing:0.4px;line-height:1.35;
-    background:linear-gradient(100deg, var(--gold-light) 0%, var(--teal) 45%, var(--amber) 70%, var(--gold-light) 100%);
-    background-size:200% auto;-webkit-background-clip:text;background-clip:text;color:transparent;
-    animation:goldText 3.5s linear infinite;
+    background:linear-gradient(100deg,
+      var(--teal) 0%, var(--teal) 38%, #FFFFFF 48%, var(--gold-light) 52%, var(--teal) 62%, var(--teal) 100%);
+    background-size:300% auto;-webkit-background-clip:text;background-clip:text;color:transparent;
+    animation:flTaglineFlash 3.2s ease-in-out infinite;
     display:block;margin-bottom:8px;
+  }
+  @keyframes flTaglineFlash{
+    0%{background-position:-60% 0;}
+    45%{background-position:160% 0;}
+    100%{background-position:160% 0;}
   }
   .fl-tagline .fl-tagline-sub{
     font-family:'Inter',sans-serif;font-size:14.5px;font-weight:500;color:var(--paper-dim);line-height:1.6;
