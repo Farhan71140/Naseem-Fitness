@@ -1127,14 +1127,16 @@
     .visit-info{padding:36px 24px;}
     .visit-map{min-height:260px;border-left:none;border-top:1px solid var(--line);}
   }
-  /* On mobile: show video+badges, then Shop by Category, then Products, then the hero headline/CTA text */
+  /* On mobile: show video+badges, then Shop by Category, then Fitness Lifestyle
+     slider, then Products, then the hero headline/CTA text */
   @media (max-width:860px){
     main#top{display:flex;flex-direction:column;}
     main#top > .hero{display:contents;}
     .hero-grid{display:contents;}
-    .seal-wrap{order:-5;margin-bottom:0;padding:0 20px;}
-    #promo-banner-section{order:-5;}
-    #categories{order:-4;}
+    .seal-wrap{order:-6;margin-bottom:0;padding:0 20px;}
+    #promo-banner-section{order:-6;}
+    #categories{order:-5;}
+    #fitness-lifestyle{order:-4;}
     #combos{order:-3;}
     #products{order:-2;}
     .hero-top{order:-1;padding:24px 20px 0;}
@@ -3115,7 +3117,7 @@ function initFlAutoScroll(){
   flIsPaused = false;
 
   if(flScrollRAF) cancelAnimationFrame(flScrollRAF);
-  const SPEED = 1; // px per frame — bumped up further for a snappier scroll
+  const SPEED = 2; // px per frame
   function step(){
     if(!flIsPaused && !flIsDragging && viewport.scrollWidth > viewport.clientWidth){
       viewport.scrollLeft += SPEED;
