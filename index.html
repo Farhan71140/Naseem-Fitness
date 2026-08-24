@@ -428,16 +428,18 @@
   }
   .trust-modal-list li svg{width:19px;height:19px;color:var(--teal);flex:none;margin-top:1px;}
   .trust-modal-note{
-    display:flex;align-items:flex-start;gap:12px;
+    display:flex;flex-direction:column;align-items:flex-start;gap:10px;
     background:linear-gradient(150deg, rgba(255,210,74,0.09) 0%, rgba(255,210,74,0.02) 100%);
     border:1px solid rgba(255,210,74,0.3);border-radius:12px;
-    padding:14px 16px;margin-bottom:24px;
+    padding:16px 18px;margin-bottom:24px;
   }
-  .trust-modal-note-icon{font-size:20px;line-height:1;flex:none;margin-top:1px;}
-  .trust-modal-note strong{
-    display:block;font-size:14px;font-weight:800;color:var(--gold-light);margin-bottom:4px;
+  .trust-modal-note-tag{
+    display:inline-block;font-family:'Space Mono',monospace;font-size:11px;font-weight:700;
+    letter-spacing:1.5px;text-transform:uppercase;color:var(--ink-black);
+    background:linear-gradient(135deg,#E8A93A 0%, var(--teal) 60%, var(--gold-light) 100%);
+    padding:6px 14px;border-radius:20px;
   }
-  .trust-modal-note p{font-size:13px;color:var(--paper-dim);line-height:1.6;margin:0;}
+  .trust-modal-note p{font-size:13.5px;color:var(--paper-dim);line-height:1.6;margin:0;}
   .trust-modal-cta{
     display:flex;align-items:center;justify-content:center;gap:8px;
     background:linear-gradient(135deg,#E8A93A 0%, var(--teal) 45%, var(--gold-light) 100%);
@@ -1976,11 +1978,8 @@
     <h3 class="trust-modal-title" id="trust-modal-title"></h3>
     <ul class="trust-modal-list" id="trust-modal-list"></ul>
     <div class="trust-modal-note" id="trust-modal-note" style="display:none;">
-      <span class="trust-modal-note-icon" id="trust-modal-note-icon"></span>
-      <div>
-        <strong id="trust-modal-note-title"></strong>
-        <p id="trust-modal-note-body"></p>
-      </div>
+      <span class="trust-modal-note-tag" id="trust-modal-note-tag"></span>
+      <p id="trust-modal-note-body"></p>
     </div>
     <a class="trust-modal-cta" id="trust-modal-cta" href="#">
       <span id="trust-modal-cta-label"></span>
@@ -3722,9 +3721,8 @@ const TRUST_MODAL_DATA = {
     ctaLabel: 'Check Delivery Details',
     ctaHref: 'shipping-policy.html',
     note: {
-      icon: '🚚',
-      title: 'Fast & Secure PAN India Delivery',
-      body: 'Orders are shipped through Shiprocket\'s trusted courier partners. Mumbai: 1–2 Days | Maharashtra: 1–3 Business Days | Rest of India: 3–7 Business Days.'
+      tag: 'Priority',
+      body: 'Mumbai & Maharashtra: 1–2 Days · All India: 3–4 Days'
     }
   },
   fssai: {
@@ -3751,8 +3749,7 @@ function openTrustModal(key){
   ).join('');
   const noteBox = document.getElementById('trust-modal-note');
   if(data.note){
-    document.getElementById('trust-modal-note-icon').textContent = data.note.icon;
-    document.getElementById('trust-modal-note-title').textContent = data.note.title;
+    document.getElementById('trust-modal-note-tag').textContent = data.note.tag;
     document.getElementById('trust-modal-note-body').textContent = data.note.body;
     noteBox.style.display = 'flex';
   } else {
