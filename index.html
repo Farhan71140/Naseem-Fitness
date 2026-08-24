@@ -3542,9 +3542,9 @@ function startVoiceSearch(which){
   voiceRecognition = recognition;
   voiceListeningBtn = btn;
 
-  // Hinglish-friendly: hi-IN generally understands Hindi/Hinglish speech well
-  // and still recognizes common English product words.
-  recognition.lang = 'hi-IN';
+  // Recognize speech in English so spoken product names/brands are
+  // transcribed correctly rather than as Hindi text.
+  recognition.lang = 'en-IN';
   recognition.continuous = false;
   recognition.interimResults = false;
   recognition.maxAlternatives = 1;
