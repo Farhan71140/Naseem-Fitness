@@ -373,6 +373,74 @@
     .mini-item svg{width:20px;height:20px;}
     .mini-item span{font-size:11px;}
   }
+
+  /* ===== TRUST BADGE INFO MODAL — opened by clicking any of the 4 hero
+     badges (100% Original / Best Quality / Air Express / FSSAI Licensed) ===== */
+  .mini-item-clickable{cursor:pointer;}
+  .mini-item-clickable:focus-visible{outline:2px solid var(--teal);outline-offset:3px;}
+  .trust-modal-overlay{
+    display:none;position:fixed;inset:0;z-index:260;
+    background:rgba(6,5,3,0.78);backdrop-filter:blur(4px);
+    align-items:flex-end;justify-content:center;padding:0;
+  }
+  .trust-modal-overlay.active{display:flex;}
+  .trust-modal{
+    position:relative;width:100%;max-width:460px;
+    background:linear-gradient(165deg, var(--steel) 0%, var(--iron) 130%);
+    border:1px solid rgba(255,210,74,0.28);
+    border-radius:22px 22px 0 0;
+    padding:34px 26px 28px;
+    box-shadow:0 -14px 50px rgba(0,0,0,0.55), 0 0 0 1px rgba(255,210,74,0.06);
+    animation:trustSheetUp .32s cubic-bezier(.2,.8,.3,1);
+    max-height:88vh;overflow-y:auto;
+  }
+  @keyframes trustSheetUp{from{transform:translateY(100%);opacity:0;}to{transform:translateY(0);opacity:1;}}
+  .trust-modal-close{
+    position:absolute;top:16px;right:16px;width:34px;height:34px;border-radius:50%;
+    background:rgba(255,210,74,0.08);border:1px solid var(--line);
+    display:flex;align-items:center;justify-content:center;color:var(--paper);
+    cursor:pointer;transition:background .2s,border-color .2s,transform .2s;
+  }
+  .trust-modal-close:hover{background:rgba(255,210,74,0.16);border-color:var(--teal);transform:rotate(90deg);}
+  .trust-modal-close svg{width:16px;height:16px;}
+  .trust-modal-icon{
+    width:68px;height:68px;border-radius:50%;margin:0 auto 18px;
+    background:linear-gradient(150deg, rgba(255,210,74,0.2), rgba(255,210,74,0.04));
+    border:1px solid rgba(255,210,74,0.35);
+    display:flex;align-items:center;justify-content:center;
+    box-shadow:0 0 22px rgba(255,210,74,0.3);
+    position:relative;overflow:hidden;
+  }
+  .trust-modal-icon svg{width:30px;height:30px;color:var(--teal);position:relative;z-index:1;}
+  .trust-modal-icon::before{
+    content:'';position:absolute;top:0;left:-60%;width:50%;height:100%;
+    background:linear-gradient(100deg, transparent, rgba(255,226,122,0.5), transparent);
+    transform:skewX(-20deg);animation:trustIconShine 2.6s ease-in-out infinite;
+  }
+  @keyframes trustIconShine{0%{left:-60%;}35%{left:130%;}100%{left:130%;}}
+  .trust-modal-title{
+    font-family:'Anton',sans-serif;font-weight:400;text-transform:uppercase;
+    font-size:22px;text-align:center;letter-spacing:0.4px;margin-bottom:22px;
+  }
+  .trust-modal-list{list-style:none;margin:0 0 26px;padding:0;display:flex;flex-direction:column;gap:14px;}
+  .trust-modal-list li{
+    display:flex;align-items:flex-start;gap:12px;font-size:14.5px;color:var(--paper);line-height:1.5;
+  }
+  .trust-modal-list li svg{width:19px;height:19px;color:var(--teal);flex:none;margin-top:1px;}
+  .trust-modal-cta{
+    display:flex;align-items:center;justify-content:center;gap:8px;
+    background:linear-gradient(135deg,#E8A93A 0%, var(--teal) 45%, var(--gold-light) 100%);
+    color:var(--ink-black);font-weight:800;font-size:14.5px;text-transform:uppercase;letter-spacing:0.4px;
+    padding:15px 20px;border-radius:10px;text-decoration:none;
+    box-shadow:0 8px 22px rgba(255,210,74,0.3);transition:transform .2s,box-shadow .2s;
+  }
+  .trust-modal-cta:hover{transform:translateY(-2px);box-shadow:0 12px 28px rgba(255,210,74,0.4);}
+  .trust-modal-cta svg{width:17px;height:17px;}
+  @media (min-width:640px){
+    .trust-modal-overlay{align-items:center;padding:20px;}
+    .trust-modal{border-radius:20px;animation:trustModalIn .28s ease;}
+  }
+  @keyframes trustModalIn{from{transform:scale(0.92);opacity:0;}to{transform:scale(1);opacity:1;}}
   @media (max-width:860px){
     .hero-grid{grid-template-columns:1fr;padding-top:48px;}
     .seal-wrap{order:-1;margin-bottom:8px;}
@@ -1886,6 +1954,23 @@
   </div>
 </div>
 
+<!-- TRUST BADGE INFO MODAL — opens when one of the 4 hero trust badges
+     (100% Original / Best Quality / Air Express / FSSAI Licensed) is clicked -->
+<div class="trust-modal-overlay" id="trust-modal-overlay" onclick="if(event.target===this) closeTrustModal();">
+  <div class="trust-modal" id="trust-modal" role="dialog" aria-modal="true" aria-labelledby="trust-modal-title">
+    <button type="button" class="trust-modal-close" onclick="closeTrustModal()" aria-label="Close">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg>
+    </button>
+    <div class="trust-modal-icon" id="trust-modal-icon"></div>
+    <h3 class="trust-modal-title" id="trust-modal-title"></h3>
+    <ul class="trust-modal-list" id="trust-modal-list"></ul>
+    <a class="trust-modal-cta" id="trust-modal-cta" href="#">
+      <span id="trust-modal-cta-label"></span>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg>
+    </a>
+  </div>
+</div>
+
 <main id="top">
   <!-- HERO -->
   <section class="hero" style="padding:0;">
@@ -1911,18 +1996,26 @@
           </video>
         </div>
         <div class="hero-mini-trust">
-          <div class="mini-item">
+          <div class="mini-item mini-item-clickable" role="button" tabindex="0"
+            onclick="openTrustModal('original')"
+            onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();openTrustModal('original');}">
             <div class="mini-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M12 2l8 4v6c0 5-3.5 8.5-8 10-4.5-1.5-8-5-8-10V6l8-4z"/></svg></div>
             <span>100% Original<br>Supplements</span>
           </div>
-          <div class="mini-item">
+          <div class="mini-item mini-item-clickable" role="button" tabindex="0"
+            onclick="openTrustModal('quality')"
+            onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();openTrustModal('quality');}">
             <div class="mini-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M12 17.3l-6.2 3.3 1.2-6.9L2 8.8l7-1L12 1.5l3 6.3 7 1-5 4.9 1.2 6.9z"/></svg></div>
             <span>Best Quality<br>Guaranteed</span>
           </div>
-          <div class="mini-item mini-item-image">
+          <div class="mini-item mini-item-image mini-item-clickable" role="button" tabindex="0"
+            onclick="openTrustModal('delivery')"
+            onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();openTrustModal('delivery');}">
             <img src="assets/badge-fast-delivery.png" alt="Fast &amp; Safe Delivery" class="mini-badge-img">
           </div>
-          <div class="mini-item">
+          <div class="mini-item mini-item-clickable" role="button" tabindex="0"
+            onclick="openTrustModal('fssai')"
+            onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();openTrustModal('fssai');}">
             <div class="mini-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M9 12l2 2 4-4"/><circle cx="12" cy="12" r="10"/></svg></div>
             <span>FSSAI Licensed<br>Store</span>
           </div>
@@ -3568,6 +3661,86 @@ function closePhotoSearchSheet(){
   document.getElementById('photo-search-camera-input').value = '';
   document.getElementById('photo-search-gallery-input').value = '';
 }
+
+// ===== TRUST BADGE INFO MODAL =====
+const TRUST_MODAL_DATA = {
+  original: {
+    icon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M12 2l8 4v6c0 5-3.5 8.5-8 10-4.5-1.5-8-5-8-10V6l8-4z"/></svg>',
+    title: '100% Original Supplements',
+    points: [
+      'Only Genuine & Authentic Products',
+      'Authorised Distributor Sourced',
+      'Every Product Has a Batch/Verification Code',
+      'Verify Any Product Instantly via QR Code',
+      'Zero Grey Market Products — Ever'
+    ],
+    ctaLabel: 'Verify Product',
+    ctaHref: '#authenticity'
+  },
+  quality: {
+    icon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M12 17.3l-6.2 3.3 1.2-6.9L2 8.8l7-1L12 1.5l3 6.3 7 1-5 4.9 1.2 6.9z"/></svg>',
+    title: 'Best Quality Guaranteed',
+    points: [
+      'Every Product Is Quality Tested',
+      'Genuine Packaging & Batch Details',
+      'Proper Storage & Handling Throughout',
+      'Expiry & MRP Verified Before Dispatch',
+      'Your Satisfaction Is Our Priority'
+    ],
+    ctaLabel: 'Our Quality Promise',
+    ctaHref: '#authenticity'
+  },
+  delivery: {
+    icon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M2 16l4-9h9l7 5-3 8H6l-4-4z"/><path d="M9 7l3 9M15 7l1 9"/></svg>',
+    title: 'Air Express — Fast Delivery',
+    points: [
+      'Air Express Delivery Available',
+      'Fast & Priority Shipping',
+      'Availability Depends on Your PIN Code',
+      'Live Order Tracking on Every Shipment',
+      'Express Charges Shown Clearly at Checkout',
+      'Eligible Orders Get Priority Dispatch'
+    ],
+    ctaLabel: 'Check Delivery Details',
+    ctaHref: 'shipping-policy.html'
+  },
+  fssai: {
+    icon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M9 12l2 2 4-4"/><circle cx="12" cy="12" r="10"/></svg>',
+    title: 'FSSAI Licensed Store',
+    points: [
+      'FSSAI Registered & Licensed Store',
+      'FSSAI License Number Available on Request',
+      'Business & License Details Verified',
+      'Fully Food & Supplement Safety Compliant',
+      'Official License Verification Link Available'
+    ],
+    ctaLabel: 'View License Details',
+    ctaHref: 'licenses.html'
+  }
+};
+function openTrustModal(key){
+  const data = TRUST_MODAL_DATA[key];
+  if(!data) return;
+  document.getElementById('trust-modal-icon').innerHTML = data.icon;
+  document.getElementById('trust-modal-title').textContent = data.title;
+  document.getElementById('trust-modal-list').innerHTML = data.points.map(p =>
+    `<li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg><span>${p}</span></li>`
+  ).join('');
+  const cta = document.getElementById('trust-modal-cta');
+  cta.href = data.ctaHref;
+  document.getElementById('trust-modal-cta-label').textContent = data.ctaLabel;
+  cta.onclick = function(){ closeTrustModal(); };
+  document.getElementById('trust-modal-overlay').classList.add('active');
+}
+function closeTrustModal(){
+  document.getElementById('trust-modal-overlay').classList.remove('active');
+}
+document.addEventListener('keydown', function(e){
+  if(e.key === 'Escape'){
+    const overlay = document.getElementById('trust-modal-overlay');
+    if(overlay && overlay.classList.contains('active')) closeTrustModal();
+  }
+});
 function triggerPhotoCapture(){
   document.getElementById('photo-search-camera-input').click();
 }
