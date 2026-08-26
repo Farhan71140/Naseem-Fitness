@@ -2624,7 +2624,7 @@
       </div>
       <div class="checkout-field">
         <label for="chk-phone">Phone Number</label>
-        <input type="tel" id="chk-phone" placeholder="Your phone number" onblur="checkCheckoutReward()">
+        <input type="tel" id="chk-phone" placeholder="Your phone number" onblur="checkCheckoutReward()" oninput="scheduleCheckoutRewardCheck()">
         <div id="checkout-reward-banner"></div>
       </div>
       <div class="checkout-field">
@@ -2898,17 +2898,17 @@
 
     <div id="spin-view-already" style="display:none;">
       <div class="spin-lock-icon">🎡</div>
-      <h3 class="spin-heading">Come Back Tomorrow!</h3>
-      <p class="spin-locked-msg" style="color:var(--paper);">You have already used today's Lucky Spin.<br>Come back tomorrow for a new reward.</p>
+      <h3 class="spin-heading" id="spin-already-heading">Come Back Tomorrow!</h3>
+      <p class="spin-locked-msg" style="color:var(--paper);" id="spin-already-msg">You have already used today's Lucky Spin.<br>Come back tomorrow for a new reward.</p>
       <div id="spin-already-reward"></div>
-      <button type="button" class="btn btn-primary spin-shop-btn" onclick="closeSpinModal();">Got It</button>
+      <button type="button" class="btn btn-primary spin-shop-btn" id="spin-already-cta" onclick="closeSpinModal();">Got It</button>
     </div>
 
     <div id="spin-view-result" style="display:none;">
       <div class="spin-result-burst">🎉</div>
       <h3 class="spin-heading">Congratulations!</h3>
       <div class="spin-result-card" id="spin-result-card"></div>
-      <p class="spin-result-note">This reward is linked to your mobile number and is valid today only. It will apply automatically at checkout.</p>
+      <p class="spin-result-note">This reward is linked to <strong>this exact mobile number</strong> and is valid today only. Enter the same number in the Phone Number field at checkout and it will be applied to your order automatically.</p>
       <button type="button" class="btn btn-primary spin-shop-btn" onclick="closeSpinModal();">Continue Shopping</button>
     </div>
   </div>
@@ -4055,6 +4055,29 @@ async function openSpinModal(){
 function closeSpinModal(){
   document.getElementById('spin-modal-overlay').classList.remove('active');
 }
+// A phone number can only spin once per day, but that is NOT the same as
+// the reward being gone — the reward stays valid until it's actually used
+// on an order. Previously both cases showed the same "come back tomorrow"
+// message, which made customers think a reward they hadn't redeemed yet
+// had been forfeited just because the spin itself was already used. This
+// splits the message by the reward's real status.
+function renderAlreadySpunView(record){
+  const heading = document.getElementById('spin-already-heading');
+  const msg = document.getElementById('spin-already-msg');
+  const cta = document.getElementById('spin-already-cta');
+  document.getElementById('spin-already-reward').innerHTML = spinResultCardHtml(record);
+  if(record.status === 'used'){
+    heading.textContent = 'Reward Already Redeemed';
+    msg.innerHTML = `You've already redeemed today's Lucky Spin reward${record.order_number ? ` on order <strong>${escapeHtml(record.order_number)}</strong>` : ''}.<br>Come back tomorrow for a new spin.`;
+    cta.textContent = 'Got It';
+    cta.onclick = closeSpinModal;
+  } else {
+    heading.textContent = 'Your Reward Is Waiting!';
+    msg.innerHTML = `You've already spun today, but your reward hasn't been used yet — it's still valid.<br>Enter <strong>this same mobile number</strong> at checkout to redeem it.`;
+    cta.textContent = 'Go to Checkout';
+    cta.onclick = function(){ closeSpinModal(); openCheckout(); };
+  }
+}
 function spinResultCardHtml(reward){
   const isDiscount = reward.reward_type === 'discount' || reward.type === 'discount';
   const label = isDiscount ? `₹${reward.reward_value ?? reward.value} OFF` : (reward.reward_label || reward.label);
@@ -4087,7 +4110,7 @@ async function beginSpin(){
   if(existing){
     goBtn.disabled = false; goBtn.textContent = 'SPIN NOW';
     document.getElementById('spin-view-wheel').style.display = 'none';
-    document.getElementById('spin-already-reward').innerHTML = spinResultCardHtml(existing);
+    renderAlreadySpunView(existing);
     document.getElementById('spin-view-already').style.display = 'block';
     return;
   }
@@ -4126,7 +4149,7 @@ async function beginSpin(){
       // most likely a duplicate spin race (unique constraint) — treat as already-used
       document.getElementById('spin-view-wheel').style.display = 'none';
       const { data: raced } = await sb.from('lucky_spins').select('*').eq('mobile_number', phone).eq('spin_date', today).maybeSingle();
-      document.getElementById('spin-already-reward').innerHTML = raced ? spinResultCardHtml(raced) : '';
+      if(raced) renderAlreadySpunView(raced);
       document.getElementById('spin-view-already').style.display = 'block';
       return;
     }
@@ -4202,6 +4225,20 @@ async function checkMyReward(){
     </div>`;
 }
 
+// Relying on the phone field's blur event alone to look up a Lucky Spin
+// reward is fragile — mobile autofill, or a customer typing straight into
+// the phone box and tapping "Pay" without tabbing away, can skip blur
+// entirely, so the reward silently never shows. This debounced input
+// listener runs the same check as soon as a full 10-digit number is typed,
+// so the banner appears reliably without waiting for blur. blur is kept too
+// as a safety net (e.g. after autofill sets the value programmatically).
+let checkoutRewardDebounce = null;
+function scheduleCheckoutRewardCheck(){
+  clearTimeout(checkoutRewardDebounce);
+  const phone = document.getElementById('chk-phone').value.trim();
+  if(!/^\d{10}$/.test(phone)) return;
+  checkoutRewardDebounce = setTimeout(checkCheckoutReward, 400);
+}
 // Looks up the phone number entered at checkout for today's active Lucky
 // Spin reward and, if found, applies it automatically (discount reflected
 // live in getOrderTotal(); free items are attached at order-submit time).
@@ -5148,6 +5185,21 @@ async function submitOrder(){
     ? document.querySelector('#cod-advance-confirm-step .btn-primary')
     : document.querySelector('#upi-confirm-step .btn-primary');
   if(btn){ btn.disabled = true; btn.textContent = 'Placing order…'; }
+
+  // Ground-truth re-check: never trust whatever CHECKOUT_REWARD happens to
+  // hold from earlier in the session. It may be stale (phone digit corrected
+  // after the banner last ran) or simply never populated (blur never fired).
+  // Re-fetch directly from the database for the exact phone number being
+  // submitted, right before the order is built, so a valid reward is never
+  // silently missed and total displayed above is what's actually written.
+  if(/^\d{10}$/.test(phone)){
+    const today = todayDateStr();
+    const { data: verifiedReward } = await sb.from('lucky_spins').select('*')
+      .eq('mobile_number', phone).eq('spin_date', today).eq('status', 'active').maybeSingle();
+    CHECKOUT_REWARD = verifiedReward || null;
+  } else {
+    CHECKOUT_REWARD = null;
+  }
 
   const items = CART.map(l=>({ name:l.name, price:l.price, qty:l.qty }));
   // Lucky Spin free-item reward (if any) rides along as a ₹0 line item —
