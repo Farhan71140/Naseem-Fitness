@@ -515,17 +515,27 @@
   .spin-go-btn{width:100%;justify-content:center;margin-top:14px;}
 
   /* wheel */
-  .spin-wheel-wrap{position:relative;width:240px;height:240px;margin:0 auto 6px;}
-  .spin-pointer{
-    position:absolute;top:-6px;left:50%;transform:translateX(-50%);
-    font-size:26px;color:var(--teal);z-index:3;
-    filter:drop-shadow(0 2px 4px rgba(0,0,0,0.6));
+  .spin-wheel-wrap{position:relative;width:240px;height:240px;margin:34px auto 6px;}
+  .spin-pointer-img{
+    position:absolute;top:-38px;left:50%;transform:translateX(-50%);
+    width:56px;height:auto;z-index:3;
+    filter:drop-shadow(0 3px 6px rgba(0,0,0,0.6));
   }
   .spin-wheel{
     position:relative;width:240px;height:240px;border-radius:50%;
     border:6px solid var(--teal);box-shadow:0 0 0 3px var(--ink-black), 0 0 35px rgba(255,210,74,0.45), inset 0 0 20px rgba(0,0,0,0.5);
     transition:transform 4.2s cubic-bezier(.12,.72,.14,1);
     overflow:hidden;
+  }
+  /* Used when the live reward catalog's ids/order exactly match the
+     branded wheel artwork (see FIXED_WHEEL_ORDER in JS) — the illustrated
+     PNG already has its own gold rim and bulb lights baked in, so the
+     plain CSS ring/glow used for the generated fallback wheel is dropped
+     here to avoid a double-rim look. */
+  .spin-wheel.spin-wheel-photo{
+    border:none;
+    box-shadow:0 0 0 3px var(--ink-black), 0 0 30px rgba(255,210,74,0.5);
+    background-size:cover;background-position:center;
   }
   .spin-wheel-center{
     position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);
@@ -2882,7 +2892,7 @@
       <p class="spin-sub">You've unlocked today's Lucky Spin — good luck!</p>
 
       <div class="spin-wheel-wrap">
-        <div class="spin-pointer">▼</div>
+        <img class="spin-pointer-img" src="assets/spin-wheel-pointer.webp" alt="">
         <div class="spin-wheel" id="spin-wheel">
           <div class="spin-wheel-center">SPIN<br>&amp; WIN</div>
         </div>
@@ -3974,15 +3984,32 @@ document.addEventListener('keydown', function(e){
 
 // ===== DAILY LUCKY SPIN & REWARD SYSTEM =====
 const SPIN_UNLOCK_THRESHOLD = 1500;
+// Order matches the branded wheel artwork (assets/spin-wheel-disc.webp) —
+// clockwise from the pointer: Shaker, Fish Oil, Creatine, Keychain,
+// Surprise Gift, ₹50 OFF, ₹100 OFF. If you edit rewards in the
+// `lucky_rewards_catalog` Supabase table, keep `sort_order` in this same
+// sequence so the pretty wheel keeps showing — see FIXED_WHEEL_ORDER below.
 const DEFAULT_REWARD_CATALOG = [
   { id:'shaker',   emoji:'🥤', label:'Shaker Bottle',   type:'free_item', value:null },
   { id:'fishoil',  emoji:'🐟', label:'Fish Oil 1000mg', type:'free_item', value:null },
   { id:'creatine', emoji:'💪', label:'Creatine',        type:'free_item', value:null },
   { id:'keychain', emoji:'🔑', label:'Keychain',        type:'free_item', value:null },
-  { id:'off100',   emoji:'💰', label:'₹100 OFF',        type:'discount',  value:100 },
+  { id:'surprise', emoji:'🎁', label:'Surprise Gift',   type:'free_item', value:null },
   { id:'off50',    emoji:'💰', label:'₹50 OFF',         type:'discount',  value:50 },
-  { id:'surprise', emoji:'🎁', label:'Surprise Gift',   type:'free_item', value:null }
+  { id:'off100',   emoji:'💰', label:'₹100 OFF',        type:'discount',  value:100 }
 ];
+// The illustrated wheel image has these exact 7 segments baked in, in this
+// exact order, and can't be reshuffled at runtime the way the old
+// CSS-generated wheel could. So it's only used when today's live catalog
+// matches this list id-for-id — if the catalog is ever edited to add,
+// remove, or reorder a reward, the code below automatically falls back to
+// the plain generated wheel instead of showing a wheel that doesn't match
+// the actual prizes.
+const FIXED_WHEEL_ORDER = ['shaker','fishoil','creatine','keychain','surprise','off50','off100'];
+function catalogMatchesWheelArt(){
+  return SPIN_CATALOG.length === FIXED_WHEEL_ORDER.length
+    && SPIN_CATALOG.every((r,i) => r.id === FIXED_WHEEL_ORDER[i]);
+}
 let SPIN_CATALOG = [];
 let SPIN_CATALOG_LOADED = false;
 let SPINNING = false;
@@ -4008,21 +4035,35 @@ function renderSpinWheelGraphic(){
   if(!wheel || !SPIN_CATALOG.length) return;
   const n = SPIN_CATALOG.length;
   const segAngle = 360 / n;
-  const colorA = '#20190D', colorB = '#150F08';
-  let stops = [];
-  for(let i=0;i<n;i++){
-    const start = (i*segAngle).toFixed(2), end = ((i+1)*segAngle).toFixed(2);
-    stops.push(`${i%2===0?colorA:colorB} ${start}deg ${end}deg`);
+
+  if(catalogMatchesWheelArt()){
+    // Branded artwork mode — the 7 wedges, colors and icons are already
+    // baked into the image at the exact angles FIXED_WHEEL_ORDER assumes,
+    // so no per-segment label markup is generated here at all.
+    wheel.classList.add('spin-wheel-photo');
+    wheel.style.background = "center / cover no-repeat url('assets/spin-wheel-disc.webp')";
+    wheel.innerHTML = '';
+  } else {
+    // Fallback: reward catalog doesn't match the artwork's fixed layout
+    // (a reward was added, removed, or reordered in Supabase), so fall
+    // back to the plain generated wheel, which supports any catalog.
+    wheel.classList.remove('spin-wheel-photo');
+    const colorA = '#20190D', colorB = '#150F08';
+    let stops = [];
+    for(let i=0;i<n;i++){
+      const start = (i*segAngle).toFixed(2), end = ((i+1)*segAngle).toFixed(2);
+      stops.push(`${i%2===0?colorA:colorB} ${start}deg ${end}deg`);
+    }
+    wheel.style.background = `conic-gradient(${stops.join(',')})`;
+    let labelsHtml = '';
+    SPIN_CATALOG.forEach((r,i)=>{
+      const angle = segAngle*i + segAngle/2;
+      labelsHtml += `<div class="spin-seg-label" style="transform:rotate(${angle}deg) translateY(-84px);">
+        <span class="emoji">${r.emoji}</span>${escapeHtml(r.label)}
+      </div>`;
+    });
+    wheel.innerHTML = `<div class="spin-wheel-center">SPIN<br>&amp; WIN</div>${labelsHtml}`;
   }
-  wheel.style.background = `conic-gradient(${stops.join(',')})`;
-  let labelsHtml = '';
-  SPIN_CATALOG.forEach((r,i)=>{
-    const angle = segAngle*i + segAngle/2;
-    labelsHtml += `<div class="spin-seg-label" style="transform:rotate(${angle}deg) translateY(-84px);">
-      <span class="emoji">${r.emoji}</span>${escapeHtml(r.label)}
-    </div>`;
-  });
-  wheel.innerHTML = `<div class="spin-wheel-center">SPIN<br>&amp; WIN</div>${labelsHtml}`;
   wheel.style.transition = 'none';
   wheel.style.transform = 'rotate(0deg)';
   wheel.dataset.rotation = '0';
