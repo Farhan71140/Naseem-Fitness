@@ -454,6 +454,121 @@
     .trust-modal{border-radius:20px;animation:trustModalIn .28s ease;}
   }
   @keyframes trustModalIn{from{transform:scale(0.92);opacity:0;}to{transform:scale(1);opacity:1;}}
+
+  /* ===== DAILY LUCKY SPIN & REWARD SYSTEM ===== */
+  .spin-float{
+    display:flex;flex-direction:column;align-items:center;justify-content:center;gap:0;
+    position:fixed;left:20px;bottom:20px;z-index:150;
+    width:64px;height:64px;border-radius:50%;
+    background:conic-gradient(from 0deg, #E8A93A, #FFD24A, #FFF2B5, #FFD24A, #E8A93A);
+    border:2px solid rgba(255,242,181,0.7);color:var(--ink-black);cursor:pointer;
+    box-shadow:0 10px 26px rgba(255,210,74,0.4), 0 0 0 6px rgba(255,210,74,0.1);
+    animation:spinFloatPulse 2.4s ease-in-out infinite, spinFloatSpin 7s linear infinite;
+  }
+  .spin-float-icon{font-size:22px;line-height:1;animation:spinFloatSpin 7s linear infinite reverse;}
+  .spin-float-label{font-family:'Space Mono',monospace;font-size:8.5px;font-weight:800;letter-spacing:1px;margin-top:1px;}
+  @keyframes spinFloatPulse{
+    0%,100%{box-shadow:0 10px 26px rgba(255,210,74,0.4), 0 0 0 6px rgba(255,210,74,0.1);}
+    50%{box-shadow:0 10px 32px rgba(255,210,74,0.6), 0 0 0 10px rgba(255,210,74,0.16);}
+  }
+  @keyframes spinFloatSpin{from{transform:rotate(0deg);}to{transform:rotate(360deg);}}
+  .spin-float:hover{animation-play-state:paused, running;}
+  @media (max-width:480px){
+    .spin-float{left:14px;bottom:14px;width:56px;height:56px;}
+    .spin-float-icon{font-size:19px;}
+    .spin-float-label{font-size:7.5px;}
+  }
+
+  .spin-modal-overlay{
+    display:none;position:fixed;inset:0;z-index:270;
+    background:rgba(6,5,3,0.82);backdrop-filter:blur(5px);
+    align-items:flex-end;justify-content:center;padding:0;
+  }
+  .spin-modal-overlay.active{display:flex;}
+  .spin-modal{
+    position:relative;width:100%;max-width:460px;
+    background:radial-gradient(120% 90% at 50% -10%, rgba(255,210,74,0.14) 0%, transparent 55%), linear-gradient(165deg, var(--steel) 0%, var(--iron) 130%);
+    border:1px solid rgba(255,210,74,0.3);
+    border-radius:24px 24px 0 0;
+    padding:32px 24px 30px;text-align:center;
+    box-shadow:0 -14px 60px rgba(0,0,0,0.6);
+    animation:trustSheetUp .32s cubic-bezier(.2,.8,.3,1);
+    max-height:92vh;overflow-y:auto;
+  }
+  @media (min-width:640px){
+    .spin-modal-overlay{align-items:center;padding:20px;}
+    .spin-modal{border-radius:22px;animation:trustModalIn .28s ease;}
+  }
+  .spin-modal-close{position:absolute;top:16px;right:16px;}
+  .spin-heading{
+    font-family:'Anton',sans-serif;font-weight:400;text-transform:uppercase;
+    font-size:24px;letter-spacing:0.4px;margin:6px 0 6px;
+  }
+  .spin-sub{color:var(--paper-dim);font-size:13.5px;margin-bottom:20px;}
+  .spin-lock-icon{font-size:46px;margin-bottom:6px;}
+  .spin-locked-msg{
+    font-family:'Space Mono',monospace;font-weight:700;letter-spacing:0.5px;
+    color:var(--teal);font-size:15px;margin:14px 0 6px;line-height:1.5;
+  }
+  .spin-locked-sub{color:var(--paper-dim);font-size:13.5px;margin-bottom:22px;}
+  .spin-shop-btn{width:100%;justify-content:center;margin-top:18px;}
+  .spin-go-btn{width:100%;justify-content:center;margin-top:14px;}
+
+  /* wheel */
+  .spin-wheel-wrap{position:relative;width:240px;height:240px;margin:0 auto 6px;}
+  .spin-pointer{
+    position:absolute;top:-6px;left:50%;transform:translateX(-50%);
+    font-size:26px;color:var(--teal);z-index:3;
+    filter:drop-shadow(0 2px 4px rgba(0,0,0,0.6));
+  }
+  .spin-wheel{
+    position:relative;width:240px;height:240px;border-radius:50%;
+    border:6px solid var(--teal);box-shadow:0 0 0 3px var(--ink-black), 0 0 35px rgba(255,210,74,0.45), inset 0 0 20px rgba(0,0,0,0.5);
+    transition:transform 4.2s cubic-bezier(.12,.72,.14,1);
+    overflow:hidden;
+  }
+  .spin-wheel-center{
+    position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);
+    width:64px;height:64px;border-radius:50%;
+    background:radial-gradient(circle, var(--gold-light) 0%, var(--teal) 60%, #E8A93A 100%);
+    color:var(--ink-black);font-family:'Anton',sans-serif;font-size:11px;line-height:1.15;
+    display:flex;align-items:center;justify-content:center;text-align:center;
+    box-shadow:0 0 0 3px var(--ink-black), 0 0 16px rgba(255,210,74,0.6);z-index:2;
+  }
+  .spin-seg-label{
+    position:absolute;top:50%;left:50%;width:74px;margin-left:-37px;
+    transform-origin:50% 0;text-align:center;
+    font-size:10.5px;font-weight:800;line-height:1.2;color:var(--paper);
+  }
+  .spin-seg-label .emoji{display:block;font-size:18px;margin-bottom:2px;}
+
+  .spin-result-burst{font-size:46px;margin-bottom:4px;animation:spinResultPop .5s cubic-bezier(.2,1.4,.4,1);}
+  @keyframes spinResultPop{0%{transform:scale(0.3);opacity:0;}70%{transform:scale(1.15);}100%{transform:scale(1);opacity:1;}}
+  .spin-result-card{
+    background:linear-gradient(150deg, rgba(255,210,74,0.16) 0%, rgba(255,210,74,0.02) 100%);
+    border:1.5px solid rgba(255,210,74,0.4);border-radius:16px;
+    padding:22px 18px;margin:14px 0 16px;
+  }
+  .spin-result-emoji{font-size:40px;margin-bottom:8px;}
+  .spin-result-label{
+    font-family:'Anton',sans-serif;font-size:20px;text-transform:uppercase;color:var(--teal);letter-spacing:0.4px;
+  }
+  .spin-result-note{color:var(--paper-dim);font-size:12.5px;line-height:1.6;}
+  .reward-status-pill{
+    display:inline-flex;align-items:center;gap:6px;font-family:'Space Mono',monospace;
+    font-size:11px;font-weight:700;letter-spacing:0.5px;text-transform:uppercase;
+    padding:5px 12px;border-radius:20px;margin-top:10px;
+  }
+  .reward-status-pill.status-active{background:rgba(76,217,100,0.15);color:#4CD964;border:1px solid rgba(76,217,100,0.4);}
+  .reward-status-pill.status-used{background:rgba(122,169,255,0.15);color:#7AA9FF;border:1px solid rgba(122,169,255,0.4);}
+  .reward-status-pill.status-expired{background:rgba(255,107,107,0.15);color:#FF6B6B;border:1px solid rgba(255,107,107,0.4);}
+  .checkout-reward-banner{
+    display:flex;align-items:center;gap:10px;margin-top:10px;padding:11px 14px;
+    background:linear-gradient(150deg, rgba(255,210,74,0.14) 0%, rgba(255,210,74,0.03) 100%);
+    border:1px solid rgba(255,210,74,0.35);border-radius:10px;
+    font-size:13px;color:var(--paper);animation:trustModalIn .25s ease;
+  }
+  .checkout-reward-banner .emoji{font-size:20px;flex:none;}
   @media (max-width:860px){
     .hero-grid{grid-template-columns:1fr;padding-top:48px;}
     .seal-wrap{order:-1;margin-bottom:8px;}
@@ -1880,6 +1995,7 @@
       <a href="licenses.html">Licenses</a>
       <a href="#visit">Visit Store</a>
       <a href="#" onclick="openTrackOrder();return false;">Track Order</a>
+      <a href="#" onclick="openMyReward();return false;" style="color:var(--teal);">🎁 My Reward</a>
       <a href="complaints.html">Support</a>
     </div>
     <div class="nav-search">
@@ -1930,6 +2046,7 @@
     <a href="licenses.html" onclick="document.getElementById('nav-toggle').checked=false">Licenses</a>
     <a href="#visit" onclick="document.getElementById('nav-toggle').checked=false">Visit Store</a>
     <a href="#" onclick="document.getElementById('nav-toggle').checked=false;openTrackOrder();return false;">📦 Track Order</a>
+    <a href="#" onclick="document.getElementById('nav-toggle').checked=false;openMyReward();return false;" style="color:var(--teal);font-weight:800;">🎁 My Reward</a>
     <a href="complaints.html" onclick="document.getElementById('nav-toggle').checked=false">🎫 Complaints &amp; Support</a>
     <a href="https://maps.app.goo.gl/fY2jFmmJDSi7Fisn6" target="_blank" rel="noopener" style="display:flex;align-items:center;gap:8px;">📍 Shop Location</a>
     <div class="mobile-cta">
@@ -2507,7 +2624,8 @@
       </div>
       <div class="checkout-field">
         <label for="chk-phone">Phone Number</label>
-        <input type="tel" id="chk-phone" placeholder="Your phone number">
+        <input type="tel" id="chk-phone" placeholder="Your phone number" onblur="checkCheckoutReward()">
+        <div id="checkout-reward-banner"></div>
       </div>
       <div class="checkout-field">
         <label for="chk-address">Delivery Address</label>
@@ -2722,6 +2840,86 @@
   </div>
 </div>
 
+<!-- ===== MY REWARD DRAWER ===== -->
+<div class="drawer-overlay" id="my-reward-overlay">
+  <div class="drawer">
+    <div class="drawer-head">
+      <h3>🎁 My Reward</h3>
+      <button class="drawer-close" onclick="closeMyReward()">✕</button>
+    </div>
+    <div class="drawer-body" id="my-reward-body">
+      <p class="track-intro">Enter the mobile number you spun with to check today's reward.</p>
+      <div class="checkout-field">
+        <label for="myreward-phone">Mobile Number</label>
+        <input type="tel" id="myreward-phone" placeholder="10-digit mobile number" maxlength="10" autocomplete="off"
+          onkeydown="if(event.key==='Enter'){checkMyReward();}">
+      </div>
+      <button class="btn btn-primary track-submit-btn" id="myreward-submit-btn" onclick="checkMyReward()">Check Reward</button>
+      <div class="track-loading" id="myreward-loading"><span class="track-spinner"></span> Checking your reward…</div>
+      <div class="track-error" id="myreward-error"></div>
+      <div id="myreward-result"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ===== LUCKY SPIN WHEEL MODAL ===== -->
+<div class="spin-modal-overlay" id="spin-modal-overlay" onclick="if(event.target===this) closeSpinModal();">
+  <div class="spin-modal" id="spin-modal" role="dialog" aria-modal="true" aria-labelledby="spin-modal-title">
+    <button type="button" class="trust-modal-close spin-modal-close" onclick="closeSpinModal()" aria-label="Close">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg>
+    </button>
+
+    <div id="spin-view-locked">
+      <div class="spin-lock-icon">🔒</div>
+      <h3 id="spin-modal-title" class="spin-heading">Daily Lucky Spin</h3>
+      <p class="spin-locked-msg">SHOP ₹1500+ TO UNLOCK YOUR DAILY LUCKY SPIN</p>
+      <p class="spin-locked-sub" id="spin-locked-amount">Add more to your cart to unlock.</p>
+      <button type="button" class="btn btn-primary spin-shop-btn" onclick="closeSpinModal();document.getElementById('categories').scrollIntoView({behavior:'smooth'});">Continue Shopping</button>
+    </div>
+
+    <div id="spin-view-wheel" style="display:none;">
+      <h3 class="spin-heading">🎡 Daily Lucky Spin</h3>
+      <p class="spin-sub">You've unlocked today's Lucky Spin — good luck!</p>
+
+      <div class="spin-wheel-wrap">
+        <div class="spin-pointer">▼</div>
+        <div class="spin-wheel" id="spin-wheel">
+          <div class="spin-wheel-center">SPIN<br>&amp; WIN</div>
+        </div>
+      </div>
+
+      <div class="checkout-field" style="margin-top:10px;">
+        <label for="spin-phone">Enter Mobile Number to Spin</label>
+        <input type="tel" id="spin-phone" placeholder="10-digit mobile number" maxlength="10" autocomplete="off">
+      </div>
+      <button type="button" class="btn btn-primary spin-go-btn" id="spin-go-btn" onclick="beginSpin()">SPIN NOW</button>
+      <div class="track-error" id="spin-error"></div>
+    </div>
+
+    <div id="spin-view-already" style="display:none;">
+      <div class="spin-lock-icon">🎡</div>
+      <h3 class="spin-heading">Come Back Tomorrow!</h3>
+      <p class="spin-locked-msg" style="color:var(--paper);">You have already used today's Lucky Spin.<br>Come back tomorrow for a new reward.</p>
+      <div id="spin-already-reward"></div>
+      <button type="button" class="btn btn-primary spin-shop-btn" onclick="closeSpinModal();">Got It</button>
+    </div>
+
+    <div id="spin-view-result" style="display:none;">
+      <div class="spin-result-burst">🎉</div>
+      <h3 class="spin-heading">Congratulations!</h3>
+      <div class="spin-result-card" id="spin-result-card"></div>
+      <p class="spin-result-note">This reward is linked to your mobile number and is valid today only. It will apply automatically at checkout.</p>
+      <button type="button" class="btn btn-primary spin-shop-btn" onclick="closeSpinModal();">Continue Shopping</button>
+    </div>
+  </div>
+</div>
+
+<!-- Floating Lucky Spin trigger -->
+<button type="button" class="spin-float" id="spin-float-btn" onclick="openSpinModal()" aria-label="Daily Lucky Spin">
+  <span class="spin-float-icon">🎡</span>
+  <span class="spin-float-label">SPIN</span>
+</button>
+
 <a href="https://wa.me/917738242258?text=Hi%20NF%20Naseem%20Fitness" target="_blank" rel="noopener" class="wa-float" id="wa-float-btn" aria-label="Chat on WhatsApp">
   <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12.04 2C6.58 2 2.13 6.45 2.13 11.91c0 1.75.46 3.46 1.32 4.97L2.05 22l5.25-1.38a9.9 9.9 0 0 0 4.74 1.21h.01c5.46 0 9.9-4.45 9.9-9.91C21.96 6.45 17.5 2 12.04 2zm0 18.14h-.01a8.2 8.2 0 0 1-4.19-1.15l-.3-.18-3.12.82.83-3.04-.2-.31a8.2 8.2 0 0 1-1.26-4.37c0-4.54 3.7-8.23 8.25-8.23 2.2 0 4.27.86 5.83 2.42a8.18 8.18 0 0 1 2.41 5.82c0 4.54-3.7 8.23-8.24 8.23zm4.52-6.17c-.25-.12-1.47-.72-1.7-.81-.23-.08-.39-.12-.56.13-.17.24-.64.81-.79.97-.14.17-.29.19-.53.06-.25-.12-1.05-.39-2-1.23-.74-.66-1.24-1.47-1.39-1.72-.14-.24-.02-.38.11-.5.11-.11.25-.29.37-.43.12-.15.16-.25.25-.41.08-.17.04-.31-.02-.44-.06-.12-.56-1.36-.77-1.86-.2-.48-.41-.42-.56-.43-.14-.01-.31-.01-.48-.01-.17 0-.44.06-.67.31-.23.24-.87.85-.87 2.08s.89 2.41 1.02 2.58c.12.17 1.75 2.67 4.24 3.74.59.26 1.05.41 1.41.52.59.19 1.13.16 1.55.1.47-.07 1.47-.6 1.68-1.18.21-.58.21-1.08.14-1.18-.06-.11-.23-.17-.48-.29z"/></svg>
 </a>
@@ -2743,6 +2941,7 @@ const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 let PRODUCTS = [];
 let REVIEWS = [];
 let CART = []; // [{id, name, price, unit, qty}]
+let CHECKOUT_REWARD = null; // today's active Lucky Spin reward for the phone entered at checkout, or null
 
 /* ---------- fast delivery state ---------- */
 let FAST_DELIVERY = { selected:false };
@@ -3766,10 +3965,264 @@ function closeTrustModal(){
 }
 document.addEventListener('keydown', function(e){
   if(e.key === 'Escape'){
-    const overlay = document.getElementById('trust-modal-overlay');
-    if(overlay && overlay.classList.contains('active')) closeTrustModal();
+    const trustOv = document.getElementById('trust-modal-overlay');
+    if(trustOv && trustOv.classList.contains('active')) closeTrustModal();
+    const spinOv = document.getElementById('spin-modal-overlay');
+    if(spinOv && spinOv.classList.contains('active')) closeSpinModal();
   }
 });
+
+// ===== DAILY LUCKY SPIN & REWARD SYSTEM =====
+const SPIN_UNLOCK_THRESHOLD = 1500;
+const DEFAULT_REWARD_CATALOG = [
+  { id:'shaker',   emoji:'🥤', label:'Shaker Bottle',   type:'free_item', value:null },
+  { id:'fishoil',  emoji:'🐟', label:'Fish Oil 1000mg', type:'free_item', value:null },
+  { id:'creatine', emoji:'💪', label:'Creatine',        type:'free_item', value:null },
+  { id:'keychain', emoji:'🔑', label:'Keychain',        type:'free_item', value:null },
+  { id:'off100',   emoji:'💰', label:'₹100 OFF',        type:'discount',  value:100 },
+  { id:'off50',    emoji:'💰', label:'₹50 OFF',         type:'discount',  value:50 },
+  { id:'surprise', emoji:'🎁', label:'Surprise Gift',   type:'free_item', value:null }
+];
+let SPIN_CATALOG = [];
+let SPIN_CATALOG_LOADED = false;
+let SPINNING = false;
+
+function todayDateStr(){
+  return new Date().toLocaleDateString('en-CA'); // YYYY-MM-DD in local (IST) time
+}
+function spinRewardDisplay(reward){
+  return reward.type === 'discount' ? `₹${reward.reward_value ?? reward.value} OFF` : (reward.reward_label || reward.label);
+}
+async function loadSpinCatalog(){
+  if(SPIN_CATALOG_LOADED) return;
+  try{
+    const { data, error } = await sb.from('lucky_rewards_catalog').select('*').eq('enabled', true).order('sort_order', { ascending:true });
+    SPIN_CATALOG = (!error && data && data.length) ? data : DEFAULT_REWARD_CATALOG;
+  }catch(e){
+    SPIN_CATALOG = DEFAULT_REWARD_CATALOG;
+  }
+  SPIN_CATALOG_LOADED = true;
+}
+function renderSpinWheelGraphic(){
+  const wheel = document.getElementById('spin-wheel');
+  if(!wheel || !SPIN_CATALOG.length) return;
+  const n = SPIN_CATALOG.length;
+  const segAngle = 360 / n;
+  const colorA = '#20190D', colorB = '#150F08';
+  let stops = [];
+  for(let i=0;i<n;i++){
+    const start = (i*segAngle).toFixed(2), end = ((i+1)*segAngle).toFixed(2);
+    stops.push(`${i%2===0?colorA:colorB} ${start}deg ${end}deg`);
+  }
+  wheel.style.background = `conic-gradient(${stops.join(',')})`;
+  let labelsHtml = '';
+  SPIN_CATALOG.forEach((r,i)=>{
+    const angle = segAngle*i + segAngle/2;
+    labelsHtml += `<div class="spin-seg-label" style="transform:rotate(${angle}deg) translateY(-84px);">
+      <span class="emoji">${r.emoji}</span>${escapeHtml(r.label)}
+    </div>`;
+  });
+  wheel.innerHTML = `<div class="spin-wheel-center">SPIN<br>&amp; WIN</div>${labelsHtml}`;
+  wheel.style.transition = 'none';
+  wheel.style.transform = 'rotate(0deg)';
+  wheel.dataset.rotation = '0';
+  // force reflow so the next spin's transition re-applies
+  void wheel.offsetWidth;
+  wheel.style.transition = '';
+}
+async function openSpinModal(){
+  await loadSpinCatalog();
+  const overlay = document.getElementById('spin-modal-overlay');
+  const lockedView = document.getElementById('spin-view-locked');
+  const wheelView = document.getElementById('spin-view-wheel');
+  const alreadyView = document.getElementById('spin-view-already');
+  const resultView = document.getElementById('spin-view-result');
+  [lockedView, wheelView, alreadyView, resultView].forEach(v=> v.style.display = 'none');
+  document.getElementById('spin-error').style.display = 'none';
+
+  const subtotal = cartTotal();
+  if(subtotal < SPIN_UNLOCK_THRESHOLD){
+    const remaining = SPIN_UNLOCK_THRESHOLD - subtotal;
+    document.getElementById('spin-locked-amount').textContent = `Add ₹${remaining.toLocaleString('en-IN')} more to unlock Lucky Spin.`;
+    lockedView.style.display = 'block';
+    overlay.classList.add('active');
+    return;
+  }
+  renderSpinWheelGraphic();
+  wheelView.style.display = 'block';
+  overlay.classList.add('active');
+}
+function closeSpinModal(){
+  document.getElementById('spin-modal-overlay').classList.remove('active');
+}
+function spinResultCardHtml(reward){
+  const isDiscount = reward.reward_type === 'discount' || reward.type === 'discount';
+  const label = isDiscount ? `₹${reward.reward_value ?? reward.value} OFF` : (reward.reward_label || reward.label);
+  const emoji = reward.reward_emoji || reward.emoji;
+  return `
+    <div class="spin-result-emoji">${emoji}</div>
+    <div class="spin-result-label">${isDiscount ? label : 'FREE ' + escapeHtml(label)}</div>
+    <span class="reward-status-pill status-active">🟢 Active — Valid Today Only</span>
+  `;
+}
+async function beginSpin(){
+  if(SPINNING) return;
+  const phoneInput = document.getElementById('spin-phone');
+  const phone = phoneInput.value.trim();
+  const errBox = document.getElementById('spin-error');
+  errBox.style.display = 'none';
+  if(!/^\d{10}$/.test(phone)){
+    errBox.textContent = 'Please enter a valid 10-digit mobile number.';
+    errBox.style.display = 'block';
+    return;
+  }
+  const today = todayDateStr();
+  const goBtn = document.getElementById('spin-go-btn');
+  goBtn.disabled = true; goBtn.textContent = 'Checking…';
+
+  // 1 mobile number = 1 spin per day — check first
+  const { data: existing } = await sb.from('lucky_spins').select('*')
+    .eq('mobile_number', phone).eq('spin_date', today).maybeSingle();
+
+  if(existing){
+    goBtn.disabled = false; goBtn.textContent = 'SPIN NOW';
+    document.getElementById('spin-view-wheel').style.display = 'none';
+    document.getElementById('spin-already-reward').innerHTML = spinResultCardHtml(existing);
+    document.getElementById('spin-view-already').style.display = 'block';
+    return;
+  }
+
+  // pick a winning reward with equal probability among today's enabled catalog
+  const winIndex = Math.floor(Math.random() * SPIN_CATALOG.length);
+  const winner = SPIN_CATALOG[winIndex];
+
+  SPINNING = true;
+  const wheel = document.getElementById('spin-wheel');
+  const n = SPIN_CATALOG.length;
+  const segAngle = 360 / n;
+  // land the *pointer* (fixed at top, 0deg) on the middle of the winning segment.
+  // wheel segment i spans [i*segAngle, (i+1)*segAngle) measured clockwise from top.
+  const segCenter = winIndex*segAngle + segAngle/2;
+  const extraSpins = 6; // full rotations for a satisfying spin
+  const targetRotation = extraSpins*360 + (360 - segCenter);
+  wheel.style.transform = `rotate(${targetRotation}deg)`;
+
+  setTimeout(async ()=>{
+    const { data: inserted, error } = await sb.from('lucky_spins').insert({
+      mobile_number: phone,
+      spin_date: today,
+      reward_id: winner.id,
+      reward_emoji: winner.emoji,
+      reward_label: winner.label,
+      reward_type: winner.type,
+      reward_value: winner.value,
+      status: 'active'
+    }).select('*').single();
+
+    SPINNING = false;
+    goBtn.disabled = false; goBtn.textContent = 'SPIN NOW';
+
+    if(error){
+      // most likely a duplicate spin race (unique constraint) — treat as already-used
+      document.getElementById('spin-view-wheel').style.display = 'none';
+      const { data: raced } = await sb.from('lucky_spins').select('*').eq('mobile_number', phone).eq('spin_date', today).maybeSingle();
+      document.getElementById('spin-already-reward').innerHTML = raced ? spinResultCardHtml(raced) : '';
+      document.getElementById('spin-view-already').style.display = 'block';
+      return;
+    }
+
+    document.getElementById('spin-view-wheel').style.display = 'none';
+    document.getElementById('spin-result-card').innerHTML = spinResultCardHtml(inserted);
+    document.getElementById('spin-view-result').style.display = 'block';
+    localStorage.setItem('nf_last_spin_phone', phone);
+  }, 4300);
+}
+
+// ===== MY REWARD =====
+function openMyReward(){
+  const saved = localStorage.getItem('nf_last_spin_phone');
+  if(saved) document.getElementById('myreward-phone').value = saved;
+  document.getElementById('myreward-result').innerHTML = '';
+  document.getElementById('myreward-error').style.display = 'none';
+  document.getElementById('my-reward-overlay').classList.add('active');
+}
+function closeMyReward(){
+  document.getElementById('my-reward-overlay').classList.remove('active');
+}
+async function checkMyReward(){
+  const phone = document.getElementById('myreward-phone').value.trim();
+  const errBox = document.getElementById('myreward-error');
+  const resultBox = document.getElementById('myreward-result');
+  const loading = document.getElementById('myreward-loading');
+  errBox.style.display = 'none';
+  resultBox.innerHTML = '';
+  if(!/^\d{10}$/.test(phone)){
+    errBox.textContent = 'Please enter a valid 10-digit mobile number.';
+    errBox.style.display = 'block';
+    return;
+  }
+  loading.classList.add('active');
+  loading.style.display = 'flex';
+  const today = todayDateStr();
+  const { data } = await sb.from('lucky_spins').select('*').eq('mobile_number', phone).eq('spin_date', today).maybeSingle();
+  loading.style.display = 'none';
+
+  if(!data){
+    const subtotal = cartTotal();
+    if(subtotal >= SPIN_UNLOCK_THRESHOLD){
+      resultBox.innerHTML = `
+        <div class="spin-result-card" style="text-align:center;">
+          <div style="font-size:34px;margin-bottom:6px;">🎡</div>
+          <div class="spin-result-label" style="font-size:16px;">Your Daily Reward is Waiting!</div>
+          <p class="spin-result-note" style="margin-top:8px;">You've unlocked today's Lucky Spin.</p>
+          <button type="button" class="btn btn-primary spin-shop-btn" onclick="closeMyReward();openSpinModal();">SPIN NOW</button>
+        </div>`;
+    } else {
+      const remaining = SPIN_UNLOCK_THRESHOLD - subtotal;
+      resultBox.innerHTML = `
+        <div class="spin-result-card" style="text-align:center;">
+          <div style="font-size:34px;margin-bottom:6px;">🎡</div>
+          <div class="spin-result-label" style="font-size:16px;">Your Daily Reward is Waiting!</div>
+          <p class="spin-result-note" style="margin-top:8px;">Shop ₹1500+ and win today's reward. Add ₹${remaining.toLocaleString('en-IN')} more to unlock.</p>
+        </div>`;
+    }
+    return;
+  }
+
+  const statusLabel = data.status === 'active' ? '🟢 Active' : (data.status === 'used' ? '🔵 Used' : '🔴 Expired');
+  const statusClass = data.status === 'active' ? 'status-active' : (data.status === 'used' ? 'status-used' : 'status-expired');
+  const isDiscount = data.reward_type === 'discount';
+  const rewardLine = isDiscount ? `₹${data.reward_value} OFF` : `FREE ${escapeHtml(data.reward_label)}`;
+  resultBox.innerHTML = `
+    <div class="spin-result-card" style="text-align:center;">
+      <div style="font-size:15px;font-family:'Anton',sans-serif;text-transform:uppercase;color:var(--paper);margin-bottom:8px;">🎉 Congratulations!</div>
+      <div class="spin-result-emoji">${data.reward_emoji}</div>
+      <div class="spin-result-label">${rewardLine}</div>
+      <span class="reward-status-pill ${statusClass}">${statusLabel} — Valid Today Only</span>
+    </div>`;
+}
+
+// Looks up the phone number entered at checkout for today's active Lucky
+// Spin reward and, if found, applies it automatically (discount reflected
+// live in getOrderTotal(); free items are attached at order-submit time).
+async function checkCheckoutReward(){
+  const phone = document.getElementById('chk-phone').value.trim();
+  const banner = document.getElementById('checkout-reward-banner');
+  CHECKOUT_REWARD = null;
+  banner.innerHTML = '';
+  if(!/^\d{10}$/.test(phone)){ updateCheckoutTotals(); return; }
+  const today = todayDateStr();
+  const { data } = await sb.from('lucky_spins').select('*')
+    .eq('mobile_number', phone).eq('spin_date', today).eq('status', 'active').maybeSingle();
+  if(data){
+    CHECKOUT_REWARD = data;
+    const isDiscount = data.reward_type === 'discount';
+    const line = isDiscount ? `₹${data.reward_value} OFF applied to your order!` : `FREE ${escapeHtml(data.reward_label)} will be added to your order!`;
+    banner.innerHTML = `<span class="checkout-reward-banner"><span class="emoji">${data.reward_emoji}</span><span>🎁 Lucky Spin Reward: <strong>${line}</strong></span></span>`;
+  }
+  updateCheckoutTotals();
+  if(typeof updatePaymentSummary === 'function') updatePaymentSummary();
+}
 function triggerPhotoCapture(){
   document.getElementById('photo-search-camera-input').click();
 }
@@ -3966,7 +4419,9 @@ function getEffectiveDeliveryFee(subtotal){
   return getDeliveryFee(subtotal);
 }
 function getOrderTotal(subtotal){
-  return subtotal + getEffectiveDeliveryFee(subtotal);
+  const discount = (CHECKOUT_REWARD && CHECKOUT_REWARD.reward_type === 'discount') ? Number(CHECKOUT_REWARD.reward_value) : 0;
+  const discountedSubtotal = Math.max(0, subtotal - discount);
+  return discountedSubtotal + getEffectiveDeliveryFee(subtotal);
 }
 
 /* ---------- delivery options UI ---------- */
@@ -4695,6 +5150,11 @@ async function submitOrder(){
   if(btn){ btn.disabled = true; btn.textContent = 'Placing order…'; }
 
   const items = CART.map(l=>({ name:l.name, price:l.price, qty:l.qty }));
+  // Lucky Spin free-item reward (if any) rides along as a ₹0 line item —
+  // it never affects amount/payment totals, only what's shown/fulfilled.
+  if(CHECKOUT_REWARD && CHECKOUT_REWARD.reward_type === 'free_item' && CHECKOUT_REWARD.mobile_number === phone){
+    items.push({ name: `🎁 FREE ${CHECKOUT_REWARD.reward_label} (Lucky Spin Reward)`, price: 0, qty: 1 });
+  }
   const subtotal = cartTotal();
   const usingFastDelivery = FAST_DELIVERY.selected;
   const deliveryFee = getEffectiveDeliveryFee(subtotal);
@@ -4744,6 +5204,13 @@ async function submitOrder(){
   }
 
   if(window.fbq) fbq('track', 'Purchase', { value: amount, currency: 'INR' });
+  const orderRef = insertedOrder && insertedOrder.id ? 'NF-' + insertedOrder.id.slice(0, 8).toUpperCase() : '';
+  // Mark today's Lucky Spin reward as used against this order, if one was applied.
+  const appliedReward = (CHECKOUT_REWARD && CHECKOUT_REWARD.mobile_number === phone) ? CHECKOUT_REWARD : null;
+  if(appliedReward){
+    sb.from('lucky_spins').update({ status:'used', order_number: orderRef }).eq('id', appliedReward.id).then(()=>{});
+    CHECKOUT_REWARD = null;
+  }
   CART = [];
   renderCart();
   resetFastDeliveryUI();
@@ -4753,13 +5220,13 @@ async function submitOrder(){
   }else if(paymentMethod === 'upi'){
     paymentNote = `<p style="margin-top:10px;">We're verifying your UPI payment of <strong>₹${amount.toLocaleString('en-IN')}</strong> (Ref: ${escapeHtml(window.upiTxnRef || '')}). You'll get a confirmation shortly — message us on WhatsApp with a screenshot to speed it up.</p>`;
   }
-  const orderRef = insertedOrder && insertedOrder.id ? 'NF-' + insertedOrder.id.slice(0, 8).toUpperCase() : '';
   document.getElementById('checkout-body').innerHTML = `
     <div class="checkout-success">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><path d="M22 4L12 14.01l-3-3"/></svg>
       <h4>Order placed!</h4>
       ${orderRef ? `<p style="margin-top:6px;"><span style="font-family:'Space Mono',monospace;color:var(--teal);">Order ID: ${orderRef}</span></p>` : ''}
       <p>Thanks, ${escapeHtml(name)} — we've received your order and will confirm it shortly. You can also message us on WhatsApp to speed things up.</p>
+      ${appliedReward ? `<p style="margin-top:10px;">🎁 Your Lucky Spin reward — <strong>${appliedReward.reward_type==='discount' ? '₹'+appliedReward.reward_value+' OFF' : 'FREE '+escapeHtml(appliedReward.reward_label)}</strong> — has been applied to this order.</p>` : ''}
       ${paymentNote}
     </div>`;
   document.querySelector('#checkout-overlay .drawer-foot').style.display = 'none';
