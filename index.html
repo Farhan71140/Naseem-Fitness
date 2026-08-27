@@ -4028,6 +4028,35 @@ function catalogMatchesWheelArt(){
   return SPIN_CATALOG.length === FIXED_WHEEL_ORDER.length
     && SPIN_CATALOG.every((r,i) => r.id === FIXED_WHEEL_ORDER[i]);
 }
+
+// Win probability per reward id, out of 100. These do NOT need to match the
+// visual size of each wedge on the wheel art — they only control the odds.
+// Any reward id not listed here (e.g. a brand-new reward added later in
+// Supabase) falls back to a small default weight of 1 so the spin never
+// breaks, it just won't hit the intended odds until added here.
+const REWARD_WEIGHTS = {
+  keychain: 50,
+  off50:    20,
+  off100:   20,
+  creatine: 4,
+  fishoil:  2,
+  surprise: 2,
+  shaker:   2
+};
+// Weighted pick across today's live SPIN_CATALOG (respects REWARD_WEIGHTS
+// above) — returns an index into SPIN_CATALOG, same contract the old
+// equal-probability `Math.floor(Math.random() * SPIN_CATALOG.length)` had,
+// so the wheel-landing animation code below needs no changes.
+function pickWeightedWinnerIndex(){
+  const weights = SPIN_CATALOG.map(r => REWARD_WEIGHTS[r.id] ?? 1);
+  const total = weights.reduce((a,b)=>a+b, 0);
+  let roll = Math.random() * total;
+  for(let i=0; i<weights.length; i++){
+    roll -= weights[i];
+    if(roll <= 0) return i;
+  }
+  return weights.length - 1; // floating-point rounding safety net
+}
 let SPIN_CATALOG = [];
 let SPIN_CATALOG_LOADED = false;
 let SPINNING = false;
@@ -4174,8 +4203,8 @@ async function beginSpin(){
     return;
   }
 
-  // pick a winning reward with equal probability among today's enabled catalog
-  const winIndex = Math.floor(Math.random() * SPIN_CATALOG.length);
+  // pick a winning reward using the weighted odds defined in REWARD_WEIGHTS
+  const winIndex = pickWeightedWinnerIndex();
   const winner = SPIN_CATALOG[winIndex];
 
   SPINNING = true;
