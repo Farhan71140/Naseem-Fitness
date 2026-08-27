@@ -4298,6 +4298,22 @@ function scheduleCheckoutRewardCheck(){
   if(!/^\d{10}$/.test(phone)) return;
   checkoutRewardDebounce = setTimeout(checkCheckoutReward, 400);
 }
+// A reward earned by spinning only counts while the cart still meets the
+// ₹1500 unlock threshold. If items are removed after the reward was
+// applied — dropping the cart below ₹1500 — the reward must be dropped
+// too, both from the banner shown to the customer and from what actually
+// gets attached to the order.
+function revalidateCheckoutReward(){
+  if(!CHECKOUT_REWARD) return;
+  const banner = document.getElementById('checkout-reward-banner');
+  if(cartTotal() < SPIN_UNLOCK_THRESHOLD){
+    CHECKOUT_REWARD = null;
+    if(banner){
+      const remaining = SPIN_UNLOCK_THRESHOLD - cartTotal();
+      banner.innerHTML = `<span class="checkout-reward-banner" style="border-color:rgba(255,107,107,0.4);"><span class="emoji">⚠️</span><span>Your Lucky Spin reward was removed — cart dropped below ₹1500. Add <strong>₹${remaining.toLocaleString('en-IN')}</strong> more to reclaim it.</span></span>`;
+    }
+  }
+}
 // Looks up the phone number entered at checkout for today's active Lucky
 // Spin reward and, if found, applies it automatically (discount reflected
 // live in getOrderTotal(); free items are attached at order-submit time).
@@ -4310,11 +4326,17 @@ async function checkCheckoutReward(){
   const today = todayDateStr();
   const { data } = await sb.from('lucky_spins').select('*')
     .eq('mobile_number', phone).eq('spin_date', today).eq('status', 'active').maybeSingle();
-  if(data){
+  // Only apply the reward if the current cart still meets the ₹1500
+  // unlock threshold — a reward earned earlier doesn't carry over to a
+  // cart that's since dropped below it.
+  if(data && cartTotal() >= SPIN_UNLOCK_THRESHOLD){
     CHECKOUT_REWARD = data;
     const isDiscount = data.reward_type === 'discount';
     const line = isDiscount ? `₹${data.reward_value} OFF applied to your order!` : `FREE ${escapeHtml(data.reward_label)} will be added to your order!`;
     banner.innerHTML = `<span class="checkout-reward-banner"><span class="emoji">${data.reward_emoji}</span><span>🎁 Lucky Spin Reward: <strong>${line}</strong></span></span>`;
+  } else if(data){
+    const remaining = SPIN_UNLOCK_THRESHOLD - cartTotal();
+    banner.innerHTML = `<span class="checkout-reward-banner" style="border-color:rgba(255,107,107,0.4);"><span class="emoji">⚠️</span><span>You have a Lucky Spin reward waiting, but your cart is below ₹1500. Add <strong>₹${remaining.toLocaleString('en-IN')}</strong> more to unlock it.</span></span>`;
   }
   updateCheckoutTotals();
   if(typeof updatePaymentSummary === 'function') updatePaymentSummary();
@@ -4580,6 +4602,7 @@ function cartWeightKg(){
   }, 0);
 }
 function updateCheckoutTotals(){
+  revalidateCheckoutReward();
   const subtotal = cartTotal();
   const deliveryFee = getEffectiveDeliveryFee(subtotal);
   const subEl = document.getElementById('checkout-subtotal');
@@ -4608,6 +4631,7 @@ function renderDeliveryBanner(el, subtotal){
 }
 function renderCart(){
   saveCartToStorage();
+  revalidateCheckoutReward();
   const count = CART.reduce((s,l)=>s+l.qty,0);
   document.getElementById('cart-count-desktop').style.display = count>0 ? 'flex' : 'none';
   document.getElementById('cart-count-desktop').textContent = count;
@@ -5256,7 +5280,10 @@ async function submitOrder(){
     const today = todayDateStr();
     const { data: verifiedReward } = await sb.from('lucky_spins').select('*')
       .eq('mobile_number', phone).eq('spin_date', today).eq('status', 'active').maybeSingle();
-    CHECKOUT_REWARD = verifiedReward || null;
+    // A reward only rides along on the order if the cart, right now, still
+    // meets the ₹1500 unlock threshold — even if the reward is otherwise
+    // still valid in the database.
+    CHECKOUT_REWARD = (verifiedReward && cartTotal() >= SPIN_UNLOCK_THRESHOLD) ? verifiedReward : null;
   } else {
     CHECKOUT_REWARD = null;
   }
