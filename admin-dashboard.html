@@ -3649,142 +3649,156 @@ async function downloadBillPdf(){
   const contentW = pageW - margin*2;
   const centerX = pageW/2;
 
-  // Build on an oversized canvas first; we trim the page to the exact
-  // content height at the very end, so nothing is ever cut off vertically
-  // and every line is wrapped/measured, so nothing is ever cut off horizontally.
-  const doc = new jsPDF({ unit:'mm', format:[pageW, 500] });
-  let y = margin;
+  // Draws the full receipt onto the given doc, starting at y = margin, and
+  // returns the final y position reached.
+  //
+  // This is called TWICE: once on a throwaway oversized page purely to
+  // measure how tall the content is, then again on the real page — created
+  // at exactly that height from the start. jsPDF has no reliable way to
+  // shrink a page to fit its content *after* drawing on it: an earlier
+  // version of this function drew everything first, then tried resizing
+  // via doc.internal.pageSize.setHeight(...) to trim the leftover blank
+  // space — but that mutation silently wipes every element already drawn,
+  // producing a completely blank PDF. Sizing the page correctly up front
+  // avoids the whole problem.
+  function renderBillContent(doc){
+    let y = margin;
+    const setF = (style, size) => { doc.setFont('helvetica', style); doc.setFontSize(size); };
 
-  const setF = (style, size) => { doc.setFont('helvetica', style); doc.setFontSize(size); };
+    const hr = (bold) => {
+      y += 1.2;
+      doc.setLineWidth(bold ? 0.5 : 0.2);
+      if(!bold) doc.setLineDashPattern([0.8,0.8], 0);
+      doc.line(margin, y, pageW-margin, y);
+      doc.setLineDashPattern([], 0);
+      y += bold ? 3 : 3.4;
+    };
 
-  const hr = (bold) => {
-    y += 1.2;
-    doc.setLineWidth(bold ? 0.5 : 0.2);
-    if(!bold) doc.setLineDashPattern([0.8,0.8], 0);
-    doc.line(margin, y, pageW-margin, y);
-    doc.setLineDashPattern([], 0);
-    y += bold ? 3 : 3.4;
-  };
+    // Centered text, word-wrapped to fit inside the margins — long strings
+    // (like the AI-support line) now wrap onto a second line instead of
+    // running off the edge of the page.
+    const centerWrap = (text, size, style='normal', extraGap=1.4) => {
+      setF(style, size);
+      const lines = doc.splitTextToSize(String(text), contentW);
+      const lh = size * 0.42;
+      lines.forEach(l => { doc.text(l, centerX, y, { align:'center' }); y += lh; });
+      y += extraGap;
+    };
 
-  // Centered text, word-wrapped to fit inside the margins — long strings
-  // (like the AI-support line) now wrap onto a second line instead of
-  // running off the edge of the page.
-  const centerWrap = (text, size, style='normal', extraGap=1.4) => {
-    setF(style, size);
-    const lines = doc.splitTextToSize(String(text), contentW);
-    const lh = size * 0.42;
-    lines.forEach(l => { doc.text(l, centerX, y, { align:'center' }); y += lh; });
-    y += extraGap;
-  };
+    // Left-aligned block of wrapped lines
+    const leftWrap = (text, size, style='normal') => {
+      setF(style, size);
+      const lines = doc.splitTextToSize(String(text), contentW);
+      const lh = size * 0.42;
+      lines.forEach(l => { doc.text(l, margin, y); y += lh; });
+    };
 
-  // Left-aligned block of wrapped lines
-  const leftWrap = (text, size, style='normal') => {
-    setF(style, size);
-    const lines = doc.splitTextToSize(String(text), contentW);
-    const lh = size * 0.42;
-    lines.forEach(l => { doc.text(l, margin, y); y += lh; });
-  };
+    // Label/value row — if both together are too wide for the page, the
+    // label wraps onto its own line(s) and the value drops to the next
+    // line, so figures never overlap or run off the receipt.
+    const row = (label, val, bold=false) => {
+      const size = 9;
+      setF(bold ? 'bold' : 'normal', size);
+      label = String(label); val = String(val);
+      const labelW = doc.getTextWidth(label);
+      const valW = doc.getTextWidth(val);
+      if(labelW + valW + 4 <= contentW){
+        doc.text(label, margin, y);
+        doc.text(val, pageW-margin, y, { align:'right' });
+        y += 5.2;
+      } else {
+        doc.splitTextToSize(label, contentW).forEach(l => { doc.text(l, margin, y); y += 4.6; });
+        doc.text(val, pageW-margin, y, { align:'right' });
+        y += 5.2;
+      }
+    };
 
-  // Label/value row — if both together are too wide for the page, the
-  // label wraps onto its own line(s) and the value drops to the next
-  // line, so figures never overlap or run off the receipt.
-  const row = (label, val, bold=false) => {
-    const size = 9;
-    setF(bold ? 'bold' : 'normal', size);
-    label = String(label); val = String(val);
-    const labelW = doc.getTextWidth(label);
-    const valW = doc.getTextWidth(val);
-    if(labelW + valW + 4 <= contentW){
-      doc.text(label, margin, y);
-      doc.text(val, pageW-margin, y, { align:'right' });
-      y += 5.2;
-    } else {
-      doc.splitTextToSize(label, contentW).forEach(l => { doc.text(l, margin, y); y += 4.6; });
-      doc.text(val, pageW-margin, y, { align:'right' });
-      y += 5.2;
-    }
-  };
+    const sectionLabel = (text) => {
+      setF('bold', 9);
+      doc.text(text.toUpperCase(), margin, y);
+      y += 5;
+    };
 
-  const sectionLabel = (text) => {
-    setF('bold', 9);
-    doc.text(text.toUpperCase(), margin, y);
-    y += 5;
-  };
+    // ---------- HEADER ----------
+    centerWrap('NF NASEEM FITNESS', 15, 'bold', 1.2);
+    centerWrap('All Rights Reserved.', 8.5, 'normal', 1.6);
+    BILL_BUSINESS.addrLines.forEach((l, idx) => {
+      centerWrap(stripEmoji(l), 8, 'normal', idx === BILL_BUSINESS.addrLines.length-1 ? 1.8 : 0.2);
+    });
+    centerWrap(`Ph: ${stripEmoji(BILL_BUSINESS.phone)}`, 8, 'normal', 0.6);
+    centerWrap(`Website: ${stripEmoji(BILL_BUSINESS.website)}`, 8, 'bold', 0.6);
+    centerWrap(stripEmoji(BILL_BUSINESS.aiSupport), 7.5, 'italic', 1.6);
+    centerWrap('RECEIPT', 12, 'bold', 0);
+    hr(true);
 
-  // ---------- HEADER ----------
-  centerWrap('NF NASEEM FITNESS', 15, 'bold', 1.2);
-  centerWrap('All Rights Reserved.', 8.5, 'normal', 1.6);
-  BILL_BUSINESS.addrLines.forEach((l, idx) => {
-    centerWrap(stripEmoji(l), 8, 'normal', idx === BILL_BUSINESS.addrLines.length-1 ? 1.8 : 0.2);
-  });
-  centerWrap(`Ph: ${stripEmoji(BILL_BUSINESS.phone)}`, 8, 'normal', 0.6);
-  centerWrap(`Website: ${stripEmoji(BILL_BUSINESS.website)}`, 8, 'bold', 0.6);
-  centerWrap(stripEmoji(BILL_BUSINESS.aiSupport), 7.5, 'italic', 1.6);
-  centerWrap('RECEIPT', 12, 'bold', 0);
-  hr(true);
+    // ---------- ORDER META ----------
+    row(`Order #${o.id.slice(0,8).toUpperCase()}`, formatBillDate(o.created_at), true);
+    hr(false);
 
-  // ---------- ORDER META ----------
-  row(`Order #${o.id.slice(0,8).toUpperCase()}`, formatBillDate(o.created_at), true);
-  hr(false);
-
-  // ---------- DELIVERY DETAILS ----------
-  sectionLabel('Delivery Details');
-  leftWrap(o.customer_name, 9, 'bold');
-  y += 4.6;
-  leftWrap(`Ph: ${o.phone||'—'}`, 9, 'normal');
-  y += 4.6;
-  if(o.address){ leftWrap(o.address, 8.5, 'normal'); }
-  leftWrap(billFulfilmentLabel(o), 9, 'normal');
-  y += 4.6 + 1.4;
-  hr(false);
-
-  // ---------- PRODUCT DETAILS ----------
-  sectionLabel('Product Details');
-  b.itemsArr.forEach(i => {
-    leftWrap(i.name, 9, 'bold');
+    // ---------- DELIVERY DETAILS ----------
+    sectionLabel('Delivery Details');
+    leftWrap(o.customer_name, 9, 'bold');
     y += 4.6;
-    leftWrap(`Quantity: ${i.qty} x Rs. ${billMoney(i.price)}`, 8.5, 'normal');
-    y += 4.6 + 1;
-  });
-  hr(false);
+    leftWrap(`Ph: ${o.phone||'—'}`, 9, 'normal');
+    y += 4.6;
+    if(o.address){ leftWrap(o.address, 8.5, 'normal'); }
+    leftWrap(billFulfilmentLabel(o), 9, 'normal');
+    y += 4.6 + 1.4;
+    hr(false);
 
-  // ---------- PAYMENT SUMMARY ----------
-  sectionLabel('Payment Summary');
-  row('Subtotal', 'Rs. ' + billMoney(b.subtotal));
-  if(b.discount > 0) row('Discount', '-Rs. ' + billMoney(b.discount));
-  if(b.tax > 0) row('Tax', 'Rs. ' + billMoney(b.tax));
-  y += 1;
-  doc.setDrawColor(0); doc.setLineWidth(0.3);
-  doc.rect(margin, y-4, contentW, 7);
-  row('TOTAL', 'Rs. ' + billMoney(b.total), true);
-  y += 1.5;
-  if(isCod){
-    row('Advance Paid', 'Rs. ' + billMoney(b.advance));
+    // ---------- PRODUCT DETAILS ----------
+    sectionLabel('Product Details');
+    b.itemsArr.forEach(i => {
+      leftWrap(i.name, 9, 'bold');
+      y += 4.6;
+      leftWrap(`Quantity: ${i.qty} x Rs. ${billMoney(i.price)}`, 8.5, 'normal');
+      y += 4.6 + 1;
+    });
+    hr(false);
+
+    // ---------- PAYMENT SUMMARY ----------
+    sectionLabel('Payment Summary');
+    row('Subtotal', 'Rs. ' + billMoney(b.subtotal));
+    if(b.discount > 0) row('Discount', '-Rs. ' + billMoney(b.discount));
+    if(b.tax > 0) row('Tax', 'Rs. ' + billMoney(b.tax));
+    y += 1;
+    doc.setDrawColor(0); doc.setLineWidth(0.3);
     doc.rect(margin, y-4, contentW, 7);
-    row('BALANCE DUE (Cash)', 'Rs. ' + billMoney(b.balance), true);
+    row('TOTAL', 'Rs. ' + billMoney(b.total), true);
     y += 1.5;
+    if(isCod){
+      row('Advance Paid', 'Rs. ' + billMoney(b.advance));
+      doc.rect(margin, y-4, contentW, 7);
+      row('BALANCE DUE (Cash)', 'Rs. ' + billMoney(b.balance), true);
+      y += 1.5;
+    }
+    hr(false);
+
+    // ---------- PAYMENT METHOD ----------
+    sectionLabel('Payment Method');
+    leftWrap(billPaymentLabel(o), 9, 'normal');
+    y += 4.6 + 1.4;
+    hr(true);
+
+    // ---------- FOOTER ----------
+    centerWrap('Thank You! Visit Again.', 9, 'bold', 1.4);
+    centerWrap('NF NASEEM FITNESS', 9, 'bold', 1.2);
+    centerWrap('Premium Nutrition - Trusted Quality', 7.5, 'normal', 0.4);
+    centerWrap('Your Trust - Our Commitment', 7.5, 'normal', 0);
+
+    return y;
   }
-  hr(false);
 
-  // ---------- PAYMENT METHOD ----------
-  sectionLabel('Payment Method');
-  leftWrap(billPaymentLabel(o), 9, 'normal');
-  y += 4.6 + 1.4;
-  hr(true);
+  // Pass 1 — measure only, on a throwaway tall page. Nothing from this
+  // document is ever saved or shown; it exists purely to find out how
+  // tall the real receipt needs to be.
+  const measureDoc = new jsPDF({ unit:'mm', format:[pageW, 2000] });
+  const measuredY = renderBillContent(measureDoc);
+  const finalH = Math.max(measuredY + margin, 100); // sane floor so a near-empty bill never becomes wider than it is tall
 
-  // ---------- FOOTER ----------
-  centerWrap('Thank You! Visit Again.', 9, 'bold', 1.4);
-  centerWrap('NF NASEEM FITNESS', 9, 'bold', 1.2);
-  centerWrap('Premium Nutrition - Trusted Quality', 7.5, 'normal', 0.4);
-  centerWrap('Your Trust - Our Commitment', 7.5, 'normal', 0);
-
-  // Trim the oversized page down to exactly the content height so the
-  // final PDF has no wasted blank space and nothing is ever clipped.
-  const finalH = y + margin;
-  doc.internal.pageSize.height = finalH;
-  if(typeof doc.internal.pageSize.setHeight === 'function'){
-    doc.internal.pageSize.setHeight(finalH);
-  }
+  // Pass 2 — draw for real, on a page that's already the correct height.
+  const doc = new jsPDF({ unit:'mm', format:[pageW, finalH] });
+  renderBillContent(doc);
 
   doc.save(`NF-Bill-${o.id.slice(0,8)}.pdf`);
 }
