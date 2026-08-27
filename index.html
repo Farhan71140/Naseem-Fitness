@@ -521,7 +521,7 @@
   /* wheel */
   .spin-wheel-wrap{position:relative;width:240px;height:240px;margin:34px auto 6px;}
   .spin-pointer-img{
-    position:absolute;top:-21px;left:50%;transform:translateX(-50%);
+    position:absolute;top:-10px;left:50%;transform:translateX(-50%);
     width:48px;height:auto;z-index:3;
     filter:drop-shadow(0 3px 6px rgba(0,0,0,0.6));
   }
@@ -2902,11 +2902,22 @@
         </div>
       </div>
 
-      <div class="checkout-field" style="margin-top:10px;">
+      <div class="checkout-field" style="margin-top:10px;" id="spin-phone-field">
         <label for="spin-phone">Enter Mobile Number to Spin</label>
         <input type="tel" id="spin-phone" placeholder="10-digit mobile number" maxlength="10" autocomplete="off">
       </div>
-      <button type="button" class="btn btn-primary spin-go-btn" id="spin-go-btn" onclick="beginSpin()">SPIN NOW</button>
+      <button type="button" class="btn btn-primary spin-go-btn" id="spin-send-otp-btn" onclick="sendSpinOtp()">SEND OTP</button>
+
+      <div class="checkout-field" style="margin-top:14px;display:none;" id="spin-otp-field">
+        <label for="spin-otp">Enter the 6-digit OTP sent to <span id="spin-otp-phone-display" class="mono"></span> &nbsp;<a href="#" onclick="event.preventDefault();resetSpinPhone();" style="color:var(--teal);font-weight:600;">Change</a></label>
+        <input type="tel" id="spin-otp" placeholder="6-digit OTP" maxlength="6" autocomplete="off" inputmode="numeric">
+      </div>
+      <div id="spin-otp-actions" style="display:none;">
+        <button type="button" class="btn btn-primary spin-go-btn" id="spin-verify-btn" onclick="verifySpinOtp()">VERIFY &amp; SPIN</button>
+        <p class="spin-sub" style="margin-top:10px;margin-bottom:0;text-align:center;">
+          Didn't get it? <a href="#" id="spin-resend-link" onclick="event.preventDefault();sendSpinOtp(true);" style="color:var(--teal);font-weight:600;">Resend OTP</a>
+        </p>
+      </div>
       <div class="track-error" id="spin-error"></div>
     </div>
 
@@ -4127,6 +4138,7 @@ async function openSpinModal(){
   const resultView = document.getElementById('spin-view-result');
   [lockedView, wheelView, alreadyView, resultView].forEach(v=> v.style.display = 'none');
   document.getElementById('spin-error').style.display = 'none';
+  resetSpinPhone(); // always start each visit at "enter phone number", never a stale OTP state
 
   const subtotal = cartTotal();
   if(subtotal < SPIN_UNLOCK_THRESHOLD){
@@ -4176,8 +4188,37 @@ function spinResultCardHtml(reward){
     <span class="reward-status-pill status-active">🟢 Active — Valid Today Only</span>
   `;
 }
-async function beginSpin(){
-  if(SPINNING) return;
+// ===== OTP-gated spin =====
+// Why this exists: the old flow let anyone type ANY 10 digits and spin
+// immediately — no proof they actually own that number. That let one
+// person farm unlimited rewards under fake/other people's numbers just by
+// typing random digits repeatedly. Now: (1) an OTP is texted to the number
+// via /api/send-otp, (2) the code is checked server-side via
+// /api/verify-otp (never in the browser — a client-side check can always
+// be bypassed from devtools), and only then (3) /api/complete-spin — which
+// re-checks the verification token, picks the reward, and writes to
+// Supabase using a service-role key — is allowed to run. The browser never
+// gets to call the Supabase insert directly for lucky_spins any more.
+let spinOtpSentTo = null;   // phone the last OTP was sent to
+let spinVerifyToken = null; // short-lived token proving OTP was verified for spinOtpSentTo
+let spinResendCooldown = 0;
+let spinResendTimer = null;
+
+function resetSpinPhone(){
+  spinOtpSentTo = null;
+  spinVerifyToken = null;
+  clearInterval(spinResendTimer);
+  document.getElementById('spin-phone-field').style.display = 'block';
+  document.getElementById('spin-send-otp-btn').style.display = 'block';
+  document.getElementById('spin-otp-field').style.display = 'none';
+  document.getElementById('spin-otp-actions').style.display = 'none';
+  document.getElementById('spin-otp').value = '';
+  document.getElementById('spin-error').style.display = 'none';
+  const sendBtn = document.getElementById('spin-send-otp-btn');
+  sendBtn.disabled = false; sendBtn.textContent = 'SEND OTP';
+}
+
+async function sendSpinOtp(isResend){
   const phoneInput = document.getElementById('spin-phone');
   const phone = phoneInput.value.trim();
   const errBox = document.getElementById('spin-error');
@@ -4187,63 +4228,178 @@ async function beginSpin(){
     errBox.style.display = 'block';
     return;
   }
-  const today = todayDateStr();
-  const goBtn = document.getElementById('spin-go-btn');
-  goBtn.disabled = true; goBtn.textContent = 'Checking…';
+  if(isResend && spinResendCooldown > 0) return;
 
-  // 1 mobile number = 1 spin per day — check first
-  const { data: existing } = await sb.from('lucky_spins').select('*')
-    .eq('mobile_number', phone).eq('spin_date', today).maybeSingle();
+  const sendBtn = document.getElementById('spin-send-otp-btn');
+  const resendLink = document.getElementById('spin-resend-link');
+  if(isResend){ resendLink.textContent = 'Sending…'; } else { sendBtn.disabled = true; sendBtn.textContent = 'Sending OTP…'; }
 
-  if(existing){
-    goBtn.disabled = false; goBtn.textContent = 'SPIN NOW';
+  let resp, body;
+  try{
+    resp = await fetch('/api/send-otp', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ phone })
+    });
+    body = await resp.json();
+  }catch(e){
+    sendBtn.disabled = false; sendBtn.textContent = 'SEND OTP';
+    if(isResend) resendLink.textContent = 'Resend OTP';
+    errBox.textContent = 'Could not send OTP right now. Check your connection and try again.';
+    errBox.style.display = 'block';
+    return;
+  }
+
+  sendBtn.disabled = false; sendBtn.textContent = 'SEND OTP';
+  if(isResend) resendLink.textContent = 'Resend OTP';
+
+  if(!resp.ok){
+    errBox.textContent = body.error || 'Could not send OTP. Please try again.';
+    errBox.style.display = 'block';
+    return;
+  }
+
+  // Server already knows this number spun today — no point sending an OTP,
+  // just show the same "already spun" view immediately.
+  if(body.alreadySpun){
     document.getElementById('spin-view-wheel').style.display = 'none';
-    renderAlreadySpunView(existing);
+    renderAlreadySpunView(body.record);
     document.getElementById('spin-view-already').style.display = 'block';
     return;
   }
 
-  // pick a winning reward using the weighted odds defined in REWARD_WEIGHTS
-  const winIndex = pickWeightedWinnerIndex();
-  const winner = SPIN_CATALOG[winIndex];
+  spinOtpSentTo = phone;
+  spinVerifyToken = null;
+  document.getElementById('spin-phone-field').style.display = 'none';
+  document.getElementById('spin-send-otp-btn').style.display = 'none';
+  document.getElementById('spin-otp-field').style.display = 'block';
+  document.getElementById('spin-otp-actions').style.display = 'block';
+  document.getElementById('spin-otp-phone-display').textContent = phone;
+  document.getElementById('spin-otp').value = '';
+  document.getElementById('spin-otp').focus();
 
+  // 30s resend cooldown so the same button can't be spammed for free SMS
+  spinResendCooldown = 30;
+  clearInterval(spinResendTimer);
+  const link = document.getElementById('spin-resend-link');
+  link.style.pointerEvents = 'none'; link.style.opacity = '0.5';
+  link.textContent = `Resend OTP (${spinResendCooldown}s)`;
+  spinResendTimer = setInterval(()=>{
+    spinResendCooldown--;
+    if(spinResendCooldown <= 0){
+      clearInterval(spinResendTimer);
+      link.style.pointerEvents = ''; link.style.opacity = '';
+      link.textContent = 'Resend OTP';
+    } else {
+      link.textContent = `Resend OTP (${spinResendCooldown}s)`;
+    }
+  }, 1000);
+}
+
+async function verifySpinOtp(){
+  if(SPINNING) return;
+  const errBox = document.getElementById('spin-error');
+  errBox.style.display = 'none';
+  const otp = document.getElementById('spin-otp').value.trim();
+  if(!spinOtpSentTo){
+    errBox.textContent = 'Please request an OTP first.';
+    errBox.style.display = 'block';
+    return;
+  }
+  if(!/^\d{6}$/.test(otp)){
+    errBox.textContent = 'Please enter the 6-digit OTP.';
+    errBox.style.display = 'block';
+    return;
+  }
+
+  const verifyBtn = document.getElementById('spin-verify-btn');
+  verifyBtn.disabled = true; verifyBtn.textContent = 'Verifying…';
+
+  let resp, body;
+  try{
+    resp = await fetch('/api/verify-otp', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ phone: spinOtpSentTo, otp })
+    });
+    body = await resp.json();
+  }catch(e){
+    verifyBtn.disabled = false; verifyBtn.textContent = 'VERIFY & SPIN';
+    errBox.textContent = 'Could not verify OTP right now. Please try again.';
+    errBox.style.display = 'block';
+    return;
+  }
+
+  if(!resp.ok || !body.token){
+    verifyBtn.disabled = false; verifyBtn.textContent = 'VERIFY & SPIN';
+    errBox.textContent = body.error || 'Incorrect or expired OTP. Please try again.';
+    errBox.style.display = 'block';
+    return;
+  }
+
+  spinVerifyToken = body.token;
+  await runSpinAndComplete(spinOtpSentTo, spinVerifyToken);
+}
+
+async function runSpinAndComplete(phone, token){
+  if(SPINNING) return;
   SPINNING = true;
-  const wheel = document.getElementById('spin-wheel');
-  const n = SPIN_CATALOG.length;
-  const segAngle = 360 / n;
-  // land the *pointer* (fixed at top, 0deg) on the middle of the winning segment.
-  // wheel segment i spans [i*segAngle, (i+1)*segAngle) measured clockwise from top.
-  const segCenter = winIndex*segAngle + segAngle/2;
-  const extraSpins = 6; // full rotations for a satisfying spin
-  const targetRotation = extraSpins*360 + (360 - segCenter);
-  wheel.style.transform = `rotate(${targetRotation}deg)`;
+  const errBox = document.getElementById('spin-error');
+  const verifyBtn = document.getElementById('spin-verify-btn');
+  errBox.style.display = 'none';
 
-  setTimeout(async ()=>{
-    const { data: inserted, error } = await sb.from('lucky_spins').insert({
-      mobile_number: phone,
-      spin_date: today,
-      reward_id: winner.id,
-      reward_emoji: winner.emoji,
-      reward_label: winner.label,
-      reward_type: winner.type,
-      reward_value: winner.value,
-      status: 'active'
-    }).select('*').single();
-
+  // Ask the server to actually perform the spin: it re-checks the OTP
+  // token, picks the reward (server-side, so the odds in REWARD_WEIGHTS
+  // can't be tampered with from the browser either), and writes the
+  // result with a service-role key. We only animate locally using the
+  // winning id it returns.
+  let resp, body;
+  try{
+    resp = await fetch('/api/complete-spin', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ phone, token })
+    });
+    body = await resp.json();
+  }catch(e){
     SPINNING = false;
-    goBtn.disabled = false; goBtn.textContent = 'SPIN NOW';
+    verifyBtn.disabled = false; verifyBtn.textContent = 'VERIFY & SPIN';
+    errBox.textContent = 'Something went wrong starting your spin. Please try again.';
+    errBox.style.display = 'block';
+    return;
+  }
 
-    if(error){
-      // most likely a duplicate spin race (unique constraint) — treat as already-used
+  if(!resp.ok || !body.reward){
+    SPINNING = false;
+    verifyBtn.disabled = false; verifyBtn.textContent = 'VERIFY & SPIN';
+    if(body.alreadySpun){
       document.getElementById('spin-view-wheel').style.display = 'none';
-      const { data: raced } = await sb.from('lucky_spins').select('*').eq('mobile_number', phone).eq('spin_date', today).maybeSingle();
-      if(raced) renderAlreadySpunView(raced);
+      renderAlreadySpunView(body.record);
       document.getElementById('spin-view-already').style.display = 'block';
       return;
     }
+    errBox.textContent = body.error || 'Your OTP session expired. Please verify again.';
+    errBox.style.display = 'block';
+    // token is one-shot / short-lived — make them re-verify rather than retry silently
+    spinVerifyToken = null;
+    return;
+  }
 
+  const winner = body.reward;
+  const winIndex = Math.max(0, SPIN_CATALOG.findIndex(r => r.id === winner.reward_id));
+  const wheel = document.getElementById('spin-wheel');
+  const n = SPIN_CATALOG.length;
+  const segAngle = 360 / n;
+  const segCenter = winIndex*segAngle + segAngle/2;
+  const extraSpins = 6;
+  const targetRotation = extraSpins*360 + (360 - segCenter);
+  wheel.style.transform = `rotate(${targetRotation}deg)`;
+
+  setTimeout(()=>{
+    SPINNING = false;
+    verifyBtn.disabled = false; verifyBtn.textContent = 'VERIFY & SPIN';
     document.getElementById('spin-view-wheel').style.display = 'none';
-    document.getElementById('spin-result-card').innerHTML = spinResultCardHtml(inserted);
+    document.getElementById('spin-result-card').innerHTML = spinResultCardHtml(winner);
     document.getElementById('spin-view-result').style.display = 'block';
     localStorage.setItem('nf_last_spin_phone', phone);
   }, 4300);
