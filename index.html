@@ -2032,9 +2032,6 @@
     </div>
     <div class="nav-cta">
       <a class="btn btn-wa" href="https://wa.me/917738242258?text=Hi%20NF%20Naseem%20Fitness" target="_blank" rel="noopener">WhatsApp Us</a>
-      <button class="icon-btn" aria-label="Install App" id="pwa-install-icon-desktop" title="Install App" style="border:1px solid var(--line);">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 3v12"/><path d="m7 10 5 5 5-5"/><path d="M5 21h14"/></svg>
-      </button>
       <button class="cart-btn" aria-label="Open cart" onclick="openCart()">
         <img src="assets/add-to-cart-badge.png" alt="Cart" style="width:36px;height:36px;object-fit:contain;">
         <span class="cart-count" id="cart-count-desktop" style="display:none;">0</span>
@@ -2042,8 +2039,8 @@
     </div>
     <div class="mobile-right-group">
       <div class="mobile-icons">
-        <button class="icon-btn" aria-label="Install App" id="pwa-install-icon-mobile" title="Install App">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 3v12"/><path d="m7 10 5 5 5-5"/><path d="M5 21h14"/></svg>
+        <button class="icon-btn" aria-label="Track order" onclick="openTrackOrder()">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="1" y="6" width="14" height="11"/><path d="M15 9h4l3 3v5h-7z"/><circle cx="6" cy="19.5" r="1.6"/><circle cx="17.5" cy="19.5" r="1.6"/></svg>
         </button>
         <button class="icon-btn" aria-label="Open cart" onclick="openCart()" style="width:42px;height:42px;">
           <img src="assets/add-to-cart-badge.png" alt="Cart" style="width:40px;height:40px;object-fit:contain;">
@@ -2154,11 +2151,11 @@
             <div class="mini-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M12 2l8 4v6c0 5-3.5 8.5-8 10-4.5-1.5-8-5-8-10V6l8-4z"/></svg></div>
             <span>100% Original<br>Supplements</span>
           </div>
-          <div class="mini-item mini-item-clickable" role="button" tabindex="0"
-            onclick="openTrustModal('quality')"
-            onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();openTrustModal('quality');}">
-            <div class="mini-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M12 17.3l-6.2 3.3 1.2-6.9L2 8.8l7-1L12 1.5l3 6.3 7 1-5 4.9 1.2 6.9z"/></svg></div>
-            <span>Best Quality<br>Guaranteed</span>
+          <div class="mini-item mini-item-clickable" role="button" tabindex="0" id="pwa-install-badge"
+            onclick="handlePwaInstallClick()"
+            onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();handlePwaInstallClick();}">
+            <div class="mini-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M12 3v12"/><path d="m7 10 5 5 5-5"/><rect x="4" y="17" width="16" height="4" rx="1"/></svg></div>
+            <span id="pwa-install-badge-label">Get The App<br>Premium Experience</span>
           </div>
           <div class="mini-item mini-item-image mini-item-clickable" role="button" tabindex="0"
             onclick="openTrustModal('delivery')"
@@ -2960,6 +2957,21 @@ let PRODUCTS = [];
 let REVIEWS = [];
 let CART = []; // [{id, name, price, unit, qty}]
 let CHECKOUT_REWARD = null; // today's active Lucky Spin reward for the phone entered at checkout, or null
+
+/* ---------- cart persistence (survives page refresh) ---------- */
+const CART_STORAGE_KEY = 'nf_cart_v1';
+function loadCartFromStorage(){
+  try{
+    const raw = localStorage.getItem(CART_STORAGE_KEY);
+    if(!raw) return;
+    const parsed = JSON.parse(raw);
+    if(Array.isArray(parsed)) CART = parsed;
+  }catch(e){ /* corrupted/blocked storage — just start with an empty cart */ }
+}
+function saveCartToStorage(){
+  try{ localStorage.setItem(CART_STORAGE_KEY, JSON.stringify(CART)); }catch(e){ /* storage full/blocked — ignore */ }
+}
+loadCartFromStorage();
 
 /* ---------- fast delivery state ---------- */
 let FAST_DELIVERY = { selected:false };
@@ -4597,6 +4609,7 @@ function renderDeliveryBanner(el, subtotal){
   }
 }
 function renderCart(){
+  saveCartToStorage();
   const count = CART.reduce((s,l)=>s+l.qty,0);
   document.getElementById('cart-count-desktop').style.display = count>0 ? 'flex' : 'none';
   document.getElementById('cart-count-desktop').textContent = count;
@@ -5994,6 +6007,7 @@ async function initApp(){
   renderGlobalReviews();
   injectProductSchema();
   openSharedProductFromUrl();
+  renderCart(); // reflect any cart items restored from a previous visit
 }
 initApp();
 </script>
@@ -6005,30 +6019,33 @@ initApp();
    PWA — Install App nav button (mobile icon + desktop icon)
    ============================================================ */
 (function(){
-  var btns = [
-    document.getElementById('pwa-install-icon-mobile'),
-    document.getElementById('pwa-install-icon-desktop')
-  ].filter(Boolean);
-  if(!btns.length) return;
-
+  var badge = document.getElementById('pwa-install-badge');
+  if(!badge) return;
+  var iconWrap = badge.querySelector('.mini-icon');
+  var label = document.getElementById('pwa-install-badge-label');
   var deferredPrompt = null;
+
+  var ICON_DOWNLOAD = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M12 3v12"/><path d="m7 10 5 5 5-5"/><rect x="4" y="17" width="16" height="4" rx="1"/></svg>';
+  var ICON_INSTALLED = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="3" y="3" width="18" height="18" rx="5"/><path d="m8 12 2.5 2.5L16 9"/></svg>';
 
   function isStandalone(){
     return window.matchMedia('(display-mode: standalone)').matches ||
            window.navigator.standalone === true; // iOS Safari
   }
-
   function isIos(){
     return /iphone|ipad|ipod/i.test(window.navigator.userAgent) && !window.MSStream;
   }
 
-  function setOpenAppState(){
-    btns.forEach(function(b){
-      b.setAttribute('aria-label','Open App');
-      b.setAttribute('title','Open App');
-      b.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="3" width="18" height="18" rx="4"/><path d="m9 12 2 2 4-4"/></svg>';
-    });
+  function setInstallState(){
+    iconWrap.innerHTML = ICON_DOWNLOAD;
+    label.innerHTML = 'Install The App<br>Elevate Your Experience';
   }
+  function setOpenAppState(){
+    iconWrap.innerHTML = ICON_INSTALLED;
+    label.innerHTML = 'App Installed<br>Tap To Launch';
+  }
+
+  setInstallState();
 
   // Register the service worker (required for Chrome's install prompt)
   if('serviceWorker' in navigator){
@@ -6039,43 +6056,39 @@ initApp();
 
   if(isStandalone()){
     setOpenAppState();
-  } else if(isIos()){
-    btns.forEach(function(b){
-      b.addEventListener('click', function(){
-        alert('Is app ko home screen par add karne ke liye Share icon par tap karein, phir "Add to Home Screen" choose karein.');
-      });
-    });
-  } else {
+  } else if(!isIos()){
     window.addEventListener('beforeinstallprompt', function(e){
       e.preventDefault();
       deferredPrompt = e;
     });
-
-    btns.forEach(function(b){
-      b.addEventListener('click', async function(){
-        if(!deferredPrompt) return;
-        b.disabled = true;
-        deferredPrompt.prompt();
-        var choice = await deferredPrompt.userChoice;
-        deferredPrompt = null;
-        b.disabled = false;
-        if(choice && choice.outcome === 'accepted'){
-          setOpenAppState();
-        }
-      });
-    });
-
     window.addEventListener('appinstalled', function(){
       deferredPrompt = null;
       setOpenAppState();
     });
-
     if('getInstalledRelatedApps' in navigator){
       navigator.getInstalledRelatedApps().then(function(apps){
         if(apps && apps.length) setOpenAppState();
       }).catch(function(){});
     }
   }
+
+  window.handlePwaInstallClick = async function(){
+    if(isStandalone()) return;
+    if(isIos()){
+      alert('Is app ko home screen par add karne ke liye Share icon par tap karein, phir "Add to Home Screen" choose karein.');
+      return;
+    }
+    if(!deferredPrompt){
+      alert('App install Chrome ya Edge browser (Android/Desktop) me available hai. Agar option nahi dikh raha, browser ke menu (⋮) me "Install and create shortcut" try karein.');
+      return;
+    }
+    deferredPrompt.prompt();
+    var choice = await deferredPrompt.userChoice;
+    deferredPrompt = null;
+    if(choice && choice.outcome === 'accepted'){
+      setOpenAppState();
+    }
+  };
 })();
 </script>
 </body>
