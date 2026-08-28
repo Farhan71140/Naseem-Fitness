@@ -1527,6 +1527,107 @@
   }
   .checkout-field input:focus, .checkout-field textarea:focus{outline:none;border-color:var(--teal);}
 
+  /* ===== CUSTOMER AUTH (Welcome / Login gate) ===== */
+  .auth-modal-overlay{
+    display:none;position:fixed;inset:0;z-index:400;
+    background:rgba(6,5,3,0.92);backdrop-filter:blur(6px);
+    align-items:center;justify-content:center;padding:20px;
+  }
+  .auth-modal-overlay.active{display:flex;}
+  .auth-modal{
+    position:relative;width:100%;max-width:420px;
+    background:radial-gradient(120% 90% at 50% -10%, rgba(255,210,74,0.16) 0%, transparent 55%), linear-gradient(165deg, var(--steel) 0%, var(--iron) 130%);
+    border:1px solid rgba(255,210,74,0.32);
+    border-radius:22px;
+    padding:36px 26px 30px;text-align:center;
+    box-shadow:0 20px 70px rgba(0,0,0,0.65);
+    animation:trustModalIn .32s cubic-bezier(.2,.8,.3,1);
+    max-height:94vh;overflow-y:auto;
+  }
+  .auth-logo{width:64px;height:64px;object-fit:contain;margin:0 auto 14px;filter:drop-shadow(0 4px 14px rgba(255,210,74,0.35));}
+  .auth-heading{
+    font-family:'Anton',sans-serif;font-weight:400;text-transform:uppercase;
+    font-size:21px;letter-spacing:0.4px;line-height:1.25;margin:0 0 6px;
+    background:linear-gradient(180deg, var(--gold-light), var(--teal));
+    -webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;
+  }
+  .auth-sub{color:var(--paper-dim);font-size:13.5px;margin-bottom:26px;}
+  .auth-otp-note{
+    font-size:12.5px;color:var(--paper-dim);text-align:left;margin:-4px 0 16px;line-height:1.6;
+  }
+  .auth-otp-note .mono{color:var(--teal);font-family:'Space Mono',monospace;}
+  .auth-go-btn{width:100%;justify-content:center;margin-top:8px;}
+  .auth-skip-link{
+    display:block;margin-top:18px;font-family:'Space Mono',monospace;font-size:11.5px;
+    letter-spacing:1px;color:var(--paper-dim);text-decoration:underline;text-underline-offset:3px;
+  }
+  .auth-skip-link:hover{color:var(--teal);}
+  .auth-resend-row{margin-top:14px;text-align:center;font-size:13px;color:var(--paper-dim);}
+  .auth-resend-row a{color:var(--teal);font-weight:700;}
+  .auth-back-link{
+    display:inline-block;margin-bottom:16px;font-family:'Space Mono',monospace;font-size:11px;
+    letter-spacing:1px;color:var(--paper-dim);text-transform:uppercase;
+  }
+  .auth-back-link:hover{color:var(--teal);}
+
+  /* ===== ACCOUNT / PROFILE ===== */
+  .account-nav-btn{
+    display:flex;align-items:center;justify-content:center;
+    width:40px;height:40px;border-radius:50%;flex:none;position:relative;
+    background:var(--steel);border:1px solid var(--line);color:var(--paper);cursor:pointer;
+    transition:border-color .2s;
+  }
+  .account-nav-btn:hover{border-color:var(--teal);}
+  .account-nav-btn .account-avatar{
+    width:100%;height:100%;border-radius:50%;display:flex;align-items:center;justify-content:center;
+    font-family:'Anton',sans-serif;font-size:15px;color:var(--ink-black);
+    background:radial-gradient(circle, var(--gold-light) 0%, var(--teal) 70%);
+  }
+  .account-profile-head{
+    display:flex;align-items:center;gap:14px;padding:4px 0 22px;border-bottom:1px solid var(--line);margin-bottom:20px;
+  }
+  .account-profile-avatar{
+    width:54px;height:54px;border-radius:50%;flex:none;
+    background:radial-gradient(circle, var(--gold-light) 0%, var(--teal) 70%);
+    display:flex;align-items:center;justify-content:center;
+    font-family:'Anton',sans-serif;font-size:20px;color:var(--ink-black);
+  }
+  .account-profile-name{font-family:'Anton',sans-serif;font-size:17px;text-transform:uppercase;letter-spacing:0.3px;color:var(--paper);}
+  .account-profile-phone{font-family:'Space Mono',monospace;font-size:12.5px;color:var(--paper-dim);margin-top:3px;}
+  .account-menu-item{
+    display:flex;align-items:center;gap:14px;width:100%;text-align:left;
+    padding:15px 4px;background:none;border:none;border-bottom:1px solid var(--line);
+    color:var(--paper);font-size:14.5px;font-weight:600;cursor:pointer;transition:color .2s;
+  }
+  .account-menu-item:hover{color:var(--teal);}
+  .account-menu-item .icon{width:20px;height:20px;flex:none;opacity:0.85;}
+  .account-menu-item.danger{color:#FF8A8A;}
+  .account-menu-item.danger:hover{color:#FFB0B0;}
+  .account-menu-item .chev{margin-left:auto;opacity:0.5;}
+  .account-order-card{
+    border:1px solid var(--line);border-radius:12px;padding:14px 16px;margin-bottom:12px;
+    background:var(--steel);
+  }
+  .account-order-card .aoc-head{display:flex;justify-content:space-between;gap:10px;font-family:'Space Mono',monospace;font-size:11.5px;color:var(--paper-dim);margin-bottom:8px;}
+  .account-order-card .aoc-items{font-size:13.5px;color:var(--paper);line-height:1.5;}
+  .account-order-card .aoc-foot{display:flex;justify-content:space-between;align-items:center;margin-top:10px;padding-top:10px;border-top:1px dashed var(--line);}
+  .account-order-card .aoc-amount{font-family:'Space Mono',monospace;font-weight:700;color:var(--teal);}
+  .account-order-status{
+    font-family:'Space Mono',monospace;font-size:10.5px;letter-spacing:0.5px;text-transform:uppercase;
+    padding:3px 9px;border-radius:20px;border:1px solid var(--line);color:var(--paper-dim);
+  }
+  .account-order-status.completed{color:#7BE0A8;border-color:rgba(123,224,168,0.4);}
+  .account-order-status.approved{color:var(--teal);border-color:rgba(255,210,74,0.4);}
+  .account-order-status.cancelled{color:#FF8A8A;border-color:rgba(255,138,138,0.4);}
+  .account-delete-warning{
+    background:rgba(255,138,138,0.08);border:1px solid rgba(255,138,138,0.3);border-radius:12px;
+    padding:16px;text-align:center;margin-bottom:18px;
+  }
+  .account-delete-warning p{color:var(--paper-dim);font-size:13.5px;line-height:1.6;margin-top:8px;}
+  .account-delete-warning strong{color:#FF8A8A;font-family:'Anton',sans-serif;font-size:16px;text-transform:uppercase;font-weight:400;}
+  .btn-danger{background:transparent;border:1px solid #FF8A8A;color:#FF8A8A;}
+  .btn-danger:hover{background:rgba(255,138,138,0.1);}
+
   /* ===== ORDER TRACKING ===== */
   .track-intro{font-size:13px;color:var(--paper-dim);line-height:1.6;margin-bottom:18px;}
   .track-submit-btn{width:100%;justify-content:center;margin-top:6px;}
@@ -2030,6 +2131,11 @@
       </button>
     </div>
     <div class="nav-cta">
+      <button class="account-nav-btn" id="account-nav-btn-desktop" aria-label="My Account" onclick="openAccountEntry()">
+        <div class="account-avatar" id="account-avatar-desktop">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" width="20" height="20"><path d="M20 21a8 8 0 0 0-16 0"/><circle cx="12" cy="7" r="4"/></svg>
+        </div>
+      </button>
       <a class="btn btn-wa" href="https://wa.me/917738242258?text=Hi%20NF%20Naseem%20Fitness" target="_blank" rel="noopener">WhatsApp Us</a>
       <button class="cart-btn" aria-label="Open cart" onclick="openCart()">
         <img src="assets/add-to-cart-badge.png" alt="Cart" style="width:36px;height:36px;object-fit:contain;">
@@ -2038,6 +2144,9 @@
     </div>
     <div class="mobile-right-group">
       <div class="mobile-icons">
+        <button class="icon-btn" aria-label="My Account" onclick="openAccountEntry()">
+          <span id="account-avatar-mobile"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M20 21a8 8 0 0 0-16 0"/><circle cx="12" cy="7" r="4"/></svg></span>
+        </button>
         <button class="icon-btn" aria-label="Track order" onclick="openTrackOrder()">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="1" y="6" width="14" height="11"/><path d="M15 9h4l3 3v5h-7z"/><circle cx="6" cy="19.5" r="1.6"/><circle cx="17.5" cy="19.5" r="1.6"/></svg>
         </button>
@@ -2052,6 +2161,7 @@
     </div>
   </nav>
   <div class="mobile-menu">
+    <a href="#" onclick="document.getElementById('nav-toggle').checked=false;openAccountEntry();return false;" id="mobile-menu-account-link">👤 My Account</a>
     <a href="#top" onclick="document.getElementById('nav-toggle').checked=false">Home</a>
     <a href="#categories" onclick="document.getElementById('nav-toggle').checked=false">Shop</a>
     <a href="#products" onclick="document.getElementById('nav-toggle').checked=false">Bestsellers</a>
@@ -2872,6 +2982,134 @@
       <div class="track-loading" id="myreward-loading"><span class="track-spinner"></span> Checking your reward…</div>
       <div class="track-error" id="myreward-error"></div>
       <div id="myreward-result"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ===== CUSTOMER WELCOME / LOGIN GATE ===== -->
+<div class="auth-modal-overlay" id="auth-modal-overlay">
+  <div class="auth-modal" id="auth-modal" role="dialog" aria-modal="true" aria-labelledby="auth-modal-title">
+
+    <div id="auth-view-details">
+      <img class="auth-logo" src="assets/logo.png" alt="NF Naseem Fitness">
+      <h2 id="auth-modal-title" class="auth-heading">Welcome to<br>NF Naseem Fitness™</h2>
+      <p class="auth-sub">Your Fitness Journey Starts Here</p>
+
+      <div class="checkout-field" style="text-align:left;">
+        <label for="auth-name">Full Name</label>
+        <input type="text" id="auth-name" placeholder="Enter Your Full Name" autocomplete="off" onkeydown="if(event.key==='Enter'){document.getElementById('auth-phone').focus();}">
+      </div>
+      <div class="checkout-field" style="text-align:left;">
+        <label for="auth-phone">Mobile Number</label>
+        <input type="tel" id="auth-phone" placeholder="Enter Your Mobile Number" maxlength="10" autocomplete="off" onkeydown="if(event.key==='Enter'){sendAuthOtp();}">
+      </div>
+
+      <button type="button" class="btn btn-primary auth-go-btn" id="auth-continue-btn" onclick="sendAuthOtp()">Continue &amp; Verify with OTP</button>
+      <div class="track-error" id="auth-error"></div>
+      <a href="#" class="auth-skip-link" onclick="event.preventDefault();skipAuthGuest();">Continue browsing as guest →</a>
+    </div>
+
+    <div id="auth-view-otp" style="display:none;">
+      <a href="#" class="auth-back-link" onclick="event.preventDefault();showAuthDetailsView();">← Back</a>
+      <img class="auth-logo" src="assets/logo.png" alt="NF Naseem Fitness">
+      <h2 class="auth-heading">Verify Your Number</h2>
+      <p class="auth-otp-note">Enter the 6-digit OTP sent to <span class="mono" id="auth-otp-phone-display"></span></p>
+
+      <div class="checkout-field" style="text-align:left;">
+        <label for="auth-otp">OTP</label>
+        <input type="tel" id="auth-otp" placeholder="6-digit OTP" maxlength="6" inputmode="numeric" autocomplete="off" onkeydown="if(event.key==='Enter'){verifyAuthOtp();}">
+      </div>
+
+      <button type="button" class="btn btn-primary auth-go-btn" id="auth-verify-btn" onclick="verifyAuthOtp()">Verify &amp; Create Account</button>
+      <div class="track-error" id="auth-otp-error"></div>
+      <p class="auth-resend-row">Didn't get it? <a href="#" id="auth-resend-link" onclick="event.preventDefault();sendAuthOtp(true);">Resend OTP</a></p>
+    </div>
+
+  </div>
+</div>
+
+<!-- ===== ACCOUNT / PROFILE DRAWER ===== -->
+<div class="drawer-overlay" id="account-drawer-overlay">
+  <div class="drawer">
+    <div class="drawer-head">
+      <h3 id="account-drawer-title">My Account</h3>
+      <button class="drawer-close" onclick="closeAccountDrawer()">✕</button>
+    </div>
+    <div class="drawer-body" id="account-drawer-body">
+
+      <div id="account-view-main">
+        <div class="account-profile-head">
+          <div class="account-profile-avatar" id="account-profile-avatar"></div>
+          <div>
+            <div class="account-profile-name" id="account-profile-name"></div>
+            <div class="account-profile-phone" id="account-profile-phone"></div>
+          </div>
+        </div>
+
+        <button type="button" class="account-menu-item" onclick="openAccountOrders()">
+          <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 7h18M3 12h18M3 17h18"/></svg>
+          My Orders
+          <svg class="icon chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 6l6 6-6 6"/></svg>
+        </button>
+        <button type="button" class="account-menu-item" onclick="openChangeNumberView()">
+          <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 4h11l5 5v11a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V5a1 1 0 0 1 1-1z"/><path d="M9 9h6M9 13h6"/></svg>
+          Change Mobile Number
+          <svg class="icon chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 6l6 6-6 6"/></svg>
+        </button>
+        <button type="button" class="account-menu-item danger" onclick="openDeleteAccountView()">
+          <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 6h18M8 6V4a1 1 0 0 1 1-1h6a1 1 0 0 1 1 1v2m2 0v14a1 1 0 0 1-1 1H7a1 1 0 0 1-1-1V6h12z"/></svg>
+          Delete Account
+          <svg class="icon chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 6l6 6-6 6"/></svg>
+        </button>
+        <button type="button" class="account-menu-item" onclick="logoutCustomer()">
+          <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><path d="M16 17l5-5-5-5"/><path d="M21 12H9"/></svg>
+          Logout
+        </button>
+      </div>
+
+      <div id="account-view-orders" style="display:none;">
+        <a href="#" class="auth-back-link" onclick="event.preventDefault();showAccountMainView();">← Back to Account</a>
+        <div class="track-loading" id="account-orders-loading" style="display:flex;"><span class="track-spinner"></span> Loading your orders…</div>
+        <div class="track-error" id="account-orders-error"></div>
+        <div id="account-orders-list"></div>
+      </div>
+
+      <div id="account-view-change-number" style="display:none;">
+        <a href="#" class="auth-back-link" onclick="event.preventDefault();showAccountMainView();">← Back to Account</a>
+        <p class="track-intro">Enter your new mobile number. We'll send an OTP to verify it belongs to you before updating your account.</p>
+
+        <div id="acn-view-phone">
+          <div class="checkout-field">
+            <label for="acn-new-phone">New Mobile Number</label>
+            <input type="tel" id="acn-new-phone" placeholder="10-digit mobile number" maxlength="10" autocomplete="off" onkeydown="if(event.key==='Enter'){sendChangeNumberOtp();}">
+          </div>
+          <button type="button" class="btn btn-primary track-submit-btn" id="acn-send-btn" onclick="sendChangeNumberOtp()">Send OTP</button>
+          <div class="track-error" id="acn-error"></div>
+        </div>
+
+        <div id="acn-view-otp" style="display:none;">
+          <p class="auth-otp-note">Enter the 6-digit OTP sent to <span class="mono" id="acn-otp-phone-display"></span></p>
+          <div class="checkout-field">
+            <label for="acn-otp">OTP</label>
+            <input type="tel" id="acn-otp" placeholder="6-digit OTP" maxlength="6" inputmode="numeric" autocomplete="off" onkeydown="if(event.key==='Enter'){verifyChangeNumberOtp();}">
+          </div>
+          <button type="button" class="btn btn-primary track-submit-btn" id="acn-verify-btn" onclick="verifyChangeNumberOtp()">Verify &amp; Update Number</button>
+          <div class="track-error" id="acn-otp-error"></div>
+          <p class="auth-resend-row">Didn't get it? <a href="#" onclick="event.preventDefault();sendChangeNumberOtp(true);">Resend OTP</a></p>
+        </div>
+      </div>
+
+      <div id="account-view-delete" style="display:none;">
+        <a href="#" class="auth-back-link" onclick="event.preventDefault();showAccountMainView();">← Back to Account</a>
+        <div class="account-delete-warning">
+          <strong>Delete My Account?</strong>
+          <p>Are you sure you want to delete your account? This removes your saved name, mobile number and login — this cannot be undone. Your past order history stays with our records, but you'll need to sign up again to use the site as a member.</p>
+        </div>
+        <button type="button" class="btn btn-danger track-submit-btn" id="account-delete-confirm-btn" onclick="deleteAccountFinal()" style="width:100%;justify-content:center;">Yes, Delete My Account</button>
+        <button type="button" class="track-back-btn" onclick="showAccountMainView()">Cancel</button>
+        <div class="track-error" id="account-delete-error"></div>
+      </div>
+
     </div>
   </div>
 </div>
@@ -6211,6 +6449,501 @@ function injectProductSchema(){
   });
 }
 
+/* =====================================================================
+   CUSTOMER ACCOUNT SYSTEM (Welcome → Name+Mobile → OTP → Account)
+   =====================================================================
+   Session is a signed, stateless token (see /api/customer/_tokens.js)
+   stored in localStorage. On every page load we silently POST it to
+   /api/customer/session — if it's still valid the customer is logged in
+   immediately with no OTP prompt ("remembered" login). If there's no
+   token, or it's expired/invalid, the Welcome gate is shown. A guest can
+   dismiss the gate ("Continue browsing as guest") without losing the
+   ability to shop — we don't want to hard-block browsing just because
+   someone doesn't want to log in.
+   ===================================================================== */
+let CUSTOMER = null;          // { id, full_name, mobile_number } when logged in
+let CUSTOMER_SESSION_TOKEN = null;
+
+let authOtpSentTo = null;
+let authResendCooldown = 0;
+let authResendTimer = null;
+
+function customerInitials(name){
+  const parts = String(name||'').trim().split(/\s+/).filter(Boolean);
+  if(!parts.length) return '?';
+  return (parts[0][0] + (parts[1] ? parts[1][0] : '')).toUpperCase();
+}
+
+function renderAccountChip(){
+  const avatarDesktop = document.getElementById('account-avatar-desktop');
+  const avatarMobile = document.getElementById('account-avatar-mobile');
+  const mobileMenuLink = document.getElementById('mobile-menu-account-link');
+  if(CUSTOMER){
+    const initials = customerInitials(CUSTOMER.full_name);
+    avatarDesktop.textContent = initials;
+    avatarDesktop.style.fontSize = '14px';
+    if(avatarMobile) avatarMobile.textContent = initials;
+    if(mobileMenuLink) mobileMenuLink.textContent = `👤 ${CUSTOMER.full_name.split(' ')[0]}'s Account`;
+  } else {
+    const personIcon = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" width="20" height="20"><path d="M20 21a8 8 0 0 0-16 0"/><circle cx="12" cy="7" r="4"/></svg>';
+    avatarDesktop.innerHTML = personIcon;
+    if(avatarMobile) avatarMobile.innerHTML = personIcon;
+    if(mobileMenuLink) mobileMenuLink.textContent = '👤 My Account';
+  }
+}
+
+async function initCustomerAuth(){
+  const savedToken = localStorage.getItem('nf_customer_session');
+  if(savedToken){
+    try{
+      const resp = await fetch('/api/customer/session', {
+        method:'POST', headers:{'Content-Type':'application/json'},
+        body: JSON.stringify({ token: savedToken })
+      });
+      const body = await resp.json();
+      if(resp.ok && body.customer){
+        CUSTOMER = body.customer;
+        CUSTOMER_SESSION_TOKEN = savedToken;
+        renderAccountChip();
+        return; // logged in silently — no gate shown at all
+      }
+    }catch(e){ /* fall through to showing the gate below */ }
+    // token invalid/expired — clear it
+    localStorage.removeItem('nf_customer_session');
+  }
+
+  renderAccountChip();
+  // Never seen before AND hasn't chosen to skip → show the welcome gate.
+  if(!localStorage.getItem('nf_guest_skip')){
+    showAuthGate();
+  }
+}
+
+function showAuthGate(){
+  showAuthDetailsView();
+  document.getElementById('auth-modal-overlay').classList.add('active');
+}
+function hideAuthGate(){
+  document.getElementById('auth-modal-overlay').classList.remove('active');
+}
+function skipAuthGuest(){
+  localStorage.setItem('nf_guest_skip', '1');
+  hideAuthGate();
+}
+function showAuthDetailsView(){
+  document.getElementById('auth-view-details').style.display = 'block';
+  document.getElementById('auth-view-otp').style.display = 'none';
+  document.getElementById('auth-error').style.display = 'none';
+  clearInterval(authResendTimer);
+}
+
+async function sendAuthOtp(isResend){
+  const errBox = document.getElementById('auth-error');
+  errBox.style.display = 'none';
+  const name = document.getElementById('auth-name').value.trim();
+  const phone = document.getElementById('auth-phone').value.trim();
+
+  if(!isResend){
+    if(name.length < 2){
+      errBox.textContent = 'Please enter your full name.';
+      errBox.style.display = 'block';
+      return;
+    }
+    if(!/^\d{10}$/.test(phone)){
+      errBox.textContent = 'Please enter a valid 10-digit mobile number.';
+      errBox.style.display = 'block';
+      return;
+    }
+  }
+  if(isResend && authResendCooldown > 0) return;
+
+  const btn = document.getElementById('auth-continue-btn');
+  const resendLink = document.getElementById('auth-resend-link');
+  if(isResend){ resendLink.textContent = 'Sending…'; } else { btn.disabled = true; btn.textContent = 'Sending OTP…'; }
+
+  let resp, body;
+  try{
+    resp = await fetch('/api/send-otp', {
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({ phone: isResend ? authOtpSentTo : phone, purpose:'login' })
+    });
+    body = await resp.json();
+  }catch(e){
+    if(!isResend){ btn.disabled = false; btn.textContent = 'Continue & Verify with OTP'; }
+    else resendLink.textContent = 'Resend OTP';
+    errBox.textContent = 'Could not send OTP right now. Check your connection and try again.';
+    errBox.style.display = 'block';
+    return;
+  }
+
+  if(!isResend){ btn.disabled = false; btn.textContent = 'Continue & Verify with OTP'; }
+  else resendLink.textContent = 'Resend OTP';
+
+  if(!resp.ok){
+    errBox.textContent = body.error || 'Could not send OTP. Please try again.';
+    errBox.style.display = 'block';
+    return;
+  }
+
+  authOtpSentTo = isResend ? authOtpSentTo : phone;
+  document.getElementById('auth-view-details').style.display = 'none';
+  document.getElementById('auth-view-otp').style.display = 'block';
+  document.getElementById('auth-otp-phone-display').textContent = authOtpSentTo;
+  document.getElementById('auth-otp').value = '';
+  document.getElementById('auth-otp-error').style.display = 'none';
+  document.getElementById('auth-otp').focus();
+
+  authResendCooldown = 30;
+  clearInterval(authResendTimer);
+  const link = document.getElementById('auth-resend-link');
+  link.style.pointerEvents = 'none'; link.style.opacity = '0.5';
+  link.textContent = `Resend OTP (${authResendCooldown}s)`;
+  authResendTimer = setInterval(()=>{
+    authResendCooldown--;
+    if(authResendCooldown <= 0){
+      clearInterval(authResendTimer);
+      link.style.pointerEvents = ''; link.style.opacity = '';
+      link.textContent = 'Resend OTP';
+    } else {
+      link.textContent = `Resend OTP (${authResendCooldown}s)`;
+    }
+  }, 1000);
+}
+
+async function verifyAuthOtp(){
+  const errBox = document.getElementById('auth-otp-error');
+  errBox.style.display = 'none';
+  const otp = document.getElementById('auth-otp').value.trim();
+  if(!/^\d{6}$/.test(otp)){
+    errBox.textContent = 'Please enter the 6-digit OTP.';
+    errBox.style.display = 'block';
+    return;
+  }
+
+  const btn = document.getElementById('auth-verify-btn');
+  btn.disabled = true; btn.textContent = 'Verifying…';
+
+  let resp, body;
+  try{
+    resp = await fetch('/api/verify-otp', {
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({ phone: authOtpSentTo, otp })
+    });
+    body = await resp.json();
+  }catch(e){
+    btn.disabled = false; btn.textContent = 'Verify & Create Account';
+    errBox.textContent = 'Could not verify OTP right now. Please try again.';
+    errBox.style.display = 'block';
+    return;
+  }
+
+  if(!resp.ok || !body.token){
+    btn.disabled = false; btn.textContent = 'Verify & Create Account';
+    errBox.textContent = body.error || 'Incorrect or expired OTP. Please try again.';
+    errBox.style.display = 'block';
+    return;
+  }
+
+  const name = document.getElementById('auth-name').value.trim();
+  let loginResp, loginBody;
+  try{
+    loginResp = await fetch('/api/customer/login', {
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({ phone: authOtpSentTo, fullName: name, token: body.token })
+    });
+    loginBody = await loginResp.json();
+  }catch(e){
+    btn.disabled = false; btn.textContent = 'Verify & Create Account';
+    errBox.textContent = 'Something went wrong creating your account. Please try again.';
+    errBox.style.display = 'block';
+    return;
+  }
+
+  btn.disabled = false; btn.textContent = 'Verify & Create Account';
+
+  if(!loginResp.ok || !loginBody.token){
+    errBox.textContent = loginBody.error || 'Could not sign you in. Please try again.';
+    errBox.style.display = 'block';
+    return;
+  }
+
+  CUSTOMER = loginBody.customer;
+  CUSTOMER_SESSION_TOKEN = loginBody.token;
+  localStorage.setItem('nf_customer_session', CUSTOMER_SESSION_TOKEN);
+  localStorage.removeItem('nf_guest_skip');
+  renderAccountChip();
+  hideAuthGate();
+  showShareToast(`Welcome, ${CUSTOMER.full_name.split(' ')[0]}! 🎉`);
+}
+
+/* ---------- Account / Profile drawer ---------- */
+function openAccountEntry(){
+  if(CUSTOMER){ openAccountDrawer(); }
+  else { showAuthGate(); }
+}
+
+function openAccountDrawer(){
+  document.getElementById('account-profile-avatar').textContent = customerInitials(CUSTOMER.full_name);
+  document.getElementById('account-profile-name').textContent = CUSTOMER.full_name;
+  document.getElementById('account-profile-phone').textContent = '+91 ' + CUSTOMER.mobile_number;
+  showAccountMainView();
+  document.getElementById('account-drawer-overlay').classList.add('active');
+  document.body.style.overflow = 'hidden';
+}
+function closeAccountDrawer(){
+  document.getElementById('account-drawer-overlay').classList.remove('active');
+  document.body.style.overflow = '';
+}
+function showAccountMainView(){
+  ['account-view-main','account-view-orders','account-view-change-number','account-view-delete'].forEach(id=>{
+    document.getElementById(id).style.display = (id === 'account-view-main') ? 'block' : 'none';
+  });
+  document.getElementById('account-drawer-title').textContent = 'My Account';
+}
+
+function logoutCustomer(){
+  localStorage.removeItem('nf_customer_session');
+  CUSTOMER = null;
+  CUSTOMER_SESSION_TOKEN = null;
+  renderAccountChip();
+  closeAccountDrawer();
+  showShareToast('Logged out.');
+}
+
+/* My Orders */
+async function openAccountOrders(){
+  document.getElementById('account-view-main').style.display = 'none';
+  document.getElementById('account-view-orders').style.display = 'block';
+  document.getElementById('account-drawer-title').textContent = 'My Orders';
+  const loading = document.getElementById('account-orders-loading');
+  const errBox = document.getElementById('account-orders-error');
+  const list = document.getElementById('account-orders-list');
+  loading.style.display = 'flex'; errBox.style.display = 'none'; list.innerHTML = '';
+
+  let resp, body;
+  try{
+    resp = await fetch('/api/customer/orders', {
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({ sessionToken: CUSTOMER_SESSION_TOKEN })
+    });
+    body = await resp.json();
+  }catch(e){
+    loading.style.display = 'none';
+    errBox.textContent = 'Could not load your orders. Please try again.';
+    errBox.style.display = 'block';
+    return;
+  }
+  loading.style.display = 'none';
+
+  if(!resp.ok){
+    errBox.textContent = body.error || 'Could not load your orders.';
+    errBox.style.display = 'block';
+    return;
+  }
+
+  const orders = body.orders || [];
+  if(!orders.length){
+    list.innerHTML = `<p class="track-intro">No orders yet — once you place your first order, it'll show up here.</p>`;
+    return;
+  }
+
+  list.innerHTML = orders.map(o=>{
+    const ref = 'NF-' + o.id.slice(0,8).toUpperCase();
+    const date = o.created_at ? new Date(o.created_at).toLocaleDateString('en-IN',{day:'numeric',month:'short',year:'numeric'}) : '';
+    const itemsArr = Array.isArray(o.items) ? o.items : (o.items ? [{name:String(o.items), qty:1}] : []);
+    const itemsSummary = itemsArr.map(i => `${escapeHtml(i.name)}${i.qty>1 ? ' x'+i.qty : ''}`).join(', ');
+    const status = o.status || 'pending';
+    const statusLabel = status === 'completed' ? 'Delivered' : status === 'approved' ? 'Confirmed' : status === 'cancelled' ? 'Cancelled' : 'Pending';
+    return `
+      <div class="account-order-card">
+        <div class="aoc-head"><span>${ref}</span><span>${date}</span></div>
+        <div class="aoc-items">${itemsSummary || 'Order details on file'}</div>
+        <div class="aoc-foot">
+          <span class="aoc-amount">₹${Number(o.amount||0).toLocaleString('en-IN')}</span>
+          <span class="account-order-status ${status}">${statusLabel}</span>
+        </div>
+      </div>`;
+  }).join('');
+}
+
+/* Change Mobile Number */
+let acnOtpSentTo = null;
+let acnResendCooldown = 0;
+let acnResendTimer = null;
+
+function openChangeNumberView(){
+  document.getElementById('account-view-main').style.display = 'none';
+  document.getElementById('account-view-change-number').style.display = 'block';
+  document.getElementById('account-drawer-title').textContent = 'Change Mobile Number';
+  document.getElementById('acn-view-phone').style.display = 'block';
+  document.getElementById('acn-view-otp').style.display = 'none';
+  document.getElementById('acn-new-phone').value = '';
+  document.getElementById('acn-error').style.display = 'none';
+  acnOtpSentTo = null;
+}
+
+async function sendChangeNumberOtp(isResend){
+  const errBox = document.getElementById('acn-error');
+  errBox.style.display = 'none';
+  const newPhone = isResend ? acnOtpSentTo : document.getElementById('acn-new-phone').value.trim();
+
+  if(!isResend){
+    if(!/^\d{10}$/.test(newPhone)){
+      errBox.textContent = 'Please enter a valid 10-digit mobile number.';
+      errBox.style.display = 'block';
+      return;
+    }
+    if(newPhone === CUSTOMER.mobile_number){
+      errBox.textContent = 'That is already your current number.';
+      errBox.style.display = 'block';
+      return;
+    }
+  }
+  if(isResend && acnResendCooldown > 0) return;
+
+  const btn = document.getElementById('acn-send-btn');
+  if(!isResend){ btn.disabled = true; btn.textContent = 'Sending OTP…'; }
+
+  let resp, body;
+  try{
+    resp = await fetch('/api/send-otp', {
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({ phone: newPhone, purpose:'change-number' })
+    });
+    body = await resp.json();
+  }catch(e){
+    if(!isResend){ btn.disabled = false; btn.textContent = 'Send OTP'; }
+    errBox.textContent = 'Could not send OTP right now. Please try again.';
+    errBox.style.display = 'block';
+    return;
+  }
+  if(!isResend){ btn.disabled = false; btn.textContent = 'Send OTP'; }
+
+  if(!resp.ok){
+    errBox.textContent = body.error || 'Could not send OTP.';
+    errBox.style.display = 'block';
+    return;
+  }
+
+  acnOtpSentTo = newPhone;
+  document.getElementById('acn-view-phone').style.display = 'none';
+  document.getElementById('acn-view-otp').style.display = 'block';
+  document.getElementById('acn-otp-phone-display').textContent = newPhone;
+  document.getElementById('acn-otp').value = '';
+  document.getElementById('acn-otp-error').style.display = 'none';
+
+  acnResendCooldown = 30;
+  clearInterval(acnResendTimer);
+  acnResendTimer = setInterval(()=>{ if(--acnResendCooldown <= 0) clearInterval(acnResendTimer); }, 1000);
+}
+
+async function verifyChangeNumberOtp(){
+  const errBox = document.getElementById('acn-otp-error');
+  errBox.style.display = 'none';
+  const otp = document.getElementById('acn-otp').value.trim();
+  if(!/^\d{6}$/.test(otp)){
+    errBox.textContent = 'Please enter the 6-digit OTP.';
+    errBox.style.display = 'block';
+    return;
+  }
+
+  const btn = document.getElementById('acn-verify-btn');
+  btn.disabled = true; btn.textContent = 'Verifying…';
+
+  let resp, body;
+  try{
+    resp = await fetch('/api/verify-otp', {
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({ phone: acnOtpSentTo, otp })
+    });
+    body = await resp.json();
+  }catch(e){
+    btn.disabled = false; btn.textContent = 'Verify & Update Number';
+    errBox.textContent = 'Could not verify OTP. Please try again.';
+    errBox.style.display = 'block';
+    return;
+  }
+  if(!resp.ok || !body.token){
+    btn.disabled = false; btn.textContent = 'Verify & Update Number';
+    errBox.textContent = body.error || 'Incorrect or expired OTP.';
+    errBox.style.display = 'block';
+    return;
+  }
+
+  let cnResp, cnBody;
+  try{
+    cnResp = await fetch('/api/customer/change-number', {
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({ sessionToken: CUSTOMER_SESSION_TOKEN, newPhone: acnOtpSentTo, otpToken: body.token })
+    });
+    cnBody = await cnResp.json();
+  }catch(e){
+    btn.disabled = false; btn.textContent = 'Verify & Update Number';
+    errBox.textContent = 'Something went wrong. Please try again.';
+    errBox.style.display = 'block';
+    return;
+  }
+
+  btn.disabled = false; btn.textContent = 'Verify & Update Number';
+
+  if(!cnResp.ok || !cnBody.token){
+    errBox.textContent = cnBody.error || 'Could not update your number.';
+    errBox.style.display = 'block';
+    return;
+  }
+
+  CUSTOMER = cnBody.customer;
+  CUSTOMER_SESSION_TOKEN = cnBody.token;
+  localStorage.setItem('nf_customer_session', CUSTOMER_SESSION_TOKEN);
+  renderAccountChip();
+  showShareToast('Mobile number updated ✅');
+  openAccountDrawer(); // back to main view with fresh details
+}
+
+/* Delete Account */
+function openDeleteAccountView(){
+  document.getElementById('account-view-main').style.display = 'none';
+  document.getElementById('account-view-delete').style.display = 'block';
+  document.getElementById('account-drawer-title').textContent = 'Delete Account';
+  document.getElementById('account-delete-error').style.display = 'none';
+}
+
+async function deleteAccountFinal(){
+  const errBox = document.getElementById('account-delete-error');
+  errBox.style.display = 'none';
+  const btn = document.getElementById('account-delete-confirm-btn');
+  btn.disabled = true; btn.textContent = 'Deleting…';
+
+  let resp, body;
+  try{
+    resp = await fetch('/api/customer/delete', {
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({ sessionToken: CUSTOMER_SESSION_TOKEN })
+    });
+    body = await resp.json();
+  }catch(e){
+    btn.disabled = false; btn.textContent = 'Yes, Delete My Account';
+    errBox.textContent = 'Could not delete your account. Please try again.';
+    errBox.style.display = 'block';
+    return;
+  }
+
+  if(!resp.ok){
+    btn.disabled = false; btn.textContent = 'Yes, Delete My Account';
+    errBox.textContent = body.error || 'Could not delete your account.';
+    errBox.style.display = 'block';
+    return;
+  }
+
+  localStorage.removeItem('nf_customer_session');
+  localStorage.removeItem('nf_guest_skip');
+  CUSTOMER = null;
+  CUSTOMER_SESSION_TOKEN = null;
+  renderAccountChip();
+  closeAccountDrawer();
+  showShareToast('Your account has been deleted.');
+}
+
 async function initApp(){
   await Promise.all([loadProducts(), loadReviews(), loadStoreSettings(), loadCombos()]);
   if(PRODUCTS.length) applyFilters();
@@ -6218,6 +6951,7 @@ async function initApp(){
   injectProductSchema();
   openSharedProductFromUrl();
   renderCart(); // reflect any cart items restored from a previous visit
+  initCustomerAuth();
 }
 initApp();
 </script>
