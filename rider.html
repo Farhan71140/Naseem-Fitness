@@ -262,6 +262,18 @@ function onPosition(pos){
   setStatusBadge(true);
   document.getElementById('rider-error').style.display = 'none';
 
+  // On the customer's tracking page, the live map only renders once the
+  // order's delivery_stage is set (see index.html's "shipped"/canGoLive
+  // check). A rider can tap "Start Sharing Location" without ever tapping
+  // one of the stage buttons below, which left delivery_stage null in the
+  // database — GPS pings were being written fine, but the customer's page
+  // never unlocked the live map to show them. Default to "Out for
+  // Delivery" the first time a location fix comes in so this can't happen.
+  if(!currentStage){
+    currentStage = 'out_for_delivery';
+    highlightStage(currentStage);
+  }
+
   const { latitude, longitude, heading, accuracy } = pos.coords;
   renderMap(latitude, longitude, accuracy);
   document.getElementById('rider-meta-row').style.display = 'flex';
