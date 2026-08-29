@@ -2143,13 +2143,13 @@ async function renderOrders(){
               <button class="delivery-mini-btn" onclick="copyRiderLink('${o.id}')">🔗 ${o.rider_token ? 'Copy' : 'Get'} Link</button>
             </div>
             ${o.rider_lat != null ? `<button class="delivery-mini-btn" onclick="openLiveLocationModal('${o.id}')">📍 Live Map</button>` : ''}
-            ${o.phone ? `<button class="delivery-mini-btn" onclick="notifyDeliveryWhatsApp('${o.id}')">📩 Notify customer</button>` : ''}
+            ${o.phone ? `<button class="delivery-mini-btn" onclick="notifyDeliveryWhatsApp('${o.id}')">📩 Notify customer</button><button class="delivery-mini-btn" onclick="copyNotifyMessage('${o.id}')">📋 Copy Message</button>` : ''}
           ` : o.delivery_partner ? `
             <div class="delivery-track-row">
               <span class="mono" title="${escapeHtml(o.tracking_id || 'No tracking ID yet')}">${o.tracking_id ? escapeHtml(o.tracking_id) : 'No tracking ID'}</span>
               <button class="delivery-mini-btn" onclick="editTrackingId('${o.id}', ${JSON.stringify(o.tracking_id || '').replace(/"/g,'&quot;')})">${o.tracking_id ? 'Edit' : '+ Add'}</button>
             </div>
-            ${o.tracking_id && o.phone ? `<button class="delivery-mini-btn" onclick="notifyDeliveryWhatsApp('${o.id}')">📩 Notify customer</button>` : ''}
+            ${o.tracking_id && o.phone ? `<button class="delivery-mini-btn" onclick="notifyDeliveryWhatsApp('${o.id}')">📩 Notify customer</button><button class="delivery-mini-btn" onclick="copyNotifyMessage('${o.id}')">📋 Copy Message</button>` : ''}
           ` : ''}
         </div>
       </td>
@@ -2249,7 +2249,7 @@ function renderSelfDeliveryList(orders){
         ${o.address ? `<button class="delivery-mini-btn" onclick="copyAddress(${JSON.stringify(o.address).replace(/"/g,'&quot;')})">📋 Copy Address</button>` : ''}
         <button class="delivery-mini-btn" onclick="copyRiderLink('${o.id}')">🔗 ${o.rider_token ? 'Copy' : 'Generate'} Rider Link</button>
         ${hasLocation ? `<button class="delivery-mini-btn" onclick="openLiveLocationModal('${o.id}')">📍 View Live Map</button>` : ''}
-        ${o.phone ? `<button class="delivery-mini-btn" onclick="notifyDeliveryWhatsApp('${o.id}')">📩 Notify customer</button>` : ''}
+        ${o.phone ? `<button class="delivery-mini-btn" onclick="notifyDeliveryWhatsApp('${o.id}')">📩 Notify customer</button><button class="delivery-mini-btn" onclick="copyNotifyMessage('${o.id}')">📋 Copy Message</button>` : ''}
       </div>
     </div>`;
   }).join('');
@@ -2355,7 +2355,7 @@ function renderDeliveryPartnerList(listId, emptyId, orders){
         ${o.address ? `<button class="delivery-mini-btn" onclick="copyAddress(${JSON.stringify(o.address).replace(/"/g,'&quot;')})">📋 Copy Address</button>` : ''}
         <span class="mono" style="font-size:11px;color:var(--paper-dim);align-self:center;" title="${escapeHtml(o.tracking_id || 'No tracking ID yet')}">${o.tracking_id ? escapeHtml(o.tracking_id) : 'No tracking ID'}</span>
         <button class="delivery-mini-btn" onclick="editTrackingId('${o.id}', ${JSON.stringify(o.tracking_id || '').replace(/"/g,'&quot;')})">${o.tracking_id ? 'Edit ID' : '+ Add ID'}</button>
-        ${o.tracking_id && o.phone ? `<button class="delivery-mini-btn" onclick="notifyDeliveryWhatsApp('${o.id}')">📩 Notify customer</button>` : ''}
+        ${o.tracking_id && o.phone ? `<button class="delivery-mini-btn" onclick="notifyDeliveryWhatsApp('${o.id}')">📩 Notify customer</button><button class="delivery-mini-btn" onclick="copyNotifyMessage('${o.id}')">📋 Copy Message</button>` : ''}
       </div>
     </div>
   `).join('');
@@ -3492,6 +3492,31 @@ async function editTrackingId(id, currentValue){
   renderDelivery();
   showToast('Tracking ID saved');
 }
+function buildNotifyMessage(o){
+  const ref = 'NF-' + o.id.slice(0,8).toUpperCase();
+  return o.delivery_partner === 'Self Delivery'
+    ? `Hi ${o.customer_name}, your NF Naseem Fitness order is on its way! Track your rider live at ${location.origin}/ — tap "Track Order", enter Order ID ${ref} and your phone number to see live location.`
+    : `Hi ${o.customer_name}, your NF Naseem Fitness order is on its way via ${o.delivery_partner}! Track it here: ${o.tracking_id}`;
+}
+
+// Fallback for when WhatsApp Web isn't logged in on this browser/device —
+// api.whatsapp.com's "Continue to WhatsApp Web" step needs an active WA Web
+// session to actually deliver anything; if you're not logged in there it
+// just dead-ends on that page with no way to send. This copies the exact
+// same tracking message to the clipboard instead, so you can paste it into
+// WhatsApp Desktop, your phone, or wherever you're actually logged in.
+async function copyNotifyMessage(id){
+  const orders = await getOrders();
+  const o = orders.find(x => x.id === id);
+  if(!o || !o.phone) { showToast('No phone number on this order'); return; }
+  const msg = buildNotifyMessage(o);
+  navigator.clipboard.writeText(msg).then(() => {
+    showToast(`Message copied — paste it to ${o.phone} on WhatsApp`);
+  }).catch(() => {
+    prompt('Copy this message:', msg);
+  });
+}
+
 async function notifyDeliveryWhatsApp(id){
   // Open the tab SYNCHRONOUSLY, before any `await`, so the browser still
   // counts it as a direct result of the click. If we open it after the
@@ -3511,10 +3536,7 @@ async function notifyDeliveryWhatsApp(id){
     return;
   }
   const phoneDigits = o.phone.replace(/\D/g, '');
-  const ref = 'NF-' + o.id.slice(0,8).toUpperCase();
-  const msg = o.delivery_partner === 'Self Delivery'
-    ? `Hi ${o.customer_name}, your NF Naseem Fitness order is on its way! Track your rider live at ${location.origin}/ — tap "Track Order", enter Order ID ${ref} and your phone number to see live location.`
-    : `Hi ${o.customer_name}, your NF Naseem Fitness order is on its way via ${o.delivery_partner}! Track it here: ${o.tracking_id}`;
+  const msg = buildNotifyMessage(o);
   const waUrl = `https://wa.me/${phoneDigits}?text=${encodeURIComponent(msg)}`;
 
   if(waTab){
