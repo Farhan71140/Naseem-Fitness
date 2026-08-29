@@ -332,8 +332,8 @@ function renderMap(lat, lng, accuracy){
   const el = document.getElementById('rider-map');
   el.classList.add('show');
   if(!map){
-    map = L.map('rider-map', { zoomControl:false, attributionControl:false }).setView([lat,lng], 16);
-    L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', { maxZoom:19 }).addTo(map);
+    map = L.map('rider-map', { zoomControl:false, attributionControl:true }).setView([lat,lng], 16);
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom:19, subdomains:'abc', attribution:'&copy; OpenStreetMap contributors' }).addTo(map);
     const icon = L.divIcon({
       className: '', html: `<div style="width:18px;height:18px;border-radius:50%;background:#FFD24A;border:3px solid #0A0806;box-shadow:0 0 0 4px rgba(255,210,74,0.25);"></div>`,
       iconSize:[18,18], iconAnchor:[9,9]
