@@ -169,17 +169,24 @@
   .nav-search{
     display:flex;align-items:center;gap:8px;
     background:var(--iron);border:1px solid var(--line);border-radius:30px;
-    padding:9px 14px;flex:0 1 210px;min-width:0;
-    transition:border-color .2s ease, background .2s ease;
+    padding:9px 14px;flex:0 1 220px;min-width:0;cursor:text;
+    transition:border-color .2s ease, background .2s ease, box-shadow .2s ease;
   }
-  .nav-search:focus-within{border-color:var(--teal);background:var(--steel);}
+  .nav-search:hover{border-color:var(--line-strong, rgba(255,210,74,0.32));}
+  .nav-search:focus-within{border-color:var(--teal);background:var(--steel);box-shadow:0 0 0 3px rgba(255,210,74,0.1);}
   .nav-search svg{width:16px;height:16px;color:var(--paper-dim);flex:none;}
   .nav-search input{
     background:transparent;border:none;outline:none;color:var(--paper);
-    font-size:13px;font-weight:500;width:100%;min-width:0;
+    font-size:13px;font-weight:500;width:100%;min-width:0;cursor:text;
   }
   .nav-search input::placeholder{color:var(--paper-dim);}
   .nav-search input::-webkit-search-cancel-button{filter:invert(1);opacity:0.6;cursor:pointer;}
+  .nav-search .kbd-hint{
+    flex:none;display:none;align-items:center;justify-content:center;
+    font-family:'Space Mono',monospace;font-size:10px;letter-spacing:0.5px;color:var(--paper-dim);
+    border:1px solid var(--line);border-radius:5px;padding:2px 6px;white-space:nowrap;
+  }
+  @media (min-width:1181px){ nav.wrap > .nav-search .kbd-hint{display:inline-flex;} }
   .mic-btn{
     display:inline-flex;align-items:center;justify-content:center;
     width:22px;height:22px;border-radius:50%;border:none;background:transparent;
@@ -2259,6 +2266,172 @@
     .faq-icon::after{height:10px;}
     .faq-a-inner p{padding:0 16px 20px 46px;font-size:13.5px;}
   }
+
+  /* ==========================================================================
+     PREMIUM SEARCH OVERLAY — opens full-screen when either nav search box
+     is clicked/focused. Separate "command palette"-style search experience:
+     live product results, recent searches, trending categories, quick add.
+     ========================================================================== */
+  .search-overlay{
+    position:fixed;inset:0;z-index:400;
+    display:none;
+    background:radial-gradient(120% 100% at 50% 0%, rgba(255,210,74,0.07) 0%, transparent 45%), rgba(6,5,3,0.86);
+    backdrop-filter:blur(14px) saturate(1.1);
+    -webkit-backdrop-filter:blur(14px) saturate(1.1);
+  }
+  .search-overlay.active{display:block;}
+  .search-overlay-inner{
+    max-width:900px;margin:0 auto;
+    height:100%;
+    display:flex;flex-direction:column;
+    padding:0 20px;
+  }
+  @keyframes so-drop-in{
+    0%{opacity:0;transform:translateY(-14px) scale(0.99);}
+    100%{opacity:1;transform:translateY(0) scale(1);}
+  }
+  .search-overlay-bar{
+    margin-top:22px;flex:none;
+    display:flex;align-items:center;gap:12px;
+    background:linear-gradient(165deg, var(--steel) 0%, var(--iron) 140%);
+    border:1px solid var(--line-strong, rgba(255,210,74,0.32));
+    border-radius:16px;
+    padding:8px 10px 8px 20px;
+    box-shadow:0 24px 60px rgba(0,0,0,0.55), inset 0 1px 0 rgba(255,255,255,0.04);
+    animation:so-drop-in .32s cubic-bezier(.2,.8,.2,1);
+  }
+  .search-overlay-bar:focus-within{border-color:var(--teal);}
+  .search-overlay-bar svg.so-icon{width:22px;height:22px;color:var(--teal);flex:none;}
+  .search-overlay-bar input{
+    flex:1;min-width:0;background:transparent;border:none;outline:none;
+    color:var(--paper);font-family:'Inter',sans-serif;font-size:19px;font-weight:600;
+    padding:12px 4px;letter-spacing:0.2px;
+  }
+  .search-overlay-bar input::placeholder{color:var(--paper-dim);font-weight:500;}
+  .so-action-btn{
+    display:inline-flex;align-items:center;justify-content:center;
+    width:38px;height:38px;border-radius:10px;border:1px solid transparent;background:transparent;
+    color:var(--paper-dim);cursor:pointer;flex:none;transition:color .2s ease, background .2s ease, border-color .2s ease;
+  }
+  .so-action-btn svg{width:18px;height:18px;}
+  .so-action-btn:hover{color:var(--teal);background:rgba(255,210,74,0.08);border-color:var(--line);}
+  .so-action-btn.listening{color:var(--teal);animation:mic-pulse 1s ease-in-out infinite;}
+  .so-close-btn{
+    display:inline-flex;align-items:center;justify-content:center;
+    width:42px;height:42px;border-radius:10px;border:1px solid var(--line);background:var(--iron-light);
+    color:var(--paper);cursor:pointer;flex:none;transition:border-color .2s ease, color .2s ease;
+    margin-left:2px;
+  }
+  .so-close-btn svg{width:17px;height:17px;}
+  .so-close-btn:hover{border-color:var(--teal);color:var(--teal);}
+  .so-esc-hint{
+    display:none;align-items:center;justify-content:center;
+    font-family:'Space Mono',monospace;font-size:10.5px;color:var(--paper-dim);
+    border:1px solid var(--line);border-radius:6px;padding:3px 7px;flex:none;letter-spacing:0.5px;
+  }
+  @media (min-width:720px){ .so-esc-hint{display:inline-flex;} }
+
+  .search-overlay-body{
+    flex:1;min-height:0;overflow-y:auto;
+    padding:26px 2px 60px;
+    animation:so-drop-in .38s cubic-bezier(.2,.8,.2,1);
+  }
+  .search-overlay-body::-webkit-scrollbar{width:8px;}
+  .search-overlay-body::-webkit-scrollbar-thumb{background:var(--iron-light);border-radius:8px;}
+
+  .so-section-label{
+    font-family:'Space Mono',monospace;font-size:11px;letter-spacing:2.5px;text-transform:uppercase;
+    color:var(--teal);margin:0 0 14px;display:flex;align-items:center;justify-content:space-between;gap:10px;
+  }
+  .so-clear-recent{
+    font-family:'Inter',sans-serif;font-size:11.5px;letter-spacing:0;color:var(--paper-dim);
+    text-transform:none;background:none;border:none;cursor:pointer;font-weight:600;
+  }
+  .so-clear-recent:hover{color:var(--teal);}
+
+  .so-chip-row{display:flex;flex-wrap:wrap;gap:10px;margin-bottom:32px;}
+  .so-chip{
+    display:inline-flex;align-items:center;gap:7px;
+    padding:9px 16px;border-radius:30px;border:1px solid var(--line);
+    background:var(--steel);color:var(--paper);font-size:13.5px;font-weight:600;
+    cursor:pointer;transition:border-color .2s ease, color .2s ease, transform .15s ease, background .2s ease;
+  }
+  .so-chip:hover{border-color:var(--teal);color:var(--teal);transform:translateY(-1px);background:var(--iron);}
+  .so-chip.so-chip-recent{background:transparent;}
+  .so-chip.so-chip-recent svg{width:13px;height:13px;color:var(--paper-dim);flex:none;}
+
+  .so-cat-grid{
+    display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:12px;margin-bottom:8px;
+  }
+  .so-cat-card{
+    position:relative;overflow:hidden;
+    border:1px solid var(--line);border-radius:12px;
+    background:linear-gradient(150deg, var(--steel), var(--iron) 160%);
+    padding:18px 16px;cursor:pointer;transition:border-color .2s ease, transform .15s ease;
+  }
+  .so-cat-card:hover{border-color:var(--teal);transform:translateY(-2px);}
+  .so-cat-card .so-cat-emoji{font-size:22px;display:block;margin-bottom:10px;}
+  .so-cat-card .so-cat-name{font-size:13.5px;font-weight:700;color:var(--paper);line-height:1.3;}
+
+  .so-results-count{
+    font-family:'Space Mono',monospace;font-size:11.5px;color:var(--paper-dim);letter-spacing:1px;
+    margin-bottom:16px;text-transform:uppercase;
+  }
+  .so-results-count b{color:var(--teal);}
+
+  .so-results-grid{display:flex;flex-direction:column;gap:2px;}
+  .so-result-card{
+    display:flex;align-items:center;gap:16px;
+    padding:12px;border-radius:14px;border:1px solid transparent;
+    cursor:pointer;transition:background .15s ease, border-color .15s ease;
+  }
+  .so-result-card:hover, .so-result-card.so-active{
+    background:linear-gradient(90deg, rgba(255,210,74,0.08), transparent);
+    border-color:var(--line);
+  }
+  .so-result-photo{
+    width:64px;height:64px;flex:none;border-radius:10px;overflow:hidden;
+    background:var(--iron);display:flex;align-items:center;justify-content:center;
+    border:1px solid var(--line);position:relative;
+  }
+  .so-result-photo img{width:100%;height:100%;object-fit:cover;}
+  .so-result-photo svg{width:22px;height:22px;color:var(--paper-dim);}
+  .so-result-info{flex:1;min-width:0;}
+  .so-result-name{font-size:14.5px;font-weight:700;color:var(--paper);line-height:1.3;
+    white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+  .so-result-meta{display:flex;align-items:center;gap:8px;margin-top:4px;flex-wrap:wrap;}
+  .so-result-brand{font-family:'Space Mono',monospace;font-size:10.5px;color:var(--paper-dim);letter-spacing:0.5px;text-transform:uppercase;}
+  .so-result-cat{font-size:10.5px;color:var(--teal);background:rgba(255,210,74,0.1);padding:2px 8px;border-radius:20px;font-weight:700;letter-spacing:0.4px;text-transform:uppercase;}
+  .so-result-price-wrap{flex:none;text-align:right;}
+  .so-result-price{font-family:'Inter',sans-serif;font-weight:800;font-size:15px;color:var(--paper);}
+  .so-result-compare{font-size:11.5px;color:var(--paper-dim);text-decoration:line-through;margin-left:5px;}
+  .so-result-oos{font-size:10.5px;color:#FF7A6E;font-weight:700;letter-spacing:0.4px;text-transform:uppercase;margin-top:3px;}
+  .so-result-arrow{flex:none;width:16px;height:16px;color:var(--paper-dim);transition:transform .15s ease, color .15s ease;}
+  .so-result-card:hover .so-result-arrow{transform:translateX(3px);color:var(--teal);}
+
+  .so-view-all{
+    display:flex;align-items:center;justify-content:center;gap:8px;
+    margin-top:18px;padding:14px;border-radius:12px;border:1px dashed var(--line);
+    color:var(--teal);font-weight:700;font-size:13.5px;cursor:pointer;transition:border-color .2s ease, background .2s ease;
+  }
+  .so-view-all:hover{border-style:solid;background:rgba(255,210,74,0.06);}
+
+  .so-empty{
+    text-align:center;padding:60px 20px;color:var(--paper-dim);
+  }
+  .so-empty svg{width:44px;height:44px;color:var(--iron-light);margin-bottom:16px;}
+  .so-empty h4{font-family:'Inter',sans-serif;font-weight:800;text-transform:none;letter-spacing:0;color:var(--paper);font-size:16px;margin-bottom:6px;}
+  .so-empty p{font-size:13.5px;line-height:1.6;max-width:340px;margin:0 auto;}
+
+  body.so-lock{overflow:hidden;}
+  @media (max-width:640px){
+    .search-overlay-bar{margin-top:14px;padding:6px 6px 6px 14px;border-radius:14px;}
+    .search-overlay-bar input{font-size:16px;padding:10px 2px;}
+    .so-close-btn{width:38px;height:38px;}
+    .search-overlay-body{padding:20px 0 100px;}
+    .so-result-photo{width:56px;height:56px;}
+    .so-cat-grid{grid-template-columns:repeat(auto-fill,minmax(130px,1fr));}
+  }
 </style>
 </head>
 <body>
@@ -2275,15 +2448,16 @@
       </div>
     </a>
     <div class="mobile-search-bar">
-      <div class="nav-search">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
+      <div class="nav-search" onclick="if(event.target===this) openSearchOverlay('mobile');">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" onclick="openSearchOverlay('mobile')" style="cursor:pointer;"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
         <input
           type="search"
           id="search-input-mobile-bar"
           placeholder="Search"
           aria-label="Search products"
-          oninput="handleSearchInput(this.value)"
-          onkeydown="if(event.key==='Enter'){goToProducts();this.blur();}">
+          readonly
+          onfocus="this.blur();openSearchOverlay('mobile');"
+          onclick="openSearchOverlay('mobile')">
         <button type="button" class="cam-btn" id="cam-btn-mobile" aria-label="Search by photo" onclick="openPhotoSearchSheet('mobile')">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 8a2 2 0 0 1 2-2h1.2l.9-1.4A1.8 1.8 0 0 1 9.6 4h4.8a1.8 1.8 0 0 1 1.5.9L16.8 6H18a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V8z"/><circle cx="12" cy="13" r="3.4"/></svg>
         </button>
@@ -2304,22 +2478,23 @@
       <a href="#" onclick="openMyReward();return false;" style="color:var(--teal);">🎁 My Reward</a>
       <a href="complaints.html">Support</a>
     </div>
-    <div class="nav-search">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
+    <div class="nav-search" onclick="if(event.target===this) openSearchOverlay('desktop');">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" onclick="openSearchOverlay('desktop')" style="cursor:pointer;"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
       <input
         type="search"
         id="search-input-desktop"
         placeholder="Search products…"
         aria-label="Search products"
-        oninput="handleSearchInput(this.value)"
-        onfocus="goToProducts()"
-        onkeydown="if(event.key==='Enter'){goToProducts();this.blur();}">
+        readonly
+        onfocus="this.blur();openSearchOverlay('desktop');"
+        onclick="openSearchOverlay('desktop')">
       <button type="button" class="cam-btn" id="cam-btn-desktop" aria-label="Search by photo" onclick="openPhotoSearchSheet('desktop')">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 8a2 2 0 0 1 2-2h1.2l.9-1.4A1.8 1.8 0 0 1 9.6 4h4.8a1.8 1.8 0 0 1 1.5.9L16.8 6H18a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V8z"/><circle cx="12" cy="13" r="3.4"/></svg>
       </button>
       <button type="button" class="mic-btn" id="mic-btn-desktop" aria-label="Search by voice" onclick="startVoiceSearch('desktop')">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 15a3 3 0 0 0 3-3V6a3 3 0 0 0-6 0v6a3 3 0 0 0 3 3z"/><path d="M19 11a7 7 0 0 1-14 0"/><path d="M12 18v3"/></svg>
       </button>
+      <span class="kbd-hint">⌘K</span>
     </div>
     <div class="nav-cta">
       <button class="account-nav-btn" id="account-nav-btn-desktop" aria-label="My Account" onclick="openAccountEntry()">
@@ -2377,6 +2552,34 @@
     </div>
   </div>
 </header>
+
+<!-- PREMIUM SEARCH OVERLAY — opens on click/focus of either nav search box -->
+<div class="search-overlay" id="search-overlay" role="dialog" aria-modal="true" aria-label="Search products" onclick="if(event.target===this) closeSearchOverlay();">
+  <div class="search-overlay-inner">
+    <div class="search-overlay-bar">
+      <svg class="so-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
+      <input
+        type="text"
+        id="search-overlay-input"
+        placeholder="Search protein, creatine, brand, category…"
+        aria-label="Search products"
+        autocomplete="off"
+        oninput="soHandleInput(this.value)"
+        onkeydown="soHandleKeydown(event)">
+      <button type="button" class="so-action-btn" id="so-mic-btn" aria-label="Search by voice" onclick="startVoiceSearch('overlay')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 15a3 3 0 0 0 3-3V6a3 3 0 0 0-6 0v6a3 3 0 0 0 3 3z"/><path d="M19 11a7 7 0 0 1-14 0"/><path d="M12 18v3"/></svg>
+      </button>
+      <button type="button" class="so-action-btn" id="so-cam-btn" aria-label="Search by photo" onclick="openPhotoSearchSheet('overlay')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 8a2 2 0 0 1 2-2h1.2l.9-1.4A1.8 1.8 0 0 1 9.6 4h4.8a1.8 1.8 0 0 1 1.5.9L16.8 6H18a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V8z"/><circle cx="12" cy="13" r="3.4"/></svg>
+      </button>
+      <span class="so-esc-hint">ESC</span>
+      <button type="button" class="so-close-btn" aria-label="Close search" onclick="closeSearchOverlay()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg>
+      </button>
+    </div>
+    <div class="search-overlay-body" id="search-overlay-body"><!-- filled by soRender() --></div>
+  </div>
+</div>
 
 <!-- PHOTO SEARCH -->
 <input type="file" id="photo-search-camera-input" accept="image/*" capture="environment" style="display:none" onchange="handlePhotoSearchFile(this.files)">
@@ -4420,6 +4623,245 @@ function goToProducts(){
   document.getElementById('products').scrollIntoView({behavior:'smooth'});
 }
 
+/* ==========================================================================
+   PREMIUM SEARCH OVERLAY
+   Full-screen "command palette" style search that opens the moment either
+   nav search box is clicked/focused. Shows live product results, recent
+   searches (localStorage) and trending categories when empty.
+   ========================================================================== */
+const SO_TRENDING_CHIPS = [
+  { emoji:'💪', label:'Whey Protein', category:'Whey Protein' },
+  { emoji:'⚡', label:'Pre-Workout', category:'Pre-Workout' },
+  { emoji:'🧬', label:'Creatine', category:'Creatine' },
+  { emoji:'🥤', label:'Mass Gainer', category:'Mass Gainer' },
+  { emoji:'❤️', label:'Health Supplements', category:'Health Supplements' },
+  { emoji:'🏋️', label:'Gym Accessories', category:'Gym Accessories' },
+  { emoji:'🔥', label:'Offers & Deals', category:'__OFFERS__' }
+];
+const SO_RECENT_KEY = 'nf_recent_searches';
+let SO_LAST_TRIGGER = 'desktop';
+let SO_ACTIVE_INDEX = -1;
+let SO_WAS_OPEN_BEFORE_PHOTO = false;
+
+function soGetRecent(){
+  try{ return JSON.parse(localStorage.getItem(SO_RECENT_KEY) || '[]'); }catch(e){ return []; }
+}
+function soSaveRecent(term){
+  term = (term || '').trim();
+  if(!term) return;
+  let recent = soGetRecent().filter(t => t.toLowerCase() !== term.toLowerCase());
+  recent.unshift(term);
+  recent = recent.slice(0, 6);
+  try{ localStorage.setItem(SO_RECENT_KEY, JSON.stringify(recent)); }catch(e){}
+}
+function soClearRecent(){
+  try{ localStorage.removeItem(SO_RECENT_KEY); }catch(e){}
+  soRender();
+}
+
+function openSearchOverlay(which){
+  SO_LAST_TRIGGER = which || 'desktop';
+  const overlay = document.getElementById('search-overlay');
+  const sourceInput = document.getElementById(which === 'mobile' ? 'search-input-mobile-bar' : 'search-input-desktop');
+  const overlayInput = document.getElementById('search-overlay-input');
+  overlayInput.value = sourceInput ? sourceInput.value : '';
+  overlay.classList.add('active');
+  document.body.classList.add('so-lock');
+  SO_ACTIVE_INDEX = -1;
+  soRender();
+  // Focus after the overlay is painted so mobile keyboards open reliably.
+  setTimeout(() => overlayInput.focus({ preventScroll:true }), 30);
+}
+
+function closeSearchOverlay(){
+  const overlay = document.getElementById('search-overlay');
+  overlay.classList.remove('active');
+  document.body.classList.remove('so-lock');
+  const overlayInput = document.getElementById('search-overlay-input');
+  if(overlayInput) overlayInput.blur();
+}
+
+let soDebounceTimer = null;
+function soHandleInput(value){
+  clearTimeout(soDebounceTimer);
+  soDebounceTimer = setTimeout(() => {
+    SO_ACTIVE_INDEX = -1;
+    soRender();
+  }, 90);
+}
+
+function soHandleKeydown(event){
+  const results = document.querySelectorAll('#search-overlay-body .so-result-card');
+  if(event.key === 'Escape'){
+    closeSearchOverlay();
+    return;
+  }
+  if(event.key === 'ArrowDown'){
+    event.preventDefault();
+    if(!results.length) return;
+    SO_ACTIVE_INDEX = Math.min(SO_ACTIVE_INDEX + 1, results.length - 1);
+    soHighlightActive(results);
+    return;
+  }
+  if(event.key === 'ArrowUp'){
+    event.preventDefault();
+    if(!results.length) return;
+    SO_ACTIVE_INDEX = Math.max(SO_ACTIVE_INDEX - 1, 0);
+    soHighlightActive(results);
+    return;
+  }
+  if(event.key === 'Enter'){
+    event.preventDefault();
+    const query = document.getElementById('search-overlay-input').value.trim();
+    if(SO_ACTIVE_INDEX >= 0 && results[SO_ACTIVE_INDEX]){
+      results[SO_ACTIVE_INDEX].click();
+      return;
+    }
+    if(query){
+      soSaveRecent(query);
+      soViewAllResults(query);
+    }
+  }
+}
+function soHighlightActive(results){
+  results.forEach((el,i) => el.classList.toggle('so-active', i === SO_ACTIVE_INDEX));
+  if(SO_ACTIVE_INDEX >= 0 && results[SO_ACTIVE_INDEX]) results[SO_ACTIVE_INDEX].scrollIntoView({ block:'nearest' });
+}
+
+function soMatchProducts(query){
+  const list = Array.isArray(PRODUCTS) ? PRODUCTS.filter(p => (p.category || '').toLowerCase() !== 'fitness lifestyle') : [];
+  const tokens = query.trim().toLowerCase().split(/\s+/).filter(Boolean);
+  if(!tokens.length) return [];
+  return list.filter(p => {
+    const flavorNames = Array.isArray(p.flavors) ? p.flavors.map(f => f.name || '').join(' ') : '';
+    const combined = [p.name, p.brand, p.category, flavorNames].filter(Boolean).join(' ').toLowerCase();
+    return tokens.every(t => combined.includes(t));
+  });
+}
+
+function soResultCardHTML(p){
+  const eff = getEffectivePricing(p);
+  const imgs = getProductImages(p);
+  const stock = (p.stock === undefined || p.stock === null) ? null : Number(p.stock);
+  const outOfStock = stock !== null && stock <= 0;
+  return `
+    <div class="so-result-card" onclick="soSelectProduct('${p.id}')">
+      <div class="so-result-photo">
+        ${imgs[0]
+          ? `<img src="${escapeHtml(imgs[0])}" alt="${escapeHtml(p.name)}" loading="lazy" onerror="this.parentElement.innerHTML='<svg viewBox=\\'0 0 24 24\\' fill=\\'none\\' stroke=\\'currentColor\\' stroke-width=\\'1.5\\'><rect x=\\'6\\' y=\\'3\\' width=\\'12\\' height=\\'18\\' rx=\\'2\\'/></svg>'">`
+          : `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="6" y="3" width="12" height="18" rx="2"/><path d="M9 3v3h6V3"/></svg>`}
+      </div>
+      <div class="so-result-info">
+        <div class="so-result-name">${escapeHtml(p.name)}</div>
+        <div class="so-result-meta">
+          ${p.brand ? `<span class="so-result-brand">${escapeHtml(p.brand)}</span>` : ''}
+          ${p.category ? `<span class="so-result-cat">${escapeHtml(p.category)}</span>` : ''}
+        </div>
+        ${outOfStock ? `<div class="so-result-oos">Out of Stock</div>` : ''}
+      </div>
+      <div class="so-result-price-wrap">
+        <div><span class="so-result-price">₹${eff.price.toLocaleString('en-IN')}</span>${eff.hasDiscount ? `<span class="so-result-compare">₹${eff.compare.toLocaleString('en-IN')}</span>` : ''}</div>
+      </div>
+      <svg class="so-result-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg>
+    </div>`;
+}
+
+function soRenderTrending(){
+  const recent = soGetRecent();
+  const body = document.getElementById('search-overlay-body');
+  body.innerHTML = `
+    ${recent.length ? `
+      <div class="so-section-label">Recent Searches <button type="button" class="so-clear-recent" onclick="soClearRecent()">Clear</button></div>
+      <div class="so-chip-row">
+        ${recent.map(term => `
+          <button type="button" class="so-chip so-chip-recent" onclick="soApplyTextChip('${escapeHtml(term).replace(/'/g, "\\'")}')">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg>
+            ${escapeHtml(term)}
+          </button>`).join('')}
+      </div>
+    ` : ''}
+    <div class="so-section-label">Trending Categories</div>
+    <div class="so-cat-grid">
+      ${SO_TRENDING_CHIPS.map(c => `
+        <div class="so-cat-card" onclick="soApplyCategoryChip('${c.category.replace(/'/g, "\\'")}')">
+          <span class="so-cat-emoji">${c.emoji}</span>
+          <span class="so-cat-name">${escapeHtml(c.label)}</span>
+        </div>`).join('')}
+    </div>
+  `;
+}
+
+function soRenderResults(query){
+  const body = document.getElementById('search-overlay-body');
+  const matches = soMatchProducts(query);
+  if(!matches.length){
+    body.innerHTML = `
+      <div class="so-empty">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
+        <h4>No products found</h4>
+        <p>We couldn't find anything for "${escapeHtml(query)}". Try a different name, brand or category — or search by voice/photo.</p>
+      </div>`;
+    return;
+  }
+  const shown = matches.slice(0, 8);
+  body.innerHTML = `
+    <div class="so-results-count"><b>${matches.length}</b> result${matches.length === 1 ? '' : 's'} for "${escapeHtml(query)}"</div>
+    <div class="so-results-grid">${shown.map(soResultCardHTML).join('')}</div>
+    ${matches.length > shown.length ? `<div class="so-view-all" onclick="soViewAllResults('${query.replace(/'/g, "\\'")}')">View all ${matches.length} results<svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></div>` : ''}
+  `;
+}
+
+function soRender(){
+  const query = (document.getElementById('search-overlay-input').value || '').trim();
+  if(query) soRenderResults(query);
+  else soRenderTrending();
+}
+
+function soApplyTextChip(term){
+  const overlayInput = document.getElementById('search-overlay-input');
+  overlayInput.value = term;
+  SO_ACTIVE_INDEX = -1;
+  soRender();
+}
+
+function soApplyCategoryChip(category){
+  closeSearchOverlay();
+  if(category === '__OFFERS__') filterOffers();
+  else filterByCategory(category);
+}
+
+function soSelectProduct(id){
+  const overlayInput = document.getElementById('search-overlay-input');
+  soSaveRecent(overlayInput.value);
+  closeSearchOverlay();
+  openQuickView(id);
+}
+
+function soViewAllResults(query){
+  query = query !== undefined ? query : (document.getElementById('search-overlay-input').value || '');
+  soSaveRecent(query);
+  ACTIVE_CATEGORY = '';
+  const catBar = document.getElementById('active-category-bar');
+  if(catBar) catBar.style.display = 'none';
+  handleSearchInput(query);
+  closeSearchOverlay();
+  goToProducts();
+}
+
+// Global shortcut: Ctrl/Cmd+K opens search from anywhere; Escape closes it
+// even if focus has moved off the overlay's own input.
+document.addEventListener('keydown', (e) => {
+  if((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'k'){
+    e.preventDefault();
+    openSearchOverlay('desktop');
+    return;
+  }
+  if(e.key === 'Escape'){
+    const overlay = document.getElementById('search-overlay');
+    if(overlay && overlay.classList.contains('active')) closeSearchOverlay();
+  }
+});
+
 /* ---------- voice search (Web Speech API) ---------- */
 const SpeechRecognitionAPI = window.SpeechRecognition || window.webkitSpeechRecognition;
 let voiceRecognition = null;
@@ -4436,7 +4878,8 @@ function startVoiceSearch(which){
     alert('Voice search is not supported on this browser. Please try Chrome on Android/Desktop.');
     return;
   }
-  const btn = document.getElementById(which === 'mobile' ? 'mic-btn-mobile' : 'mic-btn-desktop');
+  const micBtnIds = { mobile:'mic-btn-mobile', desktop:'mic-btn-desktop', overlay:'so-mic-btn' };
+  const btn = document.getElementById(micBtnIds[which] || 'mic-btn-desktop');
 
   // If already listening, stop it (acts as a toggle)
   if(voiceRecognition && voiceListeningBtn){
@@ -4558,6 +5001,12 @@ function handleVoiceResult(transcript, which){
     const catBar = document.getElementById('active-category-bar');
     if(catBar) catBar.style.display = 'none';
     applyFilters();
+    if(which === 'overlay'){
+      soSaveRecent(top.product.name);
+      closeSearchOverlay();
+      setTimeout(()=> openQuickView(top.product.id), 250);
+      return;
+    }
     goToProducts();
     if(which === 'mobile') document.getElementById('search-input-mobile-bar').blur();
     setTimeout(()=> openQuickView(top.product.id), 450);
@@ -4566,6 +5015,14 @@ function handleVoiceResult(transcript, which){
 
   // broader term (e.g. "whey protein", "protein bar", "shilajit") -> show all matching products
   const cleanedQuery = tokens.join(' ');
+  if(which === 'overlay'){
+    const overlayInput = document.getElementById('search-overlay-input');
+    overlayInput.value = cleanedQuery || transcript;
+    document.getElementById('search-input-desktop').value = overlayInput.value;
+    document.getElementById('search-input-mobile-bar').value = overlayInput.value;
+    soRender();
+    return;
+  }
   handleSearchInput(cleanedQuery || transcript);
   goToProducts();
   if(which === 'mobile') document.getElementById('search-input-mobile-bar').blur();
@@ -4575,6 +5032,11 @@ function handleVoiceResult(transcript, which){
 let PHOTO_SEARCH_HASH_CACHE = null; // cached {product, hash}[] so we don't re-hash every search
 
 function openPhotoSearchSheet(which){
+  // The photo-search sheet sits at a lower z-index than the search overlay —
+  // step the search overlay aside while the photo sheet is up so it's visible.
+  const searchOverlay = document.getElementById('search-overlay');
+  SO_WAS_OPEN_BEFORE_PHOTO = which === 'overlay' && searchOverlay.classList.contains('active');
+  if(SO_WAS_OPEN_BEFORE_PHOTO) searchOverlay.classList.remove('active');
   document.getElementById('photo-search-choice-view').style.display = 'block';
   document.getElementById('photo-search-loading-view').classList.remove('active');
   document.getElementById('photo-search-overlay').classList.add('active');
@@ -4583,6 +5045,11 @@ function closePhotoSearchSheet(){
   document.getElementById('photo-search-overlay').classList.remove('active');
   document.getElementById('photo-search-camera-input').value = '';
   document.getElementById('photo-search-gallery-input').value = '';
+  if(SO_WAS_OPEN_BEFORE_PHOTO){
+    SO_WAS_OPEN_BEFORE_PHOTO = false;
+    document.getElementById('search-overlay').classList.add('active');
+    soRender();
+  }
 }
 
 // ===== TRUST BADGE INFO MODAL =====
