@@ -1297,39 +1297,131 @@
   .qv-rating .stars-static{color:var(--amber);font-size:16px;letter-spacing:2px;}
   .qv-rating .count{font-size:12.5px;color:var(--paper-dim);}
   .qv-review-block{margin-top:28px;padding-top:22px;border-top:1px solid var(--line);}
-  .qv-review-block h4{font-size:14px;text-transform:uppercase;letter-spacing:1px;font-family:'Space Mono',monospace;color:var(--teal);margin-bottom:14px;}
-  .star-picker{display:flex;gap:6px;font-size:26px;line-height:1;}
-  .star-picker span{cursor:pointer;color:var(--iron-light);transition:color .12s, transform .12s;}
-  .star-picker span:hover{transform:scale(1.1);}
-  .star-picker span.active{color:var(--amber);}
-  .review-form-field{margin-top:12px;}
+  .qv-review-block-head{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;margin-bottom:14px;}
+  .qv-review-block-head h4{font-size:14px;text-transform:uppercase;letter-spacing:1px;font-family:'Space Mono',monospace;color:var(--teal);margin:0;}
+  .review-open-pill{
+    display:inline-flex;align-items:center;gap:6px;
+    font-family:'Space Mono',monospace;font-size:10px;letter-spacing:0.8px;text-transform:uppercase;
+    color:var(--ink-black);background:linear-gradient(135deg,var(--amber),var(--gold-light));
+    padding:5px 11px;border-radius:20px;font-weight:700;
+    box-shadow:0 4px 14px rgba(255,210,74,0.25);
+  }
+  .review-open-pill::before{content:'✓';font-weight:900;}
+
+  /* ---- premium "write a review" card ---- */
+  .review-write-card{
+    margin-top:22px;position:relative;border-radius:16px;padding:1px;
+    background:linear-gradient(140deg, rgba(255,226,122,0.55), rgba(255,210,74,0.08) 35%, rgba(255,210,74,0.02) 60%, rgba(255,226,122,0.35));
+  }
+  .review-write-card > .review-write-inner{
+    background:radial-gradient(120% 140% at 0% 0%, rgba(255,210,74,0.07), transparent 55%), var(--steel);
+    border-radius:15px;padding:24px 22px 22px;
+  }
+  .review-write-head{display:flex;align-items:flex-start;gap:12px;margin-bottom:18px;}
+  .review-write-icon{
+    flex:none;width:38px;height:38px;border-radius:50%;
+    display:flex;align-items:center;justify-content:center;font-size:16px;
+    background:linear-gradient(135deg,var(--amber),var(--teal) 60%,#E6A700);color:var(--ink-black);
+    box-shadow:0 6px 16px rgba(255,210,74,0.3);
+  }
+  .review-write-title{font-weight:800;font-size:15px;letter-spacing:0.2px;}
+  .review-write-sub{font-size:12px;color:var(--paper-dim);margin-top:3px;line-height:1.5;}
+  .optional-tag{font-weight:400;text-transform:none;letter-spacing:0;color:var(--paper-dim);opacity:0.85;}
+
+  .star-picker{display:flex;gap:8px;font-size:30px;line-height:1;}
+  .star-picker span{cursor:pointer;color:var(--iron-light);transition:color .12s, transform .12s, filter .12s;}
+  .star-picker span:hover{transform:scale(1.15);}
+  .star-picker span.active{color:var(--amber);filter:drop-shadow(0 0 6px rgba(255,210,74,0.55));}
+  .review-form-field{margin-top:14px;}
   .review-form-field label{display:block;font-size:12px;color:var(--paper-dim);margin-bottom:6px;letter-spacing:0.5px;}
   .review-form-field input, .review-form-field textarea{
     width:100%;background:var(--iron);border:1px solid var(--line);border-radius:8px;
     padding:11px 13px;color:var(--paper);font-family:'Inter',sans-serif;font-size:14px;resize:vertical;
   }
-  .review-form-field input:focus, .review-form-field textarea:focus{outline:none;border-color:var(--teal);}
+  .review-form-field input:focus, .review-form-field textarea:focus{outline:none;border-color:var(--teal);box-shadow:0 0 0 3px rgba(255,210,74,0.12);}
   .review-submit-msg{font-size:12.5px;margin-top:10px;display:none;}
   .review-submit-msg.ok{color:var(--teal);}
   .review-submit-msg.err{color:#FF8A8A;}
-  .existing-reviews{margin-top:22px;display:flex;flex-direction:column;}
-  .review-item{padding:14px 0;border-bottom:1px solid var(--line);}
-  .review-item:last-child{border-bottom:none;}
-  .review-item .rhead{display:flex;align-items:center;gap:10px;flex-wrap:wrap;}
-  .review-item .rname{font-weight:700;font-size:13px;}
+
+  /* ---- review photo upload (multi) ---- */
+  .review-photo-grid{display:flex;flex-wrap:wrap;gap:10px;margin-bottom:10px;}
+  .review-photo-thumb{position:relative;width:74px;height:74px;border-radius:10px;overflow:hidden;border:1px solid var(--line);flex:none;}
+  .review-photo-thumb img{width:100%;height:100%;object-fit:cover;}
+  .review-photo-remove{
+    position:absolute;top:3px;right:3px;width:19px;height:19px;border-radius:50%;border:none;
+    background:rgba(10,8,6,0.75);color:var(--paper);font-size:13px;line-height:1;cursor:pointer;
+    display:flex;align-items:center;justify-content:center;
+  }
+  .review-photo-remove:hover{background:#FF6B6B;color:#fff;}
+  .review-photo-add{
+    display:flex;align-items:center;gap:8px;width:fit-content;
+    border:1px dashed var(--line);border-radius:10px;padding:10px 16px;cursor:pointer;
+    font-size:12.5px;color:var(--paper-dim);transition:border-color .15s, color .15s;
+  }
+  .review-photo-add:hover{border-color:var(--teal);color:var(--teal);}
+  .review-photo-add-icon{font-size:16px;font-weight:700;color:var(--teal);}
+  .review-photo-note{font-size:11.5px;color:#FFB84D;margin-top:6px;display:none;}
+  .review-photo-strip{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px;}
+  .review-photo-strip img{
+    width:64px;height:64px;object-fit:cover;border-radius:8px;border:1px solid var(--line);
+    cursor:pointer;transition:transform .15s;
+  }
+  .review-photo-strip img:hover{transform:scale(1.06);border-color:var(--teal);}
+  .review-photo-lightbox{
+    position:fixed;inset:0;background:rgba(5,4,2,0.92);z-index:9999;
+    display:none;align-items:center;justify-content:center;padding:30px;cursor:zoom-out;
+  }
+  .review-photo-lightbox.open{display:flex;}
+  .review-photo-lightbox img{max-width:min(92vw,700px);max-height:88vh;border-radius:10px;box-shadow:0 20px 60px rgba(0,0,0,0.6);}
+
+  .existing-reviews{margin-top:24px;display:flex;flex-direction:column;gap:16px;}
+  .review-item{
+    padding:18px;border-radius:14px;background:var(--iron);
+    border:1px solid var(--line);position:relative;overflow:hidden;
+  }
+  .review-item::before{
+    content:'';position:absolute;top:0;left:0;width:3px;height:100%;
+    background:linear-gradient(180deg,var(--amber),var(--teal));opacity:0.85;
+  }
+  .review-item .rhead{display:flex;align-items:flex-start;gap:12px;}
+  .review-avatar{
+    flex:none;width:38px;height:38px;border-radius:50%;
+    display:flex;align-items:center;justify-content:center;
+    font-family:'Space Mono',monospace;font-weight:700;font-size:15px;color:var(--ink-black);
+    background:linear-gradient(135deg,var(--amber),var(--gold-light));
+    box-shadow:0 4px 12px rgba(255,210,74,0.25);
+  }
+  .review-item .rhead-main{flex:1;min-width:0;}
+  .review-item .rhead-top{display:flex;align-items:center;gap:9px;flex-wrap:wrap;}
+  .review-item .rname{font-weight:700;font-size:13.5px;}
+  .review-item .rhead-sub{display:flex;align-items:center;gap:9px;margin-top:3px;flex-wrap:wrap;}
   .review-item .rdate{font-size:11px;color:var(--paper-dim);}
-  .review-item p{margin-top:6px;font-size:13.5px;color:var(--paper-dim);line-height:1.6;}
+  .review-item p{margin-top:10px;font-size:13.5px;color:var(--paper-dim);line-height:1.65;}
   .no-reviews-note{font-size:13px;color:var(--paper-dim);margin-top:14px;}
 
-  .reviews-section{border-top:1px solid var(--line);}
-  .reviews-track{display:grid;grid-template-columns:repeat(3,1fr);gap:22px;}
-  .review-card{background:var(--steel);border:1px solid var(--line);border-radius:10px;padding:26px;}
+  .reviews-section{border-top:1px solid var(--line);position:relative;overflow:hidden;}
+  .reviews-section::before{
+    content:'';position:absolute;top:-30%;right:-10%;width:60%;height:80%;
+    background:radial-gradient(circle,rgba(255,210,74,0.09),transparent 70%);pointer-events:none;
+  }
+  .reviews-track{display:grid;grid-template-columns:repeat(3,1fr);gap:22px;position:relative;z-index:1;}
+  .review-card{
+    background:linear-gradient(160deg, rgba(255,226,122,0.06), transparent 45%), var(--steel);
+    border:1px solid var(--line);border-radius:14px;padding:26px;position:relative;
+    transition:transform .2s ease, box-shadow .2s ease, border-color .2s ease;
+  }
+  .review-card:hover{transform:translateY(-4px);box-shadow:0 18px 40px rgba(0,0,0,0.35);border-color:rgba(255,210,74,0.4);}
+  .review-card::before{
+    content:'"';position:absolute;top:10px;right:18px;font-family:'Anton',sans-serif;
+    font-size:52px;color:rgba(255,210,74,0.12);line-height:1;pointer-events:none;
+  }
   .review-card .rc-top{display:flex;justify-content:space-between;align-items:flex-start;gap:10px;}
   .review-card .stars-static{color:var(--amber);font-size:13px;letter-spacing:2px;}
   .review-card .rc-product{
     font-family:'Space Mono',monospace;font-size:10px;color:var(--teal);letter-spacing:1px;text-transform:uppercase;
     background:var(--teal-dim);padding:4px 9px;border-radius:20px;white-space:nowrap;
   }
+  .review-card .review-photo-strip img{width:52px;height:52px;}
   .review-card p{margin-top:14px;font-size:14px;color:var(--paper-dim);line-height:1.6;}
   .review-card .who{margin-top:18px;font-size:13px;font-weight:700;font-family:'Space Mono',monospace;color:var(--paper);}
   @media (max-width:860px){ .reviews-track{grid-template-columns:1fr;} }
@@ -3262,25 +3354,59 @@ function renderRatingSummary(productId, big){
     ? `<div class="qv-rating"><span class="stars-static">${starsHtml}</span><span class="count">${avg.toFixed(1)} out of 5 · ${count} review${count>1?'s':''}</span></div>`
     : `<div class="prod-rating"><span class="stars-static">${starsHtml}</span><span>${avg.toFixed(1)} (${count})</span></div>`;
 }
+function reviewPhotoStripHtml(r){
+  const photos = Array.isArray(r.photo_urls) ? r.photo_urls.filter(Boolean) : [];
+  if(!photos.length) return '';
+  return `<div class="review-photo-strip">${photos.map(u=>`<img src="${escapeHtml(u)}" alt="Photo from ${escapeHtml(r.customer_name || 'reviewer')}" loading="lazy" onclick="openReviewPhotoLightbox('${encodeURI(u).replace(/'/g,"%27")}')">`).join('')}</div>`;
+}
+function reviewInitial(name){
+  const n = String(name || '').trim();
+  return n ? n.charAt(0).toUpperCase() : 'A';
+}
 function renderQvExistingReviews(productId){
   const box = document.getElementById('qv-existing-reviews');
   if(!box) return;
   const list = REVIEWS.filter(r=>r.product_id===productId && isPublishedReview(r));
   if(list.length===0){
-    box.innerHTML = `<div class="no-reviews-note">No reviews yet for this product.</div>`;
+    box.innerHTML = `<div class="no-reviews-note">No reviews yet for this product — be the first to share yours!</div>`;
     return;
   }
   box.innerHTML = list.map(r=>`
     <div class="review-item">
       <div class="rhead">
-        <span class="stars-static" style="font-size:13px;">${starsMarkup(Number(r.rating))}</span>
-        <span class="rname">${escapeHtml(r.customer_name || 'Anonymous')}</span>
-        ${r.verified_purchase ? '<span class="verified-badge"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M20 6L9 17l-5-5"/></svg>Verified Purchase</span>' : ''}
-        <span class="rdate">${formatReviewDate(r.created_at)}</span>
+        <span class="review-avatar">${escapeHtml(reviewInitial(r.customer_name))}</span>
+        <div class="rhead-main">
+          <div class="rhead-top">
+            <span class="rname">${escapeHtml(r.customer_name || 'Anonymous')}</span>
+            ${r.verified_purchase ? '<span class="verified-badge"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M20 6L9 17l-5-5"/></svg>Verified Purchase</span>' : ''}
+          </div>
+          <div class="rhead-sub">
+            <span class="stars-static" style="font-size:13px;">${starsMarkup(Number(r.rating))}</span>
+            <span class="rdate">${formatReviewDate(r.created_at)}</span>
+          </div>
+        </div>
       </div>
       ${r.review_text ? `<p>${escapeHtml(r.review_text)}</p>` : ''}
+      ${reviewPhotoStripHtml(r)}
     </div>
   `).join('');
+}
+/* ---------- review photo lightbox ---------- */
+function openReviewPhotoLightbox(url){
+  let overlay = document.getElementById('review-photo-lightbox');
+  if(!overlay){
+    overlay = document.createElement('div');
+    overlay.id = 'review-photo-lightbox';
+    overlay.className = 'review-photo-lightbox';
+    overlay.onclick = closeReviewPhotoLightbox;
+    document.body.appendChild(overlay);
+  }
+  overlay.innerHTML = `<img src="${url}" alt="Customer review photo">`;
+  overlay.classList.add('open');
+}
+function closeReviewPhotoLightbox(){
+  const overlay = document.getElementById('review-photo-lightbox');
+  if(overlay) overlay.classList.remove('open');
 }
 let QV_STAR = 0;
 function setQvStar(n){
@@ -3337,6 +3463,79 @@ async function verifyPurchase(phone, productName){
   if(error) return false;
   return !!data;
 }
+
+/* ---------- review photo upload (multi, client-side staging + Supabase Storage) ----------
+   Anyone can leave a review — a purchase is no longer required to submit one.
+   Phone number is now optional and is only used, best-effort, to award a
+   "Verified Purchase" badge when it matches a real order. Reviews still
+   go in as status:'pending' so the admin dashboard's moderation queue
+   remains the actual gate on what appears live on the storefront. */
+const REVIEW_PHOTO_BUCKET = 'review-photos';
+const MAX_REVIEW_PHOTOS = 4;
+let QV_REVIEW_PHOTOS = []; // staged File objects, uploaded on submit
+
+function onQvReviewPhotosSelected(input){
+  const files = Array.from(input.files || []).filter(f => f.type.startsWith('image/'));
+  const remaining = MAX_REVIEW_PHOTOS - QV_REVIEW_PHOTOS.length;
+  if(remaining <= 0){
+    showQvPhotoNote(`You can attach up to ${MAX_REVIEW_PHOTOS} photos.`);
+    input.value = '';
+    return;
+  }
+  const toAdd = files.slice(0, remaining);
+  if(files.length > remaining){
+    showQvPhotoNote(`Only ${remaining} more photo${remaining===1?'':'s'} allowed — added the first ${remaining}.`);
+  }
+  QV_REVIEW_PHOTOS.push(...toAdd);
+  renderQvReviewPhotoPreviews();
+  input.value = ''; // allow re-selecting the same file again later
+}
+function removeQvReviewPhoto(idx){
+  QV_REVIEW_PHOTOS.splice(idx, 1);
+  renderQvReviewPhotoPreviews();
+}
+function clearQvReviewPhotos(){
+  QV_REVIEW_PHOTOS = [];
+  renderQvReviewPhotoPreviews();
+}
+function showQvPhotoNote(text){
+  const note = document.getElementById('qv-review-photo-note');
+  if(!note) return;
+  note.textContent = text;
+  note.style.display = 'block';
+  clearTimeout(showQvPhotoNote._t);
+  showQvPhotoNote._t = setTimeout(()=>{ note.style.display = 'none'; }, 3500);
+}
+function renderQvReviewPhotoPreviews(){
+  const grid = document.getElementById('qv-review-photo-grid');
+  const addBtn = document.getElementById('qv-review-photo-add');
+  if(!grid) return;
+  grid.innerHTML = QV_REVIEW_PHOTOS.map((file, i) => `
+    <div class="review-photo-thumb">
+      <img src="${URL.createObjectURL(file)}" alt="Photo ${i+1} to upload">
+      <button type="button" class="review-photo-remove" onclick="removeQvReviewPhoto(${i})" aria-label="Remove photo">×</button>
+    </div>
+  `).join('');
+  if(addBtn) addBtn.style.display = QV_REVIEW_PHOTOS.length >= MAX_REVIEW_PHOTOS ? 'none' : 'flex';
+}
+async function uploadReviewPhotos(files){
+  const urls = [];
+  for(const file of files){
+    try{
+      const safeName = file.name.replace(/[^a-zA-Z0-9.\-_]/g, '_');
+      const path = `${QV_PRODUCT_ID || 'general'}/${Date.now()}-${Math.random().toString(36).slice(2,8)}-${safeName}`;
+      const { error: uploadError } = await sb.storage.from(REVIEW_PHOTO_BUCKET).upload(path, file, { upsert:false, contentType: file.type });
+      if(uploadError){
+        console.warn(`Review photo upload failed (bucket "${REVIEW_PHOTO_BUCKET}" may not exist / not public yet):`, uploadError.message);
+        continue; // best-effort: a failed photo never blocks the review itself
+      }
+      const { data } = sb.storage.from(REVIEW_PHOTO_BUCKET).getPublicUrl(path);
+      if(data && data.publicUrl) urls.push(data.publicUrl);
+    }catch(e){ /* skip this photo, keep going */ }
+  }
+  return urls;
+}
+
 async function submitReview(){
   const msgEl = document.getElementById('qv-review-msg');
   const btn = document.getElementById('qv-submit-review-btn');
@@ -3357,23 +3556,36 @@ async function submitReview(){
     msgEl.className = 'review-submit-msg err'; msgEl.style.display = 'block';
     return;
   }
-  if(normalizePhone(phone).length !== 10){
-    msgEl.textContent = 'Please enter the 10-digit phone number used at checkout.';
-    msgEl.className = 'review-submit-msg err'; msgEl.style.display = 'block';
-    return;
+
+  btn.disabled = true; btn.textContent = 'Posting…';
+
+  // Purchase verification is optional now: everyone can review. If a valid
+  // 10-digit phone is given and it matches a real order for this product,
+  // the review is awarded a "Verified Purchase" badge — but a mismatch or
+  // blank phone never blocks submission.
+  let verified = false;
+  if(normalizePhone(phone).length === 10){
+    verified = await verifyPurchase(phone, product.name);
   }
-  btn.disabled = true; btn.textContent = 'Verifying purchase…';
-  const verified = await verifyPurchase(phone, product.name);
-  if(!verified){
-    btn.disabled = false; btn.textContent = 'Submit Review';
-    msgEl.textContent = "We couldn't find a confirmed order for this product with that phone number. Only customers who've purchased this product can leave a review.";
-    msgEl.className = 'review-submit-msg err'; msgEl.style.display = 'block';
-    return;
+
+  let photoUrls = [];
+  if(QV_REVIEW_PHOTOS.length){
+    btn.textContent = 'Uploading photos…';
+    photoUrls = await uploadReviewPhotos(QV_REVIEW_PHOTOS);
+    btn.textContent = 'Posting…';
   }
-  btn.textContent = 'Posting…';
-  const payload = { product_id: QV_PRODUCT_ID, customer_name: name, rating: QV_STAR, review_text: text, verified_purchase: true, status: 'pending' };
+
+  const payload = {
+    product_id: QV_PRODUCT_ID,
+    customer_name: name,
+    rating: QV_STAR,
+    review_text: text,
+    verified_purchase: verified,
+    photo_urls: photoUrls,
+    status: 'pending'
+  };
   const { data, error } = await sb.from('reviews').insert(payload).select();
-  btn.disabled = false; btn.textContent = 'Submit Review';
+  btn.disabled = false; btn.textContent = '✦ Submit Review';
   if(error){
     msgEl.textContent = 'Error: ' + error.message;
     msgEl.className = 'review-submit-msg err'; msgEl.style.display = 'block';
@@ -3384,6 +3596,7 @@ async function submitReview(){
   document.getElementById('qv-review-phone').value = '';
   document.getElementById('qv-review-text').value = '';
   setQvStar(0);
+  clearQvReviewPhotos();
   msgEl.textContent = "Thanks! Your review has been submitted and will appear once approved.";
   msgEl.className = 'review-submit-msg ok'; msgEl.style.display = 'block';
   renderQvExistingReviews(QV_PRODUCT_ID);
@@ -3410,7 +3623,8 @@ function renderGlobalReviews(){
         ${product ? `<span class="rc-product">${escapeHtml(product.name)}</span>` : ''}
       </div>
       ${r.review_text ? `<p>"${escapeHtml(r.review_text)}"</p>` : `<p style="font-style:italic;">No written comment.</p>`}
-      <div class="who">— ${escapeHtml(r.customer_name || 'Verified Buyer')}${r.verified_purchase ? '<span class="verified-badge"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M20 6L9 17l-5-5"/></svg>Verified</span>' : ''}</div>
+      ${reviewPhotoStripHtml(r)}
+      <div class="who">— ${escapeHtml(r.customer_name || 'Customer')}${r.verified_purchase ? '<span class="verified-badge"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M20 6L9 17l-5-5"/></svg>Verified</span>' : ''}</div>
     </div>`;
   }).join('');
 }
@@ -5304,36 +5518,59 @@ function openQuickView(id){
     ${renderFlavorSelectorHtml(p)}
     ${descHtml ? `<div class="qv-desc">${descHtml}</div>` : ''}
     <div class="qv-review-block">
-      <h4>Ratings &amp; Reviews</h4>
+      <div class="qv-review-block-head">
+        <h4>Ratings &amp; Reviews</h4>
+        <span class="review-open-pill">Open to everyone</span>
+      </div>
       ${renderRatingSummary(p.id, true)}
       <div class="existing-reviews" id="qv-existing-reviews"></div>
-      <div style="margin-top:22px;">
-        <div class="review-form-field">
-          <label>Your Rating</label>
-          <div class="star-picker" id="qv-star-picker">
-            ${[1,2,3,4,5].map(n=>`<span data-star="${n}" onclick="setQvStar(${n})">★</span>`).join('')}
+      <div class="review-write-card">
+        <div class="review-write-inner">
+          <div class="review-write-head">
+            <span class="review-write-icon">✎</span>
+            <div>
+              <div class="review-write-title">Share your experience</div>
+              <div class="review-write-sub">Anyone can leave a review — no purchase required. Your feedback helps other shoppers decide.</div>
+            </div>
           </div>
+          <div class="review-form-field">
+            <label>Your Rating</label>
+            <div class="star-picker" id="qv-star-picker">
+              ${[1,2,3,4,5].map(n=>`<span data-star="${n}" onclick="setQvStar(${n})">★</span>`).join('')}
+            </div>
+          </div>
+          <div class="review-form-field">
+            <label for="qv-review-name">Your Name</label>
+            <input type="text" id="qv-review-name" placeholder="e.g. Rahul S.">
+          </div>
+          <div class="review-form-field">
+            <label for="qv-review-phone">Phone Number <span class="optional-tag">(optional — gets you a Verified Purchase badge)</span></label>
+            <input type="text" id="qv-review-phone" placeholder="e.g. 98765 43210" inputmode="tel">
+            <div class="review-verify-note">You don't need to have bought this product to review it. If you enter the number used at checkout and it matches an order, your review is marked "Verified Purchase" automatically.</div>
+          </div>
+          <div class="review-form-field">
+            <label for="qv-review-text">Your Review</label>
+            <textarea id="qv-review-text" rows="3" placeholder="How was the product — quality, delivery, packaging?"></textarea>
+          </div>
+          <div class="review-form-field">
+            <label>Add Photos <span class="optional-tag">(optional, up to ${MAX_REVIEW_PHOTOS})</span></label>
+            <div class="review-photo-grid" id="qv-review-photo-grid"></div>
+            <label class="review-photo-add" id="qv-review-photo-add">
+              <input type="file" accept="image/*" multiple onchange="onQvReviewPhotosSelected(this)" hidden>
+              <span class="review-photo-add-icon">+</span>
+              <span>Add Photos</span>
+            </label>
+            <div class="review-photo-note" id="qv-review-photo-note"></div>
+          </div>
+          <button class="btn btn-submit-review" id="qv-submit-review-btn" style="margin-top:16px;width:100%;justify-content:center;" onclick="submitReview()">✦ Submit Review</button>
+          <div class="review-submit-msg" id="qv-review-msg"></div>
         </div>
-        <div class="review-form-field">
-          <label for="qv-review-name">Your Name</label>
-          <input type="text" id="qv-review-name" placeholder="e.g. Rahul S.">
-        </div>
-        <div class="review-form-field">
-          <label for="qv-review-phone">Phone Number Used at Checkout</label>
-          <input type="text" id="qv-review-phone" placeholder="e.g. 98765 43210" inputmode="tel">
-          <div class="review-verify-note">Only customers who've purchased this product can leave a review — we verify against your order.</div>
-        </div>
-        <div class="review-form-field">
-          <label for="qv-review-text">Your Review</label>
-          <textarea id="qv-review-text" rows="3" placeholder="How was the product — quality, delivery, packaging?"></textarea>
-        </div>
-        <button class="btn btn-submit-review" id="qv-submit-review-btn" style="margin-top:14px;width:100%;justify-content:center;" onclick="submitReview()">Submit Review</button>
-        <div class="review-submit-msg" id="qv-review-msg"></div>
       </div>
     </div>
   `;
   renderQvPhoto();
   QV_STAR = 0;
+  clearQvReviewPhotos();
   renderQvExistingReviews(id);
   document.getElementById('qv-review-msg').style.display='none';
   updateQvAddButtonState(p);

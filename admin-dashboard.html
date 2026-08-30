@@ -454,6 +454,9 @@
   .review-admin-date{font-size:11px;color:var(--paper-dim);margin-left:auto;}
   .review-admin-text{font-size:13.5px;color:var(--paper-dim);line-height:1.6;margin-bottom:12px;}
   .review-admin-actions{display:flex;gap:8px;flex-wrap:wrap;}
+  .review-admin-photos{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:12px;}
+  .review-admin-photos img{width:56px;height:56px;object-fit:cover;border-radius:8px;border:1px solid var(--line);cursor:zoom-in;transition:transform .15s;}
+  .review-admin-photos img:hover{transform:scale(1.08);border-color:var(--teal);}
 
   /* ===== REPORTS ===== */
   .reports-toolbar{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:24px;}
@@ -1006,7 +1009,7 @@
         <div>
           <span class="eyebrow">Storefront</span>
           <h2>Reviews</h2>
-          <p>Customer ratings. New reviews stay hidden until you publish them. Published reviews show on your storefront and power each product's star rating.</p>
+          <p>Open to all visitors — a purchase is no longer required to leave a review, and reviewers can attach photos. New reviews stay hidden until you publish them, so this queue is your moderation gate. Published reviews show on your storefront and power each product's star rating.</p>
         </div>
         <button class="btn btn-ghost" onclick="refreshReviews()">↻ Refresh</button>
       </div>
@@ -3932,6 +3935,7 @@ function renderReviewsList(){
           <span class="review-admin-date">${formatDate(r.created_at)}</span>
         </div>
         ${r.review_text ? `<div class="review-admin-text">${escapeHtml(r.review_text)}</div>` : `<div class="review-admin-text" style="font-style:italic;">No written comment.</div>`}
+        ${Array.isArray(r.photo_urls) && r.photo_urls.length ? `<div class="review-admin-photos">${r.photo_urls.map(u=>`<img src="${escapeHtml(u)}" alt="Review photo" onclick="window.open('${escapeHtml(u)}','_blank')">`).join('')}</div>` : ''}
         <div class="review-admin-actions">${actions}</div>
       </div>
     `;
