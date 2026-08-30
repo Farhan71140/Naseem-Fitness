@@ -3942,15 +3942,27 @@ function renderReviewsList(){
   }).join('');
 }
 async function updateReviewStatus(id, status){
-  const { error } = await sb.from('reviews').update({ status }).eq('id', id);
+  // .select() forces Supabase to return the row(s) actually changed. Without
+  // this, a Row Level Security policy that silently blocks the write for the
+  // anon key returns success with ZERO rows affected and no error at all —
+  // the toast would lie and say "published" while the database never changed.
+  const { data, error } = await sb.from('reviews').update({ status }).eq('id', id).select();
   if(error){ showToast('Error: ' + error.message); return; }
+  if(!data || data.length === 0){
+    showToast('Update blocked by database permissions (RLS) — the review was NOT changed. See the reviews-RLS setup note.');
+    return;
+  }
   await renderReviews();
   showToast(status === 'published' ? 'Review published' : status === 'hidden' ? 'Review hidden' : 'Review updated');
 }
 async function deleteReview(id){
   if(!confirm('Delete this review? This cannot be undone.')) return;
-  const { error } = await sb.from('reviews').delete().eq('id', id);
+  const { data, error } = await sb.from('reviews').delete().eq('id', id).select();
   if(error){ showToast('Error: ' + error.message); return; }
+  if(!data || data.length === 0){
+    showToast('Delete blocked by database permissions (RLS) — the review was NOT removed.');
+    return;
+  }
   await renderReviews();
   showToast('Review deleted');
 }
