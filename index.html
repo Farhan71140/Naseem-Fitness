@@ -1034,24 +1034,48 @@
     text-align:center;padding:8px 0;text-transform:uppercase;
     border-top:1px solid var(--bad,#FF6B6B);
   }
-  .add-btn:disabled{opacity:0.4;cursor:not-allowed;}
+  .add-btn:disabled{opacity:0.45;cursor:not-allowed;animation:none;}
+  .add-btn:disabled::before{display:none;}
   .add-btn:disabled:hover{transform:none;filter:none;}
   .prod-body{padding:18px 18px 20px;}
   .prod-body .cat-tag{font-family:'Space Mono',monospace;font-size:10px;color:var(--amber);letter-spacing:1.5px;text-transform:uppercase;}
   .prod-body h4{font-size:16px;font-weight:700;margin-top:8px;font-family:'Inter',sans-serif;text-transform:none;}
-  .prod-body .price-row{display:flex;justify-content:space-between;align-items:flex-start;margin-top:14px;gap:10px;}
+  .prod-body .price-row{display:flex;flex-direction:column;align-items:stretch;margin-top:14px;gap:10px;}
   .prod-body .price{font-family:'Space Mono',monospace;font-size:15px;color:var(--paper);}
   .prod-body .price small{color:var(--paper-dim);font-size:11px;}
   .add-btn{
-    width:44px;height:44px;min-width:44px;min-height:44px;max-width:44px;max-height:44px;
-    flex:none;align-self:center;
-    border-radius:50%;background:transparent;
-    display:flex;align-items:center;justify-content:center;
-    border:none;cursor:pointer;padding:0;
-    transition:transform .2s, filter .2s;
+    position:relative;overflow:hidden;flex:none;width:100%;
+    display:flex;align-items:center;justify-content:center;gap:8px;
+    padding:11px 14px;border-radius:8px;
+    font-family:'Inter',sans-serif;font-weight:800;font-size:13.5px;letter-spacing:0.2px;
+    color:#2A1D00;text-transform:uppercase;
+    background:linear-gradient(135deg,#B8860B 0%,#FFD24A 35%,#FFF2B5 55%,#E8A93A 75%,#B8860B 100%);
+    background-size:220% 220%;
+    border:1px solid rgba(255,242,181,0.7);
+    box-shadow:0 4px 14px rgba(184,134,11,0.4), inset 0 0 6px rgba(255,255,255,0.3);
+    cursor:pointer;
+    animation:addBtnDrift 3.6s ease-in-out infinite, addBtnGlow 2.4s ease-in-out infinite;
+    transition:transform .15s;
   }
-  .add-btn:hover{transform:scale(1.08);filter:brightness(1.1);}
-  .add-btn img{width:44px;height:44px;object-fit:contain;display:block;}
+  .add-btn:hover{transform:translateY(-1px);}
+  .add-btn::before{
+    content:'';position:absolute;top:0;left:-65%;width:35%;height:100%;
+    background:linear-gradient(115deg, transparent, rgba(255,255,255,0.85), transparent);
+    transform:skewX(-18deg);
+    animation:addBtnShine 2.8s ease-in-out infinite;
+  }
+  .add-btn svg{width:16px;height:16px;flex:none;position:relative;z-index:1;}
+  .add-btn span{position:relative;z-index:1;}
+  @keyframes addBtnShine{0%{left:-65%;}50%{left:135%;}100%{left:135%;}}
+  @keyframes addBtnGlow{
+    0%,100%{box-shadow:0 4px 14px rgba(184,134,11,0.4), inset 0 0 6px rgba(255,255,255,0.25);}
+    50%{box-shadow:0 4px 20px rgba(255,210,74,0.85), inset 0 0 10px rgba(255,255,255,0.45);}
+  }
+  @keyframes addBtnDrift{
+    0%{background-position:0% 50%;}
+    50%{background-position:100% 50%;}
+    100%{background-position:0% 50%;}
+  }
   .prod-share-btn{
     position:absolute;top:10px;right:10px;z-index:2;
     width:32px;height:32px;border-radius:50%;
@@ -1110,9 +1134,10 @@
     .price-wrap{gap:4px;row-gap:2px;}
     .price-compare{font-size:9.5px;}
     .discount-pill{font-size:8.5px;padding:1px 5px;}
-    .add-btn, .add-btn img{
-      width:32px;height:32px;min-width:32px;min-height:32px;max-width:32px;max-height:32px;
+    .add-btn{
+      padding:8px 10px;font-size:11px;border-radius:7px;gap:5px;
     }
+    .add-btn svg{width:13px;height:13px;}
   }
   .prod-card{cursor:pointer;}
   .prod-body .brand-tag{display:block;font-family:'Space Mono',monospace;font-size:10px;color:var(--paper-dim);letter-spacing:1px;text-transform:uppercase;margin-top:6px;}
@@ -4491,7 +4516,10 @@ function renderProducts(list){
             <span class="price">₹${price.toLocaleString('en-IN')} ${p.unit ? `<small>/ ${escapeHtml(p.unit)}</small>` : ''}</span>
             ${hasDiscount ? `<span class="price-compare">₹${comparePrice.toLocaleString('en-IN')}</span><span class="discount-pill">-${pct}%</span>` : ''}
           </div>
-          <button class="add-btn" aria-label="Add to cart" ${outOfStock ? 'disabled' : ''} onclick="event.stopPropagation();addToCart('${p.id}')"><img src="assets/add-to-cart-btn.png" alt="Add to cart"></button>
+          <button class="add-btn" aria-label="Add to cart" ${outOfStock ? 'disabled' : ''} onclick="event.stopPropagation();addToCart('${p.id}')">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>
+            <span>Add to Cart</span>
+          </button>
         </div>
       </div>
     </div>
@@ -4580,7 +4608,10 @@ function flProductCardHTML(p, sliderMode){
             <span class="price">₹${price.toLocaleString('en-IN')} ${p.unit ? `<small>/ ${escapeHtml(p.unit)}</small>` : ''}</span>
             ${hasDiscount ? `<span class="price-compare">₹${comparePrice.toLocaleString('en-IN')}</span><span class="discount-pill">-${pct}%</span>` : ''}
           </div>
-          <button class="add-btn" aria-label="Add to cart" ${outOfStock ? 'disabled' : ''} onclick="event.stopPropagation();addToCart('${p.id}')"><img src="assets/add-to-cart-btn.png" alt="Add to cart"></button>
+          <button class="add-btn" aria-label="Add to cart" ${outOfStock ? 'disabled' : ''} onclick="event.stopPropagation();addToCart('${p.id}')">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>
+            <span>Add to Cart</span>
+          </button>
         </div>
       </div>
     </div>
