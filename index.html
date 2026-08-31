@@ -1280,6 +1280,21 @@
   .qv-desc ul{padding-left:0;list-style:none;margin-top:6px;}
   .qv-desc li{padding:7px 0;border-bottom:1px solid var(--line);padding-left:22px;position:relative;}
   .qv-desc li::before{content:'✓';position:absolute;left:0;color:var(--teal);font-weight:700;}
+  .qv-desc-inner{position:relative;max-height:118px;overflow:hidden;transition:max-height .4s ease;}
+  .qv-desc-inner.expanded{max-height:2000px;}
+  .qv-desc-inner:not(.expanded)::after{
+    content:'';position:absolute;left:0;right:0;bottom:0;height:52px;
+    background:linear-gradient(180deg, transparent, var(--steel) 85%);pointer-events:none;
+  }
+  .qv-desc-toggle{
+    display:inline-flex;align-items:center;gap:6px;margin-top:12px;
+    background:transparent;border:none;cursor:pointer;padding:0;
+    font-family:'Inter',sans-serif;font-weight:800;font-size:13px;letter-spacing:0.3px;
+    color:var(--teal);transition:color .2s, gap .2s;
+  }
+  .qv-desc-toggle:hover{color:var(--gold-light,#FFF2B5);gap:9px;}
+  .qv-desc-toggle svg{width:13px;height:13px;transition:transform .3s ease;}
+  .qv-desc-toggle.expanded svg{transform:rotate(180deg);}
 
   /* ===== FLAVOR / VARIANT SELECTOR (Quick View) ===== */
   .qv-flavor-block{margin-top:20px;padding-top:20px;border-top:1px solid var(--line);}
@@ -6445,7 +6460,7 @@ function openQuickView(id){
       return `<div class="qv-stock"><span class="dot"></span>In stock</div>`;
     })()}
     ${renderFlavorSelectorHtml(p)}
-    ${descHtml ? `<div class="qv-desc">${descHtml}</div>` : ''}
+    ${descHtml ? `<div class="qv-desc"><div class="qv-desc-inner" id="qv-desc-inner">${descHtml}</div><button type="button" class="qv-desc-toggle" id="qv-desc-toggle" onclick="toggleQvDescription()" style="display:none;"><span id="qv-desc-toggle-label">See more</span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg></button></div>` : ''}
     <div class="qv-review-block">
       <div class="qv-review-block-head">
         <h4>Ratings &amp; Reviews</h4>
@@ -6503,10 +6518,37 @@ function openQuickView(id){
   renderQvExistingReviews(id);
   document.getElementById('qv-review-msg').style.display='none';
   updateQvAddButtonState(p);
+  initQvDescToggle();
   document.getElementById('quickview-overlay').classList.add('active');
   if(window.fbq) fbq('track', 'ViewContent', { content_name: p.name, value: Number(p.price), currency: 'INR' });
 }
 function closeQuickView(){ document.getElementById('quickview-overlay').classList.remove('active'); }
+/* ---------- collapsible product description ("See more" / "See less") ---------- */
+function initQvDescToggle(){
+  const inner = document.getElementById('qv-desc-inner');
+  const toggle = document.getElementById('qv-desc-toggle');
+  if(!inner || !toggle) return;
+  inner.classList.remove('expanded');
+  toggle.classList.remove('expanded');
+  const label = document.getElementById('qv-desc-toggle-label');
+  if(label) label.textContent = 'See more';
+  toggle.style.display = 'none';
+  // only show the toggle if the description actually overflows the collapsed height
+  requestAnimationFrame(()=>{
+    if(inner.scrollHeight > inner.clientHeight + 4){
+      toggle.style.display = 'inline-flex';
+    }
+  });
+}
+function toggleQvDescription(){
+  const inner = document.getElementById('qv-desc-inner');
+  const toggle = document.getElementById('qv-desc-toggle');
+  const label = document.getElementById('qv-desc-toggle-label');
+  if(!inner || !toggle) return;
+  const expanded = inner.classList.toggle('expanded');
+  toggle.classList.toggle('expanded', expanded);
+  if(label) label.textContent = expanded ? 'See less' : 'See more';
+}
 
 /* ---------- share product ---------- */
 function showShareToast(msg){
