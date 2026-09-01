@@ -3065,11 +3065,12 @@
     <div class="wrap">
       <div class="section-head">
         <div>
-          <div class="eyebrow">Bestsellers this month</div>
-          <h2>Straight from the shop floor</h2>
+          <div class="eyebrow" id="products-eyebrow">Bestsellers this month</div>
+          <h2 id="products-heading">Straight from the shop floor</h2>
         </div>
-        <p>Live stock from the shop floor — updated by us in real time.</p>
+        <p id="products-subtext">Live stock from the shop floor — updated by us in real time.</p>
       </div>
+      <a href="#categories" id="products-clear-link" onclick="resetProductsView();return true;" style="display:none;align-items:center;gap:6px;font-family:'Space Mono',monospace;font-size:12px;letter-spacing:0.5px;color:var(--paper-dim);margin:-10px 0 22px;">← Back to browsing</a>
       <div class="prod-grid" id="products-grid">
         <div class="prod-loading">Loading products…</div>
       </div>
@@ -5059,7 +5060,39 @@ function applyFilters(){
   // so we keep this section out of the way rather than dumping every product.
   const hasActiveFilter = !!ACTIVE_CATEGORY || !!q;
   document.getElementById('products').style.display = hasActiveFilter ? '' : 'none';
+  document.getElementById('products-clear-link').style.display = hasActiveFilter ? 'inline-flex' : 'none';
+  updateProductsHeading(q);
   renderProducts(list);
+}
+function resetProductsView(){
+  ACTIVE_CATEGORY = '';
+  document.getElementById('search-input-desktop').value = '';
+  document.getElementById('search-input-mobile-bar').value = '';
+  document.getElementById('active-category-bar').style.display = 'none';
+  applyFilters();
+}
+function updateProductsHeading(q){
+  const eyebrow = document.getElementById('products-eyebrow');
+  const heading = document.getElementById('products-heading');
+  const subtext = document.getElementById('products-subtext');
+  if(!eyebrow || !heading || !subtext) return;
+  if(q){
+    eyebrow.textContent = 'Search Results';
+    heading.textContent = `Results for "${q}"`;
+    subtext.textContent = 'Every match from our live, verified stock.';
+  } else if(ACTIVE_CATEGORY === '__OFFERS__'){
+    eyebrow.textContent = 'Bundle & Save';
+    heading.textContent = 'All Current Offers';
+    subtext.textContent = 'Every product currently discounted, in one place.';
+  } else if(ACTIVE_CATEGORY){
+    eyebrow.textContent = ACTIVE_CATEGORY;
+    heading.textContent = `All ${ACTIVE_CATEGORY} — In Stock`;
+    subtext.textContent = 'Every verified item in this category, updated in real time.';
+  } else {
+    eyebrow.textContent = 'Bestsellers this month';
+    heading.textContent = 'Straight from the shop floor';
+    subtext.textContent = 'Live stock from the shop floor — updated by us in real time.';
+  }
 }
 function filterProducts(query){
   document.getElementById('search-input-desktop').value = query;
