@@ -1296,6 +1296,17 @@
   .qv-desc-toggle svg{width:13px;height:13px;transition:transform .3s ease;}
   .qv-desc-toggle.expanded svg{transform:rotate(180deg);}
 
+  /* ===== "More from [category]" — horizontal related products (Quick View) ===== */
+  .qv-related-block{margin-top:26px;padding-top:24px;border-top:1px solid var(--line);}
+  .qv-related-title{font-family:'Anton',sans-serif;font-size:17px;text-transform:none;letter-spacing:0.2px;margin-bottom:14px;}
+  .qv-related-title span{color:var(--teal);}
+  .qv-related-track{
+    display:flex;gap:14px;overflow-x:auto;scroll-snap-type:x mandatory;scroll-behavior:smooth;
+    -webkit-overflow-scrolling:touch;padding:2px 2px 8px;margin:-2px -2px 0;scrollbar-width:none;
+  }
+  .qv-related-track::-webkit-scrollbar{display:none;}
+  .qv-related-track .prod-card{scroll-snap-align:start;}
+
   /* ===== FLAVOR / VARIANT SELECTOR (Quick View) ===== */
   .qv-flavor-block{margin-top:20px;padding-top:20px;border-top:1px solid var(--line);}
   .qv-flavor-label{
@@ -6510,6 +6521,10 @@ function openQuickView(id){
           <div class="review-submit-msg" id="qv-review-msg"></div>
         </div>
       </div>
+      <div class="qv-related-block" id="qv-related-block" style="display:none;">
+        <h4 class="qv-related-title">More from <span id="qv-related-cat-name"></span></h4>
+        <div class="qv-related-track" id="qv-related-track"></div>
+      </div>
     </div>
   `;
   renderQvPhoto();
@@ -6519,8 +6534,25 @@ function openQuickView(id){
   document.getElementById('qv-review-msg').style.display='none';
   updateQvAddButtonState(p);
   initQvDescToggle();
+  renderQvRelatedProducts(p);
   document.getElementById('quickview-overlay').classList.add('active');
   if(window.fbq) fbq('track', 'ViewContent', { content_name: p.name, value: Number(p.price), currency: 'INR' });
+}
+/* ---------- "More from [category]" — horizontal related-products row in Quick View ---------- */
+function renderQvRelatedProducts(p){
+  const block = document.getElementById('qv-related-block');
+  const track = document.getElementById('qv-related-track');
+  const catName = document.getElementById('qv-related-cat-name');
+  if(!block || !track) return;
+  const related = (PRODUCTS || []).filter(x => x.id !== p.id && (x.category || '') === (p.category || ''));
+  if(!p.category || related.length === 0){
+    block.style.display = 'none';
+    track.innerHTML = '';
+    return;
+  }
+  catName.textContent = p.category;
+  track.innerHTML = related.slice(0, 12).map(x => flProductCardHTML(x, true)).join('');
+  block.style.display = '';
 }
 function closeQuickView(){ document.getElementById('quickview-overlay').classList.remove('active'); }
 /* ---------- collapsible product description ("See more" / "See less") ---------- */
