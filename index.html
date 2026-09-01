@@ -2645,7 +2645,7 @@
     <div class="nav-links">
       <a href="#top">Home</a>
       <a href="#categories">Shop</a>
-      <a href="#products">Bestsellers</a>
+      <a href="#bestsellers-tabs-section">Bestsellers</a>
       <a href="#" onclick="document.getElementById('order-system').scrollIntoView({behavior:'smooth',block:'start'});return false;">Order</a>
       <a href="#authenticity">Verify Product</a>
       <a href="licenses.html">Licenses</a>
@@ -2714,7 +2714,7 @@
     <a href="#" onclick="document.getElementById('nav-toggle').checked=false;openAccountEntry();return false;" id="mobile-menu-account-link">👤 My Account</a>
     <a href="#top" onclick="document.getElementById('nav-toggle').checked=false">Home</a>
     <a href="#categories" onclick="document.getElementById('nav-toggle').checked=false">Shop</a>
-    <a href="#products" onclick="document.getElementById('nav-toggle').checked=false">Bestsellers</a>
+    <a href="#bestsellers-tabs-section" onclick="document.getElementById('nav-toggle').checked=false">Bestsellers</a>
     <a href="#" onclick="document.getElementById('nav-toggle').checked=false;document.getElementById('order-system').scrollIntoView({behavior:'smooth',block:'start'});return false;">Order</a>
     <a href="#authenticity" onclick="document.getElementById('nav-toggle').checked=false">Verify Product</a>
     <a href="licenses.html" onclick="document.getElementById('nav-toggle').checked=false">Licenses</a>
@@ -2816,7 +2816,7 @@
         <h1>REAL GAINS START<br>WITH <span class="accent">REAL STOCK.</span></h1>
         <p class="lead">Every tub sold at NF Naseem Fitness is batch-verified before it reaches your hands — genuine whey protein, creatine, pre-workouts and multivitamins, no exceptions, no fakes.</p>
         <div class="hero-cta">
-          <a class="btn btn-primary" href="#products">Shop Bestsellers</a>
+          <a class="btn btn-primary" href="#bestsellers-tabs-section">Shop Bestsellers</a>
           <a class="btn btn-ghost" href="#authenticity">Verify My Product →</a>
         </div>
         <div class="hero-stats">
@@ -3061,7 +3061,7 @@
   </section>
 
   <!-- PRODUCTS -->
-  <section id="products" style="padding-top:0;">
+  <section id="products" style="padding-top:0;display:none;">
     <div class="wrap">
       <div class="section-head">
         <div>
@@ -3277,10 +3277,10 @@
       <div>
         <h5>Shop</h5>
         <ul>
-          <li><a href="#products">Protein</a></li>
-          <li><a href="#products">Creatine</a></li>
-          <li><a href="#products">Pre-Workout</a></li>
-          <li><a href="#products">Multivitamins</a></li>
+          <li><a href="#products" onclick="filterByCategory('Whey Protein');return false;">Protein</a></li>
+          <li><a href="#products" onclick="filterByCategory('Creatine');return false;">Creatine</a></li>
+          <li><a href="#products" onclick="filterByCategory('Pre-Workout');return false;">Pre-Workout</a></li>
+          <li><a href="#products" onclick="filterByCategory('Health Supplements');return false;">Multivitamins</a></li>
         </ul>
       </div>
       <div>
@@ -5053,6 +5053,12 @@ function applyFilters(){
       return searchTokens.every(t => combined.includes(t));
     });
   }
+  // "Straight from the shop floor" only appears once the shopper actually asks
+  // for something specific — a category, Offers, or a search term. With no
+  // filter active, Season's Bestsellers covers unfiltered browsing instead,
+  // so we keep this section out of the way rather than dumping every product.
+  const hasActiveFilter = !!ACTIVE_CATEGORY || !!q;
+  document.getElementById('products').style.display = hasActiveFilter ? '' : 'none';
   renderProducts(list);
 }
 function filterProducts(query){
