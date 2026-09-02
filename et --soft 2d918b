@@ -1,0 +1,228 @@
+[33m923ac7f[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mmy_branch[m[33m)[m compressed the size of the video and replaced
+[33mfee5500[m replaced the hero video
+[33mfcbe8bb[m replaced the hero video
+[33m2d918ba[m[33m ([m[1;31morigin/my_branch[m[33m)[m updated the developer section at footer
+[33m1022d09[m Mentioned about the contact info and details of developer
+[33mc57b796[m solved the problem of the text intersecting with the logo
+[33mccb1f53[m removed the gaps from trending now section
+[33m678b279[m removed the unwanted gaps above from the trending now section
+[33m4290ff6[m moved the poster section before shop by category
+[33m3743f54[m changed the mobile responsive view
+[33m0819518[m moved the other part of REAL GAINS START WITH REAL STOCK
+[33md0c013f[m moved REAL GAINS START section below of product listing
+[33m5662e6b[m removed the unwanted view more button from product listing
+[33mbf5f5c0[m structured all categories and sections separately
+[33m4ffdf7a[m updated the product listing and view
+[33mfac9539[m updated the setup of the products
+[33meaa06e3[m updated the files changed the positioning of products
+[33m08a4d2b[m doen some updates in product section
+[33m6fe2b06[m made the description to look smaller and gave see more option
+[33m4e1bc27[m replaced the add to cart button
+[33m5bfe195[m updated the layout or framing of products
+[33m8251d7b[m changed the cover image of supplements category
+[33m09eab99[m changed the cover image of supplements category
+[33mb7d33fa[m updated the review section
+[33m6078540[m made the search bar to open separately
+[33m418e125[m added notification bell icon
+[33m2a20682[m added a notification icon
+[33m9c7adf5[m chnges the mobile view of review section
+[33mcabed80[m solved the review system problem
+[33m99fb9d5[m updated the review system of website
+[33mb84a67f[m updated the files added new OTP generating system
+[33m1ce1c85[m updated the files added streetmapslive tracking
+[33m7d7f62d[m updated the admin dashboard for self delivery gps tracking
+[33m1cf3c52[m solved the problem of live GPS location
+[33m33826ac[m added a login page to website
+[33m3e1b9a3[m solved the problem of bill not being generated
+[33m2ae3713[m replaced the files index.html
+[33m9518eae[m replaced the file spin wheel disc
+[33me3b2ae5[m updated the probability of getting the reward of spinning wheel
+[33mb737c38[m updated the add to cart option for rewards
+[33m1611caf[m replaced the spin wheel icon
+[33mb73c096[m changed the position of the download button
+[33m6c95f09[m added the download button in website
+[33m212e13c[m updated the spin wheel and pointer
+[33m8b3f230[m updated the wheel pointer
+[33mfe311e8[m replaced the spin circle
+[33m76d6102[m done updates in reward system
+[33m991248a[m added Reward system
+[33me71ff47[m updated the translation of words when spelled in mic to english
+[33m6a0c4dd[m updated the badge info of Air express Fast delivery
+[33m4976a74[m added delivery info in Air express badge
+[33mf6ce161[m changed the icon of the third badge when clicked
+[33m6e92d50[m made all the badges clickable and responsive
+[33m6d10489[m updated the badge placement
+[33m3ef2226[m shiftyed the badge beside the text of fitness lifestyle
+[33mcaaf17e[m added new badge in website beside fitness lifestyle
+[33m8707e6e[m added new badge beside fitness lifestyle text
+[33md24a440[m chnaged the background of the fitness lifestyle below text
+[33m5fc4829[m added the movement to the text or quote
+[33md073d17[m increased the speed of the shimmering effect
+[33m10d37b7[m done some shinning effects on fitness lifestyle quote
+[33m780eec7[m updated the fitness lifestyle text or quote
+[33m389745f[m removed the extra spaces below the cover images and above the new fitness lifestyle category
+[33mc168832[m removed the listing of Fitness lifestyle products in normal listing
+[33m4da9b5c[m changed the position of the Fitness lifestyle products in website
+[33m2dd06b8[m increased the speed of the products moving right to left
+[33m7fa1d09[m increased the speed of products moving from right to left in fitness lifestyle
+[33mb6df579[m added all other sub category cover images
+[33m935d0de[m added sub categories in fitness lifestyle
+[33m00f1396[m updated the files
+[33m818f927[m added new sale system in website
+[33m238beec[m updated product.js file
+[33m49645ba[m added live order tracking
+[33mb7a1da1[m made some updates in add to cart section
+[33m77a03c7[m chnaged the icon color of Air Express Fast Delivery
+[33m6fccd71[m renamed the Fast delivery and some minor look chnages
+[33m508c8de[m updated the files added the Fast delivery price Fixed
+[33ma0729ff[m replaced 3 files
+[33mf080311[m updated the delivery settings
+[33mb2da645[m updated shiprocket-serviceability.js file
+[33ma9d9cf9[m updated the files added shiprocket Fast delivery option
+[33m5d2791d[m updated the delivery charges details
+[33m151bf65[m added fast delivery option
+[33m8661fff[m updated all the files for domain
+[33m6fbd8ac[m changed the domain link in product.js
+[33m39e76a2[m updated the index.html file to add shimmering light
+[33m17d8fbd[m updated the badge image
+[33ma603617[m updated the badge image
+[33md50e19b[m replaced the badge image with other
+[33mf65ff60[m updated the products.js file to make some product image changes
+[33ma2092a4[m updated vercel.json file
+[33m3f01953[m updated the vercel.json file
+[33m615dabc[m updated vercel.json file
+[33m8b0be45[m updated product.js file
+[33me1fed8d[m added image tag in product.js to display image when shared the product link
+[33m6e62a76[m updated the files added tags for google search console for every product
+[33mfe5fd88[m updated the files to show up products in google
+[33m4c8b1e2[m removed the gap below the banner section
+[33m144368f[m added the different cart icon
+[33m621d3df[m changed the mobile view look
+[33m308fa7f[m updated the files added the banner below the badges
+[33m40bc059[m added banner or poster adding placeholder
+[33m260f15f[m replaced the image of add to cart option
+[33m19dddaf[m added new icon in replacement of + button for adding product
+[33ma982b54[m increased the size of add to cart button
+[33m40c432e[m updated the size of add to cart button
+[33mc6b683e[m replaced the add to cart button with new premium gold button
+[33m547b70b[m updated the files index.html
+[33me8e9352[m updated the files
+[33m28f14ff[m enlarged the search bar in nav bar and placed it in correct order
+[33m8053a43[m changed the search bar position
+[33ma23b4de[m enlarged the search bar in navbar
+[33md33acac[m updated the files and added voice search option in search bar
+[33mdd96a65[m added the mobile view badges all four together
+[33m76823cf[m solved the problem long text in order bill
+[33mfdae346[m removed the whatsapp button from website
+[33m1407f1a[m added customer complaint tracker
+[33m85eadc6[m updated the codes to make sure about seo
+[33m8494232[m updated the index.html file by doing favicon settings modifications
+[33m3ffec10[m updated the index.html file to proceed with google console
+[33me981b21[m added favicon in website codes
+[33m6ea2b8a[m replaced the UPI id with other business id
+[33m934c030[m resolved order id button problem
+[33m13e8abb[m updated the index.html code added where is my order id button
+[33m9db710c[m updated the bill receipt
+[33m21133bc[m added a small box for dimension at combos section
+[33m924d21d[m updated the combos section again
+[33m815241c[m updated index.html file removed the combos section from website
+[33m316e3e4[m updated the index.html by modifying the product image sizes
+[33m246ca0b[m resizing the product image of combos
+[33mcfee4cc[m updated the cover image size of combos
+[33m3870acb[m made chnages for combo section cover image size
+[33m5ce7832[m updated the combo section
+[33meecd99c[m updated the mobile responsiveness
+[33me0602be[m updated the sizes of combo cover image
+[33m4d1d947[m chnaged the size of combo image
+[33m3fe0383[m updated the files index.html
+[33m737b52c[m updated the image size of combo for mobile view
+[33m4671165[m updated the mobile view combo section
+[33me6fcba9[m updated combos section
+[33m5081c2b[m added combos section after shop by category section
+[33m285e49d[m changed the size of and structure of combos section
+[33m7ff500b[m added other cover image for supplements
+[33m52cef35[m updated the cover image of supplements
+[33mbec5775[m added combos system
+[33m35bb657[m added the project navigation for logo file
+[33mb022985[m added the logo.png file
+[33m397aaf7[m Added flavours option for products
+[33mefd1f43[m added billing system in admin dashboard
+[33md5baf1b[m updated the files added delivery section in admin panel
+[33m8852596[m updated the Supplements category name
+[33m3f7f7d0[m updated the files added out of stock option in website
+[33m6d9e9e1[m  made the AI chatbot even more responsive about products
+[33m4074e9c[m made the admin dashboard responsive
+[33m1a76f79[m updated both the files
+[33m8efbb99[m updated the index.html file whenever admin adds new products it should show on website first
+[33mffb6978[m updated ai-chat.js file
+[33m536cbd5[m added other AI Assistant chatbot icon
+[33m7f17cf4[m updated overall structure of payment gateway and checkout
+[33m7a558a7[m updated payment gateway structure
+[33m5452822[m updated all the files
+[33md54860a[m updated the files added checkout button on COD
+[33mc2336c2[m chnaged the design of payment checkout
+[33mc8951d1[m Added COD advance payment gateway
+[33mdcc1c13[m chnage dthe chatboticon size
+[33m53d1371[m updated the mobile view for chatbot icon position
+[33m3bfe231[m Added tracking order system
+[33m12409f3[m Added location in hamburger menu
+[33me6e239e[m updated the location
+[33m63dd8ff[m added shop location
+[33m216e091[m added unique generation code part
+[33m03a7ebc[m added UPI payment method
+[33ma3b2b0e[m added one more link
+[33m560216f[m Added links of all social media
+[33ma68a381[m added shipping policy code
+[33m62efd71[m added refund-policy.html file
+[33mfd524e7[m updated the COD advance payment percentage
+[33m7b5a536[m Added the delivery fee part
+[33ma5c7eba[m Added the payment option COD
+[33mdb429a6[m updated the supplements.jpg image
+[33m4a989d0[m updated the files added new gymaccessories category
+[33m5a7efb7[m updated admin dashboard to add multiple images of products
+[33m42b56a9[m updated admin dashbaord.html
+[33mfb02116[m added review list section in admindashboard
+[33mc621437[m added reports section in admindashboard
+[33mcf6e259[m added offers section in admindashboard
+[33maa6b2bd[m updated the review section
+[33m6b6e77b[m updated the structure of website
+[33m4362d44[m updated the mobile responsive view in website
+[33m4d7eef8[m updated the index.html and admin-dashboard.html files
+[33m0835cc6[m updated the files added seo and optimization in admin dashboard
+[33m68b4ad9[m made the admin login page look even more premium
+[33m9266f52[m done some updated in admin dashboard page
+[33ma2932ea[m updated the login page of admin dashboard
+[33mda1d740[m updated the files by adding current location detection
+[33m5fa21fa[m updated the admin-dashboard.html by adding the delivery setup
+[33m17112b6[m updated all the files
+[33m283694b[m updated the size of robot icon again
+[33m22106cc[m updated the files by changing chatbot icon size
+[33me03a477[m increased the size of AI Assistant chatbot icon
+[33mdfb3734[m updated the files chnaged the icon of chatbot
+[33mc0c28f4[m renamed the chatbot to merlin
+[33m8a9a937[m added AI chatbot
+[33m72adb36[m updated and removed the section of static reviews
+[33m5fe5c1e[m updated the file index.html added Frequently asked questions
+[33m0c699f8[m updated the files index.html by making the menu responsive and even disappearing when clicked
+[33m80714aa[m corrected the location name
+[33m078d7e8[m updated the nav bar by spacing the page names
+[33mf462b2c[m updated the nav bar
+[33m50d8abf[m updated the index.html by making the top bar above nav bar to move
+[33m464d99f[m updated the file index.html
+[33m17442c5[m updated the files and added shop image
+[33mb5e7643[m updated the licenses.html by aligning the boxes of certifications
+[33m0b67bbd[m updated the file licenses.html
+[33m758f792[m updated the file index.html and added license.html in project folder
+[33mc4c3d93[m updated the index.html file by differentiating each category
+[33m316c65c[m updated the files and added new product images
+[33m4182c4f[m updated admin-Dashbaord.html file
+[33meb04193[m updated the files add search bar according to mobile responsive
+[33m64eb62b[m updtaed the files added search bar in navbar
+[33m6753c5b[m moved the badge to bottom
+[33mde1e4d6[m made the website reponsive web design
+[33m2e9d684[m added product images
+[33m756f960[m updated the files
+[33m8c2655f[m updated and added files and cover images
+[33m3a9627c[m updated the files and added admin-dashboard.html
+[33m3f90aa1[m added index.html from NF fitness folder
+[33m909d890[m[33m ([m[1;31morigin/main[m[33m, [m[1;32mmain[m[33m)[m initialize main branch with README
