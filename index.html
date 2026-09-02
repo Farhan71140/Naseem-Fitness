@@ -689,6 +689,14 @@
   }
   @keyframes mbRotate{to{--mb-angle:360deg;}}
   .mid-banner-frame img{width:100%;height:100%;object-fit:cover;display:block;position:relative;z-index:0;}
+  .mid-banner-frame img.mb-slide{position:absolute;inset:0;opacity:0;transition:opacity .6s ease;}
+  .mid-banner-frame img.mb-slide.active{opacity:1;}
+  .mid-banner-dots{
+    position:absolute;bottom:14px;left:50%;transform:translateX(-50%);z-index:3;
+    display:flex;gap:7px;padding:6px 10px;border-radius:20px;background:rgba(10,8,6,0.45);backdrop-filter:blur(4px);
+  }
+  .mid-banner-dots .mb-dot{width:6px;height:6px;border-radius:50%;background:rgba(245,238,221,0.4);transition:background .2s, width .2s;}
+  .mid-banner-dots .mb-dot.active{background:var(--teal);width:16px;border-radius:4px;}
   .mid-banner-fallback{
     position:absolute;inset:0;z-index:1;display:flex;flex-direction:column;align-items:center;justify-content:center;
     gap:10px;text-align:center;padding:28px;
@@ -3217,19 +3225,21 @@
        needed. -->
   <div id="mid-showcase-banner" class="mid-banner-wrap">
     <div class="wrap">
-      <a class="mid-banner-frame" href="#categories">
-        <img src="assets/mid-banner.jpg" alt="NF Naseem Fitness — Featured"
+      <a class="mid-banner-frame" id="mid-banner-frame" href="#categories">
+        <img id="mid-banner-static-img" src="assets/mid-banner.jpg" alt="NF Naseem Fitness — Featured"
           onerror="this.style.display='none';this.nextElementSibling.style.display='flex';">
         <div class="mid-banner-fallback" style="display:none;">
           <div class="mb-icon">⚡</div>
           <div class="mb-eyebrow">Ultra Premium</div>
           <h3>Your Showcase Banner</h3>
-          <p>Drop a photo at assets/mid-banner.jpg (2000×860px, 21:9 works best) — new launches, a hero shot, a limited drop. This placeholder auto-swaps for it.</p>
+          <p>Drop a photo at assets/mid-banner.jpg (2000×860px, 21:9 works best) — new launches, a hero shot, a limited drop. This placeholder auto-swaps for it. Or upload up to 5 images from the admin panel for a rotating showcase.</p>
         </div>
+        <div id="mid-banner-slides" style="position:absolute;inset:0;z-index:0;display:none;"></div>
         <div class="mid-banner-ribbon">Featured</div>
         <div class="mid-banner-sparkle mid-banner-sparkle-tl"></div>
         <div class="mid-banner-sparkle mid-banner-sparkle-tr"></div>
         <div class="mid-banner-sparkle mid-banner-sparkle-br"></div>
+        <div class="mid-banner-dots" id="mid-banner-dots" style="display:none;"></div>
       </a>
     </div>
   </div>
@@ -7946,6 +7956,9 @@ function applyStoreSettings(s){
     }
   }
 
+  /* ---- mid-page showcase banner (multi-image) ---- */
+  renderMidBanner(s);
+
   /* ---- store-wide sale + offers display ---- */
   const now = new Date();
   const startsOk = !s.sale_starts_at || now >= new Date(s.sale_starts_at);
@@ -7955,6 +7968,65 @@ function applyStoreSettings(s){
   window.SALE_BANNER_LABEL = s.sale_banner_label || `⭐ Storewide Sale – Flat ${window.SALE_DISCOUNT_PCT}% OFF on All Products`;
   window.OFFERS_DISPLAY_MODE = s.offers_display_mode || 'tab';
   renderOffersUI();
+}
+
+/* ---------- mid-page showcase banner (multi-image, admin-controlled) ---------- */
+let MID_BANNER_TIMER = null;
+function renderMidBanner(s){
+  const images = (s && Array.isArray(s.mid_banner_images)) ? s.mid_banner_images.filter(Boolean) : [];
+  const slidesWrap = document.getElementById('mid-banner-slides');
+  const staticImg = document.getElementById('mid-banner-static-img');
+  const dotsWrap = document.getElementById('mid-banner-dots');
+  const frame = document.getElementById('mid-banner-frame');
+  if(!slidesWrap || !staticImg || !dotsWrap || !frame) return;
+
+  if(MID_BANNER_TIMER){ clearInterval(MID_BANNER_TIMER); MID_BANNER_TIMER = null; }
+
+  // No admin images configured (or banner turned off) — fall back to the
+  // legacy single static assets/mid-banner.jpg behaviour, untouched.
+  if(!images.length || s.mid_banner_enabled === false){
+    slidesWrap.style.display = 'none';
+    slidesWrap.innerHTML = '';
+    dotsWrap.style.display = 'none';
+    staticImg.style.display = '';
+    if(s && s.mid_banner_link){ frame.href = s.mid_banner_link; }
+    return;
+  }
+
+  // Admin-configured images take over — hide the legacy static image.
+  staticImg.style.display = 'none';
+  slidesWrap.style.display = 'block';
+  frame.href = s.mid_banner_link || '#categories';
+
+  slidesWrap.innerHTML = images.map((url, i) =>
+    `<img class="mb-slide${i===0 ? ' active' : ''}" src="${escapeHtml(url)}" alt="NF Naseem Fitness — Featured">`
+  ).join('');
+
+  if(images.length > 1){
+    dotsWrap.style.display = 'flex';
+    dotsWrap.innerHTML = images.map((_, i) =>
+      `<span class="mb-dot${i===0 ? ' active' : ''}" data-i="${i}"></span>`
+    ).join('');
+    let current = 0;
+    const slideEls = slidesWrap.querySelectorAll('.mb-slide');
+    const dotEls = dotsWrap.querySelectorAll('.mb-dot');
+    const goTo = (i) => {
+      slideEls[current].classList.remove('active');
+      dotEls[current].classList.remove('active');
+      current = i;
+      slideEls[current].classList.add('active');
+      dotEls[current].classList.add('active');
+    };
+    dotEls.forEach(dot => dot.addEventListener('click', (e) => {
+      e.preventDefault();
+      goTo(Number(dot.dataset.i));
+      if(MID_BANNER_TIMER) clearInterval(MID_BANNER_TIMER);
+      MID_BANNER_TIMER = setInterval(() => goTo((current + 1) % images.length), 4000);
+    }));
+    MID_BANNER_TIMER = setInterval(() => goTo((current + 1) % images.length), 4000);
+  }else{
+    dotsWrap.style.display = 'none';
+  }
 }
 
 /* ---------- offers tab / carousel ---------- */

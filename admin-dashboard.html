@@ -1297,6 +1297,36 @@
         </div>
       </div>
 
+      <!-- MID-PAGE SHOWCASE BANNER PANEL -->
+      <div class="panel" style="max-width:760px;">
+        <div class="panel-head" style="margin-bottom:6px;">
+          <h3>⚡ Mid-Page Showcase Banner</h3>
+          <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-size:13px;font-family:'Inter',sans-serif;text-transform:none;letter-spacing:0;font-weight:500;">
+            <input type="checkbox" id="mid-banner-enabled" style="width:16px;height:16px;accent-color:var(--teal);" onchange="toggleMidBannerEnabled()">
+            Show on storefront
+            <span class="toggle-badge" id="mid-banner-toggle-badge">Off</span>
+          </label>
+        </div>
+        <p style="font-size:13px;color:var(--paper-dim);margin-bottom:20px;">This is the big showcase banner that sits between the product listings and the headline (on mobile it appears right under the product grid). Upload up to 5 images — if you upload more than one, they auto-rotate on the storefront like a mini slideshow.</p>
+
+        <div class="field">
+          <label>Showcase Images (up to 5 — they rotate in the order shown)</label>
+          <div class="photo-upload-grid" id="mid-banner-photo-grid"></div>
+          <input type="file" id="mid-banner-file" accept="image/*" multiple onchange="handleMidBannerFiles(this.files)">
+          <div class="photo-upload-hint" id="mid-banner-upload-status"></div>
+          <div class="dimension-note">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg>
+            <span>Recommended: 2000 × 860px (21:9 ratio)</span>
+          </div>
+        </div>
+
+        <div class="field" style="max-width:480px;">
+          <label for="mid-banner-link">Click-through URL — optional</label>
+          <input type="url" id="mid-banner-link" placeholder="e.g. https://nfsupplementstore.com/#categories">
+          <div style="font-size:12px;color:var(--paper-dim);margin-top:6px;">Where tapping the banner takes the customer. Applies to all images. Leave blank to keep the default (Shop by Category).</div>
+        </div>
+      </div>
+
       <div class="panel" style="max-width:760px;display:flex;justify-content:flex-end;">
         <button class="btn btn-primary" onclick="saveOffers()">Save All Offer Settings</button>
       </div>
@@ -2774,6 +2804,13 @@ async function renderOffers(){
     document.getElementById('promo-banner-preview-img').src = s.promo_banner_url;
     document.getElementById('promo-banner-preview-wrap').style.display = 'block';
   }
+  // Mid-page showcase banner (multi-image)
+  const midOn = !!(s && s.mid_banner_enabled);
+  document.getElementById('mid-banner-enabled').checked = midOn;
+  toggleMidBannerEnabled();
+  document.getElementById('mid-banner-link').value = (s && s.mid_banner_link) || '';
+  MID_BANNER_IMAGES = (s && Array.isArray(s.mid_banner_images)) ? [...s.mid_banner_images] : [];
+  renderMidBannerGrid();
 }
 async function saveOffers(){
   const mode = (document.querySelector('input[name="offers-display"]:checked') || {}).value || 'tab';
@@ -2802,6 +2839,9 @@ async function saveOffers(){
     promo_banner_url: bannerUrl,
     promo_banner_title: document.getElementById('promo-banner-title').value.trim() || null,
     promo_banner_link: document.getElementById('promo-banner-link').value.trim() || null,
+    mid_banner_enabled: document.getElementById('mid-banner-enabled').checked,
+    mid_banner_images: MID_BANNER_IMAGES,
+    mid_banner_link: document.getElementById('mid-banner-link').value.trim() || null,
     updated_at: new Date().toISOString()
   };
   const { error } = await sb.from('store_settings').upsert(payload);
@@ -2839,6 +2879,66 @@ async function uploadPromoBannerToSupabase(file){
   if(error){ showToast('Upload error: ' + error.message); return null; }
   const { data } = sb.storage.from('store-assets').getPublicUrl(path);
   return data.publicUrl + '?t=' + Date.now();
+}
+
+/* ---------- mid-page showcase banner (multi-image, up to 5) ---------- */
+const MAX_MID_BANNER_IMAGES = 5;
+let MID_BANNER_IMAGES = [];
+
+function toggleMidBannerEnabled(){
+  const cb = document.getElementById('mid-banner-enabled');
+  const badge = document.getElementById('mid-banner-toggle-badge');
+  badge.textContent = cb.checked ? 'On' : 'Off';
+  badge.classList.toggle('on', cb.checked);
+}
+function renderMidBannerGrid(){
+  const grid = document.getElementById('mid-banner-photo-grid');
+  const tiles = MID_BANNER_IMAGES.map((url, i) => `
+    <div class="photo-tile">
+      ${i===0 ? '<div class="cover-badge">1st</div>' : ''}
+      <img src="${escapeHtml(url)}" alt="Showcase image ${i+1}">
+      <button type="button" class="photo-remove" title="Remove" onclick="removeMidBannerImage(${i})">✕</button>
+    </div>
+  `).join('');
+  const addTile = MID_BANNER_IMAGES.length < MAX_MID_BANNER_IMAGES
+    ? `<button type="button" class="photo-tile-add" onclick="document.getElementById('mid-banner-file').click()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 5v14M5 12h14"/></svg>
+        Add
+      </button>`
+    : '';
+  grid.innerHTML = tiles + addTile;
+}
+function removeMidBannerImage(i){
+  MID_BANNER_IMAGES.splice(i, 1);
+  renderMidBannerGrid();
+}
+async function handleMidBannerFiles(fileList){
+  const files = Array.from(fileList || []);
+  document.getElementById('mid-banner-file').value = '';
+  if(files.length === 0) return;
+  const remaining = MAX_MID_BANNER_IMAGES - MID_BANNER_IMAGES.length;
+  if(remaining <= 0){ showToast(`Maximum ${MAX_MID_BANNER_IMAGES} showcase images`); return; }
+  const toUpload = files.slice(0, remaining);
+  if(files.length > remaining){ showToast(`Only ${remaining} more image${remaining===1?'':'s'} allowed — uploading the first ${remaining}`); }
+  const statusEl = document.getElementById('mid-banner-upload-status');
+  for(let i=0; i<toUpload.length; i++){
+    statusEl.textContent = `Uploading ${i+1} of ${toUpload.length}…`;
+    const url = await uploadMidBannerImage(toUpload[i]);
+    if(url){ MID_BANNER_IMAGES.push(url); renderMidBannerGrid(); }
+  }
+  statusEl.textContent = MID_BANNER_IMAGES.length ? 'Uploaded ✓' : '';
+}
+async function uploadMidBannerImage(file){
+  const statusEl = document.getElementById('mid-banner-upload-status');
+  const safeName = file.name.toLowerCase().replace(/[^a-z0-9.]+/g, '-').replace(/-+/g,'-');
+  const path = `mid-banner/${Date.now()}-${Math.random().toString(36).slice(2,7)}-${safeName}`;
+  const { error } = await sb.storage.from('store-assets').upload(path, file, { upsert:false, contentType: file.type });
+  if(error){
+    statusEl.textContent = `Upload failed: ${error.message}`;
+    return null;
+  }
+  const { data } = sb.storage.from('store-assets').getPublicUrl(path);
+  return data.publicUrl;
 }
 
 /* ---------- reports ---------- */
