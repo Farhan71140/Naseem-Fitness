@@ -1710,19 +1710,21 @@
     .visit-info{padding:36px 24px;}
     .visit-map{min-height:260px;border-left:none;border-top:1px solid var(--line);}
   }
-  /* On mobile: show video+badges, then Shop by Category, then Fitness Lifestyle
-     slider, then Products, then the hero headline/CTA text */
+  /* On mobile: show video+badges, then Shop by Category, then Fitness
+     Lifestyle slider, then Season's Bestsellers, then Combos/Products,
+     then finally the hero headline/CTA text + promo banner below all of it */
   @media (max-width:860px){
     main#top{display:flex;flex-direction:column;}
     main#top > .hero{display:contents;}
     .hero-grid{display:contents;}
-    .seal-wrap{order:-6;margin-bottom:0;padding:0 20px;}
-    #promo-banner-section{order:-6;}
-    #categories{order:-5;}
-    #fitness-lifestyle{order:-4;}
-    #combos{order:-3;}
-    #products{order:-2;}
-    .hero-top{order:-1;padding:24px 20px 0;}
+    .seal-wrap{order:-9;margin-bottom:0;padding:0 20px;}
+    #categories{order:-8;}
+    #fitness-lifestyle{order:-7;}
+    #bestsellers-tabs-section{order:-6;}
+    #combos{order:-5;}
+    #products{order:-4;}
+    .hero-top{order:-3;padding:24px 20px 0;}
+    #promo-banner-section{order:-2;}
   }
 
   /* ===== FOOTER ===== */
@@ -2810,6 +2812,78 @@
 </div>
 
 <main id="top">
+  <!-- HERO -->
+  <section class="hero" style="padding:0;">
+    <div class="wrap hero-grid">
+      <div class="hero-top">
+        <div class="eyebrow">Mumbai's Verified Supplement Store · Delivering Pan-India</div>
+        <h1>REAL GAINS START<br>WITH <span class="accent">REAL STOCK.</span></h1>
+        <p class="lead">Every tub sold at NF Naseem Fitness is batch-verified before it reaches your hands — genuine whey protein, creatine, pre-workouts and multivitamins, no exceptions, no fakes.</p>
+        <div class="hero-cta">
+          <a class="btn btn-primary" href="#bestsellers-tabs-section">Shop Bestsellers</a>
+          <a class="btn btn-ghost" href="#authenticity">Verify My Product →</a>
+        </div>
+        <div class="hero-stats">
+          <div><strong>100%</strong><span>Genuine Stock</span></div>
+          <div><strong>2,000+</strong><span>Members Served</span></div>
+          <div><strong>All India</strong><span>Delivery</span></div>
+        </div>
+      </div>
+      <div class="seal-wrap">
+        <div class="video-frame">
+          <video class="hero-video" autoplay muted loop playsinline poster="">
+            <source src="assets/hero-video.mp4" type="video/mp4">
+          </video>
+        </div>
+        <div class="hero-mini-trust">
+          <div class="mini-item mini-item-clickable" role="button" tabindex="0"
+            onclick="openTrustModal('original')"
+            onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();openTrustModal('original');}">
+            <div class="mini-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M12 2l8 4v6c0 5-3.5 8.5-8 10-4.5-1.5-8-5-8-10V6l8-4z"/></svg></div>
+            <span>100% Original<br>Supplements</span>
+          </div>
+          <div class="mini-item mini-item-clickable" role="button" tabindex="0" id="pwa-install-badge"
+            onclick="handlePwaInstallClick()"
+            onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();handlePwaInstallClick();}">
+            <div class="mini-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M12 3v12"/><path d="m7 10 5 5 5-5"/><rect x="4" y="17" width="16" height="4" rx="1"/></svg></div>
+            <span id="pwa-install-badge-label">Get The App<br>Premium Experience</span>
+          </div>
+          <div class="mini-item mini-item-image mini-item-clickable" role="button" tabindex="0"
+            onclick="openTrustModal('delivery')"
+            onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();openTrustModal('delivery');}">
+            <img src="assets/badge-fast-delivery.png" alt="Fast &amp; Safe Delivery" class="mini-badge-img">
+          </div>
+          <div class="mini-item mini-item-clickable" role="button" tabindex="0"
+            onclick="openTrustModal('fssai')"
+            onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();openTrustModal('fssai');}">
+            <div class="mini-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M9 12l2 2 4-4"/><circle cx="12" cy="12" r="10"/></svg></div>
+            <span>FSSAI Licensed<br>Store</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- PROMO BANNER — below the 4 trust badges -->
+  <div id="promo-banner-section" class="promo-banner-wrap" style="display:none;background:var(--ink-black);">
+    <div class="wrap">
+      <a id="promo-banner-anchor" href="#" onclick="return false;" style="display:block;text-decoration:none;cursor:default;">
+        <div class="promo-banner-frame">
+          <img id="promo-banner-img" src="" alt="Promo Banner" style="width:100%;display:block;border-radius:16px;max-height:320px;object-fit:cover;position:relative;z-index:1;">
+          <div class="promo-banner-shimmer"></div>
+          <div class="promo-banner-sparkle promo-banner-sparkle-tl"></div>
+          <div class="promo-banner-sparkle promo-banner-sparkle-tr"></div>
+          <div class="promo-banner-sparkle promo-banner-sparkle-bl"></div>
+          <div class="promo-banner-sparkle promo-banner-sparkle-br"></div>
+        </div>
+        <!-- Title BELOW the banner image -->
+        <div id="promo-banner-title-overlay" style="display:none;margin-top:14px;text-align:center;font-family:'Anton',sans-serif;font-size:clamp(15px,2.4vw,22px);letter-spacing:0.5px;text-transform:uppercase;">
+          <span style="background:linear-gradient(90deg,#FFD24A,#FFF2B5,#FFD24A);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;background-size:200%;animation:goldText 2s linear infinite;"></span>
+        </div>
+      </a>
+    </div>
+  </div>
+
   <!-- CATEGORIES -->
   <section id="categories">
     <div class="wrap">
@@ -2942,78 +3016,6 @@
       <div id="best-cats-wrap"></div>
     </div>
   </section>
-
-  <!-- HERO -->
-  <section class="hero" style="padding:0;">
-    <div class="wrap hero-grid">
-      <div class="hero-top">
-        <div class="eyebrow">Mumbai's Verified Supplement Store · Delivering Pan-India</div>
-        <h1>REAL GAINS START<br>WITH <span class="accent">REAL STOCK.</span></h1>
-        <p class="lead">Every tub sold at NF Naseem Fitness is batch-verified before it reaches your hands — genuine whey protein, creatine, pre-workouts and multivitamins, no exceptions, no fakes.</p>
-        <div class="hero-cta">
-          <a class="btn btn-primary" href="#bestsellers-tabs-section">Shop Bestsellers</a>
-          <a class="btn btn-ghost" href="#authenticity">Verify My Product →</a>
-        </div>
-        <div class="hero-stats">
-          <div><strong>100%</strong><span>Genuine Stock</span></div>
-          <div><strong>2,000+</strong><span>Members Served</span></div>
-          <div><strong>All India</strong><span>Delivery</span></div>
-        </div>
-      </div>
-      <div class="seal-wrap">
-        <div class="video-frame">
-          <video class="hero-video" autoplay muted loop playsinline poster="">
-            <source src="assets/hero-video.mp4" type="video/mp4">
-          </video>
-        </div>
-        <div class="hero-mini-trust">
-          <div class="mini-item mini-item-clickable" role="button" tabindex="0"
-            onclick="openTrustModal('original')"
-            onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();openTrustModal('original');}">
-            <div class="mini-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M12 2l8 4v6c0 5-3.5 8.5-8 10-4.5-1.5-8-5-8-10V6l8-4z"/></svg></div>
-            <span>100% Original<br>Supplements</span>
-          </div>
-          <div class="mini-item mini-item-clickable" role="button" tabindex="0" id="pwa-install-badge"
-            onclick="handlePwaInstallClick()"
-            onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();handlePwaInstallClick();}">
-            <div class="mini-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M12 3v12"/><path d="m7 10 5 5 5-5"/><rect x="4" y="17" width="16" height="4" rx="1"/></svg></div>
-            <span id="pwa-install-badge-label">Get The App<br>Premium Experience</span>
-          </div>
-          <div class="mini-item mini-item-image mini-item-clickable" role="button" tabindex="0"
-            onclick="openTrustModal('delivery')"
-            onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();openTrustModal('delivery');}">
-            <img src="assets/badge-fast-delivery.png" alt="Fast &amp; Safe Delivery" class="mini-badge-img">
-          </div>
-          <div class="mini-item mini-item-clickable" role="button" tabindex="0"
-            onclick="openTrustModal('fssai')"
-            onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();openTrustModal('fssai');}">
-            <div class="mini-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M9 12l2 2 4-4"/><circle cx="12" cy="12" r="10"/></svg></div>
-            <span>FSSAI Licensed<br>Store</span>
-          </div>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- PROMO BANNER — below the 4 trust badges -->
-  <div id="promo-banner-section" class="promo-banner-wrap" style="display:none;background:var(--ink-black);">
-    <div class="wrap">
-      <a id="promo-banner-anchor" href="#" onclick="return false;" style="display:block;text-decoration:none;cursor:default;">
-        <div class="promo-banner-frame">
-          <img id="promo-banner-img" src="" alt="Promo Banner" style="width:100%;display:block;border-radius:16px;max-height:320px;object-fit:cover;position:relative;z-index:1;">
-          <div class="promo-banner-shimmer"></div>
-          <div class="promo-banner-sparkle promo-banner-sparkle-tl"></div>
-          <div class="promo-banner-sparkle promo-banner-sparkle-tr"></div>
-          <div class="promo-banner-sparkle promo-banner-sparkle-bl"></div>
-          <div class="promo-banner-sparkle promo-banner-sparkle-br"></div>
-        </div>
-        <!-- Title BELOW the banner image -->
-        <div id="promo-banner-title-overlay" style="display:none;margin-top:14px;text-align:center;font-family:'Anton',sans-serif;font-size:clamp(15px,2.4vw,22px);letter-spacing:0.5px;text-transform:uppercase;">
-          <span style="background:linear-gradient(90deg,#FFD24A,#FFF2B5,#FFD24A);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;background-size:200%;animation:goldText 2s linear infinite;"></span>
-        </div>
-      </a>
-    </div>
-  </div>
 
   <!-- TRUST BAR — moved here so it sits below all the product listings
        (Fitness Lifestyle + Season's Bestsellers) instead of blocking the
