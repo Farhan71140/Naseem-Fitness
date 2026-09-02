@@ -669,11 +669,17 @@
      and add a subtle divider line so the transition still feels intentional. */
   #categories{padding-bottom:28px;}
   .fl-slider-section{padding-top:28px;border-top:1px solid var(--line);}
+  /* Season's Bestsellers sits right after the Fitness Lifestyle slider's own
+     bottom padding — stacking two full 96px section paddings left a big
+     empty gap above "Trending Now". Pull it up the same way fl-slider-section
+     was tightened above. */
+  .best-tabs-section{padding-top:28px;}
   @media (max-width:860px){
     section{padding:64px 0;} .wrap{padding:0 20px;}
     .promo-banner-wrap{padding:20px 0 4px;}
     #categories{padding-top:32px;padding-bottom:18px;}
     .fl-slider-section{padding-top:18px;}
+    .best-tabs-section{padding-top:14px;}
   }
   @media (max-width:480px){
     .cat-grid{grid-template-columns:1fr;}
