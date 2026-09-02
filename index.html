@@ -830,24 +830,26 @@
   .fl-card .prod-photo{aspect-ratio:1/1;}
   @media (max-width:600px){ .fl-card{width:168px;} }
 
-  /* ===== SEASON'S BESTSELLERS — category tabs + "View All" card ===== */
-  .best-tabs-row{
-    display:flex;gap:10px;overflow-x:auto;margin-bottom:24px;padding-bottom:4px;
-    scrollbar-width:none;-webkit-overflow-scrolling:touch;
+  /* ===== SEASON'S BESTSELLERS — one shimmering gold label per category, each with its own auto-scrolling row ===== */
+  .best-cat-block{margin-bottom:44px;}
+  .best-cat-block:last-child{margin-bottom:0;}
+  .best-cat-label{
+    position:relative;overflow:hidden;display:inline-block;
+    padding:12px 30px;border-radius:8px;margin-bottom:18px;
+    background:linear-gradient(135deg,#B8860B 0%,#FFD24A 35%,#FFF2B5 55%,#E8A93A 75%,#B8860B 100%);
+    background-size:220% 220%;
+    box-shadow:0 4px 16px rgba(255,210,74,0.35);
+    animation:addBtnDrift 3.6s ease-in-out infinite, addBtnGlow 2.4s ease-in-out infinite;
   }
-  .best-tabs-row::-webkit-scrollbar{display:none;}
-  .best-tab{
-    flex:none;padding:10px 22px;border-radius:30px;border:1px solid var(--line);
-    background:transparent;color:var(--paper-dim);font-family:'Space Mono',monospace;
-    font-size:12px;letter-spacing:1.5px;text-transform:uppercase;font-weight:700;
-    cursor:pointer;white-space:nowrap;transition:color .25s, border-color .25s, background .25s, transform .15s;
+  .best-cat-label::before{
+    content:'';position:absolute;top:0;left:-65%;width:35%;height:100%;
+    background:linear-gradient(115deg, transparent, rgba(255,255,255,0.85), transparent);
+    transform:skewX(-18deg);
+    animation:addBtnShine 2.8s ease-in-out infinite;
   }
-  .best-tab:hover{color:var(--paper);border-color:var(--teal);}
-  .best-tab.active{
-    color:var(--ink-black);border-color:transparent;
-    background:linear-gradient(135deg,#B8860B 0%,#FFD24A 40%,#FFF2B5 60%,#E8A93A 100%);
-    box-shadow:0 4px 16px rgba(255,210,74,0.4);
-    transform:translateY(-1px);
+  .best-cat-label span{
+    position:relative;z-index:1;color:#2A1D00;font-family:'Anton',sans-serif;
+    font-size:16px;letter-spacing:1px;text-transform:uppercase;
   }
   .best-viewall-card{
     display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;
@@ -3018,12 +3020,9 @@
           <div class="eyebrow">Trending Now</div>
           <h2>Season's Bestsellers</h2>
         </div>
-        <p>Handpicked favourites from every category — tap a tab to explore.</p>
+        <p>Every category, freshly stocked — swipe through, or tap View More for more.</p>
       </div>
-      <div class="best-tabs-row" id="best-tabs-row"></div>
-      <div class="fl-slider-viewport" id="best-slider-viewport">
-        <div class="fl-slider-track" id="best-slider-track"></div>
-      </div>
+      <div id="best-cats-wrap"></div>
     </div>
   </section>
 
@@ -4720,142 +4719,131 @@ function renderFitnessLifestyleSlider(all){
   initFlAutoScroll();
 }
 
-/* ---- SEASON'S BESTSELLERS — category tabs, each with its own auto-scrolling row ---- */
-const BEST_SELLER_TABS = [
-  { label:'Proteins',    category:'Whey Protein' },
-  { label:'Gainers',     category:'Mass Gainer' },
-  { label:'Creatines',   category:'Creatine' },
-  { label:'Pre-Workouts',category:'Pre-Workout' },
-  { label:'Supplements', category:'Health Supplements' },
-  { label:'Accessories', category:'Gym Accessories' }
+/* ---- SEASON'S BESTSELLERS — one gold shimmering label + auto-scrolling row per category, stacked ---- */
+const BEST_SELLER_CATEGORIES = [
+  'Creatine', 'Whey Protein', 'Mass Gainer', 'Pre-Workout', 'Health Supplements', 'Gym Accessories'
 ];
-let ACTIVE_BEST_TAB = null;
+const BEST_BATCH_SIZE = 6;
+const BEST_SHOWN_COUNTS = {}; // category -> how many products currently loaded into its row
+function catSlug(category){ return String(category).toLowerCase().replace(/[^a-z0-9]+/g,'-'); }
+
 function initBestSellersSection(all){
   const section = document.getElementById('bestsellers-tabs-section');
-  const tabsRow = document.getElementById('best-tabs-row');
-  if(!section || !tabsRow) return;
-  const available = BEST_SELLER_TABS.filter(t => (all||[]).some(p => (p.category||'') === t.category));
-  if(available.length === 0){
+  const wrap = document.getElementById('best-cats-wrap');
+  if(!section || !wrap) return;
+  const cats = BEST_SELLER_CATEGORIES.filter(c => (all||[]).some(p => (p.category||'') === c));
+  if(cats.length === 0){
     section.style.display = 'none';
     return;
   }
   section.style.display = '';
-  tabsRow.innerHTML = available.map((t,i) =>
-    `<button type="button" class="best-tab${i===0 ? ' active' : ''}" data-best-cat="${escapeHtml(t.category)}" onclick="selectBestTab('${escapeHtml(t.category)}')">${escapeHtml(t.label)}</button>`
-  ).join('');
-  ACTIVE_BEST_TAB = available[0].category;
-  renderBestSellersTrack(ACTIVE_BEST_TAB);
-}
-function selectBestTab(category){
-  ACTIVE_BEST_TAB = category;
-  document.querySelectorAll('#best-tabs-row .best-tab').forEach(btn=>{
-    btn.classList.toggle('active', btn.getAttribute('data-best-cat') === category);
-  });
-  renderBestSellersTrack(category);
-}
-function bestViewAllCardHtml(category){
-  return `
-    <div class="fl-card best-viewall-card" onclick="viewAllBestSellerCategory('${escapeHtml(category)}')">
-      <div class="best-viewall-circle">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+  wrap.innerHTML = cats.map(c => `
+    <div class="best-cat-block">
+      <div class="best-cat-label"><span>${escapeHtml(c)}</span></div>
+      <div class="fl-slider-viewport" id="best-viewport-${catSlug(c)}">
+        <div class="fl-slider-track" id="best-track-${catSlug(c)}"></div>
       </div>
-      <span class="vtxt">View All</span>
-      <span class="vsub">${escapeHtml(category)}</span>
+    </div>`
+  ).join('');
+  cats.forEach(c => {
+    BEST_SHOWN_COUNTS[c] = BEST_BATCH_SIZE;
+    renderBestCategoryTrack(c);
+  });
+}
+function bestViewMoreCardHtml(category){
+  return `
+    <div class="fl-card best-viewall-card" onclick="event.stopPropagation();loadMoreBestCategory('${escapeHtml(category)}')">
+      <div class="best-viewall-circle">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg>
+      </div>
+      <span class="vtxt">View More</span>
     </div>`;
 }
-function viewAllBestSellerCategory(category){
-  filterByCategory(category);
-}
-function renderBestSellersTrack(category){
-  const track = document.getElementById('best-slider-track');
-  const viewport = document.getElementById('best-slider-viewport');
+function renderBestCategoryTrack(category){
+  const slug = catSlug(category);
+  const viewport = document.getElementById('best-viewport-'+slug);
+  const track = document.getElementById('best-track-'+slug);
   if(!track || !viewport) return;
-  const items = (PRODUCTS || []).filter(p => (p.category||'') === category);
-  if(items.length === 0){
-    track.innerHTML = `<div class="prod-empty">No products in this category yet.</div>`;
-    return;
-  }
-  // Product list + the "View All" card is duplicated back-to-back so the
-  // auto-scroll can loop seamlessly, same technique as Fitness Lifestyle.
-  const block = items.map(p => flProductCardHTML(p, true)).join('') + bestViewAllCardHtml(category);
+  const allInCat = (PRODUCTS || []).filter(p => (p.category||'') === category);
+  const shown = Math.min(BEST_SHOWN_COUNTS[category] || BEST_BATCH_SIZE, allInCat.length);
+  const items = allInCat.slice(0, shown);
+  const hasMore = shown < allInCat.length;
+  // Whatever is currently loaded (products + a "View More" card, if there's
+  // more left) is duplicated back-to-back so the auto-scroll can loop
+  // seamlessly, same technique as Fitness Lifestyle. Clicking "View More"
+  // just grows the pool and re-renders — the row keeps auto-scrolling.
+  let block = items.map(p => flProductCardHTML(p, true)).join('');
+  if(hasMore) block += bestViewMoreCardHtml(category);
   track.innerHTML = block + block;
-  initBestAutoScroll();
+  if(!viewport.dataset.autoScrollBound){
+    viewport.dataset.autoScrollBound = '1';
+    bindHorizontalAutoScroll(viewport, 1.4);
+  } else {
+    viewport.scrollLeft = 0;
+  }
+}
+function loadMoreBestCategory(category){
+  BEST_SHOWN_COUNTS[category] = (BEST_SHOWN_COUNTS[category] || BEST_BATCH_SIZE) + BEST_BATCH_SIZE;
+  renderBestCategoryTrack(category);
 }
 
-/* ---- slow, smooth auto-scroll with manual swipe/drag support (mirrors Fitness Lifestyle's) ---- */
-let bestScrollRAF = null;
-let bestIsPaused = false;
-let bestIsDragging = false;
-let bestDragStartX = 0;
-let bestDragStartScroll = 0;
-let bestDragDistance = 0;
-let bestResumeTimer = null;
-let bestListenersBound = false;
+/* ---- reusable slow auto-scroll with pause-on-touch/drag, used by every Bestsellers row ---- */
+function bindHorizontalAutoScroll(viewport, speed){
+  let paused = false, dragging = false, dragStartX = 0, dragStartScroll = 0, dragDistance = 0, resumeTimer = null;
 
-function initBestAutoScroll(){
-  const viewport = document.getElementById('best-slider-viewport');
-  if(!viewport) return;
-  viewport.scrollLeft = 0;
-  bestIsPaused = false;
-
-  if(bestScrollRAF) cancelAnimationFrame(bestScrollRAF);
-  const SPEED = 2; // px per frame
   function step(){
-    if(!bestIsPaused && !bestIsDragging && viewport.scrollWidth > viewport.clientWidth){
-      viewport.scrollLeft += SPEED;
+    if(!paused && !dragging && viewport.scrollWidth > viewport.clientWidth){
+      viewport.scrollLeft += speed;
       const half = viewport.scrollWidth / 2;
       if(viewport.scrollLeft >= half){
         viewport.scrollLeft -= half; // seamless loop back to the start
       }
     }
-    bestScrollRAF = requestAnimationFrame(step);
+    requestAnimationFrame(step);
   }
-  bestScrollRAF = requestAnimationFrame(step);
-
-  if(bestListenersBound) return; // avoid stacking duplicate listeners on re-render
-  bestListenersBound = true;
+  requestAnimationFrame(step);
 
   function pauseAndScheduleResume(){
-    bestIsPaused = true;
-    clearTimeout(bestResumeTimer);
-    bestResumeTimer = setTimeout(()=>{ bestIsPaused = false; }, 2500);
+    paused = true;
+    clearTimeout(resumeTimer);
+    resumeTimer = setTimeout(()=>{ paused = false; }, 2500);
   }
 
   viewport.addEventListener('touchstart', pauseAndScheduleResume, {passive:true});
-  viewport.addEventListener('touchmove', ()=>{ clearTimeout(bestResumeTimer); bestIsPaused = true; }, {passive:true});
+  viewport.addEventListener('touchmove', ()=>{ clearTimeout(resumeTimer); paused = true; }, {passive:true});
   viewport.addEventListener('touchend', pauseAndScheduleResume, {passive:true});
   viewport.addEventListener('wheel', pauseAndScheduleResume, {passive:true});
 
   // desktop click-and-drag scrolling
   viewport.addEventListener('mousedown', (e)=>{
-    bestIsDragging = true;
-    bestDragDistance = 0;
+    dragging = true;
+    dragDistance = 0;
     viewport.classList.add('dragging');
-    bestDragStartX = e.pageX;
-    bestDragStartScroll = viewport.scrollLeft;
-    clearTimeout(bestResumeTimer);
-    bestIsPaused = true;
+    dragStartX = e.pageX;
+    dragStartScroll = viewport.scrollLeft;
+    clearTimeout(resumeTimer);
+    paused = true;
   });
   window.addEventListener('mousemove', (e)=>{
-    if(!bestIsDragging) return;
-    const dx = e.pageX - bestDragStartX;
-    bestDragDistance = Math.abs(dx);
-    viewport.scrollLeft = bestDragStartScroll - dx;
+    if(!dragging) return;
+    const dx = e.pageX - dragStartX;
+    dragDistance = Math.abs(dx);
+    viewport.scrollLeft = dragStartScroll - dx;
   });
   window.addEventListener('mouseup', ()=>{
-    if(!bestIsDragging) return;
-    bestIsDragging = false;
+    if(!dragging) return;
+    dragging = false;
     viewport.classList.remove('dragging');
     pauseAndScheduleResume();
   });
   // if the mouse-down turned into a real drag, swallow the click so it
   // doesn't accidentally open the quick-view modal for that card
   viewport.addEventListener('click', (e)=>{
-    if(bestDragDistance > 6){ e.stopPropagation(); e.preventDefault(); }
+    if(dragDistance > 6){ e.stopPropagation(); e.preventDefault(); }
   }, true);
 
-  viewport.addEventListener('mouseenter', ()=>{ if(!bestIsDragging) bestIsPaused = true; });
-  viewport.addEventListener('mouseleave', ()=>{ if(!bestIsDragging){ clearTimeout(bestResumeTimer); bestIsPaused = false; } });
+  viewport.addEventListener('mouseenter', ()=>{ if(!dragging) paused = true; });
+  viewport.addEventListener('mouseleave', ()=>{ if(!dragging){ clearTimeout(resumeTimer); paused = false; } });
 }
 
 /* ---- slow, smooth auto-scroll with manual swipe/drag support ---- */
