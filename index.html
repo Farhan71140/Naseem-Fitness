@@ -724,8 +724,9 @@
   .mid-banner-sparkle-br{bottom:-4px;right:24px;animation-delay:1.6s;}
   @media (max-width:860px){
     .mid-banner-wrap{padding:22px 0 2px;}
-    .mid-banner-frame{aspect-ratio:4/3;border-radius:17px;}
-    .mid-banner-fallback{padding:22px;}
+    .mid-banner-frame{aspect-ratio:21/9;border-radius:17px;}
+    .mid-banner-fallback{padding:18px;}
+    .mid-banner-fallback p{display:none;}
   }
 
   section{padding:96px 0;}
@@ -3227,18 +3228,20 @@
     <div class="wrap">
       <a class="mid-banner-frame" id="mid-banner-frame" href="#categories">
         <img id="mid-banner-static-img" src="assets/mid-banner.jpg" alt="NF Naseem Fitness — Featured"
-          onerror="this.style.display='none';this.nextElementSibling.style.display='flex';">
-        <div class="mid-banner-fallback" style="display:none;">
+          onerror="if(!window.__MID_BANNER_HAS_ADMIN_IMAGES){this.style.display='none';this.nextElementSibling.style.display='flex';}">
+        <div class="mid-banner-fallback" id="mid-banner-fallback" style="display:none;">
           <div class="mb-icon">⚡</div>
           <div class="mb-eyebrow">Ultra Premium</div>
           <h3>Your Showcase Banner</h3>
           <p>Drop a photo at assets/mid-banner.jpg (2000×860px, 21:9 works best) — new launches, a hero shot, a limited drop. This placeholder auto-swaps for it. Or upload up to 5 images from the admin panel for a rotating showcase.</p>
+          <!-- Decorative badge only ever shows on this empty placeholder card,
+               never over a real uploaded photo. -->
+          <div class="mid-banner-ribbon">Featured</div>
+          <div class="mid-banner-sparkle mid-banner-sparkle-tl"></div>
+          <div class="mid-banner-sparkle mid-banner-sparkle-tr"></div>
+          <div class="mid-banner-sparkle mid-banner-sparkle-br"></div>
         </div>
         <div id="mid-banner-slides" style="position:absolute;inset:0;z-index:0;display:none;"></div>
-        <div class="mid-banner-ribbon">Featured</div>
-        <div class="mid-banner-sparkle mid-banner-sparkle-tl"></div>
-        <div class="mid-banner-sparkle mid-banner-sparkle-tr"></div>
-        <div class="mid-banner-sparkle mid-banner-sparkle-br"></div>
         <div class="mid-banner-dots" id="mid-banner-dots" style="display:none;"></div>
       </a>
     </div>
@@ -7978,13 +7981,17 @@ function renderMidBanner(s){
   const staticImg = document.getElementById('mid-banner-static-img');
   const dotsWrap = document.getElementById('mid-banner-dots');
   const frame = document.getElementById('mid-banner-frame');
+  const fallback = document.getElementById('mid-banner-fallback');
   if(!slidesWrap || !staticImg || !dotsWrap || !frame) return;
 
   if(MID_BANNER_TIMER){ clearInterval(MID_BANNER_TIMER); MID_BANNER_TIMER = null; }
 
   // No admin images configured (or banner turned off) — fall back to the
-  // legacy single static assets/mid-banner.jpg behaviour, untouched.
+  // legacy single static assets/mid-banner.jpg behaviour, untouched. The
+  // "Featured" placeholder badge only shows here if that static image is
+  // also missing (handled by the <img onerror> in the markup).
   if(!images.length || s.mid_banner_enabled === false){
+    window.__MID_BANNER_HAS_ADMIN_IMAGES = false;
     slidesWrap.style.display = 'none';
     slidesWrap.innerHTML = '';
     dotsWrap.style.display = 'none';
@@ -7993,8 +8000,11 @@ function renderMidBanner(s){
     return;
   }
 
-  // Admin-configured images take over — hide the legacy static image.
+  // Admin-configured images take over — hide the legacy static image and
+  // the placeholder badge/card, so only the real uploaded photo(s) show.
+  window.__MID_BANNER_HAS_ADMIN_IMAGES = true;
   staticImg.style.display = 'none';
+  if(fallback) fallback.style.display = 'none';
   slidesWrap.style.display = 'block';
   frame.href = s.mid_banner_link || '#categories';
 
