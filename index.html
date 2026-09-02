@@ -104,13 +104,13 @@
   .brand-name{font-family:'Anton',sans-serif;font-size:19px;letter-spacing:0.5px;text-transform:uppercase;line-height:1.1;white-space:nowrap;}
   .brand-name span{color:var(--teal);}
   .brand-tag{display:block;font-family:'Space Mono',monospace;font-size:9px;letter-spacing:2px;color:var(--paper-dim);text-transform:uppercase;margin-top:2px;white-space:nowrap;}
-  @media (max-width:1180px){
+  @media (max-width:1500px){
     /* logo graphic already contains the wordmark — drop the duplicate text so the header stays compact */
     .brand-text{display:none;}
     nav.wrap{padding-top:10px;padding-bottom:10px;gap:12px;}
     .brand img{height:38px;}
   }
-  .nav-links{display:flex;gap:18px;font-size:13.5px;font-weight:600;flex:none;}
+  .nav-links{display:flex;gap:14px;font-size:13px;font-weight:600;flex:none;}
   .nav-links a{opacity:0.85;transition:opacity .2s;}
   .nav-links a:hover{opacity:1;color:var(--teal);}
   .nav-cta{
@@ -186,7 +186,7 @@
     font-family:'Space Mono',monospace;font-size:10px;letter-spacing:0.5px;color:var(--paper-dim);
     border:1px solid var(--line);border-radius:5px;padding:2px 6px;white-space:nowrap;
   }
-  @media (min-width:1181px){ nav.wrap > .nav-search .kbd-hint{display:inline-flex;} }
+  @media (min-width:1501px){ nav.wrap > .nav-search .kbd-hint{display:inline-flex;} }
   .mic-btn{
     display:inline-flex;align-items:center;justify-content:center;
     width:22px;height:22px;border-radius:50%;border:none;background:transparent;
@@ -234,7 +234,7 @@
   .mobile-search-bar .mic-btn{width:22px;height:22px;flex:none;}
   .mobile-search-bar .cam-btn svg,
   .mobile-search-bar .mic-btn svg{width:15px;height:15px;}
-  @media (max-width:1180px){
+  @media (max-width:1500px){
     .nav-links{display:none;} .nav-cta{display:none;}
     nav.wrap > .nav-search{display:none;}
     .mobile-icons{display:flex;gap:6px;align-items:center;}
@@ -259,7 +259,7 @@
     border-bottom:1px solid var(--line);
   }
   .mobile-menu .mobile-cta{display:flex;flex-direction:column;gap:12px;margin-top:16px;}
-  @media (max-width:1180px){
+  @media (max-width:1500px){
     .hamburger-btn{display:flex;}
     .nav-toggle-input:checked ~ .mobile-menu{display:flex;}
   }
