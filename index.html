@@ -4723,7 +4723,7 @@ function renderFitnessLifestyleSlider(all){
 const BEST_SELLER_CATEGORIES = [
   'Creatine', 'Whey Protein', 'Mass Gainer', 'Pre-Workout', 'Health Supplements', 'Gym Accessories'
 ];
-const BEST_BATCH_SIZE = 6;
+const BEST_BATCH_SIZE = 10;
 const BEST_SHOWN_COUNTS = {}; // category -> how many products currently loaded into its row
 function catSlug(category){ return String(category).toLowerCase().replace(/[^a-z0-9]+/g,'-'); }
 
@@ -4768,18 +4768,25 @@ function renderBestCategoryTrack(category){
   const shown = Math.min(BEST_SHOWN_COUNTS[category] || BEST_BATCH_SIZE, allInCat.length);
   const items = allInCat.slice(0, shown);
   const hasMore = shown < allInCat.length;
-  // Whatever is currently loaded (products + a "View More" card, if there's
-  // more left) is duplicated back-to-back so the auto-scroll can loop
-  // seamlessly, same technique as Fitness Lifestyle. Clicking "View More"
-  // just grows the pool and re-renders — the row keeps auto-scrolling.
   let block = items.map(p => flProductCardHTML(p, true)).join('');
-  if(hasMore) block += bestViewMoreCardHtml(category);
-  track.innerHTML = block + block;
+  if(hasMore){
+    // Only a single copy — NEVER duplicated — so "View More" appears exactly
+    // once, right at the true end of what's loaded so far. The row bounces
+    // back and forth instead of wrap-looping, since there's nothing to wrap
+    // into yet.
+    track.innerHTML = block + bestViewMoreCardHtml(category);
+    viewport.dataset.loop = '0';
+  } else {
+    // Every product in this category is loaded — safe to duplicate and
+    // wrap-loop forever, same technique as Fitness Lifestyle.
+    track.innerHTML = block + block;
+    viewport.dataset.loop = '1';
+  }
+  viewport.scrollLeft = 0;
+  viewport.dataset.dir = '1';
   if(!viewport.dataset.autoScrollBound){
     viewport.dataset.autoScrollBound = '1';
     bindHorizontalAutoScroll(viewport, 1.4);
-  } else {
-    viewport.scrollLeft = 0;
   }
 }
 function loadMoreBestCategory(category){
@@ -4787,16 +4794,30 @@ function loadMoreBestCategory(category){
   renderBestCategoryTrack(category);
 }
 
-/* ---- reusable slow auto-scroll with pause-on-touch/drag, used by every Bestsellers row ---- */
+/* ---- reusable slow auto-scroll with pause-on-touch/drag, used by every Bestsellers row ----
+   While a category still has more products to load, the row bounces back
+   and forth (no wrap) so the single "View More" card at the end is always
+   reachable and never repeats. Once fully loaded, it wrap-loops forever. ---- */
 function bindHorizontalAutoScroll(viewport, speed){
   let paused = false, dragging = false, dragStartX = 0, dragStartScroll = 0, dragDistance = 0, resumeTimer = null;
 
   function step(){
     if(!paused && !dragging && viewport.scrollWidth > viewport.clientWidth){
-      viewport.scrollLeft += speed;
-      const half = viewport.scrollWidth / 2;
-      if(viewport.scrollLeft >= half){
-        viewport.scrollLeft -= half; // seamless loop back to the start
+      const looping = viewport.dataset.loop === '1';
+      if(looping){
+        viewport.scrollLeft += speed;
+        const half = viewport.scrollWidth / 2;
+        if(viewport.scrollLeft >= half){
+          viewport.scrollLeft -= half; // seamless loop back to the start
+        }
+      } else {
+        let dir = Number(viewport.dataset.dir || '1');
+        const max = viewport.scrollWidth - viewport.clientWidth;
+        let next = viewport.scrollLeft + speed * dir;
+        if(next >= max){ next = max; dir = -1; }
+        else if(next <= 0){ next = 0; dir = 1; }
+        viewport.scrollLeft = next;
+        viewport.dataset.dir = String(dir);
       }
     }
     requestAnimationFrame(step);
