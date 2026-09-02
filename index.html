@@ -662,6 +662,64 @@
   }
   @keyframes goldText{0%{background-position:0%}100%{background-position:200%}}
 
+  /* ===== MID SHOWCASE BANNER — ultra-premium image placeholder that sits
+     between the product listings and the hero headline on mobile (see the
+     #mid-showcase-banner order override below). Drop a real photo at
+     assets/mid-banner.jpg and the placeholder below auto-hides. ===== */
+  .mid-banner-wrap{padding:10px 0 4px;}
+  .mid-banner-frame{
+    position:relative;display:block;border-radius:22px;overflow:hidden;aspect-ratio:21/9;
+    background:
+      radial-gradient(120% 160% at 12% 0%, rgba(255,210,74,0.18) 0%, transparent 55%),
+      linear-gradient(155deg, var(--steel) 0%, var(--iron) 55%, var(--iron-light) 140%);
+    box-shadow:
+      0 0 0 1px rgba(255,210,74,0.45),
+      0 0 40px rgba(255,210,74,0.16),
+      0 24px 70px rgba(0,0,0,0.55);
+    transition:transform .25s ease, box-shadow .25s ease;
+  }
+  .mid-banner-frame:hover{transform:translateY(-3px);box-shadow:0 0 0 1px rgba(255,210,74,0.6),0 0 55px rgba(255,210,74,0.22),0 28px 80px rgba(0,0,0,0.6);}
+  @property --mb-angle{syntax:'<angle>';inherits:false;initial-value:0deg;}
+  .mid-banner-frame::before{
+    content:'';position:absolute;inset:0;border-radius:22px;padding:2px;z-index:1;pointer-events:none;
+    background:conic-gradient(from var(--mb-angle,0deg), transparent 0%, rgba(255,210,74,0.95) 7%, transparent 18%, transparent 55%, rgba(255,210,74,0.65) 66%, transparent 78%);
+    -webkit-mask:linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+    -webkit-mask-composite:xor;mask-composite:exclude;
+    animation:mbRotate 7s linear infinite;
+  }
+  @keyframes mbRotate{to{--mb-angle:360deg;}}
+  .mid-banner-frame img{width:100%;height:100%;object-fit:cover;display:block;position:relative;z-index:0;}
+  .mid-banner-fallback{
+    position:absolute;inset:0;z-index:1;display:flex;flex-direction:column;align-items:center;justify-content:center;
+    gap:10px;text-align:center;padding:28px;
+  }
+  .mid-banner-fallback .mb-icon{
+    width:56px;height:56px;border-radius:50%;display:flex;align-items:center;justify-content:center;
+    background:radial-gradient(circle, rgba(255,210,74,0.25) 0%, transparent 72%);
+    border:1px solid var(--line);font-size:24px;margin-bottom:2px;
+  }
+  .mid-banner-fallback .mb-eyebrow{font-family:'Space Mono',monospace;font-size:11px;letter-spacing:3px;color:var(--teal);text-transform:uppercase;}
+  .mid-banner-fallback h3{font-family:'Anton',sans-serif;font-size:clamp(19px,4vw,28px);letter-spacing:0.4px;color:var(--paper);text-transform:uppercase;}
+  .mid-banner-fallback p{font-family:'Space Mono',monospace;font-size:11.5px;color:var(--paper-dim);max-width:360px;letter-spacing:0.3px;line-height:1.6;}
+  .mid-banner-ribbon{
+    position:absolute;top:16px;left:16px;z-index:2;
+    font-family:'Space Mono',monospace;font-size:10px;letter-spacing:2px;text-transform:uppercase;
+    color:var(--ink-black);background:linear-gradient(90deg,#FFD24A,#FFF2B5,#FFD24A);
+    background-size:200%;animation:goldText 2.5s linear infinite;
+    padding:7px 14px;border-radius:30px;box-shadow:0 6px 20px rgba(255,210,74,0.35);
+  }
+  .mid-banner-sparkle{position:absolute;z-index:2;width:16px;height:16px;pointer-events:none;
+    background:radial-gradient(circle, rgba(255,210,74,0.95) 0%, transparent 70%);
+    border-radius:50%;animation:sparkle 2.4s ease-in-out infinite;}
+  .mid-banner-sparkle-tl{top:-4px;left:24px;animation-delay:0s;}
+  .mid-banner-sparkle-tr{top:-4px;right:24px;animation-delay:0.8s;}
+  .mid-banner-sparkle-br{bottom:-4px;right:24px;animation-delay:1.6s;}
+  @media (max-width:860px){
+    .mid-banner-wrap{padding:22px 0 2px;}
+    .mid-banner-frame{aspect-ratio:4/3;border-radius:17px;}
+    .mid-banner-fallback{padding:22px;}
+  }
+
   section{padding:96px 0;}
   .promo-banner-wrap{padding:28px 0 20px;}
   /* Fitness Lifestyle slider sits directly beneath the category cover images —
@@ -1730,7 +1788,8 @@
     #bestsellers-tabs-section{order:-6;}
     #combos{order:-5;}
     #products{order:-4;}
-    .hero-top{order:-3;padding:24px 20px 0;}
+    #mid-showcase-banner{order:-3;}
+    .hero-top{order:-2;padding:24px 20px 0;}
   }
 
   /* ===== FOOTER ===== */
@@ -3149,6 +3208,31 @@
       </div>
     </div>
   </section>
+
+  <!-- MID SHOWCASE BANNER — ultra-premium image placeholder. On mobile this
+       sits between the product listings and the hero headline (order:-3,
+       see the media query above); on desktop it sits right after Products.
+       Drop a real photo at assets/mid-banner.jpg (2000x860px / 21:9 works
+       best) and it replaces the placeholder automatically — no code changes
+       needed. -->
+  <div id="mid-showcase-banner" class="mid-banner-wrap">
+    <div class="wrap">
+      <a class="mid-banner-frame" href="#categories">
+        <img src="assets/mid-banner.jpg" alt="NF Naseem Fitness — Featured"
+          onerror="this.style.display='none';this.nextElementSibling.style.display='flex';">
+        <div class="mid-banner-fallback" style="display:none;">
+          <div class="mb-icon">⚡</div>
+          <div class="mb-eyebrow">Ultra Premium</div>
+          <h3>Your Showcase Banner</h3>
+          <p>Drop a photo at assets/mid-banner.jpg (2000×860px, 21:9 works best) — new launches, a hero shot, a limited drop. This placeholder auto-swaps for it.</p>
+        </div>
+        <div class="mid-banner-ribbon">Featured</div>
+        <div class="mid-banner-sparkle mid-banner-sparkle-tl"></div>
+        <div class="mid-banner-sparkle mid-banner-sparkle-tr"></div>
+        <div class="mid-banner-sparkle mid-banner-sparkle-br"></div>
+      </a>
+    </div>
+  </div>
 
   <!-- ORDER SYSTEM — a separate section for one-off / special products that don't
        fit any existing category. Kept deliberately apart from Shop by Category. -->
