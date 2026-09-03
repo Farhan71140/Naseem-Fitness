@@ -666,19 +666,24 @@
      between the product listings and the hero headline on mobile (see the
      #mid-showcase-banner order override below). Drop a real photo at
      assets/mid-banner.jpg and the placeholder below auto-hides. ===== */
-  .mid-banner-wrap{padding:10px 0 4px;}
+  .mid-banner-wrap{padding:28px 0 32px;}
   .mid-banner-frame{
-    position:relative;display:block;border-radius:22px;overflow:hidden;aspect-ratio:21/9;
+    position:relative;display:block;border-radius:24px;overflow:hidden;aspect-ratio:21/9;
     background:
       radial-gradient(120% 160% at 12% 0%, rgba(255,210,74,0.18) 0%, transparent 55%),
       linear-gradient(155deg, var(--steel) 0%, var(--iron) 55%, var(--iron-light) 140%);
     box-shadow:
       0 0 0 1px rgba(255,210,74,0.45),
-      0 0 40px rgba(255,210,74,0.16),
-      0 24px 70px rgba(0,0,0,0.55);
-    transition:transform .25s ease, box-shadow .25s ease;
+      0 0 55px rgba(255,210,74,0.20),
+      0 30px 90px rgba(0,0,0,0.6);
+    transition:transform .3s ease, box-shadow .3s ease;
+    animation:mbEnter .7s cubic-bezier(.2,.8,.2,1) both;
   }
-  .mid-banner-frame:hover{transform:translateY(-3px);box-shadow:0 0 0 1px rgba(255,210,74,0.6),0 0 55px rgba(255,210,74,0.22),0 28px 80px rgba(0,0,0,0.6);}
+  @keyframes mbEnter{
+    from{opacity:0;transform:translateY(14px) scale(0.98);}
+    to{opacity:1;transform:translateY(0) scale(1);}
+  }
+  .mid-banner-frame:hover{transform:translateY(-4px) scale(1.003);box-shadow:0 0 0 1px rgba(255,210,74,0.65),0 0 70px rgba(255,210,74,0.26),0 34px 100px rgba(0,0,0,0.65);}
   @property --mb-angle{syntax:'<angle>';inherits:false;initial-value:0deg;}
   .mid-banner-frame::before{
     content:'';position:absolute;inset:0;border-radius:22px;padding:2px;z-index:1;pointer-events:none;
@@ -723,8 +728,8 @@
   .mid-banner-sparkle-tr{top:-4px;right:24px;animation-delay:0.8s;}
   .mid-banner-sparkle-br{bottom:-4px;right:24px;animation-delay:1.6s;}
   @media (max-width:860px){
-    .mid-banner-wrap{padding:22px 0 2px;}
-    .mid-banner-frame{aspect-ratio:21/9;border-radius:17px;}
+    .mid-banner-wrap{padding:20px 0 24px;}
+    .mid-banner-frame{aspect-ratio:21/9;border-radius:18px;}
     .mid-banner-fallback{padding:18px;}
     .mid-banner-fallback p{display:none;}
   }
@@ -3187,7 +3192,7 @@
   </section>
 
   <!-- COMBO OFFERS -->
-  <section id="combos" style="display:none;">
+  <section id="combos" style="display:none;padding-bottom:20px;">
     <div class="wrap">
       <div class="section-head">
         <div>
@@ -3202,7 +3207,7 @@
   </section>
 
   <!-- PRODUCTS -->
-  <section id="products" style="padding-top:0;display:none;">
+  <section id="products" style="padding-top:0;padding-bottom:20px;display:none;">
     <div class="wrap">
       <div class="section-head">
         <div>
