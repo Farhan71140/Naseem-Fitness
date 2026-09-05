@@ -1691,7 +1691,7 @@
   .review-card p{margin-top:14px;font-size:14px;color:var(--paper-dim);line-height:1.6;overflow-wrap:break-word;word-break:break-word;}
   .review-card .who{margin-top:18px;font-size:13px;font-weight:700;font-family:'Space Mono',monospace;color:var(--paper);}
 
-  /* ---- carousel arrows + dots + "see all" ---- */
+  /* ---- carousel arrows + premium pagination + "see all" ---- */
   .reviews-head-actions{display:flex;align-items:center;gap:14px;}
   .reviews-see-all-btn{
     display:inline-flex;align-items:center;gap:8px;padding:11px 20px;border-radius:8px;
@@ -1711,12 +1711,34 @@
   .reviews-nav-btn.next{right:-14px;}
   .reviews-nav-btn:disabled{opacity:0.25;cursor:default;pointer-events:none;}
   .reviews-nav-btn svg{width:18px;height:18px;}
-  .reviews-dots{display:flex;justify-content:center;gap:7px;margin-top:20px;}
-  .reviews-dots span{
-    width:7px;height:7px;border-radius:50%;background:rgba(255,210,74,0.32);
-    cursor:pointer;transition:background .2s, transform .2s;
+
+  /* ---- premium numbered pagination: « ‹ 1 2 3 4 › » ---- */
+  .reviews-pager{display:flex;align-items:center;justify-content:center;gap:8px;margin-top:26px;flex-wrap:wrap;}
+  .reviews-pager-btn{
+    flex:none;display:flex;align-items:center;justify-content:center;
+    width:38px;height:38px;border-radius:11px;
+    border:1px solid var(--line);background:linear-gradient(160deg, var(--steel), var(--iron));
+    color:var(--paper-dim);cursor:pointer;transition:border-color .2s, color .2s, box-shadow .2s, transform .15s;
   }
-  .reviews-dots span.active{background:var(--teal);transform:scale(1.3);}
+  .reviews-pager-btn svg{width:15px;height:15px;}
+  .reviews-pager-btn:hover{border-color:var(--teal);color:var(--teal);box-shadow:0 0 16px rgba(255,210,74,0.25);transform:translateY(-1px);}
+  .reviews-pager-btn:disabled{opacity:0.28;cursor:default;pointer-events:none;transform:none;box-shadow:none;}
+  .reviews-pager-nums{display:flex;align-items:center;gap:6px;margin:0 2px;}
+  .reviews-page-num{
+    flex:none;min-width:38px;height:38px;padding:0 4px;border-radius:11px;
+    border:1px solid var(--line);background:transparent;color:var(--paper-dim);
+    font-family:'Space Mono',monospace;font-weight:700;font-size:13px;cursor:pointer;
+    transition:border-color .2s, color .2s, background .2s, box-shadow .2s, transform .15s;
+  }
+  .reviews-page-num:hover{border-color:rgba(255,210,74,0.55);color:var(--paper);transform:translateY(-1px);}
+  .reviews-page-num.active{
+    background:linear-gradient(135deg, var(--teal), #FFE27A);color:var(--ink-black);border-color:var(--teal);
+    box-shadow:0 4px 18px rgba(255,210,74,0.45);transform:scale(1.06);
+  }
+  @media (max-width:480px){
+    .reviews-pager{gap:6px;}
+    .reviews-pager-btn, .reviews-page-num{width:34px;height:34px;min-width:34px;border-radius:9px;font-size:12px;}
+  }
   @media (max-width:860px){
     .review-card{flex-basis:calc((100% - 22px) / 2);max-width:calc((100% - 22px) / 2);}
   }
@@ -3389,7 +3411,7 @@
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M9 18l6-6-6-6"/></svg>
         </button>
       </div>
-      <div class="reviews-dots" id="reviews-dots"></div>
+      <div class="reviews-pager" id="reviews-pager"></div>
     </div>
   </section>
 
@@ -4487,12 +4509,12 @@ function reviewCardHtml(r){
 }
 function renderGlobalReviews(){
   const track = document.getElementById('reviews-track');
-  const dots = document.getElementById('reviews-dots');
+  const pager = document.getElementById('reviews-pager');
   if(!track) return;
   const published = REVIEWS.filter(isPublishedReview);
   if(published.length===0){
     track.innerHTML = `<div class="prod-empty">No customer reviews yet — be the first to leave one on any product!</div>`;
-    if(dots) dots.innerHTML = '';
+    if(pager) pager.innerHTML = '';
     document.querySelectorAll('.reviews-nav-btn').forEach(b=>b.style.display='none');
     return;
   }
@@ -4503,21 +4525,66 @@ function renderGlobalReviews(){
   const latest = published.slice(0,12);
   track.innerHTML = latest.map(reviewCardHtml).join('');
   document.querySelectorAll('.reviews-nav-btn').forEach(b=>b.style.display='');
-  setupReviewsDots(latest.length);
+  setupReviewsPager(latest.length);
   updateReviewsNavState();
-  track.onscroll = () => { updateReviewsNavState(); highlightActiveReviewDot(); };
+  track.onscroll = () => { updateReviewsNavState(); highlightActiveReviewPage(); };
 }
-function setupReviewsDots(count){
-  const dots = document.getElementById('reviews-dots');
-  if(!dots) return;
-  if(count<=1){ dots.innerHTML=''; return; }
-  dots.innerHTML = Array.from({length:count}).map((_,i)=>`<span data-i="${i}" onclick="scrollReviewsToIndex(${i})"></span>`).join('');
-  highlightActiveReviewDot();
-}
-function highlightActiveReviewDot(){
+
+/* ---- premium numbered pagination: « ‹ 1 2 3 4 › » ----
+   Cards-per-page is measured live from the rendered card width, so it stays
+   correct across every breakpoint (3 up on desktop, 2 on tablet, 1 on mobile)
+   without hardcoding widths that could drift from the CSS. */
+let REVIEWS_PAGE = 0;
+let REVIEWS_PER_PAGE = 3;
+function computeReviewsPerPage(){
   const track = document.getElementById('reviews-track');
-  const dots = document.getElementById('reviews-dots');
-  if(!track || !dots) return;
+  const card = track && track.querySelector('.review-card');
+  if(!track || !card) return 3;
+  const cardRect = card.getBoundingClientRect();
+  const gap = parseFloat(getComputedStyle(track).columnGap || getComputedStyle(track).gap || '22') || 22;
+  const per = Math.round((track.clientWidth + gap) / (cardRect.width + gap));
+  return Math.max(1, per);
+}
+function setupReviewsPager(count){
+  const pager = document.getElementById('reviews-pager');
+  if(!pager) return;
+  REVIEWS_PER_PAGE = computeReviewsPerPage();
+  const totalPages = Math.max(1, Math.ceil(count / REVIEWS_PER_PAGE));
+  if(totalPages<=1){ pager.innerHTML=''; return; }
+  const numsHtml = Array.from({length:totalPages}).map((_,i)=>
+    `<button type="button" class="reviews-page-num" data-page="${i}" onclick="goToReviewsPage(${i})">${i+1}</button>`
+  ).join('');
+  pager.innerHTML = `
+    <button type="button" class="reviews-pager-btn" id="reviews-page-first" onclick="goToReviewsPage(0)" aria-label="First page">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M18 17l-5-5 5-5"/><path d="M11 17l-5-5 5-5"/></svg>
+    </button>
+    <button type="button" class="reviews-pager-btn" id="reviews-page-prev" onclick="stepReviewsPage(-1)" aria-label="Previous page">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M15 18l-6-6 6-6"/></svg>
+    </button>
+    <div class="reviews-pager-nums">${numsHtml}</div>
+    <button type="button" class="reviews-pager-btn" id="reviews-page-next" onclick="stepReviewsPage(1)" aria-label="Next page">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M9 18l6-6-6-6"/></svg>
+    </button>
+    <button type="button" class="reviews-pager-btn" id="reviews-page-last" onclick="goToReviewsPage(${totalPages-1})" aria-label="Last page">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M6 17l5-5-5-5"/><path d="M13 17l5-5-5-5"/></svg>
+    </button>
+  `;
+  highlightActiveReviewPage();
+}
+function goToReviewsPage(page){
+  const track = document.getElementById('reviews-track');
+  const cards = track && track.querySelectorAll('.review-card');
+  if(!cards || !cards.length) return;
+  const totalPages = Math.max(1, Math.ceil(cards.length / REVIEWS_PER_PAGE));
+  page = Math.min(Math.max(0,page), totalPages-1);
+  const card = cards[page*REVIEWS_PER_PAGE];
+  if(card) track.scrollTo({ left: card.offsetLeft, behavior:'smooth' });
+}
+function stepReviewsPage(dir){ goToReviewsPage(REVIEWS_PAGE + dir); }
+function highlightActiveReviewPage(){
+  const track = document.getElementById('reviews-track');
+  const pager = document.getElementById('reviews-pager');
+  if(!track || !pager) return;
   const cards = track.querySelectorAll('.review-card');
   if(!cards.length) return;
   let closest = 0, closestDist = Infinity;
@@ -4525,13 +4592,25 @@ function highlightActiveReviewDot(){
     const dist = Math.abs(c.offsetLeft - track.scrollLeft);
     if(dist < closestDist){ closestDist = dist; closest = i; }
   });
-  dots.querySelectorAll('span').forEach((s,i)=>s.classList.toggle('active', i===closest));
+  const totalPages = Math.max(1, Math.ceil(cards.length / REVIEWS_PER_PAGE));
+  const page = Math.min(Math.floor(closest / REVIEWS_PER_PAGE), totalPages-1);
+  REVIEWS_PAGE = page;
+  pager.querySelectorAll('.reviews-page-num').forEach((btn,i)=>btn.classList.toggle('active', i===page));
+  const first = document.getElementById('reviews-page-first');
+  const prev = document.getElementById('reviews-page-prev');
+  const next = document.getElementById('reviews-page-next');
+  const last = document.getElementById('reviews-page-last');
+  if(first) first.disabled = page<=0;
+  if(prev) prev.disabled = page<=0;
+  if(next) next.disabled = page>=totalPages-1;
+  if(last) last.disabled = page>=totalPages-1;
 }
-function scrollReviewsToIndex(i){
+window.addEventListener('resize', () => {
   const track = document.getElementById('reviews-track');
-  const card = track && track.querySelectorAll('.review-card')[i];
-  if(card) track.scrollTo({ left: card.offsetLeft, behavior:'smooth' });
-}
+  if(track && track.querySelectorAll('.review-card').length){
+    setupReviewsPager(track.querySelectorAll('.review-card').length);
+  }
+});
 function scrollReviewsCarousel(dir){
   const track = document.getElementById('reviews-track');
   if(!track) return;
