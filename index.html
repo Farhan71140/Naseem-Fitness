@@ -68,30 +68,73 @@
     backdrop-filter:blur(10px);
     border-bottom:1px solid var(--line);
   }
+  /* ===== TOP ANNOUNCEMENT BAR — premium scrolling ticker ===== */
   .topbar{
-    background:var(--teal-dim);
+    background:linear-gradient(90deg, #14100A 0%, #2B2113 25%, #3A2E1A 50%, #2B2113 75%, #14100A 100%);
+    background-size:250% auto;
+    animation:topbar-bg-drift 10s ease-in-out infinite;
     color:var(--paper);
     font-family:'Space Mono',monospace;
     font-size:12px;
-    letter-spacing:1px;
-    padding:7px 0;
+    font-weight:700;
+    letter-spacing:1.4px;
+    padding:8px 0;
     white-space:nowrap;
     overflow:hidden;
     position:relative;
+    border-bottom:1px solid rgba(255,210,74,0.32);
+    box-shadow:0 2px 14px rgba(255,210,74,0.14);
+  }
+  .topbar::before{
+    /* soft diagonal shine sweeping across the whole bar */
+    content:'';
+    position:absolute;inset:0;
+    background:linear-gradient(100deg, transparent 42%, rgba(255,242,181,0.16) 50%, transparent 58%);
+    background-size:260% 100%;
+    animation:topbar-shine 5.5s ease-in-out infinite;
+    pointer-events:none;
+    z-index:1;
+  }
+  @keyframes topbar-shine{
+    0%{background-position:160% 0;}
+    100%{background-position:-60% 0;}
+  }
+  @keyframes topbar-bg-drift{
+    0%,100%{background-position:0% 50%;}
+    50%{background-position:100% 50%;}
   }
   .topbar-track{
     display:inline-flex;
     width:max-content;
-    animation:topbar-scroll 18s linear infinite;
+    position:relative;
+    z-index:2;
+    animation:topbar-scroll 42s linear infinite;
   }
-  .topbar-track span{padding:0 40px;white-space:nowrap;}
+  .topbar-track span{
+    padding:0 44px;
+    white-space:nowrap;
+    position:relative;
+    background:linear-gradient(90deg,#FFD24A 0%,#FFF6D9 45%,#FFD24A 55%,#FFD24A 100%);
+    background-size:220% auto;
+    -webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;color:transparent;
+    animation:goldText 3.6s linear infinite;
+  }
+  .topbar-track span::before{
+    content:'✦';
+    position:absolute;left:14px;top:50%;transform:translateY(-50%);
+    -webkit-text-fill-color:var(--teal);color:var(--teal);
+    font-size:9px;
+    text-shadow:0 0 8px rgba(255,210,74,0.8);
+  }
   @keyframes topbar-scroll{
     0%{transform:translateX(0);}
     100%{transform:translateX(-50%);}
   }
   @media (max-width:480px){
-    .topbar{font-size:10px;padding:6px 0;letter-spacing:0.5px;}
-    .topbar-track{animation-duration:14s;}
+    .topbar{font-size:10px;padding:7px 0;letter-spacing:0.6px;}
+    .topbar-track{animation-duration:30s;}
+    .topbar-track span{padding:0 30px;}
+    .topbar-track span::before{left:9px;}
   }
   nav.wrap{
     display:flex;align-items:center;justify-content:space-between;
