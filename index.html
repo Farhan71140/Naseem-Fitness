@@ -1662,14 +1662,17 @@
   }
   .reviews-carousel-wrap{position:relative;z-index:1;}
   .reviews-track{
-    display:grid;grid-template-columns:repeat(3,1fr);gap:22px;position:relative;
-    transition:opacity .2s ease;
+    display:flex;gap:22px;position:relative;
+    overflow-x:auto;scroll-snap-type:x mandatory;scroll-behavior:smooth;
+    -webkit-overflow-scrolling:touch;padding:4px 4px 10px;margin:-4px -4px 0;
+    scrollbar-width:none;
   }
-  .reviews-track.fading{opacity:0;}
+  .reviews-track::-webkit-scrollbar{display:none;}
   .review-card{
     background:linear-gradient(160deg, rgba(255,226,122,0.06), transparent 45%), var(--steel);
     border:1px solid var(--line);border-radius:14px;padding:26px;position:relative;
-    overflow:hidden;
+    flex:0 0 calc((100% - 44px) / 3);max-width:calc((100% - 44px) / 3);overflow:hidden;
+    scroll-snap-align:start;
     transition:transform .2s ease, box-shadow .2s ease, border-color .2s ease;
   }
   .review-card:hover{transform:translateY(-4px);box-shadow:0 18px 40px rgba(0,0,0,0.35);border-color:rgba(255,210,74,0.4);}
@@ -1687,10 +1690,14 @@
   .review-card .review-photo-strip img{width:52px;height:52px;}
   .review-card p{margin-top:14px;font-size:14px;color:var(--paper-dim);line-height:1.6;overflow-wrap:break-word;word-break:break-word;}
   .review-card .who{margin-top:18px;font-size:13px;font-weight:700;font-family:'Space Mono',monospace;color:var(--paper);}
-  @media (max-width:860px){ .reviews-track{grid-template-columns:repeat(2,1fr);} }
-  @media (max-width:640px){ .reviews-track{grid-template-columns:1fr;} }
+  @media (max-width:860px){
+    .review-card{flex-basis:calc((100% - 22px) / 2);max-width:calc((100% - 22px) / 2);}
+  }
+  @media (max-width:640px){
+    .review-card{flex-basis:86%;max-width:86%;}
+  }
 
-  /* ---- premium "See all" + pagination + "see all" ---- */
+  /* ---- "See all reviews" ---- */
   .reviews-head-actions{display:flex;align-items:center;gap:14px;}
   .reviews-see-all-btn{
     display:inline-flex;align-items:center;gap:8px;padding:11px 20px;border-radius:8px;
@@ -1699,41 +1706,27 @@
   }
   .reviews-see-all-btn:hover{border-color:var(--teal);color:var(--teal);}
 
-  /* ---- premium numbered pagination: « ‹ 1 2 3 4 › » ----
-     Sized and windowed so it NEVER wraps to a second row, even on the
-     narrowest phone screens — a horizontal scroll is the fallback if a
-     device is so narrow it still can't fit everything. */
-  .reviews-pager{
-    display:flex;align-items:center;justify-content:center;gap:7px;margin-top:26px;
-    flex-wrap:nowrap;overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none;
-    padding:2px;
+  /* ---- overall rating breakdown (average score + per-star percentage bars) ---- */
+  .rating-summary-card{
+    display:grid;grid-template-columns:auto 1fr;gap:40px;align-items:center;
+    background:linear-gradient(160deg, rgba(255,226,122,0.07), transparent 45%), var(--steel);
+    border:1px solid var(--line);border-radius:18px;padding:32px 34px;margin-bottom:34px;
   }
-  .reviews-pager::-webkit-scrollbar{display:none;}
-  .reviews-pager-btn{
-    flex:none;display:flex;align-items:center;justify-content:center;
-    width:36px;height:36px;border-radius:11px;
-    border:1px solid var(--line);background:linear-gradient(160deg, var(--steel), var(--iron));
-    color:var(--paper-dim);cursor:pointer;transition:border-color .2s, color .2s, box-shadow .2s, transform .15s;
-  }
-  .reviews-pager-btn svg{width:14px;height:14px;}
-  .reviews-pager-btn:hover{border-color:var(--teal);color:var(--teal);box-shadow:0 0 16px rgba(255,210,74,0.25);transform:translateY(-1px);}
-  .reviews-pager-btn:disabled{opacity:0.28;cursor:default;pointer-events:none;transform:none;box-shadow:none;}
-  .reviews-pager-nums{display:flex;align-items:center;gap:6px;margin:0 2px;flex:none;}
-  .reviews-page-num{
-    flex:none;min-width:36px;height:36px;padding:0 4px;border-radius:11px;
-    border:1px solid var(--line);background:transparent;color:var(--paper-dim);
-    font-family:'Space Mono',monospace;font-weight:700;font-size:12.5px;cursor:pointer;
-    transition:border-color .2s, color .2s, background .2s, box-shadow .2s, transform .15s;
-  }
-  .reviews-page-num:hover{border-color:rgba(255,210,74,0.55);color:var(--paper);transform:translateY(-1px);}
-  .reviews-page-num.active{
-    background:linear-gradient(135deg, var(--teal), #FFE27A);color:var(--ink-black);border-color:var(--teal);
-    box-shadow:0 4px 18px rgba(255,210,74,0.45);transform:scale(1.06);
-  }
-  .reviews-page-ellipsis{flex:none;width:20px;text-align:center;color:var(--paper-dim);font-family:'Space Mono',monospace;font-size:13px;}
-  @media (max-width:480px){
-    .reviews-pager{gap:5px;justify-content:flex-start;}
-    .reviews-pager-btn, .reviews-page-num{width:32px;height:32px;min-width:32px;border-radius:9px;font-size:11.5px;}
+  .rating-summary-score{text-align:center;padding-right:36px;border-right:1px solid var(--line);}
+  .rating-summary-score .big-num{font-family:'Anton',sans-serif;font-size:56px;line-height:1;color:var(--teal);}
+  .rating-summary-score .stars-static{display:block;margin-top:10px;font-size:18px;letter-spacing:3px;}
+  .rating-summary-score .rs-count{margin-top:8px;font-size:12.5px;color:var(--paper-dim);white-space:nowrap;}
+  .rating-summary-bars{display:flex;flex-direction:column;gap:10px;}
+  .rs-bar-row{display:grid;grid-template-columns:52px 1fr 60px;align-items:center;gap:12px;}
+  .rs-bar-label{font-family:'Space Mono',monospace;font-size:12px;color:var(--paper-dim);white-space:nowrap;}
+  .rs-bar-label .star-fill{color:var(--amber);}
+  .rs-bar-track{height:9px;border-radius:6px;background:rgba(255,255,255,0.06);overflow:hidden;}
+  .rs-bar-fill{height:100%;border-radius:6px;background:linear-gradient(90deg, var(--amber), var(--teal));transition:width .6s ease;}
+  .rs-bar-pct{font-family:'Space Mono',monospace;font-size:12px;color:var(--paper-dim);text-align:right;white-space:nowrap;}
+  @media (max-width:640px){
+    .rating-summary-card{grid-template-columns:1fr;gap:22px;padding:26px 22px;text-align:center;}
+    .rating-summary-score{padding-right:0;border-right:none;padding-bottom:20px;border-bottom:1px solid var(--line);}
+    .rs-bar-row{grid-template-columns:44px 1fr 50px;gap:8px;}
   }
 
   /* ---- "All reviews" drawer ---- */
@@ -3389,12 +3382,12 @@
           <button type="button" class="reviews-see-all-btn" onclick="openAllReviewsDrawer()">See all reviews →</button>
         </div>
       </div>
+      <div class="rating-summary-card" id="rating-summary-card" style="display:none;"></div>
       <div class="reviews-carousel-wrap">
         <div class="reviews-track" id="reviews-track">
           <div class="prod-loading">Loading reviews…</div>
         </div>
       </div>
-      <div class="reviews-pager" id="reviews-pager"></div>
     </div>
   </section>
 
@@ -4492,100 +4485,56 @@ function reviewCardHtml(r){
 }
 function renderGlobalReviews(){
   const track = document.getElementById('reviews-track');
-  const pager = document.getElementById('reviews-pager');
   if(!track) return;
-  GLOBAL_REVIEWS_LIST = REVIEWS.filter(isPublishedReview);
-  if(GLOBAL_REVIEWS_LIST.length===0){
+  const published = REVIEWS.filter(isPublishedReview);
+  renderRatingSummaryCard(published);
+  if(published.length===0){
     track.innerHTML = `<div class="prod-empty">No customer reviews yet — be the first to leave one on any product!</div>`;
-    if(pager) pager.innerHTML = '';
     return;
   }
-  renderReviewsPage(0);
+  // The homepage strip only ever shows the most recent handful, in a swipeable
+  // horizontal carousel — this keeps the section a fixed, comfortable size no
+  // matter whether the shop has 10 reviews or 10,000. Everything ever
+  // published is still reachable via "See all reviews".
+  const latest = published.slice(0,12);
+  track.innerHTML = latest.map(reviewCardHtml).join('');
 }
 
-/* ---- premium numbered pagination: « ‹ 1 2 3 4 › » ----
-   Real batch pagination — every review the shop has ever published is
-   loaded once, then sliced into fixed-size pages (a full grid's worth each),
-   so page 1, page 2, etc. always show a proper batch of reviews rather than
-   just "however many happened to fit on screen". */
-let GLOBAL_REVIEWS_LIST = [];
-let REVIEWS_PAGE = 0;
-const REVIEWS_PAGE_SIZE = 12;
+/* ---- overall rating breakdown: average score + per-star percentage bars ---- */
+function renderRatingSummaryCard(published){
+  const card = document.getElementById('rating-summary-card');
+  if(!card) return;
+  if(!published.length){ card.style.display='none'; card.innerHTML=''; return; }
 
-function renderReviewsPage(page){
-  const track = document.getElementById('reviews-track');
-  if(!track) return;
-  const totalPages = Math.max(1, Math.ceil(GLOBAL_REVIEWS_LIST.length / REVIEWS_PAGE_SIZE));
-  page = Math.min(Math.max(0,page), totalPages-1);
-  REVIEWS_PAGE = page;
-  const slice = GLOBAL_REVIEWS_LIST.slice(page*REVIEWS_PAGE_SIZE, page*REVIEWS_PAGE_SIZE + REVIEWS_PAGE_SIZE);
+  const total = published.length;
+  const counts = [0,0,0,0,0]; // index 0 = 1-star ... index 4 = 5-star
+  let sum = 0;
+  published.forEach(r=>{
+    const rating = Math.min(5, Math.max(1, Math.round(Number(r.rating) || 0)));
+    counts[rating-1]++;
+    sum += Number(r.rating) || 0;
+  });
+  const avg = sum / total;
 
-  track.classList.add('fading');
-  setTimeout(() => {
-    track.innerHTML = slice.map(reviewCardHtml).join('');
-    track.classList.remove('fading');
-  }, 120);
+  const barsHtml = [5,4,3,2,1].map(star=>{
+    const count = counts[star-1];
+    const pct = Math.round((count/total)*100);
+    return `
+      <div class="rs-bar-row">
+        <span class="rs-bar-label">${star} <span class="star-fill">★</span></span>
+        <span class="rs-bar-track"><span class="rs-bar-fill" style="width:${pct}%;"></span></span>
+        <span class="rs-bar-pct">${pct}% <span style="opacity:0.65;">(${count})</span></span>
+      </div>`;
+  }).join('');
 
-  setupReviewsPager(GLOBAL_REVIEWS_LIST.length);
-
-  // Scroll the section into view on page change so the person lands back at
-  // the top of the list instead of wherever the new (shorter/taller) grid
-  // happens to leave the scroll position.
-  const section = document.getElementById('customer-reviews');
-  if(section){
-    const rect = section.getBoundingClientRect();
-    if(rect.top < -40 || rect.top > 120){
-      section.scrollIntoView({ behavior:'smooth', block:'start' });
-    }
-  }
-}
-
-function goToReviewsPage(page){ renderReviewsPage(page); }
-function stepReviewsPage(dir){ renderReviewsPage(REVIEWS_PAGE + dir); }
-
-/* Windowed page numbers (current ±2, always includes first/last) so the bar
-   never has to render dozens of buttons even with hundreds of reviews. */
-function getReviewsPageWindow(current, total, span=5){
-  if(total<=span) return Array.from({length:total},(_,i)=>i);
-  let start = Math.max(0, current - Math.floor(span/2));
-  let end = start + span - 1;
-  if(end > total-1){ end = total-1; start = end-span+1; }
-  return Array.from({length:span},(_,i)=>start+i);
-}
-
-function setupReviewsPager(count){
-  const pager = document.getElementById('reviews-pager');
-  if(!pager) return;
-  const totalPages = Math.max(1, Math.ceil(count / REVIEWS_PAGE_SIZE));
-  if(totalPages<=1){ pager.innerHTML=''; return; }
-  const page = REVIEWS_PAGE;
-  const windowPages = getReviewsPageWindow(page, totalPages);
-  let numsHtml = '';
-  if(windowPages[0] > 0){
-    numsHtml += `<button type="button" class="reviews-page-num" onclick="goToReviewsPage(0)">1</button>`;
-    if(windowPages[0] > 1) numsHtml += `<span class="reviews-page-ellipsis">…</span>`;
-  }
-  numsHtml += windowPages.map(i =>
-    `<button type="button" class="reviews-page-num${i===page?' active':''}" onclick="goToReviewsPage(${i})">${i+1}</button>`
-  ).join('');
-  if(windowPages[windowPages.length-1] < totalPages-1){
-    if(windowPages[windowPages.length-1] < totalPages-2) numsHtml += `<span class="reviews-page-ellipsis">…</span>`;
-    numsHtml += `<button type="button" class="reviews-page-num" onclick="goToReviewsPage(${totalPages-1})">${totalPages}</button>`;
-  }
-  pager.innerHTML = `
-    <button type="button" class="reviews-pager-btn" ${page<=0?'disabled':''} onclick="goToReviewsPage(0)" aria-label="First page">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M18 17l-5-5 5-5"/><path d="M11 17l-5-5 5-5"/></svg>
-    </button>
-    <button type="button" class="reviews-pager-btn" ${page<=0?'disabled':''} onclick="stepReviewsPage(-1)" aria-label="Previous page">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M15 18l-6-6 6-6"/></svg>
-    </button>
-    <div class="reviews-pager-nums">${numsHtml}</div>
-    <button type="button" class="reviews-pager-btn" ${page>=totalPages-1?'disabled':''} onclick="stepReviewsPage(1)" aria-label="Next page">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M9 18l6-6-6-6"/></svg>
-    </button>
-    <button type="button" class="reviews-pager-btn" ${page>=totalPages-1?'disabled':''} onclick="goToReviewsPage(${totalPages-1})" aria-label="Last page">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M6 17l5-5-5-5"/><path d="M13 17l5-5-5-5"/></svg>
-    </button>
+  card.style.display = 'grid';
+  card.innerHTML = `
+    <div class="rating-summary-score">
+      <div class="big-num">${avg.toFixed(1)}</div>
+      <span class="stars-static">${starsMarkup(avg)}</span>
+      <div class="rs-count">Based on ${total} review${total===1?'':'s'}</div>
+    </div>
+    <div class="rating-summary-bars">${barsHtml}</div>
   `;
 }
 
