@@ -125,130 +125,144 @@ Guidelines:
     }
 
     #nf-chat-toggle {
-      height: 56px;
-      padding: 0 22px 0 8px;
-      border-radius: 50px;
-      background: linear-gradient(135deg, #1B1610, #2B2113 55%, #1B1610);
-      border: 1px solid rgba(255,210,74,0.5);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0;
+      background: transparent;
+      border: none;
+      padding: 0;
+      height: auto;
       cursor: grab;
       touch-action: none;
       user-select: none;
       -webkit-user-select: none;
-      box-shadow: 0 8px 28px rgba(255,210,74,0.30), 0 0 0 1px rgba(255,210,74,0.08) inset;
+      position: relative;
+      transition: transform 0.2s;
+      animation: nfAttention 6.5s ease-in-out infinite;
+    }
+    #nf-chat-toggle:active { cursor: grabbing; }
+    #nf-chat-toggle:hover { transform: scale(1.06); animation-play-state: paused; }
+
+    /* ---- speech-bubble "Chat with AI" tag ---- */
+    #nf-chat-toggle .toggle-bubble-tag {
       display: flex;
       align-items: center;
-      gap: 11px;
+      gap: 7px;
+      background: linear-gradient(160deg, #1B1610, #2B2113 60%, #17130D);
+      border: 1.4px solid rgba(255,210,74,0.75);
+      border-radius: 30px;
+      padding: 8px 16px 8px 12px;
+      white-space: nowrap;
       position: relative;
+      z-index: 2;
+      margin-bottom: 11px;
+      box-shadow: 0 6px 20px rgba(0,0,0,0.55), 0 0 20px rgba(255,210,74,0.35), 0 0 0 1px rgba(255,210,74,0.08) inset;
       overflow: hidden;
       isolation: isolate;
-      transition: transform 0.2s, box-shadow 0.2s;
-      animation: nfGlowBreathe 3.4s ease-in-out infinite, nfAttention 6.5s ease-in-out infinite;
+      animation: nfGlowBreathe 3.4s ease-in-out infinite;
     }
-    #nf-chat-toggle::before {
-      /* diagonal shimmer sweep, premium "light catching metal" effect */
+    #nf-chat-toggle .toggle-bubble-tag::before {
+      /* shimmer sweep across the tag */
       content: '';
       position: absolute;
       top: -50%; left: -60%;
       width: 40%; height: 200%;
-      background: linear-gradient(115deg, transparent, rgba(255,242,181,0.55), transparent);
+      background: linear-gradient(115deg, transparent, rgba(255,242,181,0.6), transparent);
       transform: rotate(8deg);
       animation: nfShimmerSweep 3.2s ease-in-out infinite;
       pointer-events: none;
-      z-index: 1;
     }
-    #nf-chat-toggle::after {
-      /* soft rotating gold ring behind the button for extra glow depth */
+    #nf-chat-toggle .toggle-bubble-tag::after {
+      /* downward-pointing tail connecting the tag to the avatar */
       content: '';
       position: absolute;
-      inset: -3px;
-      border-radius: 50px;
-      padding: 1px;
-      background: conic-gradient(from 0deg, transparent 0%, rgba(255,210,74,0.9) 15%, transparent 35%);
-      -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
-      -webkit-mask-composite: xor;
-      mask-composite: exclude;
-      opacity: 0.9;
-      animation: nfRingSpin 3s linear infinite;
-      pointer-events: none;
-      z-index: 0;
+      bottom: -6px; left: 50%;
+      width: 12px; height: 12px;
+      background: #1B1610;
+      border-right: 1.4px solid rgba(255,210,74,0.75);
+      border-bottom: 1.4px solid rgba(255,210,74,0.75);
+      transform: translateX(-50%) rotate(45deg);
     }
+    #nf-chat-toggle .tbt-icon { flex-shrink: 0; display: block; filter: drop-shadow(0 0 5px rgba(255,210,74,0.6)); }
+    #nf-chat-toggle .tbt-text {
+      font-family: 'Anton', sans-serif;
+      font-size: 14.5px;
+      letter-spacing: 0.3px;
+      background: linear-gradient(180deg, #FFF6D9, #FFD24A);
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+      text-shadow: 0 0 14px rgba(255,210,74,0.4);
+    }
+
     @keyframes nfShimmerSweep {
       0%   { left: -60%; }
       55%  { left: 130%; }
       100% { left: 130%; }
     }
-    @keyframes nfRingSpin { to { transform: rotate(360deg); } }
     @keyframes nfGlowBreathe {
-      0%,100% { box-shadow: 0 8px 28px rgba(255,210,74,0.30), 0 0 0 1px rgba(255,210,74,0.08) inset; }
-      50%      { box-shadow: 0 8px 40px rgba(255,210,74,0.55), 0 0 22px rgba(255,210,74,0.35), 0 0 0 1px rgba(255,210,74,0.12) inset; }
+      0%,100% { box-shadow: 0 6px 20px rgba(0,0,0,0.55), 0 0 20px rgba(255,210,74,0.30), 0 0 0 1px rgba(255,210,74,0.08) inset; }
+      50%      { box-shadow: 0 6px 26px rgba(0,0,0,0.6), 0 0 30px rgba(255,210,74,0.55), 0 0 0 1px rgba(255,210,74,0.14) inset; }
     }
     @keyframes nfAttention {
       0%, 88%, 100% { transform: scale(1) rotate(0deg); }
-      90%            { transform: scale(1.07) rotate(-3deg); }
-      92%            { transform: scale(1.07) rotate(3deg); }
-      94%            { transform: scale(1.03) rotate(-2deg); }
+      90%            { transform: scale(1.06) rotate(-2deg); }
+      92%            { transform: scale(1.06) rotate(2deg); }
+      94%            { transform: scale(1.02) rotate(-1deg); }
       96%            { transform: scale(1) rotate(0deg); }
     }
-    #nf-chat-toggle:active { cursor: grabbing; }
-    #nf-chat-toggle:hover {
-      transform: scale(1.06);
-      animation-play-state: paused;
-      box-shadow: 0 10px 40px rgba(255,210,74,0.6), 0 0 26px rgba(255,210,74,0.4);
-    }
+
+    /* ---- avatar medallion ---- */
     #nf-chat-toggle .toggle-avatar-wrap {
       position: relative;
-      flex-shrink: 0;
-      z-index: 2;
+      z-index: 1;
+      width: 56px; height: 56px;
+      display: flex; align-items: center; justify-content: center;
+    }
+    #nf-chat-toggle .toggle-avatar-wrap::before {
+      /* slow-rotating dashed gold ring, like an engraved medallion edge */
+      content: '';
+      position: absolute;
+      inset: -5px;
+      border-radius: 50%;
+      border: 2px dashed rgba(255,210,74,0.55);
+      animation: nfRingSpin 9s linear infinite;
+    }
+    #nf-chat-toggle .toggle-avatar-wrap::after {
+      /* soft glow behind the medallion */
+      content: '';
+      position: absolute;
+      inset: -10px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(255,210,74,0.35), transparent 70%);
+      z-index: -1;
     }
     #nf-chat-toggle .toggle-icon {
-      width: 42px; height: 42px; border-radius: 50%; object-fit: cover; display: block;
-      border: 1.5px solid rgba(255,210,74,0.55);
-      box-shadow: 0 0 14px rgba(255,210,74,0.4);
+      width: 56px; height: 56px; border-radius: 50%; object-fit: cover; display: block;
+      border: 2px solid rgba(255,210,74,0.8);
+      box-shadow: 0 0 16px rgba(255,210,74,0.45), 0 4px 14px rgba(0,0,0,0.5);
     }
-    #nf-chat-toggle .toggle-bubble-badge {
+    @keyframes nfRingSpin { to { transform: rotate(360deg); } }
+    #nf-chat-toggle .toggle-247-chip {
       position: absolute;
-      bottom: -4px; right: -6px;
-      width: 22px; height: 22px;
-      display: flex; align-items: center; justify-content: center;
-      font-size: 12px;
-      border-radius: 50%;
+      bottom: -6px; left: 50%;
+      transform: translateX(-50%);
       background: linear-gradient(135deg, var(--teal, #FFD24A), #FFE27A);
-      border: 2px solid #0A0806;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.5);
-      animation: nfBadgePop 2.6s ease-in-out infinite;
-    }
-    @keyframes nfBadgePop {
-      0%,70%,100% { transform: scale(1) rotate(0deg); }
-      80%          { transform: scale(1.18) rotate(-8deg); }
-      90%          { transform: scale(1) rotate(4deg); }
-    }
-    #nf-chat-toggle .toggle-text {
-      display: flex;
-      flex-direction: column;
-      gap: 2px;
-      z-index: 2;
-      text-align: left;
-    }
-    #nf-chat-toggle .toggle-label {
-      color: #FFF2B5;
-      font-size: 13.5px;
+      color: #0A0806;
+      font-family: 'Space Mono', monospace;
+      font-size: 9px;
       font-weight: 700;
-      letter-spacing: 0.4px;
-      white-space: nowrap;
-      text-transform: uppercase;
-      text-shadow: 0 0 12px rgba(255,210,74,0.5);
-    }
-    #nf-chat-toggle .toggle-sublabel {
-      font-size: 10px;
-      color: #4ADE80;
-      font-weight: 600;
-      letter-spacing: 0.3px;
+      letter-spacing: 0.5px;
+      padding: 2px 7px;
+      border-radius: 10px;
+      border: 1.5px solid #0A0806;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.5);
       white-space: nowrap;
     }
-    #nf-chat-toggle .toggle-sublabel::before { content: '● '; font-size: 7px; }
     #nf-chat-toggle .chat-notif {
       position: absolute;
-      top: -3px; right: -3px;
+      top: -2px; right: -2px;
       width: 15px; height: 15px;
       background: #2ECC71;
       border-radius: 50%;
@@ -263,7 +277,7 @@ Guidelines:
 
     #nf-chat-box {
       position: absolute;
-      bottom: 64px;
+      bottom: 104px;
       right: 0;
       width: 370px;
       max-height: 540px;
@@ -289,7 +303,7 @@ Guidelines:
        no matter where the toggle icon has been dragged to. */
     #nf-chat-box.pos-top {
       bottom: auto;
-      top: 64px;
+      top: 104px;
       transform-origin: top right;
     }
     #nf-chat-box.pos-left {
@@ -476,21 +490,17 @@ Guidelines:
       #nf-chat-box {
         width: calc(100vw - 28px);
         right: -6px;
-        bottom: 60px;
+        bottom: 98px;
         max-height: min(70vh, 560px);
       }
       #nf-chat-box.pos-left { right: auto; left: -6px; }
-      #nf-chat-box.pos-top { bottom: auto; top: 60px; }
-      #nf-chat-toggle {
-        height: 52px;
-        padding: 0;
-        width: 52px;
-        justify-content: center;
-        border-radius: 50%;
-      }
-      #nf-chat-toggle .toggle-text { display: none; }
-      #nf-chat-toggle .toggle-icon { width: 42px; height: 42px; }
-      #nf-chat-toggle .toggle-bubble-badge { width: 19px; height: 19px; font-size: 10.5px; bottom: -2px; right: -3px; }
+      #nf-chat-box.pos-top { bottom: auto; top: 98px; }
+      #nf-chat-toggle .toggle-bubble-tag { padding: 6px 13px 6px 10px; margin-bottom: 9px; }
+      #nf-chat-toggle .tbt-text { font-size: 12.5px; }
+      #nf-chat-toggle .tbt-icon { width: 15px; height: 13px; }
+      #nf-chat-toggle .toggle-avatar-wrap { width: 48px; height: 48px; }
+      #nf-chat-toggle .toggle-icon { width: 48px; height: 48px; }
+      #nf-chat-toggle .toggle-247-chip { font-size: 8px; padding: 1.5px 6px; }
       .nf-chat-header { padding: 12px 14px; }
       .nf-chat-avatar { width: 36px; height: 36px; }
       .nf-chat-header-info strong { font-size: 13.5px; }
@@ -542,15 +552,26 @@ Guidelines:
     </div>
 
     <button id="nf-chat-toggle" aria-label="Open AI Chat">
+      <span class="toggle-bubble-tag">
+        <svg class="tbt-icon" width="18" height="16" viewBox="0 0 24 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M2 2h20a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H10l-5.5 4.2V15H2a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2z" stroke="url(#nfBubbleGrad)" stroke-width="1.7"/>
+          <circle cx="7" cy="8.5" r="1.35" fill="url(#nfBubbleGrad)"/>
+          <circle cx="12" cy="8.5" r="1.35" fill="url(#nfBubbleGrad)"/>
+          <circle cx="17" cy="8.5" r="1.35" fill="url(#nfBubbleGrad)"/>
+          <defs>
+            <linearGradient id="nfBubbleGrad" x1="0" y1="0" x2="24" y2="20" gradientUnits="userSpaceOnUse">
+              <stop stop-color="#FFF6D9"/>
+              <stop offset="1" stop-color="#FFD24A"/>
+            </linearGradient>
+          </defs>
+        </svg>
+        <span class="tbt-text">Chat with AI</span>
+      </span>
       <span class="toggle-avatar-wrap">
         <img class="toggle-icon" src="assets/chat-bot-icon.webp" alt="AI Assistant">
-        <span class="toggle-bubble-badge">💬</span>
+        <span class="toggle-247-chip">24/7</span>
+        <span class="chat-notif"></span>
       </span>
-      <span class="toggle-text">
-        <span class="toggle-label">Chat with AI</span>
-        <span class="toggle-sublabel">Online now</span>
-      </span>
-      <span class="chat-notif"></span>
     </button>
   `;
   document.body.appendChild(widget);
