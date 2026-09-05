@@ -68,11 +68,12 @@
     backdrop-filter:blur(10px);
     border-bottom:1px solid var(--line);
   }
-  /* ===== TOP ANNOUNCEMENT BAR — premium scrolling ticker ===== */
+  /* ===== TOP ANNOUNCEMENT BAR — premium scrolling ticker =====
+     Kept to transform-only animations (translateX) so the browser can run
+     everything on the compositor thread — no per-frame repaint of gradients
+     or text-clip, which is what causes stutter/jank on scrolling tickers. */
   .topbar{
     background:linear-gradient(90deg, #14100A 0%, #2B2113 25%, #3A2E1A 50%, #2B2113 75%, #14100A 100%);
-    background-size:250% auto;
-    animation:topbar-bg-drift 10s ease-in-out infinite;
     color:var(--paper);
     font-family:'Space Mono',monospace;
     font-size:12px;
@@ -86,38 +87,37 @@
     box-shadow:0 2px 14px rgba(255,210,74,0.14);
   }
   .topbar::before{
-    /* soft diagonal shine sweeping across the whole bar */
+    /* soft diagonal shine, moved purely via transform for a jank-free sweep */
     content:'';
-    position:absolute;inset:0;
-    background:linear-gradient(100deg, transparent 42%, rgba(255,242,181,0.16) 50%, transparent 58%);
-    background-size:260% 100%;
-    animation:topbar-shine 5.5s ease-in-out infinite;
+    position:absolute;
+    top:0;left:0;
+    width:26%;height:100%;
+    background:linear-gradient(100deg, transparent, rgba(255,242,181,0.16), transparent);
+    transform:translate3d(-160%,0,0) skewX(-12deg);
+    animation:topbar-shine-sweep 8s ease-in-out infinite;
     pointer-events:none;
     z-index:1;
+    will-change:transform;
   }
-  @keyframes topbar-shine{
-    0%{background-position:160% 0;}
-    100%{background-position:-60% 0;}
-  }
-  @keyframes topbar-bg-drift{
-    0%,100%{background-position:0% 50%;}
-    50%{background-position:100% 50%;}
+  @keyframes topbar-shine-sweep{
+    0%,55%{transform:translate3d(-160%,0,0) skewX(-12deg);}
+    100%{transform:translate3d(520%,0,0) skewX(-12deg);}
   }
   .topbar-track{
     display:inline-flex;
     width:max-content;
     position:relative;
     z-index:2;
-    animation:topbar-scroll 42s linear infinite;
+    animation:topbar-scroll 70s linear infinite;
+    will-change:transform;
+    backface-visibility:hidden;
   }
   .topbar-track span{
     padding:0 44px;
     white-space:nowrap;
     position:relative;
-    background:linear-gradient(90deg,#FFD24A 0%,#FFF6D9 45%,#FFD24A 55%,#FFD24A 100%);
-    background-size:220% auto;
+    background:linear-gradient(90deg,#FFD24A 0%,#FFF6D9 50%,#FFD24A 100%);
     -webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;color:transparent;
-    animation:goldText 3.6s linear infinite;
   }
   .topbar-track span::before{
     content:'✦';
@@ -127,12 +127,12 @@
     text-shadow:0 0 8px rgba(255,210,74,0.8);
   }
   @keyframes topbar-scroll{
-    0%{transform:translateX(0);}
-    100%{transform:translateX(-50%);}
+    0%{transform:translate3d(0,0,0);}
+    100%{transform:translate3d(-50%,0,0);}
   }
   @media (max-width:480px){
     .topbar{font-size:10px;padding:7px 0;letter-spacing:0.6px;}
-    .topbar-track{animation-duration:30s;}
+    .topbar-track{animation-duration:50s;}
     .topbar-track span{padding:0 30px;}
     .topbar-track span::before{left:9px;}
   }
