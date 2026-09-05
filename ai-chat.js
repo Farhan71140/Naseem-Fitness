@@ -125,36 +125,127 @@ Guidelines:
     }
 
     #nf-chat-toggle {
-      height: 52px;
-      padding: 0 20px 0 16px;
+      height: 56px;
+      padding: 0 22px 0 8px;
       border-radius: 50px;
-      background: linear-gradient(135deg, #17130D, #241D13);
-      border: 1px solid rgba(255,210,74,0.4);
+      background: linear-gradient(135deg, #1B1610, #2B2113 55%, #1B1610);
+      border: 1px solid rgba(255,210,74,0.5);
       cursor: grab;
       touch-action: none;
       user-select: none;
       -webkit-user-select: none;
-      box-shadow: 0 6px 24px rgba(255,210,74,0.35);
+      box-shadow: 0 8px 28px rgba(255,210,74,0.30), 0 0 0 1px rgba(255,210,74,0.08) inset;
       display: flex;
       align-items: center;
-      gap: 9px;
+      gap: 11px;
       position: relative;
+      overflow: hidden;
+      isolation: isolate;
       transition: transform 0.2s, box-shadow 0.2s;
+      animation: nfGlowBreathe 3.4s ease-in-out infinite, nfAttention 6.5s ease-in-out infinite;
+    }
+    #nf-chat-toggle::before {
+      /* diagonal shimmer sweep, premium "light catching metal" effect */
+      content: '';
+      position: absolute;
+      top: -50%; left: -60%;
+      width: 40%; height: 200%;
+      background: linear-gradient(115deg, transparent, rgba(255,242,181,0.55), transparent);
+      transform: rotate(8deg);
+      animation: nfShimmerSweep 3.2s ease-in-out infinite;
+      pointer-events: none;
+      z-index: 1;
+    }
+    #nf-chat-toggle::after {
+      /* soft rotating gold ring behind the button for extra glow depth */
+      content: '';
+      position: absolute;
+      inset: -3px;
+      border-radius: 50px;
+      padding: 1px;
+      background: conic-gradient(from 0deg, transparent 0%, rgba(255,210,74,0.9) 15%, transparent 35%);
+      -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+      -webkit-mask-composite: xor;
+      mask-composite: exclude;
+      opacity: 0.9;
+      animation: nfRingSpin 3s linear infinite;
+      pointer-events: none;
+      z-index: 0;
+    }
+    @keyframes nfShimmerSweep {
+      0%   { left: -60%; }
+      55%  { left: 130%; }
+      100% { left: 130%; }
+    }
+    @keyframes nfRingSpin { to { transform: rotate(360deg); } }
+    @keyframes nfGlowBreathe {
+      0%,100% { box-shadow: 0 8px 28px rgba(255,210,74,0.30), 0 0 0 1px rgba(255,210,74,0.08) inset; }
+      50%      { box-shadow: 0 8px 40px rgba(255,210,74,0.55), 0 0 22px rgba(255,210,74,0.35), 0 0 0 1px rgba(255,210,74,0.12) inset; }
+    }
+    @keyframes nfAttention {
+      0%, 88%, 100% { transform: scale(1) rotate(0deg); }
+      90%            { transform: scale(1.07) rotate(-3deg); }
+      92%            { transform: scale(1.07) rotate(3deg); }
+      94%            { transform: scale(1.03) rotate(-2deg); }
+      96%            { transform: scale(1) rotate(0deg); }
     }
     #nf-chat-toggle:active { cursor: grabbing; }
     #nf-chat-toggle:hover {
-      transform: scale(1.05);
-      box-shadow: 0 8px 30px rgba(255,210,74,0.5);
+      transform: scale(1.06);
+      animation-play-state: paused;
+      box-shadow: 0 10px 40px rgba(255,210,74,0.6), 0 0 26px rgba(255,210,74,0.4);
     }
-    #nf-chat-toggle .toggle-icon { width: 40px; height: 40px; border-radius: 50%; object-fit: cover; display: block; flex-shrink: 0; }
+    #nf-chat-toggle .toggle-avatar-wrap {
+      position: relative;
+      flex-shrink: 0;
+      z-index: 2;
+    }
+    #nf-chat-toggle .toggle-icon {
+      width: 42px; height: 42px; border-radius: 50%; object-fit: cover; display: block;
+      border: 1.5px solid rgba(255,210,74,0.55);
+      box-shadow: 0 0 14px rgba(255,210,74,0.4);
+    }
+    #nf-chat-toggle .toggle-bubble-badge {
+      position: absolute;
+      bottom: -4px; right: -6px;
+      width: 22px; height: 22px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 12px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, var(--teal, #FFD24A), #FFE27A);
+      border: 2px solid #0A0806;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.5);
+      animation: nfBadgePop 2.6s ease-in-out infinite;
+    }
+    @keyframes nfBadgePop {
+      0%,70%,100% { transform: scale(1) rotate(0deg); }
+      80%          { transform: scale(1.18) rotate(-8deg); }
+      90%          { transform: scale(1) rotate(4deg); }
+    }
+    #nf-chat-toggle .toggle-text {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+      z-index: 2;
+      text-align: left;
+    }
     #nf-chat-toggle .toggle-label {
-      color: #FFD24A;
-      font-size: 12.5px;
+      color: #FFF2B5;
+      font-size: 13.5px;
       font-weight: 700;
-      letter-spacing: 0.5px;
+      letter-spacing: 0.4px;
       white-space: nowrap;
       text-transform: uppercase;
+      text-shadow: 0 0 12px rgba(255,210,74,0.5);
     }
+    #nf-chat-toggle .toggle-sublabel {
+      font-size: 10px;
+      color: #4ADE80;
+      font-weight: 600;
+      letter-spacing: 0.3px;
+      white-space: nowrap;
+    }
+    #nf-chat-toggle .toggle-sublabel::before { content: '● '; font-size: 7px; }
     #nf-chat-toggle .chat-notif {
       position: absolute;
       top: -3px; right: -3px;
@@ -163,6 +254,7 @@ Guidelines:
       border-radius: 50%;
       border: 2px solid #0A0806;
       animation: nfPulse 2s infinite;
+      z-index: 3;
     }
     @keyframes nfPulse {
       0%,100% { transform: scale(1); }
@@ -390,14 +482,15 @@ Guidelines:
       #nf-chat-box.pos-left { right: auto; left: -6px; }
       #nf-chat-box.pos-top { bottom: auto; top: 60px; }
       #nf-chat-toggle {
-        height: 48px;
+        height: 52px;
         padding: 0;
-        width: 48px;
+        width: 52px;
         justify-content: center;
         border-radius: 50%;
       }
-      #nf-chat-toggle .toggle-label { display: none; }
-      #nf-chat-toggle .toggle-icon { width: 40px; height: 40px; }
+      #nf-chat-toggle .toggle-text { display: none; }
+      #nf-chat-toggle .toggle-icon { width: 42px; height: 42px; }
+      #nf-chat-toggle .toggle-bubble-badge { width: 19px; height: 19px; font-size: 10.5px; bottom: -2px; right: -3px; }
       .nf-chat-header { padding: 12px 14px; }
       .nf-chat-avatar { width: 36px; height: 36px; }
       .nf-chat-header-info strong { font-size: 13.5px; }
@@ -449,8 +542,14 @@ Guidelines:
     </div>
 
     <button id="nf-chat-toggle" aria-label="Open AI Chat">
-      <img class="toggle-icon" src="assets/chat-bot-icon.webp" alt="AI Assistant">
-      <span class="toggle-label">Ask Merlin</span>
+      <span class="toggle-avatar-wrap">
+        <img class="toggle-icon" src="assets/chat-bot-icon.webp" alt="AI Assistant">
+        <span class="toggle-bubble-badge">💬</span>
+      </span>
+      <span class="toggle-text">
+        <span class="toggle-label">Chat with AI</span>
+        <span class="toggle-sublabel">Online now</span>
+      </span>
       <span class="chat-notif"></span>
     </button>
   `;
