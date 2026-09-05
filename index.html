@@ -1662,17 +1662,14 @@
   }
   .reviews-carousel-wrap{position:relative;z-index:1;}
   .reviews-track{
-    display:flex;gap:22px;position:relative;
-    overflow-x:auto;scroll-snap-type:x mandatory;scroll-behavior:smooth;
-    -webkit-overflow-scrolling:touch;padding:4px 4px 10px;margin:-4px -4px 0;
-    scrollbar-width:none;
+    display:grid;grid-template-columns:repeat(3,1fr);gap:22px;position:relative;
+    transition:opacity .2s ease;
   }
-  .reviews-track::-webkit-scrollbar{display:none;}
+  .reviews-track.fading{opacity:0;}
   .review-card{
     background:linear-gradient(160deg, rgba(255,226,122,0.06), transparent 45%), var(--steel);
     border:1px solid var(--line);border-radius:14px;padding:26px;position:relative;
-    flex:0 0 calc((100% - 44px) / 3);max-width:calc((100% - 44px) / 3);overflow:hidden;
-    scroll-snap-align:start;
+    overflow:hidden;
     transition:transform .2s ease, box-shadow .2s ease, border-color .2s ease;
   }
   .review-card:hover{transform:translateY(-4px);box-shadow:0 18px 40px rgba(0,0,0,0.35);border-color:rgba(255,210,74,0.4);}
@@ -1690,8 +1687,10 @@
   .review-card .review-photo-strip img{width:52px;height:52px;}
   .review-card p{margin-top:14px;font-size:14px;color:var(--paper-dim);line-height:1.6;overflow-wrap:break-word;word-break:break-word;}
   .review-card .who{margin-top:18px;font-size:13px;font-weight:700;font-family:'Space Mono',monospace;color:var(--paper);}
+  @media (max-width:860px){ .reviews-track{grid-template-columns:repeat(2,1fr);} }
+  @media (max-width:640px){ .reviews-track{grid-template-columns:1fr;} }
 
-  /* ---- carousel arrows + premium pagination + "see all" ---- */
+  /* ---- premium "See all" + pagination + "see all" ---- */
   .reviews-head-actions{display:flex;align-items:center;gap:14px;}
   .reviews-see-all-btn{
     display:inline-flex;align-items:center;gap:8px;padding:11px 20px;border-radius:8px;
@@ -1699,35 +1698,31 @@
     background:transparent;cursor:pointer;white-space:nowrap;transition:border-color .2s, color .2s;
   }
   .reviews-see-all-btn:hover{border-color:var(--teal);color:var(--teal);}
-  .reviews-nav-btn{
-    position:absolute;top:50%;transform:translateY(-50%);z-index:2;
-    width:44px;height:44px;border-radius:50%;border:1px solid var(--line);
-    background:rgba(10,8,6,0.85);backdrop-filter:blur(4px);color:var(--paper);
-    display:flex;align-items:center;justify-content:center;cursor:pointer;
-    transition:border-color .2s, color .2s, opacity .2s;
-  }
-  .reviews-nav-btn:hover{border-color:var(--teal);color:var(--teal);}
-  .reviews-nav-btn.prev{left:-14px;}
-  .reviews-nav-btn.next{right:-14px;}
-  .reviews-nav-btn:disabled{opacity:0.25;cursor:default;pointer-events:none;}
-  .reviews-nav-btn svg{width:18px;height:18px;}
 
-  /* ---- premium numbered pagination: « ‹ 1 2 3 4 › » ---- */
-  .reviews-pager{display:flex;align-items:center;justify-content:center;gap:8px;margin-top:26px;flex-wrap:wrap;}
+  /* ---- premium numbered pagination: « ‹ 1 2 3 4 › » ----
+     Sized and windowed so it NEVER wraps to a second row, even on the
+     narrowest phone screens — a horizontal scroll is the fallback if a
+     device is so narrow it still can't fit everything. */
+  .reviews-pager{
+    display:flex;align-items:center;justify-content:center;gap:7px;margin-top:26px;
+    flex-wrap:nowrap;overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none;
+    padding:2px;
+  }
+  .reviews-pager::-webkit-scrollbar{display:none;}
   .reviews-pager-btn{
     flex:none;display:flex;align-items:center;justify-content:center;
-    width:38px;height:38px;border-radius:11px;
+    width:36px;height:36px;border-radius:11px;
     border:1px solid var(--line);background:linear-gradient(160deg, var(--steel), var(--iron));
     color:var(--paper-dim);cursor:pointer;transition:border-color .2s, color .2s, box-shadow .2s, transform .15s;
   }
-  .reviews-pager-btn svg{width:15px;height:15px;}
+  .reviews-pager-btn svg{width:14px;height:14px;}
   .reviews-pager-btn:hover{border-color:var(--teal);color:var(--teal);box-shadow:0 0 16px rgba(255,210,74,0.25);transform:translateY(-1px);}
   .reviews-pager-btn:disabled{opacity:0.28;cursor:default;pointer-events:none;transform:none;box-shadow:none;}
-  .reviews-pager-nums{display:flex;align-items:center;gap:6px;margin:0 2px;}
+  .reviews-pager-nums{display:flex;align-items:center;gap:6px;margin:0 2px;flex:none;}
   .reviews-page-num{
-    flex:none;min-width:38px;height:38px;padding:0 4px;border-radius:11px;
+    flex:none;min-width:36px;height:36px;padding:0 4px;border-radius:11px;
     border:1px solid var(--line);background:transparent;color:var(--paper-dim);
-    font-family:'Space Mono',monospace;font-weight:700;font-size:13px;cursor:pointer;
+    font-family:'Space Mono',monospace;font-weight:700;font-size:12.5px;cursor:pointer;
     transition:border-color .2s, color .2s, background .2s, box-shadow .2s, transform .15s;
   }
   .reviews-page-num:hover{border-color:rgba(255,210,74,0.55);color:var(--paper);transform:translateY(-1px);}
@@ -1735,16 +1730,10 @@
     background:linear-gradient(135deg, var(--teal), #FFE27A);color:var(--ink-black);border-color:var(--teal);
     box-shadow:0 4px 18px rgba(255,210,74,0.45);transform:scale(1.06);
   }
+  .reviews-page-ellipsis{flex:none;width:20px;text-align:center;color:var(--paper-dim);font-family:'Space Mono',monospace;font-size:13px;}
   @media (max-width:480px){
-    .reviews-pager{gap:6px;}
-    .reviews-pager-btn, .reviews-page-num{width:34px;height:34px;min-width:34px;border-radius:9px;font-size:12px;}
-  }
-  @media (max-width:860px){
-    .review-card{flex-basis:calc((100% - 22px) / 2);max-width:calc((100% - 22px) / 2);}
-  }
-  @media (max-width:640px){
-    .review-card{flex-basis:86%;max-width:86%;}
-    .reviews-nav-btn{display:none;}
+    .reviews-pager{gap:5px;justify-content:flex-start;}
+    .reviews-pager-btn, .reviews-page-num{width:32px;height:32px;min-width:32px;border-radius:9px;font-size:11.5px;}
   }
 
   /* ---- "All reviews" drawer ---- */
@@ -3401,15 +3390,9 @@
         </div>
       </div>
       <div class="reviews-carousel-wrap">
-        <button type="button" class="reviews-nav-btn prev" id="reviews-nav-prev" onclick="scrollReviewsCarousel(-1)" aria-label="Previous reviews">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M15 18l-6-6 6-6"/></svg>
-        </button>
         <div class="reviews-track" id="reviews-track">
           <div class="prod-loading">Loading reviews…</div>
         </div>
-        <button type="button" class="reviews-nav-btn next" id="reviews-nav-next" onclick="scrollReviewsCarousel(1)" aria-label="Next reviews">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M9 18l6-6-6-6"/></svg>
-        </button>
       </div>
       <div class="reviews-pager" id="reviews-pager"></div>
     </div>
@@ -4511,120 +4494,99 @@ function renderGlobalReviews(){
   const track = document.getElementById('reviews-track');
   const pager = document.getElementById('reviews-pager');
   if(!track) return;
-  const published = REVIEWS.filter(isPublishedReview);
-  if(published.length===0){
+  GLOBAL_REVIEWS_LIST = REVIEWS.filter(isPublishedReview);
+  if(GLOBAL_REVIEWS_LIST.length===0){
     track.innerHTML = `<div class="prod-empty">No customer reviews yet — be the first to leave one on any product!</div>`;
     if(pager) pager.innerHTML = '';
-    document.querySelectorAll('.reviews-nav-btn').forEach(b=>b.style.display='none');
     return;
   }
-  // The homepage strip only ever shows the most recent handful, in a swipeable
-  // horizontal carousel — this keeps the section a fixed, comfortable size no
-  // matter whether the shop has 10 reviews or 10,000. Everything ever
-  // published is still reachable via "See all reviews".
-  const latest = published.slice(0,12);
-  track.innerHTML = latest.map(reviewCardHtml).join('');
-  document.querySelectorAll('.reviews-nav-btn').forEach(b=>b.style.display='');
-  setupReviewsPager(latest.length);
-  updateReviewsNavState();
-  track.onscroll = () => { updateReviewsNavState(); highlightActiveReviewPage(); };
+  renderReviewsPage(0);
 }
 
 /* ---- premium numbered pagination: « ‹ 1 2 3 4 › » ----
-   Cards-per-page is measured live from the rendered card width, so it stays
-   correct across every breakpoint (3 up on desktop, 2 on tablet, 1 on mobile)
-   without hardcoding widths that could drift from the CSS. */
+   Real batch pagination — every review the shop has ever published is
+   loaded once, then sliced into fixed-size pages (a full grid's worth each),
+   so page 1, page 2, etc. always show a proper batch of reviews rather than
+   just "however many happened to fit on screen". */
+let GLOBAL_REVIEWS_LIST = [];
 let REVIEWS_PAGE = 0;
-let REVIEWS_PER_PAGE = 3;
-function computeReviewsPerPage(){
+const REVIEWS_PAGE_SIZE = 12;
+
+function renderReviewsPage(page){
   const track = document.getElementById('reviews-track');
-  const card = track && track.querySelector('.review-card');
-  if(!track || !card) return 3;
-  const cardRect = card.getBoundingClientRect();
-  const gap = parseFloat(getComputedStyle(track).columnGap || getComputedStyle(track).gap || '22') || 22;
-  const per = Math.round((track.clientWidth + gap) / (cardRect.width + gap));
-  return Math.max(1, per);
+  if(!track) return;
+  const totalPages = Math.max(1, Math.ceil(GLOBAL_REVIEWS_LIST.length / REVIEWS_PAGE_SIZE));
+  page = Math.min(Math.max(0,page), totalPages-1);
+  REVIEWS_PAGE = page;
+  const slice = GLOBAL_REVIEWS_LIST.slice(page*REVIEWS_PAGE_SIZE, page*REVIEWS_PAGE_SIZE + REVIEWS_PAGE_SIZE);
+
+  track.classList.add('fading');
+  setTimeout(() => {
+    track.innerHTML = slice.map(reviewCardHtml).join('');
+    track.classList.remove('fading');
+  }, 120);
+
+  setupReviewsPager(GLOBAL_REVIEWS_LIST.length);
+
+  // Scroll the section into view on page change so the person lands back at
+  // the top of the list instead of wherever the new (shorter/taller) grid
+  // happens to leave the scroll position.
+  const section = document.getElementById('customer-reviews');
+  if(section){
+    const rect = section.getBoundingClientRect();
+    if(rect.top < -40 || rect.top > 120){
+      section.scrollIntoView({ behavior:'smooth', block:'start' });
+    }
+  }
 }
+
+function goToReviewsPage(page){ renderReviewsPage(page); }
+function stepReviewsPage(dir){ renderReviewsPage(REVIEWS_PAGE + dir); }
+
+/* Windowed page numbers (current ±2, always includes first/last) so the bar
+   never has to render dozens of buttons even with hundreds of reviews. */
+function getReviewsPageWindow(current, total, span=5){
+  if(total<=span) return Array.from({length:total},(_,i)=>i);
+  let start = Math.max(0, current - Math.floor(span/2));
+  let end = start + span - 1;
+  if(end > total-1){ end = total-1; start = end-span+1; }
+  return Array.from({length:span},(_,i)=>start+i);
+}
+
 function setupReviewsPager(count){
   const pager = document.getElementById('reviews-pager');
   if(!pager) return;
-  REVIEWS_PER_PAGE = computeReviewsPerPage();
-  const totalPages = Math.max(1, Math.ceil(count / REVIEWS_PER_PAGE));
+  const totalPages = Math.max(1, Math.ceil(count / REVIEWS_PAGE_SIZE));
   if(totalPages<=1){ pager.innerHTML=''; return; }
-  const numsHtml = Array.from({length:totalPages}).map((_,i)=>
-    `<button type="button" class="reviews-page-num" data-page="${i}" onclick="goToReviewsPage(${i})">${i+1}</button>`
+  const page = REVIEWS_PAGE;
+  const windowPages = getReviewsPageWindow(page, totalPages);
+  let numsHtml = '';
+  if(windowPages[0] > 0){
+    numsHtml += `<button type="button" class="reviews-page-num" onclick="goToReviewsPage(0)">1</button>`;
+    if(windowPages[0] > 1) numsHtml += `<span class="reviews-page-ellipsis">…</span>`;
+  }
+  numsHtml += windowPages.map(i =>
+    `<button type="button" class="reviews-page-num${i===page?' active':''}" onclick="goToReviewsPage(${i})">${i+1}</button>`
   ).join('');
+  if(windowPages[windowPages.length-1] < totalPages-1){
+    if(windowPages[windowPages.length-1] < totalPages-2) numsHtml += `<span class="reviews-page-ellipsis">…</span>`;
+    numsHtml += `<button type="button" class="reviews-page-num" onclick="goToReviewsPage(${totalPages-1})">${totalPages}</button>`;
+  }
   pager.innerHTML = `
-    <button type="button" class="reviews-pager-btn" id="reviews-page-first" onclick="goToReviewsPage(0)" aria-label="First page">
+    <button type="button" class="reviews-pager-btn" ${page<=0?'disabled':''} onclick="goToReviewsPage(0)" aria-label="First page">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M18 17l-5-5 5-5"/><path d="M11 17l-5-5 5-5"/></svg>
     </button>
-    <button type="button" class="reviews-pager-btn" id="reviews-page-prev" onclick="stepReviewsPage(-1)" aria-label="Previous page">
+    <button type="button" class="reviews-pager-btn" ${page<=0?'disabled':''} onclick="stepReviewsPage(-1)" aria-label="Previous page">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M15 18l-6-6 6-6"/></svg>
     </button>
     <div class="reviews-pager-nums">${numsHtml}</div>
-    <button type="button" class="reviews-pager-btn" id="reviews-page-next" onclick="stepReviewsPage(1)" aria-label="Next page">
+    <button type="button" class="reviews-pager-btn" ${page>=totalPages-1?'disabled':''} onclick="stepReviewsPage(1)" aria-label="Next page">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M9 18l6-6-6-6"/></svg>
     </button>
-    <button type="button" class="reviews-pager-btn" id="reviews-page-last" onclick="goToReviewsPage(${totalPages-1})" aria-label="Last page">
+    <button type="button" class="reviews-pager-btn" ${page>=totalPages-1?'disabled':''} onclick="goToReviewsPage(${totalPages-1})" aria-label="Last page">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M6 17l5-5-5-5"/><path d="M13 17l5-5-5-5"/></svg>
     </button>
   `;
-  highlightActiveReviewPage();
-}
-function goToReviewsPage(page){
-  const track = document.getElementById('reviews-track');
-  const cards = track && track.querySelectorAll('.review-card');
-  if(!cards || !cards.length) return;
-  const totalPages = Math.max(1, Math.ceil(cards.length / REVIEWS_PER_PAGE));
-  page = Math.min(Math.max(0,page), totalPages-1);
-  const card = cards[page*REVIEWS_PER_PAGE];
-  if(card) track.scrollTo({ left: card.offsetLeft, behavior:'smooth' });
-}
-function stepReviewsPage(dir){ goToReviewsPage(REVIEWS_PAGE + dir); }
-function highlightActiveReviewPage(){
-  const track = document.getElementById('reviews-track');
-  const pager = document.getElementById('reviews-pager');
-  if(!track || !pager) return;
-  const cards = track.querySelectorAll('.review-card');
-  if(!cards.length) return;
-  let closest = 0, closestDist = Infinity;
-  cards.forEach((c,i)=>{
-    const dist = Math.abs(c.offsetLeft - track.scrollLeft);
-    if(dist < closestDist){ closestDist = dist; closest = i; }
-  });
-  const totalPages = Math.max(1, Math.ceil(cards.length / REVIEWS_PER_PAGE));
-  const page = Math.min(Math.floor(closest / REVIEWS_PER_PAGE), totalPages-1);
-  REVIEWS_PAGE = page;
-  pager.querySelectorAll('.reviews-page-num').forEach((btn,i)=>btn.classList.toggle('active', i===page));
-  const first = document.getElementById('reviews-page-first');
-  const prev = document.getElementById('reviews-page-prev');
-  const next = document.getElementById('reviews-page-next');
-  const last = document.getElementById('reviews-page-last');
-  if(first) first.disabled = page<=0;
-  if(prev) prev.disabled = page<=0;
-  if(next) next.disabled = page>=totalPages-1;
-  if(last) last.disabled = page>=totalPages-1;
-}
-window.addEventListener('resize', () => {
-  const track = document.getElementById('reviews-track');
-  if(track && track.querySelectorAll('.review-card').length){
-    setupReviewsPager(track.querySelectorAll('.review-card').length);
-  }
-});
-function scrollReviewsCarousel(dir){
-  const track = document.getElementById('reviews-track');
-  if(!track) return;
-  const card = track.querySelector('.review-card');
-  const step = card ? (card.getBoundingClientRect().width + 22) : 320;
-  track.scrollBy({ left: dir*step, behavior:'smooth' });
-}
-function updateReviewsNavState(){
-  const track = document.getElementById('reviews-track');
-  const prev = document.getElementById('reviews-nav-prev');
-  const next = document.getElementById('reviews-nav-next');
-  if(!track || !prev || !next) return;
-  prev.disabled = track.scrollLeft <= 4;
-  next.disabled = track.scrollLeft >= (track.scrollWidth - track.clientWidth - 4);
 }
 
 /* ---------- "See all reviews" drawer (paginated so 1000s of reviews never dump into one giant scroll) ---------- */
