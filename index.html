@@ -1848,6 +1848,7 @@
     .hero-grid{display:contents;}
     .seal-wrap{order:-10;margin-bottom:0;padding:0 20px;}
     #promo-banner-section{order:-9;}
+    #brand-logos-section{order:-8;}
     #categories{order:-8;}
     #fitness-lifestyle{order:-7;}
     #bestsellers-tabs-section{order:-6;}
@@ -2940,32 +2941,32 @@
 
   /* ================= TRUSTED BRANDS STRIP ================= */
   .brand-strip-section{
-    padding:32px 0 36px;border-top:1px solid var(--line);border-bottom:1px solid var(--line);
+    padding:16px 0 18px;border-top:1px solid var(--line);border-bottom:1px solid var(--line);
     background:linear-gradient(180deg, rgba(255,210,74,0.035), transparent 60%);overflow:hidden;
   }
-  .brand-strip-head{text-align:center;margin-bottom:20px;}
+  .brand-strip-head{text-align:center;margin-bottom:10px;}
   .brand-strip-label{
     display:inline-flex;align-items:center;gap:10px;
-    font-family:'Space Mono',monospace;font-size:11px;letter-spacing:3px;text-transform:uppercase;color:var(--paper-dim);
+    font-family:'Space Mono',monospace;font-size:10px;letter-spacing:3px;text-transform:uppercase;color:var(--paper-dim);
   }
-  .brand-strip-label::before, .brand-strip-label::after{content:'';width:22px;height:1px;background:var(--line-strong);}
+  .brand-strip-label::before, .brand-strip-label::after{content:'';width:18px;height:1px;background:var(--line-strong);}
   .brand-strip-track-wrap{
     width:100%;overflow:hidden;
     -webkit-mask-image:linear-gradient(90deg, transparent, #000 10%, #000 90%, transparent);
     mask-image:linear-gradient(90deg, transparent, #000 10%, #000 90%, transparent);
   }
-  .brand-strip-track{display:flex;align-items:center;gap:52px;width:max-content;animation:brandScroll 32s linear infinite;}
+  .brand-strip-track{display:flex;align-items:center;gap:38px;width:max-content;animation:brandScroll 32s linear infinite;}
   .brand-strip-track:hover{animation-play-state:paused;}
   .brand-logo-item{
-    flex:none;width:92px;height:72px;display:flex;align-items:center;justify-content:center;
+    flex:none;width:56px;height:34px;display:flex;align-items:center;justify-content:center;
     opacity:0.72;filter:grayscale(20%);transition:opacity .25s ease, filter .25s ease, transform .25s ease;
   }
-  .brand-logo-item:hover{opacity:1;filter:grayscale(0%);transform:translateY(-3px) scale(1.05);}
+  .brand-logo-item:hover{opacity:1;filter:grayscale(0%);transform:translateY(-2px) scale(1.05);}
   .brand-logo-item img{max-width:100%;max-height:100%;object-fit:contain;}
   @keyframes brandScroll{from{transform:translateX(0);}to{transform:translateX(-50%);}}
   @media (max-width:640px){
-    .brand-strip-track{gap:36px;}
-    .brand-logo-item{width:72px;height:56px;}
+    .brand-strip-track{gap:26px;}
+    .brand-logo-item{width:46px;height:28px;}
   }
 </style>
 </head>
