@@ -2937,6 +2937,36 @@
     .bmi-gauge-value{font-size:38px;}
     .bmi-gender-btn{font-size:13px;padding:12px 8px;}
   }
+
+  /* ================= TRUSTED BRANDS STRIP ================= */
+  .brand-strip-section{
+    padding:32px 0 36px;border-top:1px solid var(--line);border-bottom:1px solid var(--line);
+    background:linear-gradient(180deg, rgba(255,210,74,0.035), transparent 60%);overflow:hidden;
+  }
+  .brand-strip-head{text-align:center;margin-bottom:20px;}
+  .brand-strip-label{
+    display:inline-flex;align-items:center;gap:10px;
+    font-family:'Space Mono',monospace;font-size:11px;letter-spacing:3px;text-transform:uppercase;color:var(--paper-dim);
+  }
+  .brand-strip-label::before, .brand-strip-label::after{content:'';width:22px;height:1px;background:var(--line-strong);}
+  .brand-strip-track-wrap{
+    width:100%;overflow:hidden;
+    -webkit-mask-image:linear-gradient(90deg, transparent, #000 10%, #000 90%, transparent);
+    mask-image:linear-gradient(90deg, transparent, #000 10%, #000 90%, transparent);
+  }
+  .brand-strip-track{display:flex;align-items:center;gap:52px;width:max-content;animation:brandScroll 32s linear infinite;}
+  .brand-strip-track:hover{animation-play-state:paused;}
+  .brand-logo-item{
+    flex:none;width:92px;height:72px;display:flex;align-items:center;justify-content:center;
+    opacity:0.72;filter:grayscale(20%);transition:opacity .25s ease, filter .25s ease, transform .25s ease;
+  }
+  .brand-logo-item:hover{opacity:1;filter:grayscale(0%);transform:translateY(-3px) scale(1.05);}
+  .brand-logo-item img{max-width:100%;max-height:100%;object-fit:contain;}
+  @keyframes brandScroll{from{transform:translateX(0);}to{transform:translateX(-50%);}}
+  @media (max-width:640px){
+    .brand-strip-track{gap:36px;}
+    .brand-logo-item{width:72px;height:56px;}
+  }
 </style>
 </head>
 <body>
@@ -3206,6 +3236,16 @@
       </a>
     </div>
   </div>
+
+  <!-- TRUSTED BRANDS STRIP -->
+  <section id="brand-logos-section" class="brand-strip-section" style="display:none;">
+    <div class="wrap">
+      <div class="brand-strip-head"><span class="brand-strip-label">Brands We Stock</span></div>
+    </div>
+    <div class="brand-strip-track-wrap">
+      <div class="brand-strip-track" id="brand-strip-track"></div>
+    </div>
+  </section>
 
   <!-- CATEGORIES -->
   <section id="categories">
@@ -4851,6 +4891,28 @@ async function loadProducts(){
 
 /* ---------- load combo offers ---------- */
 let COMBOS = [];
+async function loadBrandLogos(){
+  const section = document.getElementById('brand-logos-section');
+  const track = document.getElementById('brand-strip-track');
+  if(!section || !track) return;
+  const { data, error } = await sb.from('brand_logos').select('*').eq('active', true).order('sort_order', { ascending:true });
+  if(error || !data || data.length===0){
+    section.style.display = 'none';
+    return;
+  }
+  const itemsHtml = data.map(b => `
+    <div class="brand-logo-item" title="${escapeHtml(b.name || '')}">
+      <img src="${escapeHtml(b.image_url)}" alt="${escapeHtml(b.name || 'Brand logo')}" loading="lazy">
+    </div>
+  `).join('');
+  // Duplicate the set so the marquee scrolls seamlessly (translateX(-50%) loop)
+  track.innerHTML = itemsHtml + itemsHtml;
+  // Scale animation speed to logo count so spacing/speed always feels consistent
+  const duration = Math.max(18, data.length * 3.5);
+  track.style.animationDuration = duration + 's';
+  section.style.display = '';
+}
+
 async function loadCombos(){
   const section = document.getElementById('combos');
   const tile = document.getElementById('combo-cat-tile');
@@ -9078,7 +9140,7 @@ async function deleteAccountFinal(){
 }
 
 async function initApp(){
-  await Promise.all([loadProducts(), loadReviews(), loadStoreSettings(), loadCombos(), loadNotifications()]);
+  await Promise.all([loadProducts(), loadReviews(), loadStoreSettings(), loadCombos(), loadNotifications(), loadBrandLogos()]);
   if(PRODUCTS.length) applyFilters();
   renderGlobalReviews();
   injectProductSchema();
