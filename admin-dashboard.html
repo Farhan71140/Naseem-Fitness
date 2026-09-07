@@ -395,6 +395,37 @@
   .prod-admin-flavor-dot{width:13px;height:13px;border-radius:50%;border:1px solid rgba(255,255,255,0.22);box-shadow:inset 0 0 0 1.5px rgba(10,8,6,0.35);flex-shrink:0;}
   .prod-admin-flavor-label{font-family:'Space Mono',monospace;font-size:10px;color:var(--paper-dim);letter-spacing:0.5px;margin-left:2px;}
 
+  /* ===== SIZE MANAGER (apparel: T-Shirts / Shorts / Track Pants) ===== */
+  .size-chip-list{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:12px;min-height:0;}
+  .size-chip{
+    display:inline-flex;align-items:center;gap:8px;padding:7px 8px 7px 14px;border-radius:8px;
+    background:linear-gradient(165deg, var(--steel) 0%, var(--iron) 130%);
+    border:1px solid rgba(255,210,74,0.4);
+    font-family:'Space Mono',monospace;font-size:12.5px;font-weight:700;letter-spacing:1px;
+    color:var(--teal);text-transform:uppercase;box-shadow:0 0 0 1px rgba(255,210,74,0.06) inset;
+  }
+  .size-chip-remove{
+    display:flex;align-items:center;justify-content:center;width:17px;height:17px;border-radius:50%;
+    background:rgba(255,107,107,0.12);color:#FF6B6B;cursor:pointer;flex-shrink:0;transition:background .15s ease;
+  }
+  .size-chip-remove:hover{background:rgba(255,107,107,0.24);}
+  .size-chip-remove svg{width:9px;height:9px;}
+  .size-empty-hint{
+    font-size:12px;color:var(--paper-dim);padding:14px 16px;border:1px dashed rgba(255,210,74,0.22);
+    border-radius:10px;margin-bottom:12px;line-height:1.6;
+  }
+  .size-preset-label{font-family:'Space Mono',monospace;font-size:10px;letter-spacing:1.5px;color:var(--paper-dim);text-transform:uppercase;margin:4px 0 8px;}
+  .size-preset-row{display:flex;flex-wrap:wrap;gap:7px;margin-bottom:14px;}
+  .size-preset-btn{
+    padding:6px 13px;border-radius:7px;border:1px solid var(--line);background:transparent;
+    font-family:'Space Mono',monospace;font-size:11.5px;font-weight:700;letter-spacing:0.8px;
+    color:var(--paper-dim);cursor:pointer;transition:all .15s ease;
+  }
+  .size-preset-btn:hover{border-color:var(--teal);color:var(--teal);}
+  .size-preset-btn.selected{background:var(--teal);border-color:var(--teal);color:var(--ink-black);box-shadow:0 0 14px rgba(255,210,74,0.35);}
+  .size-custom-row{display:flex;gap:8px;}
+  .size-custom-row input{flex:1;}
+
   /* ===== MODAL ===== */
   .modal-overlay{
     display:none;position:fixed;inset:0;background:rgba(10,8,6,0.7);backdrop-filter:blur(3px);
@@ -1658,7 +1689,7 @@
       </div>
       <div class="field" id="product-subcategory-wrap" style="display:none;">
         <label for="product-subcategory">Subcategory (Fitness Lifestyle)</label>
-        <select id="product-subcategory">
+        <select id="product-subcategory" onchange="toggleSizeField()">
           <option value="T-Shirts">T-Shirts</option>
           <option value="Shorts / Track Pants">Shorts / Track Pants</option>
           <option value="Watches">Watches</option>
@@ -1667,9 +1698,23 @@
           <option value="Caps">Caps</option>
           <option value="Attar">Attar</option>
           <option value="Perfumes">Perfumes</option>
+          <option value="Body Spray">Body Spray</option>
           <option value="Fragrance Gift Sets">Fragrance Gift Sets</option>
         </select>
         <div class="photo-upload-hint">Shown on the storefront's Fitness Lifestyle category page as a filter chip.</div>
+      </div>
+      <div class="field" id="product-sizes-wrap" style="display:none;">
+        <label>Available Sizes</label>
+        <div class="size-chip-list" id="size-chip-list"></div>
+        <div class="size-preset-label">Quick add — Alphabetic</div>
+        <div class="size-preset-row" id="size-preset-alpha"></div>
+        <div class="size-preset-label">Quick add — Numeric (waist / chest)</div>
+        <div class="size-preset-row" id="size-preset-numeric"></div>
+        <div class="size-custom-row">
+          <input type="text" id="size-custom-input" placeholder="Custom size, e.g. 3XL or 36" onkeydown="if(event.key==='Enter'){event.preventDefault();addCustomSize();}">
+          <button type="button" class="btn btn-ghost btn-sm" style="flex-shrink:0;" onclick="addCustomSize()">+ Add</button>
+        </div>
+        <div class="photo-upload-hint">Set the sizes this item is available in. Customers pick one on the storefront before adding to cart — shown as premium size pills.</div>
       </div>
       <div class="photo-upload-hint" id="order-system-hint" style="display:none;margin-top:-10px;">This product will appear in the separate "Order System" section on the storefront — for one-off items that don't fit any regular category. No subcategory needed here.</div>
       <div class="field-row">
@@ -2228,6 +2273,11 @@ async function renderProducts(){
           <div class="prod-admin-flavor-row">
             ${p.flavors.slice(0,6).map(f=>`<span class="prod-admin-flavor-dot" style="background:${escapeHtml(f.color||'#FFD24A')};" title="${escapeHtml(f.name)}"></span>`).join('')}
             <span class="prod-admin-flavor-label">${p.flavors.length} flavor${p.flavors.length===1?'':'s'}</span>
+          </div>
+        ` : ''}
+        ${Array.isArray(p.sizes) && p.sizes.length ? `
+          <div class="prod-admin-flavor-row">
+            ${p.sizes.slice(0,8).map(s=>`<span class="prod-admin-flavor-label" style="border:1px solid rgba(255,210,74,0.35);border-radius:5px;padding:1px 6px;color:var(--teal);">${escapeHtml(s)}</span>`).join('')}
           </div>
         ` : ''}
         <div class="prod-admin-price">
@@ -3425,6 +3475,75 @@ function toggleFlSubcategoryField(){
   const category = document.getElementById('product-category').value;
   if(wrap) wrap.style.display = (category === 'Fitness Lifestyle') ? '' : 'none';
   if(orderHint) orderHint.style.display = (category === 'Order System') ? '' : 'none';
+  toggleSizeField();
+}
+
+/* ---------- size manager (T-Shirts / Shorts / Track Pants) ---------- */
+let PRODUCT_SIZES = [];
+const SIZE_APPLICABLE_SUBCATS = ['T-Shirts', 'Shorts / Track Pants'];
+const SIZE_PRESETS_ALPHA = ['XS', 'S', 'M', 'L', 'XL', 'XXL', '3XL'];
+const SIZE_PRESETS_NUMERIC = ['28', '30', '32', '34', '36', '38', '40'];
+function toggleSizeField(){
+  const wrap = document.getElementById('product-sizes-wrap');
+  if(!wrap) return;
+  const category = document.getElementById('product-category').value;
+  const subcategory = document.getElementById('product-subcategory').value;
+  const show = category === 'Fitness Lifestyle' && SIZE_APPLICABLE_SUBCATS.includes(subcategory);
+  wrap.style.display = show ? '' : 'none';
+  if(show) renderSizePresets();
+}
+function renderSizeChips(){
+  const list = document.getElementById('size-chip-list');
+  if(!list) return;
+  if(PRODUCT_SIZES.length === 0){
+    list.innerHTML = `<div class="size-empty-hint">No sizes added yet. Tap a quick-add size below, or type a custom one — e.g. M, L, XL, XXL, or 28, 30, 32, 34.</div>`;
+    return;
+  }
+  list.innerHTML = PRODUCT_SIZES.map(s => `
+    <span class="size-chip">${escapeHtml(s)}
+      <span class="size-chip-remove" title="Remove size" onclick="removeSizeValue('${escapeHtml(s).replace(/'/g,"\\'")}')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"/></svg>
+      </span>
+    </span>
+  `).join('');
+  renderSizePresets();
+}
+function renderSizePresets(){
+  const alphaWrap = document.getElementById('size-preset-alpha');
+  const numWrap = document.getElementById('size-preset-numeric');
+  if(alphaWrap){
+    alphaWrap.innerHTML = SIZE_PRESETS_ALPHA.map(s => `
+      <button type="button" class="size-preset-btn${PRODUCT_SIZES.includes(s) ? ' selected' : ''}" onclick="toggleSizePreset('${s}')">${s}</button>
+    `).join('');
+  }
+  if(numWrap){
+    numWrap.innerHTML = SIZE_PRESETS_NUMERIC.map(s => `
+      <button type="button" class="size-preset-btn${PRODUCT_SIZES.includes(s) ? ' selected' : ''}" onclick="toggleSizePreset('${s}')">${s}</button>
+    `).join('');
+  }
+}
+function toggleSizePreset(val){
+  if(PRODUCT_SIZES.includes(val)) removeSizeValue(val);
+  else addSizeValue(val);
+}
+function addSizeValue(val){
+  const clean = String(val || '').trim().toUpperCase();
+  if(!clean) return;
+  if(PRODUCT_SIZES.includes(clean)){ showToast('That size is already added'); return; }
+  if(PRODUCT_SIZES.length >= 15){ showToast('Maximum 15 sizes per product'); return; }
+  PRODUCT_SIZES.push(clean);
+  renderSizeChips();
+}
+function removeSizeValue(val){
+  PRODUCT_SIZES = PRODUCT_SIZES.filter(s => s !== val);
+  renderSizeChips();
+}
+function addCustomSize(){
+  const input = document.getElementById('size-custom-input');
+  if(!input) return;
+  addSizeValue(input.value);
+  input.value = '';
+  input.focus();
 }
 async function openProductModal(){
   document.getElementById('product-modal-title').textContent = 'Add Product';
@@ -3450,6 +3569,8 @@ async function openProductModal(){
   document.getElementById('product-is-choice').checked = false;
   PRODUCT_FLAVORS = [];
   renderFlavorList();
+  PRODUCT_SIZES = [];
+  renderSizeChips();
   document.getElementById('product-modal').classList.add('active');
 }
 async function editProduct(id){
@@ -3481,6 +3602,9 @@ async function editProduct(id){
   document.getElementById('product-is-choice').checked = !!p.is_choice;
   PRODUCT_FLAVORS = Array.isArray(p.flavors) ? p.flavors.map(f => ({...f})) : [];
   renderFlavorList();
+  PRODUCT_SIZES = Array.isArray(p.sizes) ? [...p.sizes] : [];
+  renderSizeChips();
+  toggleSizeField();
   document.getElementById('product-modal').classList.add('active');
 }
 async function saveProduct(){
@@ -3511,7 +3635,11 @@ async function saveProduct(){
     is_choice: document.getElementById('product-is-choice').checked,
     flavors: PRODUCT_FLAVORS
       .filter(f => f.name && f.name.trim())
-      .map(f => ({ id: f.id, name: f.name.trim(), color: f.color || '#FFD24A', image_url: f.image_url || '', in_stock: f.in_stock !== false }))
+      .map(f => ({ id: f.id, name: f.name.trim(), color: f.color || '#FFD24A', image_url: f.image_url || '', in_stock: f.in_stock !== false })),
+    sizes: (document.getElementById('product-category').value === 'Fitness Lifestyle'
+      && SIZE_APPLICABLE_SUBCATS.includes(document.getElementById('product-subcategory').value))
+      ? PRODUCT_SIZES
+      : []
   };
   let error;
   if(id){

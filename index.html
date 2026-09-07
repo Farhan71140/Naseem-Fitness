@@ -1506,6 +1506,42 @@
     border:1px solid rgba(255,255,255,0.2);box-shadow:inset 0 0 0 1.5px rgba(10,8,6,0.3);
   }
   .prod-flavor-row .fmore{font-family:'Space Mono',monospace;font-size:10px;color:var(--paper-dim);margin-left:1px;}
+
+  /* ===== SIZE SELECTOR — ultra-premium pill treatment (apparel) ===== */
+  .qv-size-block{margin-top:20px;padding-top:20px;border-top:1px solid var(--line);}
+  .qv-size-label{
+    display:flex;align-items:baseline;justify-content:space-between;gap:10px;
+    font-family:'Space Mono',monospace;font-size:11px;letter-spacing:1.5px;text-transform:uppercase;
+    color:var(--paper-dim);margin-bottom:12px;
+  }
+  .qv-size-label .sel-name{color:var(--teal);font-weight:700;letter-spacing:0.3px;text-transform:none;font-family:'Inter',sans-serif;font-size:13.5px;}
+  .qv-size-grid{display:flex;flex-wrap:wrap;gap:10px;}
+  .qv-size-pill{
+    position:relative;display:inline-flex;align-items:center;justify-content:center;
+    min-width:46px;height:46px;padding:0 15px;border-radius:10px;
+    background:linear-gradient(165deg, var(--steel) 0%, var(--iron) 130%);
+    border:1px solid rgba(255,210,74,0.28);cursor:pointer;
+    font-family:'Space Mono',monospace;font-size:13px;font-weight:700;letter-spacing:1px;color:var(--paper);
+    transition:border-color .2s ease, background .2s ease, transform .15s ease, box-shadow .2s ease;
+  }
+  .qv-size-pill:hover{border-color:var(--teal);transform:translateY(-2px);box-shadow:0 6px 18px rgba(255,210,74,0.15);}
+  .qv-size-pill.active{
+    background:linear-gradient(135deg, var(--teal), var(--gold-light, #FFF2B5));
+    border-color:var(--teal);color:var(--ink-black);
+    box-shadow:0 0 0 1px var(--teal), 0 8px 22px rgba(255,210,74,0.35);
+    transform:translateY(-2px);
+  }
+  .qv-size-pill.sold-out{opacity:0.38;cursor:not-allowed;}
+  .qv-size-pill.sold-out:hover{transform:none;border-color:rgba(255,210,74,0.28);box-shadow:none;}
+  .qv-size-pill.sold-out::after{content:'';position:absolute;left:6px;right:6px;top:50%;height:1px;background:currentColor;opacity:0.5;}
+
+  .prod-size-row{display:flex;align-items:center;gap:6px;margin-top:8px;flex-wrap:wrap;}
+  .prod-size-row .size-tag{
+    font-family:'Space Mono',monospace;font-size:9.5px;font-weight:700;letter-spacing:0.8px;
+    padding:2.5px 7px;border-radius:5px;border:1px solid rgba(255,210,74,0.35);color:var(--teal);
+    background:rgba(255,210,74,0.06);
+  }
+  .prod-size-row .fmore{font-family:'Space Mono',monospace;font-size:10px;color:var(--paper-dim);margin-left:1px;}
   .qv-qty-row{display:flex;align-items:center;justify-content:space-between;margin-top:24px;padding-top:20px;border-top:1px solid var(--line);}
   .qv-qty-row .qty-ctrl button{width:32px;height:32px;font-size:16px;}
 
@@ -5135,7 +5171,7 @@ function renderProducts(list){
    above, completely untouched.
    ========================================================================== */
 let FITNESS_LIFESTYLE_PRODUCTS = [];
-const FL_SUBCATEGORIES = ['T-Shirts','Shorts / Track Pants','Watches','Sunglasses','Wallets','Caps','Attar','Perfumes','Fragrance Gift Sets'];
+const FL_SUBCATEGORIES = ['T-Shirts','Shorts / Track Pants','Watches','Sunglasses','Wallets','Caps','Attar','Perfumes','Body Spray','Fragrance Gift Sets'];
 
 // Emoji fallback shown inside a subcategory circle if its photo (see
 // flSubcatImagePath below) hasn't been uploaded yet or fails to load.
@@ -5148,6 +5184,7 @@ const FL_SUBCAT_ICONS = {
   'Caps': '🧢',
   'Attar': '🧴',
   'Perfumes': '🌸',
+  'Body Spray': '💦',
   'Fragrance Gift Sets': '🎁'
 };
 
@@ -5202,6 +5239,12 @@ function flProductCardHTML(p, sliderMode){
           <div class="prod-flavor-row">
             ${p.flavors.slice(0,5).map(f=>`<span class="fdot" style="background:${escapeHtml(f.color||'#FFD24A')};" title="${escapeHtml(f.name)}"></span>`).join('')}
             ${p.flavors.length>5 ? `<span class="fmore">+${p.flavors.length-5}</span>` : ''}
+          </div>
+        ` : ''}
+        ${Array.isArray(p.sizes) && p.sizes.length ? `
+          <div class="prod-size-row">
+            ${p.sizes.slice(0,5).map(s=>`<span class="size-tag">${escapeHtml(s)}</span>`).join('')}
+            ${p.sizes.length>5 ? `<span class="fmore">+${p.sizes.length-5}</span>` : ''}
           </div>
         ` : ''}
         ${renderRatingSummary(p.id)}
@@ -6966,8 +7009,8 @@ function addToCart(id){
     alert('Sorry, this product is currently out of stock.');
     return;
   }
-  if(Array.isArray(p.flavors) && p.flavors.length){
-    // this product has flavor variants — open Quick View so the customer can pick one first
+  if((Array.isArray(p.flavors) && p.flavors.length) || (Array.isArray(p.sizes) && p.sizes.length)){
+    // this product has flavor and/or size variants — open Quick View so the customer can pick first
     openQuickView(id);
     return;
   }
@@ -7179,6 +7222,7 @@ let QV_IMAGES = [];
 let QV_IMG_INDEX = 0;
 let QV_BASE_IMAGES = [];
 let QV_SELECTED_FLAVOR = null;
+let QV_SELECTED_SIZE = null;
 
 function getProductImages(p){
   if(Array.isArray(p.image_urls) && p.image_urls.length) return p.image_urls.slice(0,5);
@@ -7289,6 +7333,7 @@ function updateQvAddButtonState(p){
   if(!qvAddBtn) return;
   const outOfStock = (p.stock !== undefined && p.stock !== null && Number(p.stock) <= 0);
   const hasFlavors = Array.isArray(p.flavors) && p.flavors.length > 0;
+  const hasSizes = Array.isArray(p.sizes) && p.sizes.length > 0;
   let disabled = outOfStock;
   let label = 'Add to Cart';
   if(outOfStock){
@@ -7299,11 +7344,47 @@ function updateQvAddButtonState(p){
   } else if(hasFlavors && QV_SELECTED_FLAVOR && QV_SELECTED_FLAVOR.in_stock === false){
     disabled = true;
     label = 'Flavor Out of Stock';
+  } else if(hasSizes && !QV_SELECTED_SIZE){
+    disabled = true;
+    label = 'Select a Size';
   }
   qvAddBtn.disabled = disabled;
   qvAddBtn.textContent = label;
   qvAddBtn.style.opacity = disabled ? '0.5' : '';
   qvAddBtn.style.cursor = disabled ? 'not-allowed' : '';
+}
+
+/* ---------- size selector (apparel — T-Shirts / Shorts / Track Pants) ---------- */
+function renderSizeSelectorHtml(p){
+  if(!Array.isArray(p.sizes) || p.sizes.length === 0) return '';
+  return `
+    <div class="qv-size-block">
+      <div class="qv-size-label">
+        <span>Choose Size</span>
+        <span class="sel-name" id="qv-size-selected-name">${QV_SELECTED_SIZE ? escapeHtml(QV_SELECTED_SIZE) : 'Select an option'}</span>
+      </div>
+      <div class="qv-size-grid" id="qv-size-grid">
+        ${p.sizes.map(s => {
+          const active = QV_SELECTED_SIZE === s;
+          return `
+          <button type="button" class="qv-size-pill${active ? ' active' : ''}" onclick="selectQvSize('${escapeHtml(s).replace(/'/g,"\\'")}')">${escapeHtml(s)}</button>`;
+        }).join('')}
+      </div>
+    </div>
+  `;
+}
+function selectQvSize(size){
+  const p = PRODUCTS.find(x=>x.id===QV_PRODUCT_ID);
+  if(!p || !Array.isArray(p.sizes)) return;
+  if(!p.sizes.includes(size)) return;
+  QV_SELECTED_SIZE = size;
+  const grid = document.getElementById('qv-size-grid');
+  if(grid){
+    grid.querySelectorAll('.qv-size-pill').forEach(el => el.classList.toggle('active', el.textContent.trim() === size));
+  }
+  const nameEl = document.getElementById('qv-size-selected-name');
+  if(nameEl) nameEl.textContent = size;
+  updateQvAddButtonState(p);
 }
 
 function openQuickView(id){
@@ -7321,6 +7402,7 @@ function openQuickView(id){
       QV_IMAGES = [QV_SELECTED_FLAVOR.image_url, ...QV_BASE_IMAGES.filter(u=>u!==QV_SELECTED_FLAVOR.image_url)];
     }
   }
+  QV_SELECTED_SIZE = null;
   document.getElementById('qv-qty').textContent = QV_QTY;
 
   const effQv = getEffectivePricing(p);
@@ -7359,6 +7441,7 @@ function openQuickView(id){
       return `<div class="qv-stock"><span class="dot"></span>In stock</div>`;
     })()}
     ${renderFlavorSelectorHtml(p)}
+    ${renderSizeSelectorHtml(p)}
     ${descHtml ? `<div class="qv-desc"><div class="qv-desc-inner" id="qv-desc-inner">${descHtml}</div><button type="button" class="qv-desc-toggle" id="qv-desc-toggle" onclick="toggleQvDescription()" style="display:none;"><span id="qv-desc-toggle-label">See more</span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg></button></div>` : ''}
     <div class="qv-review-block">
       <div class="qv-review-block-head">
@@ -7529,6 +7612,7 @@ function qvAddToCart(){
     return;
   }
   const hasFlavors = Array.isArray(p.flavors) && p.flavors.length > 0;
+  const hasSizes = Array.isArray(p.sizes) && p.sizes.length > 0;
   if(hasFlavors && !QV_SELECTED_FLAVOR){
     alert('Please select a flavor first.');
     return;
@@ -7537,8 +7621,18 @@ function qvAddToCart(){
     alert('This flavor is currently out of stock. Please choose another.');
     return;
   }
-  const lineId = hasFlavors ? `${p.id}::${QV_SELECTED_FLAVOR.id}` : p.id;
-  const lineName = hasFlavors ? `${p.name} — ${QV_SELECTED_FLAVOR.name}` : p.name;
+  if(hasSizes && !QV_SELECTED_SIZE){
+    alert('Please select a size first.');
+    return;
+  }
+  const variantParts = [];
+  if(hasFlavors) variantParts.push(QV_SELECTED_FLAVOR.id);
+  if(hasSizes) variantParts.push(QV_SELECTED_SIZE);
+  const lineId = variantParts.length ? `${p.id}::${variantParts.join('::')}` : p.id;
+  const nameParts = [];
+  if(hasFlavors) nameParts.push(QV_SELECTED_FLAVOR.name);
+  if(hasSizes) nameParts.push(`Size ${QV_SELECTED_SIZE}`);
+  const lineName = nameParts.length ? `${p.name} — ${nameParts.join(', ')}` : p.name;
   const line = CART.find(x=>x.id===lineId);
   if(line) line.qty += QV_QTY;
   else CART.push({ id:lineId, name:lineName, price:Number(p.price), unit:p.unit, qty:QV_QTY });
