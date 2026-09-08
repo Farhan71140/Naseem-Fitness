@@ -426,6 +426,29 @@
   .size-custom-row{display:flex;gap:8px;}
   .size-custom-row input{flex:1;}
 
+  /* ===== VERIFICATION CODES ===== */
+  .vcode-badge{
+    display:inline-flex;align-items:center;gap:5px;padding:3px 10px;border-radius:20px;
+    font-family:'Space Mono',monospace;font-size:10.5px;font-weight:700;letter-spacing:0.6px;text-transform:uppercase;
+  }
+  .vcode-badge.unused{background:rgba(255,210,74,0.1);border:1px solid rgba(255,210,74,0.35);color:var(--teal);}
+  .vcode-badge.verified{background:rgba(90,200,140,0.12);border:1px solid rgba(90,200,140,0.4);color:#6FD79A;}
+  .vcode-stat-row{display:flex;gap:16px;margin-top:10px;flex-wrap:wrap;}
+  .vcode-stat-row .vs-item{font-family:'Space Mono',monospace;font-size:11.5px;color:var(--paper-dim);}
+  .vcode-stat-row .vs-item b{color:var(--paper);font-size:13px;margin-right:3px;}
+  .vcode-meta-row{display:flex;justify-content:space-between;gap:10px;font-size:12px;color:var(--paper-dim);padding:6px 0;border-bottom:1px dashed var(--line);}
+  .vcode-meta-row:last-of-type{border-bottom:none;}
+  .vcode-meta-row .v{color:var(--paper);font-family:'Space Mono',monospace;text-align:right;}
+  .vcode-table-wrap{max-height:460px;overflow-y:auto;border:1px solid var(--line);border-radius:10px;}
+  .vcode-table-wrap table{width:100%;border-collapse:collapse;}
+  .vcode-table-wrap th{position:sticky;top:0;background:var(--steel);z-index:1;text-align:left;padding:10px 14px;font-family:'Space Mono',monospace;font-size:10.5px;letter-spacing:1px;text-transform:uppercase;color:var(--paper-dim);border-bottom:1px solid var(--line);}
+  .vcode-table-wrap td{padding:9px 14px;font-size:13px;border-bottom:1px solid var(--line);}
+  .vcode-table-wrap tr:last-child td{border-bottom:none;}
+  .vcode-mono{font-family:'Space Mono',monospace;font-weight:700;letter-spacing:0.5px;color:var(--teal);}
+  .vcode-toolbar{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-bottom:14px;}
+  .vcode-toolbar input[type="text"]{flex:1;min-width:180px;}
+  .vcode-toolbar select{width:auto;min-width:140px;}
+
   /* ===== MODAL ===== */
   .modal-overlay{
     display:none;position:fixed;inset:0;background:rgba(10,8,6,0.7);backdrop-filter:blur(3px);
@@ -809,6 +832,10 @@
       <button class="nav-btn" data-page="brands" onclick="goPage('brands')">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg>
         <span>Brand Logos</span>
+      </button>
+      <button class="nav-btn" data-page="verifycodes" onclick="goPage('verifycodes')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 2 3 6v6c0 5 4 8.5 9 10 5-1.5 9-5 9-10V6l-9-4z"/><path d="m8.5 12 2.5 2.5L16 9.5"/></svg>
+        <span>Verify Codes</span>
       </button>
       <button class="nav-btn" data-page="marketing" onclick="goPage('marketing')">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 11l18-5v12L3 13v-2z"/><path d="M7 13v5a2 2 0 0 0 2 2h1v-6"/></svg>
@@ -1384,6 +1411,47 @@
       <div class="prod-grid" id="brands-grid"></div>
     </section>
 
+    <!-- ============ VERIFICATION CODES ============ -->
+    <section class="page" id="page-verifycodes">
+      <div class="page-head">
+        <div>
+          <span class="eyebrow">Authenticity</span>
+          <h2>Verification Codes</h2>
+          <p>Create a batch for each product run — with photo, batch number, expiry and MRP — then generate as many unique scratch-off codes as you need. This is separate from the existing order Verify Code system and doesn't change it.</p>
+        </div>
+        <button class="btn btn-primary" onclick="openVerifyBatchModal()">+ New Batch</button>
+      </div>
+
+      <div class="stat-grid">
+        <div class="stat-card">
+          <div class="stat-label">Batches</div>
+          <div class="stat-value" id="vc-stat-batches">0</div>
+          <div class="stat-sub">Product runs</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Total Generated</div>
+          <div class="stat-value" id="vc-stat-total">0</div>
+          <div class="stat-sub">All codes ever created</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Unused Codes</div>
+          <div class="stat-value" id="vc-stat-unused">0</div>
+          <div class="stat-sub">Not yet scanned</div>
+        </div>
+        <div class="stat-card earnings">
+          <div class="stat-label">Verified / Used</div>
+          <div class="stat-value" id="vc-stat-verified">0</div>
+          <div class="stat-sub">Scanned by customers</div>
+        </div>
+      </div>
+
+      <div class="prod-grid" id="verify-batches-grid"></div>
+      <div id="verify-batches-empty" class="empty-state" style="display:none;">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 2 3 6v6c0 5 4 8.5 9 10 5-1.5 9-5 9-10V6l-9-4z"/><path d="m8.5 12 2.5 2.5L16 9.5"/></svg>
+        <p>No batches yet. Create one for each product + batch run, then generate its scratch codes.</p>
+      </div>
+    </section>
+
     <!-- ============ MARKETING & SEO ============ -->
     <section class="page" id="page-marketing">
       <div class="page-head">
@@ -1888,6 +1956,106 @@
     <div class="modal-foot">
       <button class="btn btn-ghost" onclick="closeModal('brand-modal')">Cancel</button>
       <button class="btn btn-primary" onclick="saveBrand()">Save Brand Logo</button>
+    </div>
+  </div>
+</div>
+
+<!-- ================= VERIFY BATCH MODAL ================= -->
+<div class="modal-overlay" id="verifybatch-modal">
+  <div class="modal">
+    <div class="modal-head">
+      <h3 id="verifybatch-modal-title">New Verification Batch</h3>
+      <button class="modal-close" onclick="closeModal('verifybatch-modal')">✕</button>
+    </div>
+    <div class="modal-body">
+      <input type="hidden" id="vb-id">
+      <div class="field">
+        <label for="vb-product-name">Product Name</label>
+        <input type="text" id="vb-product-name" placeholder="e.g. NF Natural Lean" list="vb-product-list">
+        <datalist id="vb-product-list"></datalist>
+      </div>
+
+      <div class="field">
+        <label>Product Image</label>
+        <div class="photo-upload-grid" id="vb-photo-grid"></div>
+        <input type="file" id="vb-image-file" accept="image/*" onchange="handleVbImageFile(this.files)">
+        <div class="photo-upload-hint" id="vb-upload-status">Shown to the customer on successful verification.</div>
+      </div>
+
+      <div class="field">
+        <label for="vb-batch-number">Batch Number</label>
+        <input type="text" id="vb-batch-number" placeholder="e.g. NL2026">
+      </div>
+
+      <div class="field">
+        <label for="vb-expiry">Expiry Date</label>
+        <input type="date" id="vb-expiry">
+      </div>
+
+      <div class="field">
+        <label for="vb-mrp">MRP (₹)</label>
+        <input type="number" id="vb-mrp" placeholder="e.g. 2499" min="0">
+      </div>
+
+      <div class="field" id="vb-quantity-wrap">
+        <label for="vb-quantity">Generate Codes Quantity</label>
+        <input type="number" id="vb-quantity" placeholder="e.g. 10" min="1" max="5000">
+        <div style="font-size:12px;color:var(--paper-dim);margin-top:6px;">Enter how many unique verification codes to generate for this batch — e.g. 10, 100, 500, 1000. Each code is unique and printed under one scratch sticker.</div>
+      </div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn btn-ghost" onclick="closeModal('verifybatch-modal')">Cancel</button>
+      <button class="btn btn-primary" id="vb-save-btn" onclick="saveVerifyBatch()">Create Batch &amp; Generate Codes</button>
+    </div>
+  </div>
+</div>
+
+<!-- ================= VERIFY CODES LIST MODAL ================= -->
+<div class="modal-overlay" id="vcodes-modal">
+  <div class="modal" style="max-width:720px;">
+    <div class="modal-head">
+      <h3 id="vcodes-modal-title">Batch Codes</h3>
+      <button class="modal-close" onclick="closeModal('vcodes-modal')">✕</button>
+    </div>
+    <div class="modal-body">
+      <input type="hidden" id="vcodes-batch-id">
+      <div class="vcode-meta-row"><span>Product</span><span class="v" id="vcodes-meta-product"></span></div>
+      <div class="vcode-meta-row"><span>Batch Number</span><span class="v" id="vcodes-meta-batch"></span></div>
+      <div class="vcode-meta-row"><span>Expiry</span><span class="v" id="vcodes-meta-expiry"></span></div>
+      <div class="vcode-meta-row"><span>MRP</span><span class="v" id="vcodes-meta-mrp"></span></div>
+      <div class="vcode-stat-row">
+        <span class="vs-item"><b id="vcodes-count-total">0</b>Total</span>
+        <span class="vs-item"><b id="vcodes-count-unused">0</b>Unused</span>
+        <span class="vs-item"><b id="vcodes-count-verified">0</b>Verified</span>
+      </div>
+
+      <div style="display:flex;gap:10px;flex-wrap:wrap;margin:16px 0;">
+        <button class="btn btn-ghost btn-sm" onclick="promptGenerateMoreCodes()">+ Generate More Codes</button>
+        <button class="btn btn-ghost btn-sm" onclick="copyUnusedCodes()">Copy Unused Codes</button>
+        <button class="btn btn-ghost btn-sm" onclick="downloadCodesCsv()">Download CSV</button>
+      </div>
+
+      <div class="vcode-toolbar">
+        <input type="text" id="vcodes-search" placeholder="Search code…" oninput="renderVcodesTable()">
+        <select id="vcodes-filter" onchange="renderVcodesTable()">
+          <option value="all">All Statuses</option>
+          <option value="UNUSED">Unused Only</option>
+          <option value="VERIFIED">Verified Only</option>
+        </select>
+      </div>
+
+      <div class="vcode-table-wrap">
+        <table>
+          <thead><tr><th>Code</th><th>Status</th><th>Verified At</th></tr></thead>
+          <tbody id="vcodes-tbody"></tbody>
+        </table>
+      </div>
+      <div id="vcodes-empty" class="empty-state" style="display:none;padding:24px 0;">
+        <p>No codes match this filter.</p>
+      </div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn btn-primary" onclick="closeModal('vcodes-modal')">Done</button>
     </div>
   </div>
 </div>
@@ -2414,6 +2582,7 @@ function renderAll(){
   renderProducts();
   renderCombos();
   renderBrands();
+  renderVerifyCodesPage();
   renderOrders();
   renderDelivery();
   renderMarketingSeo();
@@ -4031,6 +4200,294 @@ async function deleteBrand(id){
   if(error){ showToast('Error: ' + error.message); return; }
   renderBrands();
   showToast('Brand logo deleted');
+}
+
+/* ================= VERIFICATION CODES ================= */
+let VB_IMAGE = '';
+let VCODES_CURRENT_BATCH = null;
+let VCODES_CURRENT_LIST = [];
+
+async function getVerificationBatches(){
+  const { data, error } = await sb.from('verification_batches').select('*').order('created_at', { ascending:false });
+  if(error){
+    if(String(error.message||'').toLowerCase().includes('relation') || error.code === '42P01'){
+      showToast('Verification Codes tables not found yet — run the setup SQL in Supabase first.');
+    } else {
+      showToast('Error loading verification batches: ' + error.message);
+    }
+    return [];
+  }
+  return data || [];
+}
+
+async function renderVerifyCodesPage(){
+  const batches = await getVerificationBatches();
+  const grid = document.getElementById('verify-batches-grid');
+  const empty = document.getElementById('verify-batches-empty');
+  if(!grid) return;
+
+  const totalCodes = batches.reduce((s,b)=>s+Number(b.total_codes||0),0);
+  const verifiedCodes = batches.reduce((s,b)=>s+Number(b.verified_codes||0),0);
+  const setText = (id, val) => { const el = document.getElementById(id); if(el) el.textContent = val; };
+  setText('vc-stat-batches', batches.length);
+  setText('vc-stat-total', totalCodes);
+  setText('vc-stat-unused', totalCodes - verifiedCodes);
+  setText('vc-stat-verified', verifiedCodes);
+
+  if(batches.length === 0){
+    grid.innerHTML = '';
+    if(empty) empty.style.display = '';
+    return;
+  }
+  if(empty) empty.style.display = 'none';
+
+  grid.innerHTML = batches.map(b => {
+    const unused = Number(b.total_codes||0) - Number(b.verified_codes||0);
+    const expiryStr = b.expiry_date ? new Date(b.expiry_date + 'T00:00:00').toLocaleDateString('en-IN', { month:'short', year:'numeric' }) : '—';
+    return `
+    <div class="prod-admin-card">
+      <div class="prod-admin-photo">
+        ${b.product_image ? `<img src="${escapeHtml(b.product_image)}" alt="${escapeHtml(b.product_name)}">`
+          : `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="width:40px;height:40px;color:var(--paper-dim);"><path d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/></svg>`}
+        <span class="prod-admin-combo-badge">Batch ${escapeHtml(b.batch_number||'')}</span>
+      </div>
+      <div class="prod-admin-body">
+        <h4>${escapeHtml(b.product_name)}</h4>
+        <div style="font-size:12px;color:var(--paper-dim);margin-top:2px;">Expiry ${expiryStr} · MRP ₹${Number(b.mrp||0).toLocaleString('en-IN')}</div>
+        <div class="vcode-stat-row">
+          <span class="vs-item"><b>${Number(b.total_codes||0)}</b>Total</span>
+          <span class="vs-item"><b>${unused}</b>Unused</span>
+          <span class="vs-item"><b>${Number(b.verified_codes||0)}</b>Verified</span>
+        </div>
+        <div class="prod-admin-actions">
+          <button class="btn btn-ghost btn-sm" style="flex:1;" onclick="viewBatchCodes('${b.id}')">View Codes</button>
+          <button class="icon-btn danger" title="Delete Batch" onclick="deleteVerifyBatch('${b.id}')">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 6h18M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2m3 0l-1 14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2L4 6h16z"/></svg>
+          </button>
+        </div>
+      </div>
+    </div>
+  `;
+  }).join('');
+}
+
+function renderVbPhotoGrid(){
+  const grid = document.getElementById('vb-photo-grid');
+  if(!grid) return;
+  if(VB_IMAGE){
+    grid.innerHTML = `
+      <div class="photo-tile">
+        <img src="${escapeHtml(VB_IMAGE)}" alt="Product">
+        <button type="button" class="photo-remove" title="Remove" onclick="removeVbImage()">✕</button>
+      </div>`;
+  } else {
+    grid.innerHTML = `<button type="button" class="photo-tile-add" onclick="document.getElementById('vb-image-file').click()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 5v14M5 12h14"/></svg>
+        Add
+      </button>`;
+  }
+}
+function removeVbImage(){
+  VB_IMAGE = '';
+  renderVbPhotoGrid();
+}
+async function handleVbImageFile(fileList){
+  const files = Array.from(fileList || []);
+  document.getElementById('vb-image-file').value = '';
+  if(files.length === 0) return;
+  const statusEl = document.getElementById('vb-upload-status');
+  statusEl.textContent = 'Uploading…';
+  const safeName = files[0].name.toLowerCase().replace(/[^a-z0-9.]+/g, '-').replace(/-+/g,'-');
+  const path = `verification-batches/${Date.now()}-${Math.random().toString(36).slice(2,7)}-${safeName}`;
+  const { error: uploadError } = await sb.storage.from('store-assets').upload(path, files[0], { upsert:false, contentType: files[0].type });
+  if(uploadError){
+    statusEl.innerHTML = `Upload failed: ${escapeHtml(uploadError.message)}. Make sure a public Storage bucket named "store-assets" exists in your Supabase project.`;
+    return;
+  }
+  const { data } = sb.storage.from('store-assets').getPublicUrl(path);
+  VB_IMAGE = data.publicUrl;
+  statusEl.textContent = 'Uploaded ✓';
+  renderVbPhotoGrid();
+}
+
+async function openVerifyBatchModal(){
+  document.getElementById('verifybatch-modal-title').textContent = 'New Verification Batch';
+  document.getElementById('vb-id').value = '';
+  document.getElementById('vb-product-name').value = '';
+  document.getElementById('vb-batch-number').value = '';
+  document.getElementById('vb-expiry').value = '';
+  document.getElementById('vb-mrp').value = '';
+  document.getElementById('vb-quantity').value = '';
+  document.getElementById('vb-quantity-wrap').style.display = '';
+  document.getElementById('vb-image-file').value = '';
+  document.getElementById('vb-upload-status').textContent = 'Shown to the customer on successful verification.';
+  document.getElementById('vb-save-btn').textContent = 'Create Batch & Generate Codes';
+  VB_IMAGE = '';
+  renderVbPhotoGrid();
+
+  const products = await getProducts();
+  const uniqueNames = [...new Set(products.map(p=>p.name).filter(Boolean))];
+  document.getElementById('vb-product-list').innerHTML = uniqueNames.map(n=>`<option value="${escapeHtml(n)}">`).join('');
+
+  document.getElementById('verifybatch-modal').classList.add('active');
+}
+
+async function saveVerifyBatch(){
+  const product_name = document.getElementById('vb-product-name').value.trim();
+  const batch_number = document.getElementById('vb-batch-number').value.trim();
+  const expiry_date = document.getElementById('vb-expiry').value || null;
+  const mrp = document.getElementById('vb-mrp').value;
+  const quantity = Number(document.getElementById('vb-quantity').value || 0);
+
+  if(!product_name){ showToast('Product name is required'); return; }
+  if(!batch_number){ showToast('Batch number is required'); return; }
+  if(!quantity || quantity < 1){ showToast('Enter how many codes to generate, e.g. 10'); return; }
+  if(quantity > 5000){ showToast('Max 5000 codes per batch — split into multiple batches for more'); return; }
+
+  const saveBtn = document.getElementById('vb-save-btn');
+  saveBtn.disabled = true; saveBtn.textContent = 'Generating…';
+
+  const { data: batchRow, error: batchError } = await sb.from('verification_batches').insert({
+    product_name,
+    product_image: VB_IMAGE || null,
+    batch_number,
+    expiry_date,
+    mrp: mrp === '' ? null : Number(mrp)
+  }).select().single();
+
+  if(batchError){
+    saveBtn.disabled = false; saveBtn.textContent = 'Create Batch & Generate Codes';
+    showToast('Error: ' + batchError.message);
+    return;
+  }
+
+  const { error: genError } = await sb.rpc('generate_verification_codes', { p_batch_id: batchRow.id, p_quantity: quantity });
+  saveBtn.disabled = false; saveBtn.textContent = 'Create Batch & Generate Codes';
+
+  if(genError){
+    showToast('Batch created, but code generation failed: ' + genError.message);
+    closeModal('verifybatch-modal');
+    renderVerifyCodesPage();
+    return;
+  }
+
+  closeModal('verifybatch-modal');
+  renderVerifyCodesPage();
+  showToast(`${quantity} unique codes generated for ${product_name}`);
+}
+
+async function viewBatchCodes(batchId){
+  const batches = await getVerificationBatches();
+  const batch = batches.find(b=>b.id===batchId);
+  if(!batch) return;
+  VCODES_CURRENT_BATCH = batch;
+
+  document.getElementById('vcodes-modal-title').textContent = batch.product_name;
+  document.getElementById('vcodes-batch-id').value = batch.id;
+  document.getElementById('vcodes-meta-product').textContent = batch.product_name;
+  document.getElementById('vcodes-meta-batch').textContent = batch.batch_number || '—';
+  document.getElementById('vcodes-meta-expiry').textContent = batch.expiry_date ? new Date(batch.expiry_date + 'T00:00:00').toLocaleDateString('en-IN', { day:'2-digit', month:'short', year:'numeric' }) : '—';
+  document.getElementById('vcodes-meta-mrp').textContent = batch.mrp ? '₹' + Number(batch.mrp).toLocaleString('en-IN') : '—';
+  document.getElementById('vcodes-search').value = '';
+  document.getElementById('vcodes-filter').value = 'all';
+
+  const { data, error } = await sb.from('verification_codes').select('code,status,verified_at').eq('batch_id', batchId).order('created_at', { ascending:true });
+  if(error){ showToast('Error loading codes: ' + error.message); return; }
+  VCODES_CURRENT_LIST = data || [];
+
+  document.getElementById('vcodes-modal').classList.add('active');
+  renderVcodesTable();
+}
+
+function renderVcodesTable(){
+  const search = (document.getElementById('vcodes-search').value || '').trim().toUpperCase();
+  const filter = document.getElementById('vcodes-filter').value;
+  let list = VCODES_CURRENT_LIST;
+  if(filter !== 'all') list = list.filter(c => c.status === filter);
+  if(search) list = list.filter(c => c.code.toUpperCase().includes(search));
+
+  const total = VCODES_CURRENT_LIST.length;
+  const verified = VCODES_CURRENT_LIST.filter(c=>c.status==='VERIFIED').length;
+  document.getElementById('vcodes-count-total').textContent = total;
+  document.getElementById('vcodes-count-unused').textContent = total - verified;
+  document.getElementById('vcodes-count-verified').textContent = verified;
+
+  const tbody = document.getElementById('vcodes-tbody');
+  const emptyEl = document.getElementById('vcodes-empty');
+  const shown = list.slice(0, 2000);
+
+  if(shown.length === 0){
+    tbody.innerHTML = '';
+    emptyEl.style.display = '';
+    return;
+  }
+  emptyEl.style.display = 'none';
+
+  tbody.innerHTML = shown.map(c => `
+    <tr>
+      <td class="vcode-mono">${escapeHtml(c.code)}</td>
+      <td><span class="vcode-badge ${c.status==='VERIFIED'?'verified':'unused'}">${c.status==='VERIFIED'?'Verified':'Unused'}</span></td>
+      <td>${c.verified_at ? new Date(c.verified_at).toLocaleString('en-IN', { day:'2-digit', month:'short', year:'numeric', hour:'2-digit', minute:'2-digit' }) : '—'}</td>
+    </tr>
+  `).join('') + (list.length > 2000 ? `<tr><td colspan="3" style="text-align:center;color:var(--paper-dim);">Showing first 2000 of ${list.length} — use search to narrow down</td></tr>` : '');
+}
+
+async function promptGenerateMoreCodes(){
+  if(!VCODES_CURRENT_BATCH) return;
+  const qtyStr = prompt('How many more unique codes should be generated for this batch?', '10');
+  if(qtyStr === null) return;
+  const quantity = Number(qtyStr);
+  if(!quantity || quantity < 1 || quantity > 5000){ showToast('Enter a quantity between 1 and 5000'); return; }
+
+  const { error } = await sb.rpc('generate_verification_codes', { p_batch_id: VCODES_CURRENT_BATCH.id, p_quantity: quantity });
+  if(error){ showToast('Error: ' + error.message); return; }
+
+  showToast(`${quantity} more codes generated`);
+  await viewBatchCodes(VCODES_CURRENT_BATCH.id);
+  renderVerifyCodesPage();
+}
+
+function copyUnusedCodes(){
+  const unused = VCODES_CURRENT_LIST.filter(c=>c.status==='UNUSED').map(c=>c.code);
+  if(unused.length === 0){ showToast('No unused codes to copy'); return; }
+  navigator.clipboard.writeText(unused.join('\n')).then(()=>{
+    showToast(`${unused.length} unused codes copied`);
+  }).catch(()=>{
+    showToast('Could not copy — your browser may be blocking clipboard access');
+  });
+}
+
+function downloadCodesCsv(){
+  if(!VCODES_CURRENT_BATCH || VCODES_CURRENT_LIST.length === 0){ showToast('No codes to download'); return; }
+  const rows = [['Code','Status','Verified At','Product','Batch Number','Expiry','MRP']];
+  VCODES_CURRENT_LIST.forEach(c => rows.push([
+    c.code,
+    c.status,
+    c.verified_at ? new Date(c.verified_at).toISOString() : '',
+    VCODES_CURRENT_BATCH.product_name,
+    VCODES_CURRENT_BATCH.batch_number || '',
+    VCODES_CURRENT_BATCH.expiry_date || '',
+    VCODES_CURRENT_BATCH.mrp || ''
+  ]));
+  const csv = rows.map(r => r.map(v => `"${String(v).replace(/"/g,'""')}"`).join(',')).join('\n');
+  const blob = new Blob([csv], { type:'text/csv' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `${(VCODES_CURRENT_BATCH.batch_number||'batch').replace(/[^a-z0-9]+/gi,'-')}-verification-codes.csv`;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+}
+
+async function deleteVerifyBatch(batchId){
+  if(!confirm('Delete this entire batch? This permanently removes ALL its codes — including verified/used ones — and cannot be undone. Type OK to confirm.')) return;
+  if(!confirm('Are you absolutely sure? This deletes verification history for this batch permanently.')) return;
+  const { error } = await sb.from('verification_batches').delete().eq('id', batchId);
+  if(error){ showToast('Error: ' + error.message); return; }
+  renderVerifyCodesPage();
+  showToast('Batch and its codes deleted');
 }
 
 /* ---------- order CRUD ---------- */
