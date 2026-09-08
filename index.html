@@ -104,15 +104,18 @@
     100%{transform:translate3d(520%,0,0) skewX(-12deg);}
   }
   .topbar-track{
-    display:inline-flex;
+    display:inline-block;
+    white-space:nowrap;
     width:max-content;
     position:relative;
     z-index:2;
     animation:topbar-scroll 70s linear infinite;
     will-change:transform;
     backface-visibility:hidden;
+    -webkit-backface-visibility:hidden;
   }
   .topbar-track span{
+    display:inline-block;
     padding:0 44px;
     white-space:nowrap;
     position:relative;
@@ -5353,17 +5356,25 @@ function renderFitnessLifestyleSlider(all){
 
 /* ---- SEASON'S BESTSELLERS — one gold shimmering label + auto-scrolling row per category, stacked ---- */
 const BEST_SELLER_CATEGORIES = [
-  'Creatine', 'Whey Protein', 'Mass Gainer', 'Pre-Workout', 'Health Supplements', 'Gym Accessories'
+  'Health Supplements', 'Whey Protein', 'Mass Gainer', 'Creatine', 'Pre-Workout',
+  'Gym Accessories', 'Multivitamin', 'Other'
 ];
 const BEST_BATCH_SIZE = 10;
 const BEST_SHOWN_COUNTS = {}; // category -> how many products currently loaded into its row
 function catSlug(category){ return String(category).toLowerCase().replace(/[^a-z0-9]+/g,'-'); }
+// Case/whitespace-tolerant match — older products entered before the
+// category dropdown existed can have stray casing or spacing, and a
+// strict "===" match would silently drop them from the count (which is
+// why a category could look like it has fewer products than it really does).
+function categoryMatches(productCategory, category){
+  return String(productCategory||'').trim().toLowerCase() === String(category||'').trim().toLowerCase();
+}
 
 function initBestSellersSection(all){
   const section = document.getElementById('bestsellers-tabs-section');
   const wrap = document.getElementById('best-cats-wrap');
   if(!section || !wrap) return;
-  const cats = BEST_SELLER_CATEGORIES.filter(c => (all||[]).some(p => (p.category||'') === c));
+  const cats = BEST_SELLER_CATEGORIES.filter(c => (all||[]).some(p => categoryMatches(p.category, c)));
   if(cats.length === 0){
     section.style.display = 'none';
     return;
@@ -5396,7 +5407,7 @@ function renderBestCategoryTrack(category){
   const viewport = document.getElementById('best-viewport-'+slug);
   const track = document.getElementById('best-track-'+slug);
   if(!track || !viewport) return;
-  const allInCat = (PRODUCTS || []).filter(p => (p.category||'') === category);
+  const allInCat = (PRODUCTS || []).filter(p => categoryMatches(p.category, category));
   const shown = Math.min(BEST_SHOWN_COUNTS[category] || BEST_BATCH_SIZE, allInCat.length);
   const items = allInCat.slice(0, shown);
   const hasMore = shown < allInCat.length;
