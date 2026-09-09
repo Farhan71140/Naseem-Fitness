@@ -144,20 +144,20 @@ Guidelines:
     #nf-chat-toggle:active { cursor: grabbing; }
     #nf-chat-toggle:hover { transform: scale(1.06); animation-play-state: paused; }
 
-    /* ---- speech-bubble "Chat with AI" tag ---- */
+    /* ---- speech-bubble "Chat with AI" tag — ultra-premium gold ---- */
     #nf-chat-toggle .toggle-bubble-tag {
       display: flex;
       align-items: center;
       gap: 7px;
-      background: linear-gradient(160deg, #1B1610, #2B2113 60%, #17130D);
-      border: 1.4px solid rgba(255,210,74,0.75);
+      background: linear-gradient(160deg, #FFE9A8 0%, #FFD24A 45%, #E8A917 100%);
+      border: 1.4px solid #7A5A0A;
       border-radius: 30px;
       padding: 8px 16px 8px 12px;
       white-space: nowrap;
       position: relative;
       z-index: 2;
       margin-bottom: 11px;
-      box-shadow: 0 6px 20px rgba(0,0,0,0.55), 0 0 20px rgba(255,210,74,0.35), 0 0 0 1px rgba(255,210,74,0.08) inset;
+      box-shadow: 0 6px 20px rgba(0,0,0,0.35), 0 0 22px rgba(255,210,74,0.55), 0 1px 0 rgba(255,255,255,0.6) inset;
       overflow: hidden;
       isolation: isolate;
       animation: nfGlowBreathe 3.4s ease-in-out infinite;
@@ -168,7 +168,7 @@ Guidelines:
       position: absolute;
       top: -50%; left: -60%;
       width: 40%; height: 200%;
-      background: linear-gradient(115deg, transparent, rgba(255,242,181,0.6), transparent);
+      background: linear-gradient(115deg, transparent, rgba(255,255,255,0.85), transparent);
       transform: rotate(8deg);
       animation: nfShimmerSweep 3.2s ease-in-out infinite;
       pointer-events: none;
@@ -179,21 +179,18 @@ Guidelines:
       position: absolute;
       bottom: -6px; left: 50%;
       width: 12px; height: 12px;
-      background: #1B1610;
-      border-right: 1.4px solid rgba(255,210,74,0.75);
-      border-bottom: 1.4px solid rgba(255,210,74,0.75);
+      background: #FFD24A;
+      border-right: 1.4px solid #7A5A0A;
+      border-bottom: 1.4px solid #7A5A0A;
       transform: translateX(-50%) rotate(45deg);
     }
-    #nf-chat-toggle .tbt-icon { flex-shrink: 0; display: block; filter: drop-shadow(0 0 5px rgba(255,210,74,0.6)); }
+    #nf-chat-toggle .tbt-icon { flex-shrink: 0; display: block; filter: drop-shadow(0 1px 1px rgba(255,255,255,0.4)); }
     #nf-chat-toggle .tbt-text {
       font-family: 'Anton', sans-serif;
       font-size: 14.5px;
       letter-spacing: 0.3px;
-      background: linear-gradient(180deg, #FFF6D9, #FFD24A);
-      -webkit-background-clip: text;
-      background-clip: text;
-      color: transparent;
-      text-shadow: 0 0 14px rgba(255,210,74,0.4);
+      color: #0A0806;
+      text-shadow: 0 1px 0 rgba(255,255,255,0.35);
     }
 
     @keyframes nfShimmerSweep {
@@ -560,8 +557,8 @@ Guidelines:
           <circle cx="17" cy="8.5" r="1.35" fill="url(#nfBubbleGrad)"/>
           <defs>
             <linearGradient id="nfBubbleGrad" x1="0" y1="0" x2="24" y2="20" gradientUnits="userSpaceOnUse">
-              <stop stop-color="#FFF6D9"/>
-              <stop offset="1" stop-color="#FFD24A"/>
+              <stop stop-color="#2A1E08"/>
+              <stop offset="1" stop-color="#0A0806"/>
             </linearGradient>
           </defs>
         </svg>
