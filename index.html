@@ -3006,7 +3006,7 @@
   .brand-strip-head{text-align:center;margin-bottom:6px;}
   .brand-strip-label{
     display:inline-flex;align-items:center;gap:8px;
-    font-family:'Space Mono',monospace;font-size:9px;letter-spacing:2.5px;text-transform:uppercase;color:var(--paper-dim);
+    font-family:'Space Mono',monospace;font-size:9px;letter-spacing:2.5px;text-transform:uppercase;color:#000000;
   }
   .brand-strip-label::before, .brand-strip-label::after{content:'';width:14px;height:1px;background:var(--line-strong);}
   .brand-strip-track-wrap{
@@ -9365,6 +9365,13 @@ initApp();
     badgeImg.alt = 'Install The App - Elevate Your Experience';
   }
   function setOpenAppState(){
+    // If assets/app-installed.png hasn't been created/uploaded yet, don't let
+    // the tile vanish (the onerror fallback on this img would hide it) —
+    // just keep showing the normal app icon instead of disappearing.
+    badgeImg.onerror = function(){
+      badgeImg.onerror = null;
+      badgeImg.src = IMG_INSTALL;
+    };
     badgeImg.src = IMG_INSTALLED;
     badgeImg.alt = 'App Installed - Tap To Launch';
   }
