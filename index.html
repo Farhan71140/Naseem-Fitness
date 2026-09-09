@@ -852,10 +852,28 @@
     color:var(--paper-dim);padding:14px;
   }
   .cat-label{
+    position:relative;overflow:hidden;isolation:isolate;
     display:flex;align-items:center;gap:10px;padding:16px 18px;
     font-family:'Anton',sans-serif;font-size:18px;text-transform:uppercase;letter-spacing:0.4px;
+    background:linear-gradient(160deg, #1B1610, #2B2113 60%, #17130D);
   }
-  .cat-label .cat-icon{font-size:20px;line-height:1;flex:none;}
+  .cat-label::before{
+    /* shimmer sweep across the label */
+    content:'';position:absolute;top:-50%;left:-60%;width:40%;height:200%;
+    background:linear-gradient(115deg, transparent, rgba(255,242,181,0.55), transparent);
+    transform:rotate(8deg);animation:catLabelShimmer 3.4s ease-in-out infinite;pointer-events:none;
+  }
+  .cat-label .cat-icon{font-size:20px;line-height:1;flex:none;filter:drop-shadow(0 0 5px rgba(255,210,74,0.6));}
+  .cat-label .cat-name-text{
+    background:linear-gradient(180deg, #FFF6D9, #FFD24A);
+    -webkit-background-clip:text;background-clip:text;color:transparent;
+    text-shadow:0 0 14px rgba(255,210,74,0.35);
+  }
+  @keyframes catLabelShimmer{
+    0%   { left:-60%; }
+    50%  { left:120%; }
+    100% { left:120%; }
+  }
   @media (max-width:480px){
     .cat-label{padding:10px 10px;gap:6px;font-size:12.5px;letter-spacing:0.2px;}
     .cat-label .cat-icon{font-size:14px;}
@@ -886,7 +904,7 @@
     background:rgba(10,8,6,0.82);backdrop-filter:blur(4px);border:1px solid var(--teal);color:var(--teal);
     font-family:'Space Mono',monospace;font-size:11px;font-weight:800;padding:5px 11px;border-radius:20px;
   }
-  .combo-cat-label{background:linear-gradient(90deg, rgba(255,210,74,0.08), transparent);}
+  .combo-cat-label{background:linear-gradient(90deg, rgba(255,210,74,0.14), transparent), linear-gradient(160deg, #1B1610, #2B2113 60%, #17130D);}
   .combo-cat-label .cat-icon{filter:drop-shadow(0 0 6px rgba(255,210,74,0.5));}
   @media (max-width:480px){
     .combo-cat-ribbon{top:8px;left:8px;font-size:8px;padding:4px 8px;}
@@ -3326,7 +3344,7 @@
               onerror="this.style.display='none';this.nextElementSibling.style.display='flex';">
             <div class="cat-img-fallback" style="display:none;">WHEY PROTEIN<br>PHOTO GOES HERE</div>
           </div>
-          <div class="cat-label"><span class="cat-icon">🥛</span> Whey Protein</div>
+          <div class="cat-label"><span class="cat-icon">🥛</span> <span class="cat-name-text">Whey Protein</span></div>
         </a>
         <a href="#products" class="cat-card-img" onclick="filterByCategory('Mass Gainer');return false;">
           <div class="cat-img-wrap">
@@ -3334,7 +3352,7 @@
               onerror="this.style.display='none';this.nextElementSibling.style.display='flex';">
             <div class="cat-img-fallback" style="display:none;">MASS GAINER<br>PHOTO GOES HERE</div>
           </div>
-          <div class="cat-label"><span class="cat-icon">🍫</span> Mass Gainer</div>
+          <div class="cat-label"><span class="cat-icon">🍫</span> <span class="cat-name-text">Mass Gainer</span></div>
         </a>
         <a href="#products" class="cat-card-img" onclick="filterByCategory('Creatine');return false;">
           <div class="cat-img-wrap">
@@ -3342,7 +3360,7 @@
               onerror="this.style.display='none';this.nextElementSibling.style.display='flex';">
             <div class="cat-img-fallback" style="display:none;">CREATINE<br>PHOTO GOES HERE</div>
           </div>
-          <div class="cat-label"><span class="cat-icon">💪</span> Creatine</div>
+          <div class="cat-label"><span class="cat-icon">💪</span> <span class="cat-name-text">Creatine</span></div>
         </a>
         <a href="#products" class="cat-card-img" onclick="filterByCategory('Pre-Workout');return false;">
           <div class="cat-img-wrap">
@@ -3350,7 +3368,7 @@
               onerror="this.style.display='none';this.nextElementSibling.style.display='flex';">
             <div class="cat-img-fallback" style="display:none;">PRE-WORKOUT<br>PHOTO GOES HERE</div>
           </div>
-          <div class="cat-label"><span class="cat-icon">⚡</span> Pre-Workout</div>
+          <div class="cat-label"><span class="cat-icon">⚡</span> <span class="cat-name-text">Pre-Workout</span></div>
         </a>
         <a href="#combos" class="cat-card-img combo-cat-card" id="combo-cat-tile" style="display:none;" onclick="showCombosSection();return false;">
           <div class="cat-img-wrap">
@@ -3363,7 +3381,7 @@
             <span class="combo-cat-ribbon">Bundle &amp; Save</span>
             <span class="combo-cat-save" id="combo-cat-save" style="display:none;"></span>
           </div>
-          <div class="cat-label combo-cat-label"><span class="cat-icon">🎁</span> Combo Offers</div>
+          <div class="cat-label combo-cat-label"><span class="cat-icon">🎁</span> <span class="cat-name-text">Combo Offers</span></div>
         </a>
         <a href="#products" class="cat-card-img" onclick="filterByCategory('Health Supplements');return false;">
           <div class="cat-img-wrap">
@@ -3371,7 +3389,7 @@
               onerror="this.style.display='none';this.nextElementSibling.style.display='flex';">
             <div class="cat-img-fallback" style="display:none;">HEALTH SUPPLEMENTS<br>PHOTO GOES HERE</div>
           </div>
-          <div class="cat-label"><span class="cat-icon">🛡️</span> Health Supplements</div>
+          <div class="cat-label"><span class="cat-icon">🛡️</span> <span class="cat-name-text">Health Supplements</span></div>
         </a>
         <a href="#products" class="cat-card-img" onclick="filterByCategory('Gym Accessories');return false;">
           <div class="cat-img-wrap">
@@ -3379,7 +3397,7 @@
               onerror="this.style.display='none';this.nextElementSibling.style.display='flex';">
             <div class="cat-img-fallback" style="display:none;">GYM ACCESSORIES<br>PHOTO GOES HERE</div>
           </div>
-          <div class="cat-label"><span class="cat-icon">🏋️</span> Gym Accessories</div>
+          <div class="cat-label"><span class="cat-icon">🏋️</span> <span class="cat-name-text">Gym Accessories</span></div>
         </a>
         <a href="#fitness-lifestyle" class="cat-card-img" onclick="openFitnessLifestylePage();return false;">
           <div class="cat-img-wrap">
@@ -3387,7 +3405,7 @@
               onerror="this.style.display='none';this.nextElementSibling.style.display='flex';">
             <div class="cat-img-fallback" style="display:none;">FITNESS LIFESTYLE<br>PHOTO GOES HERE</div>
           </div>
-          <div class="cat-label"><span class="cat-icon">🕶️</span> Fitness Lifestyle</div>
+          <div class="cat-label"><span class="cat-icon">🕶️</span> <span class="cat-name-text">Fitness Lifestyle</span></div>
         </a>
       </div>
       <div id="active-category-bar" style="display:none;align-items:center;gap:12px;margin-top:20px;">
