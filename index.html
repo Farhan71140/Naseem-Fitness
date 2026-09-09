@@ -983,22 +983,35 @@
   .best-cat-block{margin-bottom:44px;}
   .best-cat-block:last-child{margin-bottom:0;}
   .best-cat-label{
-    position:relative;overflow:hidden;display:inline-block;
+    position:relative;overflow:hidden;display:inline-block;isolation:isolate;
     padding:12px 30px;border-radius:8px;margin-bottom:18px;
-    background:linear-gradient(135deg,#B8860B 0%,#FFD24A 35%,#FFF2B5 55%,#E8A93A 75%,#B8860B 100%);
-    background-size:220% 220%;
-    box-shadow:0 4px 16px rgba(255,210,74,0.35);
-    animation:addBtnDrift 3.6s ease-in-out infinite, addBtnGlow 2.4s ease-in-out infinite;
+    background:linear-gradient(160deg, #1B1610, #2B2113 60%, #17130D);
+    border:1.4px solid rgba(255,210,74,0.75);
+    box-shadow:0 6px 20px rgba(0,0,0,0.55), 0 0 20px rgba(255,210,74,0.35), 0 0 0 1px rgba(255,210,74,0.08) inset;
+    animation:bclGlowBreathe 3.4s ease-in-out infinite;
   }
   .best-cat-label::before{
-    content:'';position:absolute;top:0;left:-65%;width:35%;height:100%;
-    background:linear-gradient(115deg, transparent, rgba(255,255,255,0.85), transparent);
-    transform:skewX(-18deg);
-    animation:addBtnShine 2.8s ease-in-out infinite;
+    content:'';position:absolute;top:-50%;left:-60%;width:40%;height:200%;
+    background:linear-gradient(115deg, transparent, rgba(255,242,181,0.6), transparent);
+    transform:rotate(8deg);
+    animation:bclShimmerSweep 3.2s ease-in-out infinite;
+    pointer-events:none;
   }
   .best-cat-label span{
-    position:relative;z-index:1;color:#2A1D00;font-family:'Anton',sans-serif;
+    position:relative;z-index:1;font-family:'Anton',sans-serif;
     font-size:16px;letter-spacing:1px;text-transform:uppercase;
+    background:linear-gradient(180deg, #FFF6D9, #FFD24A);
+    -webkit-background-clip:text;background-clip:text;color:transparent;
+    text-shadow:0 0 14px rgba(255,210,74,0.4);
+  }
+  @keyframes bclShimmerSweep{
+    0%   { left:-60%; }
+    55%  { left:130%; }
+    100% { left:130%; }
+  }
+  @keyframes bclGlowBreathe{
+    0%,100% { box-shadow:0 6px 20px rgba(0,0,0,0.55), 0 0 20px rgba(255,210,74,0.30), 0 0 0 1px rgba(255,210,74,0.08) inset; }
+    50%      { box-shadow:0 6px 26px rgba(0,0,0,0.6), 0 0 30px rgba(255,210,74,0.55), 0 0 0 1px rgba(255,210,74,0.14) inset; }
   }
   .best-viewall-card{
     display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;
