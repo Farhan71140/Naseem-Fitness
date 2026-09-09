@@ -3246,28 +3246,25 @@
           </video>
         </div>
         <div class="hero-mini-trust">
-          <div class="mini-item mini-item-clickable" role="button" tabindex="0"
+          <div class="mini-item mini-item-image mini-item-clickable" role="button" tabindex="0"
             onclick="openTrustModal('original')"
             onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();openTrustModal('original');}">
-            <div class="mini-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M12 2l8 4v6c0 5-3.5 8.5-8 10-4.5-1.5-8-5-8-10V6l8-4z"/></svg></div>
-            <span>100% Original<br>Supplements</span>
+            <img src="assets/badge-original.png" alt="100% Original Supplements" class="mini-badge-img">
           </div>
-          <div class="mini-item mini-item-clickable" role="button" tabindex="0" id="pwa-install-badge"
+          <div class="mini-item mini-item-image mini-item-clickable" role="button" tabindex="0" id="pwa-install-badge"
             onclick="handlePwaInstallClick()"
             onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();handlePwaInstallClick();}">
-            <div class="mini-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M12 3v12"/><path d="m7 10 5 5 5-5"/><rect x="4" y="17" width="16" height="4" rx="1"/></svg></div>
-            <span id="pwa-install-badge-label">Get The App<br>Premium Experience</span>
+            <img src="assets/badge-install.png" alt="Get The App - Premium Experience" class="mini-badge-img" id="pwa-install-badge-img">
           </div>
           <div class="mini-item mini-item-image mini-item-clickable" role="button" tabindex="0"
             onclick="openTrustModal('delivery')"
             onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();openTrustModal('delivery');}">
             <img src="assets/badge-fast-delivery.png" alt="Fast &amp; Safe Delivery" class="mini-badge-img">
           </div>
-          <div class="mini-item mini-item-clickable" role="button" tabindex="0"
+          <div class="mini-item mini-item-image mini-item-clickable" role="button" tabindex="0"
             onclick="openTrustModal('fssai')"
             onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();openTrustModal('fssai');}">
-            <div class="mini-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M9 12l2 2 4-4"/><circle cx="12" cy="12" r="10"/></svg></div>
-            <span>FSSAI Licensed<br>Store</span>
+            <img src="assets/badge-fssai.png" alt="FSSAI Licensed Store" class="mini-badge-img">
           </div>
         </div>
       </div>
@@ -3288,7 +3285,7 @@
         </div>
         <!-- Title BELOW the banner image -->
         <div id="promo-banner-title-overlay" style="display:none;margin-top:14px;text-align:center;font-family:'Anton',sans-serif;font-size:clamp(15px,2.4vw,22px);letter-spacing:0.5px;text-transform:uppercase;">
-          <span style="background:linear-gradient(90deg,#FFD24A,#FFF2B5,#FFD24A);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;background-size:200%;animation:goldText 2s linear infinite;"></span>
+          <span style="color:#000000;"></span>
         </div>
       </a>
     </div>
@@ -9341,12 +9338,11 @@ initApp();
 (function(){
   var badge = document.getElementById('pwa-install-badge');
   if(!badge) return;
-  var iconWrap = badge.querySelector('.mini-icon');
-  var label = document.getElementById('pwa-install-badge-label');
+  var badgeImg = document.getElementById('pwa-install-badge-img');
   var deferredPrompt = null;
 
-  var ICON_DOWNLOAD = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M12 3v12"/><path d="m7 10 5 5 5-5"/><rect x="4" y="17" width="16" height="4" rx="1"/></svg>';
-  var ICON_INSTALLED = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="3" y="3" width="18" height="18" rx="5"/><path d="m8 12 2.5 2.5L16 9"/></svg>';
+  var IMG_INSTALL = 'assets/badge-install.png';
+  var IMG_INSTALLED = 'assets/badge-installed.png';
 
   function isStandalone(){
     return window.matchMedia('(display-mode: standalone)').matches ||
@@ -9357,12 +9353,12 @@ initApp();
   }
 
   function setInstallState(){
-    iconWrap.innerHTML = ICON_DOWNLOAD;
-    label.innerHTML = 'Install The App<br>Elevate Your Experience';
+    badgeImg.src = IMG_INSTALL;
+    badgeImg.alt = 'Install The App - Elevate Your Experience';
   }
   function setOpenAppState(){
-    iconWrap.innerHTML = ICON_INSTALLED;
-    label.innerHTML = 'App Installed<br>Tap To Launch';
+    badgeImg.src = IMG_INSTALLED;
+    badgeImg.alt = 'App Installed - Tap To Launch';
   }
 
   setInstallState();
