@@ -455,11 +455,11 @@ Guidelines:
       padding: 12px 14px;
       border-top: 1px solid var(--line, rgba(255,210,74,0.18));
       display: flex; gap: 8px;
-      background: var(--ink-black, #0A0806);
+      background: var(--steel, #17130D);
     }
     #nf-chat-input {
       flex: 1;
-      background: rgba(255,255,255,0.05);
+      background: var(--iron, #241D13);
       border: 1px solid var(--line, rgba(255,210,74,0.18));
       border-radius: 24px;
       padding: 9px 16px;
