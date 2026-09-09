@@ -17,23 +17,24 @@
 <style>
   :root{
     --ink-black:#0A0806;
-    --steel:#17130D;
-    --iron:#241D13;
-    --iron-light:#3A2E1A;
-    --paper:#F5EEDD;
-    --paper-dim:#B8AD95;
-    --teal:#FFD24A;
-    --teal-dim:#4A3A0E;
-    --gold-light:#FFF2B5;
-    --good:#5CD68A;
-    --warn:#FFB84D;
-    --bad:#FF6B6B;
-    --line: rgba(255,210,74,0.18);
-    --line-strong: rgba(255,210,74,0.32);
+    --steel:#FAF5E8;
+    --iron:#F1E8D0;
+    --iron-light:#E6D8AD;
+    --paper:#171209;
+    --paper-dim:#6E644C;
+    --teal:#B8860B;
+    --teal-dim:#F6EACB;
+    --gold-light:#E9C868;
+    --good:#1F9D55;
+    --warn:#B9740C;
+    --bad:#D93025;
+    --line: rgba(23,19,12,0.14);
+    --line-strong: rgba(23,19,12,0.28);
+    --bone:#FFFFFF;
   }
   *{box-sizing:border-box;margin:0;padding:0;}
   body{
-    background:var(--ink-black);color:var(--paper);
+    background:var(--bone);color:var(--paper);
     font-family:'Inter',sans-serif;line-height:1.5;
     -webkit-font-smoothing:antialiased;
   }
@@ -52,7 +53,7 @@
 
   /* ===== HEADER ===== */
   header{
-    position:sticky;top:0;z-index:50;background:rgba(10,8,6,0.94);backdrop-filter:blur(10px);
+    position:sticky;top:0;z-index:50;background:rgba(255,255,255,0.88);backdrop-filter:blur(10px);
     border-bottom:1px solid var(--line);
   }
   nav.wrap{display:flex;align-items:center;justify-content:space-between;gap:24px;padding:16px 32px;}
@@ -79,7 +80,7 @@
   .hamburger-btn{display:none;flex-direction:column;gap:5px;width:24px;cursor:pointer;flex:none;}
   .hamburger-btn span{display:block;height:2px;width:100%;background:var(--paper);border-radius:2px;}
   .nav-toggle-input{display:none;}
-  .mobile-menu{display:none;flex-direction:column;gap:4px;padding:10px 32px 24px;border-top:1px solid var(--line);background:var(--ink-black);}
+  .mobile-menu{display:none;flex-direction:column;gap:4px;padding:10px 32px 24px;border-top:1px solid var(--line);background:var(--bone);}
   .mobile-menu a{padding:12px 0;font-size:15px;font-weight:600;border-bottom:1px solid var(--line);}
   .nav-toggle-input:checked ~ .mobile-menu{display:flex;}
   @media (max-width:860px){
@@ -128,7 +129,7 @@
   .field label{display:block;font-family:'Space Mono',monospace;font-size:11px;letter-spacing:1.5px;text-transform:uppercase;color:var(--paper-dim);margin-bottom:8px;}
   .field .opt{color:var(--paper-dim);font-weight:400;text-transform:none;letter-spacing:0;font-family:'Inter',sans-serif;font-size:12px;}
   .field input, .field textarea{
-    width:100%;background:var(--ink-black);border:1px solid var(--line);color:var(--paper);
+    width:100%;background:var(--bone);border:1px solid var(--line);color:var(--paper);
     border-radius:8px;padding:13px 14px;font-size:14.5px;font-family:'Inter',sans-serif;
   }
   .field input:focus, .field textarea:focus{outline:none;border-color:var(--teal);}
@@ -140,17 +141,17 @@
   @media (max-width:560px){ .cat-grid{grid-template-columns:repeat(2,1fr);} }
   .cat-pill{
     display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;
-    padding:14px 8px;border-radius:10px;border:1px solid var(--line);background:var(--ink-black);
+    padding:14px 8px;border-radius:10px;border:1px solid var(--line);background:var(--bone);
     color:var(--paper-dim);cursor:pointer;font-size:12.5px;font-weight:600;text-align:center;
     transition:border-color .2s, color .2s, background .2s;
   }
   .cat-pill svg{width:19px;height:19px;}
   .cat-pill:hover{border-color:var(--line-strong);}
-  .cat-pill.active{border-color:var(--teal);color:var(--teal);background:rgba(255,210,74,0.08);}
+  .cat-pill.active{border-color:var(--teal);color:var(--teal);background:rgba(184,134,11,0.08);}
 
   .upload-zone{
     border:1.5px dashed var(--line);border-radius:10px;padding:22px;text-align:center;cursor:pointer;
-    transition:border-color .2s, background .2s;background:var(--ink-black);
+    transition:border-color .2s, background .2s;background:var(--bone);
   }
   .upload-zone:hover{border-color:var(--teal);}
   .upload-zone svg{width:26px;height:26px;color:var(--paper-dim);margin-bottom:8px;}
@@ -160,12 +161,12 @@
   .upload-preview img{max-height:140px;border-radius:8px;border:1px solid var(--line);display:block;}
   .upload-preview .rm-img{
     position:absolute;top:-8px;right:-8px;width:24px;height:24px;border-radius:50%;
-    background:var(--bad);color:#fff;border:2px solid var(--ink-black);cursor:pointer;font-size:13px;
+    background:var(--bad);color:#fff;border:2px solid var(--bone);cursor:pointer;font-size:13px;
     display:flex;align-items:center;justify-content:center;line-height:1;
   }
   .upload-status{font-size:12px;color:var(--paper-dim);margin-top:8px;font-family:'Space Mono',monospace;}
 
-  .form-error{display:none;color:#FF8A8A;font-size:13px;margin:4px 0 16px;line-height:1.6;padding:12px 14px;background:rgba(255,107,107,0.08);border:1px solid rgba(255,107,107,0.25);border-radius:8px;}
+  .form-error{display:none;color:#B3261E;font-size:13px;margin:4px 0 16px;line-height:1.6;padding:12px 14px;background:rgba(217,48,37,0.07);border:1px solid rgba(217,48,37,0.25);border-radius:8px;}
   .form-error.show{display:block;}
   .submit-btn{width:100%;justify-content:center;padding:15px;font-size:15px;margin-top:6px;}
 
@@ -177,7 +178,7 @@
   .success-view h3{font-family:'Inter',sans-serif;font-weight:800;text-transform:none;letter-spacing:0;font-size:19px;margin-bottom:8px;}
   .success-view p{color:var(--paper-dim);font-size:14px;max-width:420px;margin:0 auto 22px;line-height:1.7;}
   .ticket-box{
-    display:inline-flex;align-items:center;gap:14px;background:var(--ink-black);border:1px dashed var(--line-strong);
+    display:inline-flex;align-items:center;gap:14px;background:var(--steel);border:1px dashed var(--line-strong);
     border-radius:12px;padding:18px 26px;margin-bottom:26px;
   }
   .ticket-box .tk-label{font-family:'Space Mono',monospace;font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--paper-dim);display:block;margin-bottom:4px;}
@@ -272,8 +273,8 @@
   <nav class="wrap">
     <a class="brand" href="index.html">
       <svg class="nf-mark" viewBox="0 0 48 48" fill="none">
-        <rect x="1" y="1" width="46" height="46" rx="10" stroke="#FFD24A" stroke-width="1.5"/>
-        <text x="24" y="31" text-anchor="middle" font-family="Anton" font-size="20" fill="#FFD24A">NF</text>
+        <rect x="1" y="1" width="46" height="46" rx="10" stroke="#B8860B" stroke-width="1.5"/>
+        <text x="24" y="31" text-anchor="middle" font-family="Anton" font-size="20" fill="#B8860B">NF</text>
       </svg>
       <div>
         <div class="brand-name">Naseem <span>Fitness</span></div>
