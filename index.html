@@ -5405,7 +5405,12 @@ function catSlug(category){ return String(category).toLowerCase().replace(/[^a-z
 // strict "===" match would silently drop them from the count (which is
 // why a category could look like it has fewer products than it really does).
 function categoryMatches(productCategory, category){
-  return String(productCategory||'').trim().toLowerCase() === String(category||'').trim().toLowerCase();
+  // Collapse any run of whitespace (regular or non-breaking) down to a single
+  // space too — trim() alone only strips the ends, so "Whey  Protein" or a
+  // stray tab/nbsp in the middle of the string would otherwise still fail
+  // to match "Whey Protein" and quietly get left out of the category count.
+  const norm = s => String(s||'').replace(/\s+/g,' ').trim().toLowerCase();
+  return norm(productCategory) === norm(category);
 }
 
 function initBestSellersSection(all){
@@ -5413,6 +5418,18 @@ function initBestSellersSection(all){
   const wrap = document.getElementById('best-cats-wrap');
   if(!section || !wrap) return;
   const cats = BEST_SELLER_CATEGORIES.filter(c => (all||[]).some(p => categoryMatches(p.category, c)));
+  // Diagnostic only (does not affect the storefront): flag any product whose
+  // category doesn't cleanly match one of the known bestseller categories.
+  // If a category looks like it has "missing" products (e.g. Whey Protein
+  // not crossing the View More threshold even though you've added 10+),
+  // check this list in the browser console — it's almost always a stray
+  // category value on an older product (typo, extra space, different
+  // wording) that was entered before the category field was a dropdown.
+  const unmatched = (all||[]).filter(p => !BEST_SELLER_CATEGORIES.some(c => categoryMatches(p.category, c)) && String(p.category||'').toLowerCase() !== 'fitness lifestyle');
+  if(unmatched.length){
+    console.warn(`[NF] ${unmatched.length} product(s) have a category that doesn't match any bestseller category exactly — they won't count toward that category's "View More" threshold:`,
+      unmatched.map(p => ({ name: p.name, category: p.category })));
+  }
   if(cats.length === 0){
     section.style.display = 'none';
     return;
