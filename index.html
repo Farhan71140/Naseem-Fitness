@@ -3251,22 +3251,26 @@
           <div class="mini-item mini-item-image mini-item-clickable" role="button" tabindex="0"
             onclick="openTrustModal('original')"
             onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();openTrustModal('original');}">
-            <img src="assets/badge-original.png" alt="100% Original Supplements" class="mini-badge-img">
+            <img src="assets/seal-original.png" alt="100% Original Supplements" class="mini-badge-img"
+              onerror="this.parentElement.style.display='none'">
           </div>
           <div class="mini-item mini-item-image mini-item-clickable" role="button" tabindex="0" id="pwa-install-badge"
             onclick="handlePwaInstallClick()"
             onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();handlePwaInstallClick();}">
-            <img src="assets/badge-install.png" alt="Get The App - Premium Experience" class="mini-badge-img" id="pwa-install-badge-img">
+            <img src="assets/app-getapp.png" alt="Get The App - Premium Experience" class="mini-badge-img" id="pwa-install-badge-img"
+              onerror="this.parentElement.style.display='none'">
           </div>
           <div class="mini-item mini-item-image mini-item-clickable" role="button" tabindex="0"
             onclick="openTrustModal('delivery')"
             onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();openTrustModal('delivery');}">
-            <img src="assets/badge-fast-delivery.png" alt="Fast &amp; Safe Delivery" class="mini-badge-img">
+            <img src="assets/seal-delivery.png" alt="Fast &amp; Safe Delivery" class="mini-badge-img"
+              onerror="this.parentElement.style.display='none'">
           </div>
           <div class="mini-item mini-item-image mini-item-clickable" role="button" tabindex="0"
             onclick="openTrustModal('fssai')"
             onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();openTrustModal('fssai');}">
-            <img src="assets/badge-fssai.png" alt="FSSAI Licensed Store" class="mini-badge-img">
+            <img src="assets/seal-fssai.png" alt="FSSAI Licensed Store" class="mini-badge-img"
+              onerror="this.parentElement.style.display='none'">
           </div>
         </div>
       </div>
@@ -9343,8 +9347,8 @@ initApp();
   var badgeImg = document.getElementById('pwa-install-badge-img');
   var deferredPrompt = null;
 
-  var IMG_INSTALL = 'assets/badge-install.png';
-  var IMG_INSTALLED = 'assets/badge-installed.png';
+  var IMG_INSTALL = 'assets/app-getapp.png';
+  var IMG_INSTALLED = 'assets/app-installed.png';
 
   function isStandalone(){
     return window.matchMedia('(display-mode: standalone)').matches ||
