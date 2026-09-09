@@ -75,8 +75,8 @@
      everything on the compositor thread — no per-frame repaint of gradients
      or text-clip, which is what causes stutter/jank on scrolling tickers. */
   .topbar{
-    background:linear-gradient(90deg, #F1E8D0 0%, #F6EACB 25%, #ECDCA8 50%, #F6EACB 75%, #F1E8D0 100%);
-    color:var(--paper);
+    background:#0A0806;
+    color:var(--teal);
     font-family:'Space Mono',monospace;
     font-size:12px;
     font-weight:700;
@@ -422,7 +422,7 @@
     position:relative;z-index:1;
   }
   .mini-item svg{width:30px;height:30px;color:var(--teal);}
-  .mini-item span{font-size:14px;font-weight:600;color:var(--paper-dim);line-height:1.4;}
+  .mini-item span{font-size:14px;font-weight:600;color:#000;line-height:1.4;}
   .mini-icon-img{width:100%;height:100%;object-fit:cover;border-radius:50%;}
   .mini-item-image{padding:0;overflow:hidden;position:relative;}
   .mini-badge-img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block;border-radius:11px;z-index:0;}
