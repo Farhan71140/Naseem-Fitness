@@ -4553,13 +4553,71 @@ function renderNotifList(){
     </div>
   `).join('');
 }
+/* ---------- overlay back-button history manager -----------
+   Makes the phone/browser back button close whatever overlay,
+   drawer or quick-view is open instead of leaving the site —
+   the same behaviour as the Amazon app. One history entry is
+   pushed the moment the FIRST overlay opens; it's only popped
+   once every overlay has closed again, so switching straight
+   from one overlay to another (e.g. cart -> checkout) doesn't
+   add extra "back" steps. ------------------------------------ */
+let nfOverlayStack = [];
+let nfSuppressPop = false;
+const nfOverlayCloseFns = {
+  notif: closeNotifDrawer,
+  reviewPhoto: closeReviewPhotoLightbox,
+  allReviews: closeAllReviewsDrawer,
+  combo: closeComboQuickView,
+  fitnessLifestyle: closeFitnessLifestylePage,
+  search: closeSearchOverlay,
+  photoSearch: closePhotoSearchSheet,
+  trust: closeTrustModal,
+  spin: closeSpinModal,
+  myReward: closeMyReward,
+  cart: closeCart,
+  quickview: closeQuickView,
+  checkout: closeCheckout,
+  trackOrder: closeTrackOrder,
+  accountDrawer: closeAccountDrawer,
+  authGate: hideAuthGate
+};
+function nfOverlayOpened(key){
+  if(nfOverlayStack.length === 0){
+    history.pushState({ nfOverlay:true }, '', location.href);
+  }
+  const idx = nfOverlayStack.indexOf(key);
+  if(idx !== -1) nfOverlayStack.splice(idx,1);
+  nfOverlayStack.push(key);
+}
+function nfOverlayClosed(key){
+  const idx = nfOverlayStack.lastIndexOf(key);
+  if(idx === -1) return;
+  nfOverlayStack.splice(idx,1);
+  if(nfOverlayStack.length === 0 && !nfSuppressPop){
+    history.back();
+  }
+}
+window.addEventListener('popstate', function(){
+  if(nfOverlayStack.length){
+    nfSuppressPop = true;
+    nfOverlayStack.slice().reverse().forEach(function(key){
+      const fn = nfOverlayCloseFns[key];
+      if(fn) fn();
+    });
+    nfOverlayStack = [];
+    nfSuppressPop = false;
+  }
+});
+
 function openNotifDrawer(){
   renderNotifList();
   document.getElementById('notif-drawer-overlay').classList.add('active');
+  nfOverlayOpened('notif');
   // Give the user a moment to actually see the panel before clearing the badge
   setTimeout(markAllNotificationsSeen, 900);
 }
 function closeNotifDrawer(){
+  nfOverlayClosed('notif');
   document.getElementById('notif-drawer-overlay').classList.remove('active');
 }
 function markAllNotificationsSeen(){
@@ -4675,8 +4733,10 @@ function openReviewPhotoLightbox(url){
   }
   overlay.innerHTML = `<img src="${url}" alt="Customer review photo">`;
   overlay.classList.add('open');
+  nfOverlayOpened('reviewPhoto');
 }
 function closeReviewPhotoLightbox(){
+  nfOverlayClosed('reviewPhoto');
   const overlay = document.getElementById('review-photo-lightbox');
   if(overlay) overlay.classList.remove('open');
 }
@@ -5011,8 +5071,10 @@ function openAllReviewsDrawer(){
   ALL_REVIEWS_SHOWN = 0;
   renderAllReviewsList();
   document.getElementById('all-reviews-drawer').classList.add('active');
+  nfOverlayOpened('allReviews');
 }
 function closeAllReviewsDrawer(){
+  nfOverlayClosed('allReviews');
   document.getElementById('all-reviews-drawer').classList.remove('active');
 }
 function renderAllReviewsList(){
@@ -5210,8 +5272,10 @@ function openComboQuickView(id){
     <div class="combo-qv-body">${descHtml}</div>
   `;
   document.getElementById('combo-quickview-overlay').classList.add('active');
+  nfOverlayOpened('combo');
 }
 function closeComboQuickView(){
+  nfOverlayClosed('combo');
   document.getElementById('combo-quickview-overlay').classList.remove('active');
 }
 function cqvAddToCart(){
@@ -5695,8 +5759,10 @@ function openFitnessLifestylePage(){
   renderFlSubcatChips();
   filterFlPage('__ALL__');
   section.scrollIntoView({ behavior:'smooth', block:'start' });
+  nfOverlayOpened('fitnessLifestyle');
 }
 function closeFitnessLifestylePage(){
+  nfOverlayClosed('fitnessLifestyle');
   const section = document.getElementById('fitness-lifestyle-page');
   if(section) section.style.display = 'none';
 }
@@ -5927,6 +5993,7 @@ function openSearchOverlay(which){
   const overlayInput = document.getElementById('search-overlay-input');
   overlayInput.value = sourceInput ? sourceInput.value : '';
   overlay.classList.add('active');
+  nfOverlayOpened('search');
   document.body.classList.add('so-lock');
   SO_ACTIVE_INDEX = -1;
   soRender();
@@ -5935,6 +6002,7 @@ function openSearchOverlay(which){
 }
 
 function closeSearchOverlay(){
+  nfOverlayClosed('search');
   const overlay = document.getElementById('search-overlay');
   overlay.classList.remove('active');
   document.body.classList.remove('so-lock');
@@ -6427,8 +6495,10 @@ function openPhotoSearchSheet(which){
   document.getElementById('photo-search-choice-view').style.display = 'block';
   document.getElementById('photo-search-loading-view').classList.remove('active');
   document.getElementById('photo-search-overlay').classList.add('active');
+  nfOverlayOpened('photoSearch');
 }
 function closePhotoSearchSheet(){
+  nfOverlayClosed('photoSearch');
   document.getElementById('photo-search-overlay').classList.remove('active');
   document.getElementById('photo-search-camera-input').value = '';
   document.getElementById('photo-search-gallery-input').value = '';
@@ -6520,8 +6590,10 @@ function openTrustModal(key){
   document.getElementById('trust-modal-cta-label').textContent = data.ctaLabel;
   cta.onclick = function(){ closeTrustModal(); };
   document.getElementById('trust-modal-overlay').classList.add('active');
+  nfOverlayOpened('trust');
 }
 function closeTrustModal(){
+  nfOverlayClosed('trust');
   document.getElementById('trust-modal-overlay').classList.remove('active');
 }
 document.addEventListener('keydown', function(e){
@@ -6652,6 +6724,7 @@ function renderSpinWheelGraphic(){
   wheel.style.transition = '';
 }
 async function openSpinModal(){
+  nfOverlayOpened('spin');
   await loadSpinCatalog();
   const overlay = document.getElementById('spin-modal-overlay');
   const lockedView = document.getElementById('spin-view-locked');
@@ -6675,6 +6748,7 @@ async function openSpinModal(){
   overlay.classList.add('active');
 }
 function closeSpinModal(){
+  nfOverlayClosed('spin');
   document.getElementById('spin-modal-overlay').classList.remove('active');
 }
 // A phone number can only spin once per day, but that is NOT the same as
@@ -6934,8 +7008,10 @@ function openMyReward(){
   document.getElementById('myreward-result').innerHTML = '';
   document.getElementById('myreward-error').style.display = 'none';
   document.getElementById('my-reward-overlay').classList.add('active');
+  nfOverlayOpened('myReward');
 }
 function closeMyReward(){
+  nfOverlayClosed('myReward');
   document.getElementById('my-reward-overlay').classList.remove('active');
 }
 async function checkMyReward(){
@@ -7376,8 +7452,8 @@ function renderCart(){
   renderDeliveryBanner(document.getElementById('cart-delivery-banner'), subtotal);
 }
 
-function openCart(){ document.getElementById('cart-overlay').classList.add('active'); }
-function closeCart(){ document.getElementById('cart-overlay').classList.remove('active'); }
+function openCart(){ document.getElementById('cart-overlay').classList.add('active'); nfOverlayOpened('cart'); }
+function closeCart(){ nfOverlayClosed('cart'); document.getElementById('cart-overlay').classList.remove('active'); }
 
 /* ---------- FAQ accordion ---------- */
 (function(){
@@ -7691,6 +7767,7 @@ function openQuickView(id){
   initQvDescToggle();
   renderQvRelatedProducts(p);
   document.getElementById('quickview-overlay').classList.add('active');
+  nfOverlayOpened('quickview');
   if(window.fbq) fbq('track', 'ViewContent', { content_name: p.name, value: Number(p.price), currency: 'INR' });
 }
 /* ---------- "More from [category]" — horizontal related-products row in Quick View ---------- */
@@ -7709,7 +7786,7 @@ function renderQvRelatedProducts(p){
   track.innerHTML = related.slice(0, 12).map(x => flProductCardHTML(x, true)).join('');
   block.style.display = '';
 }
-function closeQuickView(){ document.getElementById('quickview-overlay').classList.remove('active'); }
+function closeQuickView(){ nfOverlayClosed('quickview'); document.getElementById('quickview-overlay').classList.remove('active'); }
 /* ---------- collapsible product description ("See more" / "See less") ---------- */
 function initQvDescToggle(){
   const inner = document.getElementById('qv-desc-inner');
@@ -8035,6 +8112,7 @@ function updatePaymentSummary(){
 
 function openCheckout(){
   if(CART.length===0) return;
+  nfOverlayOpened('checkout');
   closeCart();
   const subtotal = cartTotal();
   document.getElementById('chk-pincode').value = '';
@@ -8050,7 +8128,7 @@ function openCheckout(){
   updatePaymentSummary();
   if(window.fbq) fbq('track', 'InitiateCheckout', { value: getOrderTotal(subtotal), currency: 'INR' });
 }
-function closeCheckout(){ document.getElementById('checkout-overlay').classList.remove('active'); }
+function closeCheckout(){ nfOverlayClosed('checkout'); document.getElementById('checkout-overlay').classList.remove('active'); }
 
 async function submitOrder(){
   const name = document.getElementById('chk-name').value.trim();
@@ -8208,8 +8286,10 @@ document.querySelectorAll('.drawer-overlay').forEach(ov=>{
 /* ---------- order tracking ---------- */
 function openTrackOrder(){
   document.getElementById('track-order-overlay').classList.add('active');
+  nfOverlayOpened('trackOrder');
 }
 function closeTrackOrder(){
+  nfOverlayClosed('trackOrder');
   document.getElementById('track-order-overlay').classList.remove('active');
   document.getElementById('find-id-view').style.display = 'none';
   document.getElementById('track-main-view').style.display = 'block';
@@ -8997,8 +9077,10 @@ async function initCustomerAuth(){
 function showAuthGate(){
   showAuthDetailsView();
   document.getElementById('auth-modal-overlay').classList.add('active');
+  nfOverlayOpened('authGate');
 }
 function hideAuthGate(){
+  nfOverlayClosed('authGate');
   document.getElementById('auth-modal-overlay').classList.remove('active');
 }
 function skipAuthGuest(){
@@ -9163,9 +9245,11 @@ function openAccountDrawer(){
   document.getElementById('account-profile-phone').textContent = '+91 ' + CUSTOMER.mobile_number;
   showAccountMainView();
   document.getElementById('account-drawer-overlay').classList.add('active');
+  nfOverlayOpened('accountDrawer');
   document.body.style.overflow = 'hidden';
 }
 function closeAccountDrawer(){
+  nfOverlayClosed('accountDrawer');
   document.getElementById('account-drawer-overlay').classList.remove('active');
   document.body.style.overflow = '';
 }

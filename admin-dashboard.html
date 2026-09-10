@@ -2336,12 +2336,13 @@ async function logout(){
   document.getElementById('app').classList.remove('active');
   document.getElementById('login-screen').style.display = 'flex';
   document.getElementById('login-pass').value = '';
+  nfBackStack = [];
 }
 
 async function enterApp(){
   document.getElementById('login-screen').style.display = 'none';
   document.getElementById('app').classList.add('active');
-  nfPageHistory = [];
+  nfBackStack = [];
   nfCurrentPage = 'overview';
   goPage('overview', true);
   const { data:{ user } } = await sb.auth.getUser();
@@ -2356,22 +2357,71 @@ async function checkExistingSession(){
   if(session) enterApp();
 }
 
-/* ---------- in-app back navigation ---------- */
-let nfPageHistory = [];
+/* ---------- unified back-button history stack -----------
+   One shared stack drives BOTH the on-screen back arrow and
+   the phone/browser's actual back button/gesture. Each entry
+   is either {type:'page', prevPage} (a section switch) or
+   {type:'modal', key} (a modal that was opened). Pressing back
+   — either way — undoes exactly one of those steps, the same
+   way the Amazon app returns you to where you were instead of
+   exiting. ------------------------------------------------- */
+let nfBackStack = [];
 let nfCurrentPage = 'overview';
+let nfSuppressPop = false;
+
+const nfModalCloseFns = {
+  'live-location-modal': closeLiveLocationModal,
+  'product-modal': ()=>closeModal('product-modal'),
+  'combo-modal': ()=>closeModal('combo-modal'),
+  'brand-modal': ()=>closeModal('brand-modal'),
+  'verifybatch-modal': ()=>closeModal('verifybatch-modal'),
+  'vcodes-modal': ()=>closeModal('vcodes-modal'),
+  'order-modal': ()=>closeModal('order-modal'),
+  'complaint-modal': ()=>closeModal('complaint-modal'),
+  'bill-modal': ()=>closeModal('bill-modal')
+};
+
+function nfPushBack(entry){
+  history.pushState({ nfBack:true }, '', location.href);
+  nfBackStack.push(entry);
+}
+
+function nfModalOpened(key){
+  nfPushBack({ type:'modal', key });
+}
+
+function nfModalClosed(key){
+  if(nfSuppressPop) return; // already being unwound by the popstate handler below
+  const idx = nfBackStack.map(e=>e.type==='modal' && e.key===key).lastIndexOf(true);
+  if(idx === -1) return; // wasn't opened through the tracked flow (e.g. before login) — ignore
+  nfBackStack.splice(idx,1);
+  history.back();
+}
 
 function nfGoBack(){
-  if(nfPageHistory.length > 0){
-    const prev = nfPageHistory.pop();
-    goPage(prev, true);
+  if(nfBackStack.length){
+    history.back();
   }
-  // already on the first/only page in this session — nothing to go back to
+  // nothing tracked — first screen of this session, nothing to unwind
 }
+
+window.addEventListener('popstate', function(){
+  if(!nfBackStack.length) return;
+  nfSuppressPop = true;
+  const entry = nfBackStack.pop();
+  if(entry.type === 'modal'){
+    const fn = nfModalCloseFns[entry.key];
+    if(fn) fn();
+  } else if(entry.type === 'page'){
+    goPage(entry.prevPage, true);
+  }
+  nfSuppressPop = false;
+});
 
 /* ---------- navigation ---------- */
 function goPage(name, fromBack){
   if(!fromBack && name !== nfCurrentPage){
-    nfPageHistory.push(nfCurrentPage);
+    nfPushBack({ type:'page', prevPage: nfCurrentPage });
   }
   nfCurrentPage = name;
   document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
@@ -2743,6 +2793,7 @@ let adminLiveMap = null, adminLiveMarker = null, adminLiveAccCircle = null, admi
 
 async function openLiveLocationModal(orderId){
   document.getElementById('live-location-modal').classList.add('active');
+  nfModalOpened('live-location-modal');
   const pollOnce = async () => {
     const orders = await getOrders();
     const o = orders.find(x => x.id === orderId);
@@ -2788,6 +2839,7 @@ async function openLiveLocationModal(orderId){
 }
 
 function closeLiveLocationModal(){
+  nfModalClosed('live-location-modal');
   document.getElementById('live-location-modal').classList.remove('active');
   if(adminLivePollTimer){ clearInterval(adminLivePollTimer); adminLivePollTimer = null; }
   if(adminLiveMap){ adminLiveMap.remove(); adminLiveMap = null; adminLiveMarker = null; adminLiveAccCircle = null; }
@@ -3790,6 +3842,7 @@ async function openProductModal(){
   PRODUCT_SIZES = [];
   renderSizeChips();
   document.getElementById('product-modal').classList.add('active');
+  nfModalOpened('product-modal');
 }
 async function editProduct(id){
   const products = await getProducts();
@@ -3824,6 +3877,7 @@ async function editProduct(id){
   renderSizeChips();
   toggleSizeField();
   document.getElementById('product-modal').classList.add('active');
+  nfModalOpened('product-modal');
 }
 async function saveProduct(){
   const name = document.getElementById('product-name').value.trim();
@@ -4048,6 +4102,7 @@ async function openComboModal(){
   renderComboProductPicker();
   updateComboDiscountPreview();
   document.getElementById('combo-modal').classList.add('active');
+  nfModalOpened('combo-modal');
 }
 async function editCombo(id){
   const combos = await getCombos();
@@ -4069,6 +4124,7 @@ async function editCombo(id){
   renderComboProductPicker();
   updateComboDiscountPreview();
   document.getElementById('combo-modal').classList.add('active');
+  nfModalOpened('combo-modal');
 }
 async function saveCombo(){
   const name = document.getElementById('combo-name').value.trim();
@@ -4204,6 +4260,7 @@ async function openBrandModal(){
   BRAND_IMAGE = '';
   renderBrandPhotoGrid();
   document.getElementById('brand-modal').classList.add('active');
+  nfModalOpened('brand-modal');
 }
 async function editBrand(id){
   const brands = await getBrands();
@@ -4219,6 +4276,7 @@ async function editBrand(id){
   BRAND_IMAGE = b.image_url || '';
   renderBrandPhotoGrid();
   document.getElementById('brand-modal').classList.add('active');
+  nfModalOpened('brand-modal');
 }
 async function saveBrand(){
   const name = document.getElementById('brand-name').value.trim();
@@ -4379,6 +4437,7 @@ async function openVerifyBatchModal(){
   document.getElementById('vb-product-list').innerHTML = uniqueNames.map(n=>`<option value="${escapeHtml(n)}">`).join('');
 
   document.getElementById('verifybatch-modal').classList.add('active');
+  nfModalOpened('verifybatch-modal');
 }
 
 async function saveVerifyBatch(){
@@ -4445,6 +4504,7 @@ async function viewBatchCodes(batchId){
   VCODES_CURRENT_LIST = data || [];
 
   document.getElementById('vcodes-modal').classList.add('active');
+  nfModalOpened('vcodes-modal');
   renderVcodesTable();
 }
 
@@ -4552,6 +4612,7 @@ function openOrderModal(){
   document.getElementById('order-tax').value = '';
   document.getElementById('order-discount').value = '';
   document.getElementById('order-modal').classList.add('active');
+  nfModalOpened('order-modal');
 }
 async function saveOrder(){
   const customer_name = document.getElementById('order-customer').value.trim();
@@ -4765,6 +4826,7 @@ async function openBillModal(id){
   CURRENT_BILL_ORDER = o;
   renderBillReceipt(o);
   document.getElementById('bill-modal').classList.add('active');
+  nfModalOpened('bill-modal');
 }
 
 function renderBillReceipt(o){
@@ -5222,6 +5284,7 @@ function openComplaintModal(id){
     imgWrap.style.display = 'none';
   }
   document.getElementById('complaint-modal').classList.add('active');
+  nfModalOpened('complaint-modal');
 }
 async function saveComplaintUpdate(){
   if(!CURRENT_COMPLAINT_ID) return;
@@ -5247,9 +5310,13 @@ async function changePassword(){
   showToast('Password updated');
 }
 /* ---------- utils ---------- */
-function closeModal(id){ document.getElementById(id).classList.remove('active'); }
+function closeModal(id){ nfModalClosed(id); document.getElementById(id).classList.remove('active'); }
 document.querySelectorAll('.modal-overlay').forEach(ov=>{
-  ov.addEventListener('click', e=>{ if(e.target===ov) ov.classList.remove('active'); });
+  ov.addEventListener('click', e=>{
+    if(e.target!==ov) return;
+    if(ov.id === 'live-location-modal') closeLiveLocationModal();
+    else closeModal(ov.id);
+  });
 });
 function escapeHtml(str){
   return String(str ?? '').replace(/[&<>"']/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
