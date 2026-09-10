@@ -5475,10 +5475,16 @@ function renderBestCategoryTrack(category){
     track.innerHTML = block + bestViewMoreCardHtml(category);
     viewport.dataset.loop = '0';
   } else {
-    // Every product in this category is loaded — safe to duplicate and
-    // wrap-loop forever, same technique as Fitness Lifestyle.
-    track.innerHTML = block + block;
-    viewport.dataset.loop = '1';
+    // Every product in this category is loaded. Previously this duplicated
+    // the block (block + block) to support a seamless wrap-loop, but the
+    // auto-scroll function that would consume that loop flag is never
+    // invoked for these rows — so the duplication only doubled the visible
+    // product count with no actual looping benefit, making a category look
+    // like it had 2x its real products when swiped through manually.
+    // Render a single copy so every category's row always shows its true,
+    // exact count.
+    track.innerHTML = block;
+    viewport.dataset.loop = '0';
   }
   viewport.scrollLeft = 0;
   viewport.dataset.dir = '1';
