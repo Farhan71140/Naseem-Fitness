@@ -172,6 +172,27 @@
     padding:22px 16px;display:flex;flex-direction:column;
     position:sticky;top:0;height:100vh;
   }
+  /* ===== BACK TO SITE BUTTON ===== */
+  .nf-back-row{display:flex;}
+  .nf-back-btn{
+    position:relative;display:flex;align-items:center;gap:10px;width:100%;
+    -webkit-appearance:none;appearance:none;text-align:left;
+    padding:10px 12px;margin-bottom:14px;border-radius:10px;
+    background:linear-gradient(155deg, var(--iron) 0%, var(--ink-black) 100%);
+    border:1px solid var(--line-strong);color:var(--teal);cursor:pointer;
+    font-family:'Space Mono',monospace;font-size:11.5px;letter-spacing:0.8px;text-transform:uppercase;
+    box-shadow:0 6px 16px rgba(0,0,0,0.35), inset 0 0 0 1px rgba(255,210,74,0.06);
+    transition:transform .2s cubic-bezier(.2,.8,.2,1), box-shadow .2s ease, border-color .2s ease;
+  }
+  .nf-back-btn .circ{
+    flex:none;width:26px;height:26px;border-radius:50%;display:flex;align-items:center;justify-content:center;
+    background:rgba(255,210,74,0.08);border:1px solid var(--line-strong);
+  }
+  .nf-back-btn svg{width:14px;height:14px;transition:transform .25s ease;display:block;}
+  .nf-back-btn:hover{transform:translateY(-1px);border-color:var(--teal);box-shadow:0 8px 20px rgba(255,210,74,0.18), inset 0 0 0 1px rgba(255,210,74,0.15);}
+  .nf-back-btn:hover svg{transform:translateX(-2px);}
+  .nf-back-btn:active{transform:translateY(0) scale(0.98);}
+  .mobile-back-btn{}
   .side-brand{display:flex;align-items:center;gap:10px;padding:6px 8px 22px;border-bottom:1px solid var(--line);margin-bottom:18px;}
   .side-brand .mark{width:34px;height:34px;border-radius:8px;background:linear-gradient(135deg,var(--teal),var(--amber));display:flex;align-items:center;justify-content:center;font-family:'Anton',sans-serif;color:var(--ink-black);font-size:15px;}
   .side-brand strong{display:block;font-family:'Anton',sans-serif;font-size:14px;letter-spacing:0.5px;text-transform:uppercase;}
@@ -638,7 +659,7 @@
       background:var(--steel);border-bottom:1px solid var(--line);
       padding:12px 14px;
     }
-    .mobile-topbar-brand{display:flex;align-items:center;gap:10px;min-width:0;}
+    .mobile-topbar-brand{display:flex;align-items:center;gap:10px;min-width:0;flex:1;justify-content:center;}
     .mobile-topbar-brand .mark{
       width:30px;height:30px;border-radius:7px;flex-shrink:0;
       background:linear-gradient(135deg,var(--teal),var(--amber));
@@ -771,6 +792,9 @@
 <!-- ================= APP ================= -->
 <div id="app">
   <div class="mobile-topbar">
+    <button class="mobile-menu-btn" onclick="nfGoBack()" aria-label="Back to site" title="Back to site">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M11 18l-6-6 6-6"/></svg>
+    </button>
     <button class="mobile-menu-btn" onclick="toggleSidebar()" aria-label="Open menu">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
     </button>
@@ -784,6 +808,12 @@
   </div>
   <div class="sidebar-backdrop" id="sidebar-backdrop" onclick="toggleSidebar(false)"></div>
   <aside class="sidebar" id="app-sidebar">
+    <button type="button" class="nf-back-btn" onclick="nfGoBack()" aria-label="Back to site">
+      <span class="circ">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M11 18l-6-6 6-6"/></svg>
+      </span>
+      Back to Site
+    </button>
     <div class="side-brand">
       <div class="mark">NF</div>
       <div>
@@ -2321,6 +2351,19 @@ async function enterApp(){
 async function checkExistingSession(){
   const { data:{ session } } = await sb.auth.getSession();
   if(session) enterApp();
+}
+
+/* ---------- back to site ---------- */
+function nfGoBack(){
+  try{
+    if(window.history.length > 1 && document.referrer && new URL(document.referrer).host === window.location.host && !document.referrer.includes('admin-dashboard.html')){
+      window.history.back();
+    } else {
+      window.location.href = 'index.html';
+    }
+  }catch(e){
+    window.location.href = 'index.html';
+  }
 }
 
 /* ---------- navigation ---------- */
