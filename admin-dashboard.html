@@ -792,7 +792,7 @@
 <!-- ================= APP ================= -->
 <div id="app">
   <div class="mobile-topbar">
-    <button class="mobile-menu-btn" onclick="nfGoBack()" aria-label="Back to site" title="Back to site">
+    <button class="mobile-menu-btn" onclick="nfGoBack()" aria-label="Back" title="Back">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M11 18l-6-6 6-6"/></svg>
     </button>
     <button class="mobile-menu-btn" onclick="toggleSidebar()" aria-label="Open menu">
@@ -808,11 +808,11 @@
   </div>
   <div class="sidebar-backdrop" id="sidebar-backdrop" onclick="toggleSidebar(false)"></div>
   <aside class="sidebar" id="app-sidebar">
-    <button type="button" class="nf-back-btn" onclick="nfGoBack()" aria-label="Back to site">
+    <button type="button" class="nf-back-btn" onclick="nfGoBack()" aria-label="Back">
       <span class="circ">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M11 18l-6-6 6-6"/></svg>
       </span>
-      Back to Site
+      Back
     </button>
     <div class="side-brand">
       <div class="mark">NF</div>
@@ -2341,6 +2341,9 @@ async function logout(){
 async function enterApp(){
   document.getElementById('login-screen').style.display = 'none';
   document.getElementById('app').classList.add('active');
+  nfPageHistory = [];
+  nfCurrentPage = 'overview';
+  goPage('overview', true);
   const { data:{ user } } = await sb.auth.getUser();
   if(user){
     document.querySelector('.side-foot .who strong').textContent = user.email;
@@ -2353,21 +2356,24 @@ async function checkExistingSession(){
   if(session) enterApp();
 }
 
-/* ---------- back to site ---------- */
+/* ---------- in-app back navigation ---------- */
+let nfPageHistory = [];
+let nfCurrentPage = 'overview';
+
 function nfGoBack(){
-  try{
-    if(window.history.length > 1 && document.referrer && new URL(document.referrer).host === window.location.host && !document.referrer.includes('admin-dashboard.html')){
-      window.history.back();
-    } else {
-      window.location.href = 'index.html';
-    }
-  }catch(e){
-    window.location.href = 'index.html';
+  if(nfPageHistory.length > 0){
+    const prev = nfPageHistory.pop();
+    goPage(prev, true);
   }
+  // already on the first/only page in this session — nothing to go back to
 }
 
 /* ---------- navigation ---------- */
-function goPage(name){
+function goPage(name, fromBack){
+  if(!fromBack && name !== nfCurrentPage){
+    nfPageHistory.push(nfCurrentPage);
+  }
+  nfCurrentPage = name;
   document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
   document.getElementById('page-'+name).classList.add('active');
   document.querySelectorAll('.side-nav button').forEach(b=>b.classList.remove('active'));
