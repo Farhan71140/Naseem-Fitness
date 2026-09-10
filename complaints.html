@@ -264,13 +264,56 @@
   footer{border-top:1px solid var(--line);padding:36px 0 26px;text-align:center;}
   footer p{color:var(--paper-dim);font-size:13px;}
   footer a:hover{color:var(--teal);}
+
+  /* ===== ULTRA PREMIUM BACK BUTTON ===== */
+  .nf-back-btn{
+    position:relative;flex:none;-webkit-appearance:none;appearance:none;
+    width:42px;height:42px;border-radius:50%;
+    display:flex;align-items:center;justify-content:center;
+    background:linear-gradient(155deg, var(--iron) 0%, var(--ink-black) 100%);
+    border:1px solid var(--line-strong);
+    color:var(--teal);cursor:pointer;padding:0;
+    box-shadow:0 6px 16px rgba(0,0,0,0.45), inset 0 0 0 1px rgba(255,210,74,0.06);
+    transition:transform .25s cubic-bezier(.2,.8,.2,1), box-shadow .25s ease, border-color .25s ease;
+  }
+  .nf-back-btn svg{width:19px;height:19px;transition:transform .25s ease;display:block;}
+  .nf-back-btn::before{
+    content:'';position:absolute;inset:-2px;border-radius:50%;pointer-events:none;
+    background:conic-gradient(from 0deg, transparent 0%, var(--teal) 10%, transparent 24%);
+    opacity:0;transition:opacity .3s ease;
+    animation:nfBackSpin 2.4s linear infinite;animation-play-state:paused;
+    -webkit-mask:radial-gradient(farthest-side, transparent calc(100% - 3px), #000 calc(100% - 2px));
+    mask:radial-gradient(farthest-side, transparent calc(100% - 3px), #000 calc(100% - 2px));
+  }
+  .nf-back-btn:hover{transform:translateY(-2px);border-color:var(--teal);box-shadow:0 10px 22px rgba(255,210,74,0.22), inset 0 0 0 1px rgba(255,210,74,0.15);}
+  .nf-back-btn:hover svg{transform:translateX(-2px);}
+  .nf-back-btn:hover::before{opacity:1;animation-play-state:running;}
+  .nf-back-btn:active{transform:translateY(0) scale(0.94);}
+  @keyframes nfBackSpin{to{transform:rotate(360deg);}}
+  @media (max-width:480px){.nf-back-btn{width:38px;height:38px;}.nf-back-btn svg{width:17px;height:17px;}}
 </style>
 </head>
 <body>
+<script>
+function nfGoBack(){
+  try{
+    if(window.history.length > 1 && document.referrer && new URL(document.referrer).host === window.location.host){
+      window.history.back();
+    } else {
+      window.location.href = 'index.html';
+    }
+  }catch(e){
+    window.location.href = 'index.html';
+  }
+}
+</script>
 
 <header>
   <input type="checkbox" id="nav-toggle" class="nav-toggle-input">
   <nav class="wrap">
+    <button type="button" class="nf-back-btn" onclick="nfGoBack()" aria-label="Go back">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M11 18l-6-6 6-6"/></svg>
+    </button>
     <a class="brand" href="index.html">
       <svg class="nf-mark" viewBox="0 0 48 48" fill="none">
         <rect x="1" y="1" width="46" height="46" rx="10" stroke="#B8860B" stroke-width="1.5"/>
