@@ -1116,6 +1116,27 @@
     text-align:center;padding:0 20px;letter-spacing:0.5px;
   }
   .prod-photo svg{width:56px;height:56px;opacity:0.5;margin-bottom:10px;}
+
+  /* ---- revolving gold light around every product image, every category ---- */
+  .prod-photo::after, .qv-photo::after, .combo-qv-photo::after{
+    content:'';
+    position:absolute;
+    inset:0;
+    z-index:1;
+    border-radius:inherit;
+    padding:3px;
+    background:conic-gradient(from 0deg,
+      transparent 0deg, transparent 255deg,
+      #B8860B 280deg, #FFD24A 310deg, #FFF4C2 325deg, #FFD24A 340deg, #B8860B 358deg,
+      transparent 360deg);
+    -webkit-mask:linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+    -webkit-mask-composite:xor;
+    mask-composite:exclude;
+    animation:nf-gold-revolve 3.5s linear infinite;
+    pointer-events:none;
+  }
+  @keyframes nf-gold-revolve{ to { transform:rotate(360deg); } }
+
   .badge-genuine{
     position:absolute;bottom:10px;left:10px;
     background:rgba(11,12,14,0.75);
