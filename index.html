@@ -1110,6 +1110,7 @@
       linear-gradient(135deg, var(--iron) 0%, var(--steel) 60%);
     display:flex;align-items:center;justify-content:center;position:relative;
     border-bottom:1px solid var(--line);
+    padding:3px;box-sizing:border-box;
   }
   .prod-photo .ph-label{
     font-family:'Space Mono',monospace;font-size:11px;color:var(--paper-dim);
@@ -1117,21 +1118,24 @@
   }
   .prod-photo svg{width:56px;height:56px;opacity:0.5;margin-bottom:10px;}
 
-  /* ---- revolving gold light around every product image, every category ---- */
-  .prod-photo::after, .qv-photo::after, .combo-qv-photo::after{
+  /* ---- revolving gold light traced around the edges of every product
+     image, every category. Built as a plain rotating gradient sitting
+     BEHIND the photo, with the photo itself inset by the container's
+     padding — so only the thin strip around the edge is ever visible.
+     (Earlier version used a mask-composite "cutout" trick which some
+     mobile browsers/WebViews don't support, so the whole gradient showed
+     through as a moving diagonal beam across the photo instead of a
+     border. This version needs no mask support at all.) */
+  .prod-photo::before, .qv-photo::before, .combo-qv-photo::before{
     content:'';
     position:absolute;
     inset:0;
-    z-index:1;
+    z-index:0;
     border-radius:inherit;
-    padding:3px;
     background:conic-gradient(from 0deg,
       transparent 0deg, transparent 255deg,
       #B8860B 280deg, #FFD24A 310deg, #FFF4C2 325deg, #FFD24A 340deg, #B8860B 358deg,
       transparent 360deg);
-    -webkit-mask:linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
-    -webkit-mask-composite:xor;
-    mask-composite:exclude;
     animation:nf-gold-revolve 3.5s linear infinite;
     pointer-events:none;
   }
@@ -1374,7 +1378,7 @@
     background:linear-gradient(135deg, var(--iron) 0%, var(--steel) 60%);
     overflow:hidden;margin-bottom:16px;
   }
-  .combo-qv-photo img{position:absolute;top:0;left:0;width:100%;height:100%;object-fit:cover;}
+  .combo-qv-photo img{position:absolute;top:3px;left:3px;width:calc(100% - 6px);height:calc(100% - 6px);object-fit:cover;border-radius:inherit;z-index:1;}
   .combo-qv-body ul{margin:10px 0 0;padding:0;list-style:none;display:flex;flex-direction:column;gap:10px;}
   .combo-qv-body ul li{font-size:14px;color:var(--paper);line-height:1.6;padding-left:22px;position:relative;}
   .combo-qv-body ul li::before{content:'✓';position:absolute;left:0;color:var(--teal);font-weight:800;}
@@ -1455,7 +1459,7 @@
   }
 
   /* ===== QUICK VIEW ===== */
-  .qv-photo{aspect-ratio:1/1;background:linear-gradient(135deg, var(--iron) 0%, var(--steel) 60%);border-radius:10px;border:1px solid var(--line);display:flex;align-items:center;justify-content:center;position:relative;overflow:hidden;margin-bottom:12px;}
+  .qv-photo{aspect-ratio:1/1;background:linear-gradient(135deg, var(--iron) 0%, var(--steel) 60%);border-radius:10px;border:1px solid var(--line);display:flex;align-items:center;justify-content:center;position:relative;overflow:hidden;margin-bottom:12px;padding:3px;box-sizing:border-box;}
   .qv-photo img{width:100%;height:100%;object-fit:cover;display:block;}
   .qv-photo .ph-label{font-family:'Space Mono',monospace;font-size:11px;color:var(--paper-dim);text-align:center;padding:0 20px;letter-spacing:0.5px;}
   .qv-photo-track{display:flex;width:100%;height:100%;transition:transform .32s cubic-bezier(.2,.8,.2,1);}
