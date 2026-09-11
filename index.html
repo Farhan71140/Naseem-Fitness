@@ -1141,6 +1141,19 @@
   }
   @keyframes nf-gold-revolve{ to { transform:rotate(360deg); } }
 
+  /* Force the actual product photo to paint ABOVE the revolving gold
+     gradient above. Without this, the <img> (which has no position/
+     z-index of its own) sits BEHIND the absolutely-positioned ::before
+     in the stacking order, so the whole conic-gradient wedge shows on
+     top of the photo as it rotates instead of staying hidden behind it.
+     With the image raised to z-index:1, only the ~3px strip left
+     exposed by the container's padding (the intended "edge light")
+     is ever visible. */
+  .prod-photo img, .qv-photo img, .combo-qv-photo img{
+    position:relative;
+    z-index:1;
+  }
+
   .badge-genuine{
     position:absolute;bottom:10px;left:10px;
     background:rgba(11,12,14,0.75);
