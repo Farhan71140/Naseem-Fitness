@@ -1874,7 +1874,7 @@
     </div>
     <div class="modal-foot">
       <button class="btn btn-ghost" onclick="closeModal('product-modal')">Cancel</button>
-      <button class="btn btn-primary" onclick="saveProduct()">Save Product</button>
+      <button class="btn btn-primary" id="save-product-btn" onclick="saveProduct()">Save Product</button>
     </div>
   </div>
 </div>
@@ -3816,6 +3816,8 @@ function addCustomSize(){
   input.focus();
 }
 async function openProductModal(){
+  const saveBtn = document.getElementById('save-product-btn');
+  if(saveBtn){ saveBtn.disabled = false; saveBtn.textContent = 'Save Product'; }
   document.getElementById('product-modal-title').textContent = 'Add Product';
   document.getElementById('product-id').value = '';
   document.getElementById('product-name').value = '';
@@ -3848,6 +3850,8 @@ async function editProduct(id){
   const products = await getProducts();
   const p = products.find(x=>x.id===id);
   if(!p) return;
+  const saveBtn = document.getElementById('save-product-btn');
+  if(saveBtn){ saveBtn.disabled = false; saveBtn.textContent = 'Save Product'; }
   document.getElementById('product-modal-title').textContent = 'Edit Product';
   document.getElementById('product-id').value = p.id;
   document.getElementById('product-name').value = p.name;
@@ -3880,9 +3884,17 @@ async function editProduct(id){
   nfModalOpened('product-modal');
 }
 async function saveProduct(){
+  const saveBtn = document.getElementById('save-product-btn');
+  // Guard against duplicate inserts: a double-tap/double-click (very common
+  // on mobile, especially over a slow connection) used to fire saveProduct()
+  // twice before the first request finished, silently creating two identical
+  // rows in Supabase — which is why the storefront was showing every product
+  // twice even though the render code only ever draws one card per row.
+  if(saveBtn && saveBtn.disabled) return;
   const name = document.getElementById('product-name').value.trim();
   const price = document.getElementById('product-price').value;
   if(!name || price===''){ showToast('Name and price are required'); return; }
+  if(saveBtn){ saveBtn.disabled = true; saveBtn.textContent = 'Saving…'; }
   const id = document.getElementById('product-id').value;
   const comparePrice = document.getElementById('product-compare-price').value;
   const stock = document.getElementById('product-stock').value;
@@ -3919,6 +3931,7 @@ async function saveProduct(){
   } else {
     ({ error } = await sb.from('products').insert(payload));
   }
+  if(saveBtn){ saveBtn.disabled = false; saveBtn.textContent = 'Save Product'; }
   if(error){ showToast('Error: ' + error.message); return; }
   closeModal('product-modal');
   renderProducts();
