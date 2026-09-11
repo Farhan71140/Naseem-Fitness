@@ -1439,7 +1439,7 @@
   .qv-photo .ph-label{font-family:'Space Mono',monospace;font-size:11px;color:var(--paper-dim);text-align:center;padding:0 20px;letter-spacing:0.5px;}
   .qv-photo-track{display:flex;width:100%;height:100%;transition:transform .32s cubic-bezier(.2,.8,.2,1);}
   .qv-photo-slide{flex:0 0 100%;width:100%;height:100%;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg, var(--iron) 0%, var(--steel) 60%);}
-  .qv-photo-slide img{width:100%;height:100%;object-fit:cover;display:block;}
+  .qv-photo-slide img{width:100%;height:100%;object-fit:cover;display:block;cursor:zoom-in;}
   .qv-photo-arrow{
     position:absolute;top:50%;transform:translateY(-50%);width:34px;height:34px;border-radius:50%;
     background:rgba(10,8,6,0.55);border:1px solid rgba(255,210,74,0.25);color:var(--paper);
@@ -1720,6 +1720,40 @@
   }
   .review-photo-lightbox.open{display:flex;}
   .review-photo-lightbox img{max-width:min(92vw,700px);max-height:88vh;border-radius:10px;box-shadow:0 20px 60px rgba(20,16,10,0.16);}
+
+  /* ---- full-screen product photo lightbox (opens on tapping any product image) ---- */
+  .product-photo-lightbox{
+    position:fixed;inset:0;background:rgba(5,4,2,0.95);z-index:9999;
+    display:none;align-items:center;justify-content:center;
+  }
+  .product-photo-lightbox.open{display:flex;}
+  .ppl-stage{position:relative;width:100%;height:100%;display:flex;align-items:center;justify-content:center;overflow:hidden;}
+  .ppl-track{display:flex;width:100%;height:100%;transition:transform .32s cubic-bezier(.2,.8,.2,1);}
+  .ppl-slide{flex:0 0 100%;width:100%;height:100%;display:flex;align-items:center;justify-content:center;padding:24px;box-sizing:border-box;}
+  .ppl-slide img{max-width:100%;max-height:100%;object-fit:contain;border-radius:8px;}
+  .ppl-close{
+    position:absolute;top:16px;right:16px;z-index:3;width:40px;height:40px;border-radius:50%;
+    background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.25);color:#fff;
+    display:flex;align-items:center;justify-content:center;cursor:pointer;
+  }
+  .ppl-close svg{width:18px;height:18px;}
+  .ppl-arrow{
+    position:absolute;top:50%;transform:translateY(-50%);z-index:3;width:44px;height:44px;border-radius:50%;
+    background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.25);color:#fff;
+    display:flex;align-items:center;justify-content:center;cursor:pointer;
+  }
+  .ppl-arrow svg{width:20px;height:20px;}
+  .ppl-arrow.prev{left:14px;}
+  .ppl-arrow.next{right:14px;}
+  .ppl-count-badge{
+    position:absolute;top:16px;left:16px;z-index:3;padding:5px 12px;border-radius:20px;
+    background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.25);color:#fff;
+    font-size:12px;letter-spacing:0.04em;
+  }
+  .ppl-dots{position:absolute;bottom:20px;left:0;right:0;display:flex;justify-content:center;gap:6px;z-index:3;}
+  .ppl-dots button{width:6px;height:6px;border-radius:50%;border:none;background:rgba(255,255,255,0.35);padding:0;cursor:pointer;transition:all .15s;}
+  .ppl-dots button.active{background:#fff;width:16px;border-radius:4px;}
+  @media (max-width:520px){ .ppl-arrow{width:36px;height:36px;} .ppl-arrow svg{width:16px;height:16px;} }
 
   .existing-reviews{margin-top:24px;display:flex;flex-direction:column;gap:16px;}
   .review-item{
@@ -4566,6 +4600,7 @@ let nfSuppressPop = false;
 const nfOverlayCloseFns = {
   notif: closeNotifDrawer,
   reviewPhoto: closeReviewPhotoLightbox,
+  productPhoto: closeProductPhotoLightbox,
   allReviews: closeAllReviewsDrawer,
   combo: closeComboQuickView,
   fitnessLifestyle: closeFitnessLifestylePage,
@@ -4740,6 +4775,98 @@ function closeReviewPhotoLightbox(){
   const overlay = document.getElementById('review-photo-lightbox');
   if(overlay) overlay.classList.remove('open');
 }
+
+/* ---------- full-screen product photo lightbox ----------
+   Opens on tapping any product photo (in the product quick-view or a
+   combo card), for every category — works whether the product has one
+   photo or several, with arrows/dots/swipe to move between them. */
+let PPL_IMAGES = [];
+let PPL_INDEX = 0;
+function openProductPhotoLightbox(startIndex, imagesOverride){
+  PPL_IMAGES = imagesOverride || QV_IMAGES.slice();
+  if(!PPL_IMAGES.length) return;
+  PPL_INDEX = Math.max(0, Math.min(PPL_IMAGES.length - 1, startIndex || 0));
+  let overlay = document.getElementById('product-photo-lightbox');
+  if(!overlay){
+    overlay = document.createElement('div');
+    overlay.id = 'product-photo-lightbox';
+    overlay.className = 'product-photo-lightbox';
+    document.body.appendChild(overlay);
+  }
+  overlay.onclick = (e) => { if(e.target === overlay) closeProductPhotoLightbox(); };
+  renderPplPhoto();
+  overlay.classList.add('open');
+  nfOverlayOpened('productPhoto');
+}
+function closeProductPhotoLightbox(){
+  nfOverlayClosed('productPhoto');
+  const overlay = document.getElementById('product-photo-lightbox');
+  if(overlay) overlay.classList.remove('open');
+}
+function renderPplPhoto(){
+  const overlay = document.getElementById('product-photo-lightbox');
+  if(!overlay) return;
+  const multi = PPL_IMAGES.length > 1;
+  overlay.innerHTML = `
+    <div class="ppl-stage">
+      <button type="button" class="ppl-close" onclick="closeProductPhotoLightbox()" aria-label="Close">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg>
+      </button>
+      ${multi ? `<div class="ppl-count-badge">${PPL_INDEX+1} / ${PPL_IMAGES.length}</div>` : ''}
+      <div class="ppl-track" id="ppl-track" style="transform:translateX(-${PPL_INDEX*100}%);">
+        ${PPL_IMAGES.map((url, i) => `
+          <div class="ppl-slide">
+            <img src="${escapeHtml(url)}" alt="Product photo ${i+1}">
+          </div>
+        `).join('')}
+      </div>
+      ${multi ? `
+        <button type="button" class="ppl-arrow prev" onclick="event.stopPropagation();pplPrevImage()" aria-label="Previous photo">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 18l-6-6 6-6"/></svg>
+        </button>
+        <button type="button" class="ppl-arrow next" onclick="event.stopPropagation();pplNextImage()" aria-label="Next photo">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18l6-6-6-6"/></svg>
+        </button>
+        <div class="ppl-dots">
+          ${PPL_IMAGES.map((_, i) => `<button type="button" class="${i===PPL_INDEX?'active':''}" onclick="event.stopPropagation();pplGoToImage(${i})" aria-label="Photo ${i+1}"></button>`).join('')}
+        </div>
+      ` : ''}
+    </div>
+  `;
+  attachPplSwipe();
+}
+function pplGoToImage(i){
+  PPL_INDEX = Math.max(0, Math.min(PPL_IMAGES.length-1, i));
+  renderPplPhoto();
+}
+function pplPrevImage(){
+  PPL_INDEX = (PPL_INDEX - 1 + PPL_IMAGES.length) % PPL_IMAGES.length;
+  renderPplPhoto();
+}
+function pplNextImage(){
+  PPL_INDEX = (PPL_INDEX + 1) % PPL_IMAGES.length;
+  renderPplPhoto();
+}
+function attachPplSwipe(){
+  const stage = document.querySelector('#product-photo-lightbox .ppl-stage');
+  if(!stage || PPL_IMAGES.length < 2) return;
+  let startX = null;
+  stage.addEventListener('touchstart', e => { startX = e.touches[0].clientX; }, { passive:true });
+  stage.addEventListener('touchend', e => {
+    if(startX === null) return;
+    const dx = e.changedTouches[0].clientX - startX;
+    if(Math.abs(dx) > 40){ dx < 0 ? pplNextImage() : pplPrevImage(); }
+    startX = null;
+  }, { passive:true });
+}
+document.addEventListener('keydown', (e) => {
+  const overlay = document.getElementById('product-photo-lightbox');
+  if(!overlay || !overlay.classList.contains('open')) return;
+  if(e.key === 'Escape') closeProductPhotoLightbox();
+  else if(e.key === 'ArrowLeft') pplPrevImage();
+  else if(e.key === 'ArrowRight') pplNextImage();
+});
+
 let QV_STAR = 0;
 function setQvStar(n){
   QV_STAR = n;
@@ -5261,7 +5388,7 @@ function openComboQuickView(id){
   }
   document.getElementById('combo-quickview-body').innerHTML = `
     <div class="combo-qv-photo">
-      ${c.image_url ? `<img src="${escapeHtml(c.image_url)}" alt="${escapeHtml(c.name)}">` : ''}
+      ${c.image_url ? `<img src="${escapeHtml(c.image_url)}" alt="${escapeHtml(c.name)}" style="cursor:zoom-in;" onclick="openProductPhotoLightbox(0, ['${escapeHtml(c.image_url).replace(/'/g,"\\'")}'])">` : ''}
     </div>
     <span class="combo-badge" style="position:static;display:inline-block;margin-bottom:10px;">Combo Offer</span>
     <h2 class="qv-title">${escapeHtml(c.name)}</h2>
@@ -7508,7 +7635,7 @@ function renderQvPhoto(){
     <div class="qv-photo-track" id="qv-photo-track" style="transform:translateX(-${QV_IMG_INDEX*100}%);">
       ${QV_IMAGES.map((url, i) => `
         <div class="qv-photo-slide">
-          <img src="${escapeHtml(url)}" alt="Product photo ${i+1}" onerror="this.parentElement.innerHTML='<div class=\\'ph-label\\'>IMAGE UNAVAILABLE</div>'">
+          <img src="${escapeHtml(url)}" alt="Product photo ${i+1}" onclick="openProductPhotoLightbox(${i})" onerror="this.parentElement.innerHTML='<div class=\\'ph-label\\'>IMAGE UNAVAILABLE</div>'">
         </div>
       `).join('')}
     </div>
