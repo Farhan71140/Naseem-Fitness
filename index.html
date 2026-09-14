@@ -152,11 +152,36 @@
   .brand-name{font-family:'Anton',sans-serif;font-size:19px;letter-spacing:0.5px;text-transform:uppercase;line-height:1.1;white-space:nowrap;}
   .brand-name span{color:var(--teal);}
   .brand-tag{display:block;font-family:'Space Mono',monospace;font-size:9px;letter-spacing:2px;color:var(--paper-dim);text-transform:uppercase;margin-top:2px;white-space:nowrap;}
-  @media (max-width:1500px){
+  @media (max-width:1860px){
     /* logo graphic already contains the wordmark — drop the duplicate text so the header stays compact */
     .brand-text{display:none;}
     nav.wrap{padding-top:10px;padding-bottom:10px;gap:12px;}
     .brand img{height:38px;}
+  }
+  /* ===== DESKTOP-ONLY (>1860px) — full nav gets real room to breathe =====
+     Below this, the header already falls back to the compact search-bar +
+     hamburger layout (identical to mobile/tablet), so nothing here can ever
+     reach a phone or tablet. */
+  @media (min-width:1861px){
+    nav.wrap{max-width:1860px;gap:22px;padding-top:18px;padding-bottom:18px;padding-left:32px;padding-right:32px;}
+    .brand{flex:none;gap:14px;}
+    .nav-links{gap:14px;}
+    .nav-links a{
+      padding:8px 1px;position:relative;
+      transition:opacity .2s ease, color .2s ease;
+    }
+    .nav-links a::after{
+      content:'';position:absolute;left:1px;right:1px;bottom:1px;height:2px;
+      background:var(--teal);border-radius:2px;
+      transform:scaleX(0);transform-origin:left;transition:transform .25s ease;
+    }
+    .nav-links a:hover::after,
+    .nav-links a.active::after{transform:scaleX(1);}
+    .nav-links a.active{color:var(--teal);opacity:1;}
+    nav.wrap > .nav-search{
+      flex:0 0 235px;min-width:235px;padding:10px 15px;gap:9px;
+    }
+    .nav-cta{flex:none;gap:16px;}
   }
   .nav-links{display:flex;gap:14px;font-size:13px;font-weight:600;flex:none;}
   .nav-links a{opacity:0.85;transition:opacity .2s;}
@@ -235,7 +260,7 @@
     font-family:'Space Mono',monospace;font-size:10px;letter-spacing:0.5px;color:var(--paper-dim);
     border:1px solid var(--line);border-radius:5px;padding:2px 6px;white-space:nowrap;
   }
-  @media (min-width:1501px){ nav.wrap > .nav-search .kbd-hint{display:inline-flex;} }
+  @media (min-width:1861px){ nav.wrap > .nav-search .kbd-hint{display:inline-flex;} }
   .mic-btn{
     display:inline-flex;align-items:center;justify-content:center;
     width:22px;height:22px;border-radius:50%;border:none;background:transparent;
@@ -283,7 +308,7 @@
   .mobile-search-bar .mic-btn{width:22px;height:22px;flex:none;}
   .mobile-search-bar .cam-btn svg,
   .mobile-search-bar .mic-btn svg{width:15px;height:15px;}
-  @media (max-width:1500px){
+  @media (max-width:1860px){
     .nav-links{display:none;} .nav-cta{display:none;}
     nav.wrap > .nav-search{display:none;}
     .mobile-icons{display:flex;gap:6px;align-items:center;}
@@ -308,7 +333,7 @@
     border-bottom:1px solid var(--line);
   }
   .mobile-menu .mobile-cta{display:flex;flex-direction:column;gap:12px;margin-top:16px;}
-  @media (max-width:1500px){
+  @media (max-width:1860px){
     .hamburger-btn{display:flex;}
     .nav-toggle-input:checked ~ .mobile-menu{display:flex;}
   }
