@@ -3242,33 +3242,50 @@
 
   /* ================= TRUSTED BRANDS STRIP ================= */
   .brand-strip-section{
-    padding:6px 0 10px;border-top:1px solid var(--line);border-bottom:1px solid var(--line);
-    background:linear-gradient(180deg, rgba(255,210,74,0.035), transparent 60%);overflow:hidden;
+    padding:34px 0 38px;position:relative;overflow:hidden;
+    background:
+      radial-gradient(ellipse 80% 140% at 50% 0%, rgba(255,210,74,0.10), transparent 60%),
+      linear-gradient(180deg, #0A0806 0%, #120E09 50%, #0A0806 100%);
   }
-  .brand-strip-head{text-align:center;margin-bottom:6px;}
+  .brand-strip-section::before, .brand-strip-section::after{
+    content:'';position:absolute;left:0;right:0;height:1px;
+    background:linear-gradient(90deg, transparent, rgba(255,210,74,0.5), transparent);
+  }
+  .brand-strip-section::before{top:0;}
+  .brand-strip-section::after{bottom:0;}
+  .brand-strip-head{text-align:center;margin-bottom:20px;}
   .brand-strip-label{
-    display:inline-flex;align-items:center;gap:8px;
-    font-family:'Space Mono',monospace;font-size:9px;letter-spacing:2.5px;text-transform:uppercase;color:#000000;
+    display:inline-flex;align-items:center;gap:12px;
+    font-family:'Space Mono',monospace;font-size:10px;letter-spacing:3px;text-transform:uppercase;
+    color:#FFD24A;text-shadow:0 0 18px rgba(255,210,74,0.35);
   }
-  .brand-strip-label::before, .brand-strip-label::after{content:'';width:14px;height:1px;background:var(--line-strong);}
+  .brand-strip-label::before, .brand-strip-label::after{content:'';width:22px;height:1px;background:linear-gradient(90deg, transparent, #FFD24A);}
+  .brand-strip-label::after{background:linear-gradient(90deg, #FFD24A, transparent);}
   .brand-strip-track-wrap{
     width:100%;overflow:hidden;
-    -webkit-mask-image:linear-gradient(90deg, transparent, #000 10%, #000 90%, transparent);
-    mask-image:linear-gradient(90deg, transparent, #000 10%, #000 90%, transparent);
+    -webkit-mask-image:linear-gradient(90deg, transparent, #000 8%, #000 92%, transparent);
+    mask-image:linear-gradient(90deg, transparent, #000 8%, #000 92%, transparent);
   }
-  .brand-strip-track{display:flex;align-items:center;gap:36px;width:max-content;animation:brandScroll 32s linear infinite;}
+  .brand-strip-track{display:flex;align-items:center;gap:22px;width:max-content;animation:brandScroll 32s linear infinite;}
   .brand-strip-track:hover{animation-play-state:paused;}
   .brand-logo-item{
-    flex:none;width:70px;height:44px;display:flex;align-items:center;justify-content:center;
-    opacity:0.72;filter:grayscale(20%);transition:opacity .25s ease, filter .25s ease, transform .25s ease;
+    flex:none;width:120px;height:74px;display:flex;align-items:center;justify-content:center;
+    background:linear-gradient(145deg, #17130E, #0D0B08);
+    border:1px solid rgba(255,210,74,0.16);border-radius:14px;padding:12px;
+    box-shadow:0 6px 18px rgba(0,0,0,0.45), inset 0 1px 0 rgba(255,255,255,0.03);
+    transition:opacity .3s ease, transform .3s ease, border-color .3s ease, box-shadow .3s ease;
   }
-  .brand-logo-item:hover{opacity:1;filter:grayscale(0%);transform:translateY(-2px) scale(1.05);}
-  .brand-logo-item img{max-width:100%;max-height:100%;object-fit:contain;}
+  .brand-logo-item:hover{
+    transform:translateY(-4px) scale(1.06);
+    border-color:rgba(255,210,74,0.55);
+    box-shadow:0 10px 26px rgba(0,0,0,0.55), 0 0 24px rgba(255,210,74,0.18), inset 0 1px 0 rgba(255,255,255,0.05);
+  }
+  .brand-logo-item img{max-width:100%;max-height:100%;object-fit:contain;border-radius:6px;}
   @keyframes brandScroll{from{transform:translateX(0);}to{transform:translateX(-50%);}}
   @media (max-width:640px){
-    .brand-strip-section{padding:4px 0 8px;}
-    .brand-strip-track{gap:26px;}
-    .brand-logo-item{width:58px;height:36px;}
+    .brand-strip-section{padding:24px 0 28px;}
+    .brand-strip-track{gap:14px;}
+    .brand-logo-item{width:92px;height:60px;border-radius:11px;padding:9px;}
   }
 </style>
 </head>
