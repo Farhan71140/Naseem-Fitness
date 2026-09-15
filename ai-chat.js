@@ -119,11 +119,6 @@ Guidelines:
       z-index: 99999;
       font-family: 'Space Mono', monospace;
     }
-    #nf-chat-widget.nf-dragging #nf-chat-toggle {
-      transition: none;
-      box-shadow: 0 10px 34px rgba(255,210,74,0.55);
-    }
-
     #nf-chat-toggle {
       display: flex;
       flex-direction: column;
@@ -133,15 +128,13 @@ Guidelines:
       border: none;
       padding: 0;
       height: auto;
-      cursor: grab;
-      touch-action: none;
+      cursor: pointer;
       user-select: none;
       -webkit-user-select: none;
       position: relative;
       transition: transform 0.2s;
       animation: nfAttention 6.5s ease-in-out infinite;
     }
-    #nf-chat-toggle:active { cursor: grabbing; }
     #nf-chat-toggle:hover { transform: scale(1.06); animation-play-state: paused; }
 
     /* ---- speech-bubble "Chat with AI" tag ---- */
@@ -607,112 +600,12 @@ Guidelines:
   });
   closeBtn.addEventListener('click', closeChat);
 
-  /* ── DRAGGABLE WIDGET ──
-     The chat icon can float over content the visitor is trying to read or tap, so
-     it can be dragged anywhere on screen. Position is remembered per-visitor
-     (localStorage) so it stays where they left it on their next visit. */
-  (function initDraggableWidget() {
-    const POS_KEY = 'nf_chat_widget_pos';
-    const DRAG_THRESHOLD = 6;
-    let dragging = false;
-    let moved = false;
-    let startPointerX = 0, startPointerY = 0, startLeft = 0, startTop = 0;
-
-    function clamp(left, top) {
-      const rect = widget.getBoundingClientRect();
-      const w = rect.width || 60;
-      const h = rect.height || 60;
-      const maxLeft = Math.max(6, window.innerWidth - w - 6);
-      const maxTop = Math.max(6, window.innerHeight - h - 6);
-      return {
-        left: Math.min(Math.max(6, left), maxLeft),
-        top: Math.min(Math.max(6, top), maxTop)
-      };
-    }
-
-    function applyPosition(left, top) {
-      widget.style.left = left + 'px';
-      widget.style.top = top + 'px';
-      widget.style.right = 'auto';
-      widget.style.bottom = 'auto';
-    }
-
-    function updateChatBoxOrientation() {
-      const rect = widget.getBoundingClientRect();
-      const openDownward = rect.top < window.innerHeight * 0.5;
-      const openToRight = rect.left < window.innerWidth * 0.5;
-      chatBox.classList.toggle('pos-top', openDownward);
-      chatBox.classList.toggle('pos-left', openToRight);
-    }
-
-    function savePosition(left, top) {
-      try { localStorage.setItem(POS_KEY, JSON.stringify({ left, top })); } catch (e) {}
-    }
-
-    function loadSavedPosition() {
-      let saved = null;
-      try { saved = JSON.parse(localStorage.getItem(POS_KEY)); } catch (e) {}
-      if (saved && typeof saved.left === 'number' && typeof saved.top === 'number') {
-        const c = clamp(saved.left, saved.top);
-        applyPosition(c.left, c.top);
-      }
-      updateChatBoxOrientation();
-    }
-
-    function onPointerDown(e) {
-      if (e.button !== undefined && e.button !== 0) return; // primary button / touch only
-      dragging = true;
-      moved = false;
-      const rect = widget.getBoundingClientRect();
-      startLeft = rect.left;
-      startTop = rect.top;
-      startPointerX = e.clientX;
-      startPointerY = e.clientY;
-      try { toggleBtn.setPointerCapture(e.pointerId); } catch (err) {}
-      document.addEventListener('pointermove', onPointerMove);
-      document.addEventListener('pointerup', onPointerUp);
-    }
-
-    function onPointerMove(e) {
-      if (!dragging) return;
-      const dx = e.clientX - startPointerX;
-      const dy = e.clientY - startPointerY;
-      if (!moved && (Math.abs(dx) > DRAG_THRESHOLD || Math.abs(dy) > DRAG_THRESHOLD)) {
-        moved = true;
-        widget.classList.add('nf-dragging');
-        closeChat(); // avoid a half-open panel trailing behind while dragging
-      }
-      if (moved) {
-        const c = clamp(startLeft + dx, startTop + dy);
-        applyPosition(c.left, c.top);
-      }
-    }
-
-    function onPointerUp() {
-      if (!dragging) return;
-      dragging = false;
-      document.removeEventListener('pointermove', onPointerMove);
-      document.removeEventListener('pointerup', onPointerUp);
-      widget.classList.remove('nf-dragging');
-      if (moved) {
-        const rect = widget.getBoundingClientRect();
-        savePosition(rect.left, rect.top);
-        updateChatBoxOrientation();
-        suppressNextToggleClick = true; // this was a drag, not a tap — don't toggle the chat
-      }
-    }
-
-    toggleBtn.addEventListener('pointerdown', onPointerDown);
-    window.addEventListener('resize', () => {
-      if (!widget.style.left) return; // still at default CSS position, nothing to clamp
-      const rect = widget.getBoundingClientRect();
-      const c = clamp(rect.left, rect.top);
-      applyPosition(c.left, c.top);
-      updateChatBoxOrientation();
-    });
-
-    loadSavedPosition();
-  })();
+  /* ── FIXED WIDGET ──
+     The chat icon stays pinned bottom-right (same as the Lucky Spin button) —
+     no dragging, no per-visitor saved position. Any old saved position from
+     a previous version of this widget is cleared so returning visitors don't
+     see it drift off to wherever they last dragged it. */
+  try { localStorage.removeItem('nf_chat_widget_pos'); } catch (e) {}
 
   /* ── MESSAGES ── */
   function addMessage(text, role) {

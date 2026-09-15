@@ -578,6 +578,16 @@
     .spin-float{left:14px;bottom:14px;width:56px;height:56px;}
   }
 
+  /* Hide the floating Lucky Spin button and the AI chat widget whenever
+     any drawer/modal (cart, quick-view, checkout, etc.) is open — they
+     were floating on top of the cart panel and covering the item list
+     and the subtotal/delivery/total rows. */
+  body.nf-overlay-open .spin-float,
+  body.nf-overlay-open #nf-chat-widget{
+    opacity:0!important;visibility:hidden!important;pointer-events:none!important;
+    transition:opacity .18s ease, visibility .18s ease;
+  }
+
   .spin-modal-overlay{
     display:none;position:fixed;inset:0;z-index:270;
     background:rgba(6,5,3,0.82);backdrop-filter:blur(5px);
@@ -4800,13 +4810,17 @@ function nfOverlayOpened(key){
   const idx = nfOverlayStack.indexOf(key);
   if(idx !== -1) nfOverlayStack.splice(idx,1);
   nfOverlayStack.push(key);
+  document.body.classList.add('nf-overlay-open');
 }
 function nfOverlayClosed(key){
   const idx = nfOverlayStack.lastIndexOf(key);
   if(idx === -1) return;
   nfOverlayStack.splice(idx,1);
-  if(nfOverlayStack.length === 0 && !nfSuppressPop){
-    history.back();
+  if(nfOverlayStack.length === 0){
+    document.body.classList.remove('nf-overlay-open');
+    if(!nfSuppressPop){
+      history.back();
+    }
   }
 }
 window.addEventListener('popstate', function(){
