@@ -326,21 +326,8 @@
   .mobile-menu{
     display:none;flex-direction:column;
     background:var(--steel);
-    padding:0 22px 28px;
+    padding:14px 22px 28px;
     overflow-y:auto;-webkit-overflow-scrolling:touch;
-  }
-  .mobile-menu-head{
-    display:flex;align-items:center;justify-content:space-between;
-    padding:20px 4px 16px;margin-bottom:2px;border-bottom:1px solid var(--line-strong);
-  }
-  .mobile-menu-head span:first-child{
-    font-family:'Space Mono',monospace;font-size:15px;font-weight:800;
-    letter-spacing:1.8px;text-transform:uppercase;color:var(--paper);
-  }
-  .mobile-menu-head span:last-child{
-    font-family:'Space Mono',monospace;font-size:10px;font-weight:700;
-    letter-spacing:0.8px;text-transform:uppercase;color:var(--teal);
-    background:var(--teal-dim);padding:4px 10px;border-radius:20px;
   }
   .mobile-menu a{
     display:flex;align-items:center;gap:13px;
@@ -358,31 +345,36 @@
   .mobile-menu a:hover .mm-icon{background:linear-gradient(150deg, var(--teal), var(--gold-light));border-color:transparent;}
   .mobile-menu a:hover::after{color:var(--teal);opacity:1;transform:translateX(2px);}
   .mobile-menu a.mobile-menu-reward{
-    margin:14px 0 6px;padding:14px 16px;border-radius:16px;border-bottom:none;
-    border:1px solid rgba(184,134,11,0.45);
-    background:linear-gradient(120deg, rgba(184,134,11,0.16) 0%, rgba(233,200,104,0.32) 100%);
-    box-shadow:0 10px 24px -10px rgba(184,134,11,0.55), inset 0 1px 0 rgba(255,255,255,0.6);
+    margin:16px 0 8px;padding:15px 16px;border-radius:16px;border-bottom:none;
+    background:linear-gradient(135deg, #F6DE9C 0%, #D9A926 50%, #9C7112 100%);
+    border:1px solid rgba(255,255,255,0.4);
+    box-shadow:0 16px 32px -12px rgba(154,106,10,0.75), inset 0 1px 0 rgba(255,255,255,0.65), inset 0 -2px 4px rgba(0,0,0,0.12);
     position:relative;overflow:hidden;
   }
   .mobile-menu a.mobile-menu-reward::after{content:none;}
   .mobile-menu a.mobile-menu-reward::before{
     content:'';position:absolute;top:0;left:-60%;width:35%;height:100%;
-    background:linear-gradient(120deg, transparent, rgba(255,255,255,0.65), transparent);
+    background:linear-gradient(120deg, transparent, rgba(255,255,255,0.75), transparent);
     transform:skewX(-20deg);animation:mmrShine 3.4s ease-in-out infinite;
   }
   @keyframes mmrShine{0%{left:-60%;}55%{left:130%;}100%{left:130%;}}
-  .mmr-icon{
-    width:38px;height:38px;border-radius:50%;flex:none;position:relative;z-index:1;
-    display:flex;align-items:center;justify-content:center;font-size:18px;
-    background:linear-gradient(135deg, var(--teal), var(--gold-light));
-    box-shadow:0 6px 14px -3px rgba(184,134,11,0.6);
+  @keyframes mmrPulse{
+    0%,100%{box-shadow:0 0 0 3px rgba(255,255,255,0.45), 0 6px 14px -3px rgba(0,0,0,0.4);}
+    50%{box-shadow:0 0 0 7px rgba(255,255,255,0.12), 0 6px 18px -3px rgba(0,0,0,0.45);}
   }
-  .mmr-text{font-weight:800;color:#7A4F0E;letter-spacing:0.2px;flex:1;position:relative;z-index:1;}
+  .mmr-icon{
+    width:42px;height:42px;border-radius:50%;flex:none;position:relative;z-index:1;
+    display:flex;align-items:center;justify-content:center;font-size:20px;
+    background:radial-gradient(circle at 35% 30%, #FFF6DD 0%, #F0CE72 45%, #B8860B 100%);
+    animation:mmrPulse 2.6s ease-in-out infinite;
+  }
+  .mmr-text{font-weight:800;color:#3E2A05;letter-spacing:0.2px;flex:1;position:relative;z-index:1;font-size:16px;text-shadow:0 1px 0 rgba(255,255,255,0.3);}
   .mmr-tag{
     position:relative;z-index:1;flex:none;
-    font-family:'Space Mono',monospace;font-size:9.5px;font-weight:700;letter-spacing:0.6px;text-transform:uppercase;
-    background:linear-gradient(135deg, var(--teal), var(--gold-light));color:var(--ink-black);
-    padding:4px 10px;border-radius:20px;
+    font-family:'Space Mono',monospace;font-size:10px;font-weight:800;letter-spacing:0.6px;text-transform:uppercase;
+    background:var(--ink-black);color:var(--gold-light);
+    padding:5px 11px;border-radius:20px;
+    box-shadow:0 3px 10px rgba(0,0,0,0.35);
   }
   .mobile-menu .mobile-cta{display:flex;flex-direction:column;gap:12px;margin-top:20px;padding-bottom:4px;}
   @media (max-width:1860px){
@@ -3487,7 +3479,6 @@
     </div>
   </nav>
   <div class="mobile-menu">
-    <div class="mobile-menu-head"><span>Menu</span><span>NF · Naseem Fitness</span></div>
     <a href="#" onclick="document.getElementById('nav-toggle').checked=false;openAccountEntry();return false;" id="mobile-menu-account-link"><span class="mm-icon">👤</span>My Account</a>
     <a href="#top" onclick="document.getElementById('nav-toggle').checked=false"><span class="mm-icon">🏠</span>Home</a>
     <a href="#authenticity" onclick="document.getElementById('nav-toggle').checked=false"><span class="mm-icon">🛡️</span>Verify Product</a>
