@@ -6994,7 +6994,17 @@ function openTrustModal(key){
   const cta = document.getElementById('trust-modal-cta');
   cta.href = data.ctaHref;
   document.getElementById('trust-modal-cta-label').textContent = data.ctaLabel;
-  cta.onclick = function(){ closeTrustModal(); };
+  cta.onclick = function(){
+    // Close the modal UI without triggering history.back() here — that
+    // async back-navigation was racing with this link's own href
+    // navigation (e.g. to #authenticity) and winning, so the page never
+    // actually scrolled to the target section. Suppress the back-pop for
+    // just this synchronous close and let the normal <a href> navigation
+    // proceed untouched.
+    nfSuppressPop = true;
+    closeTrustModal();
+    nfSuppressPop = false;
+  };
   document.getElementById('trust-modal-overlay').classList.add('active');
   nfOverlayOpened('trust');
 }
