@@ -319,23 +319,46 @@
     .mobile-search-bar .cam-btn{display:none;}
   }
 
-  /* ===== MOBILE MENU ===== */
+  /* ===== MOBILE MENU — ultra premium full-screen overlay ===== */
   .nav-toggle-input{display:none;}
-  .hamburger-btn{display:none;flex-direction:column;gap:5px;cursor:pointer;width:28px;padding:6px 0;}
-  .hamburger-btn span{display:block;height:2px;width:100%;background:var(--paper);border-radius:2px;transition:transform .2s ease, opacity .2s ease;}
+  .hamburger-btn{display:none;flex-direction:column;gap:5px;cursor:pointer;width:28px;padding:6px 0;position:relative;z-index:2;}
+  .hamburger-btn span{display:block;height:2px;width:100%;background:var(--paper);border-radius:2px;transition:transform .25s ease, opacity .2s ease;}
   .mobile-menu{
     display:none;flex-direction:column;
-    background:var(--steel);border-top:1px solid var(--line);
-    padding:8px 28px 24px;
+    background:linear-gradient(180deg, var(--steel) 0%, #0A0806 145%);
+    padding:0 26px 28px;
+    overflow-y:auto;-webkit-overflow-scrolling:touch;
+  }
+  .mobile-menu-head{
+    display:flex;align-items:center;justify-content:space-between;
+    padding:20px 2px 16px;margin-bottom:4px;border-bottom:1px solid var(--line);
+  }
+  .mobile-menu-head span{
+    font-family:'Space Mono',monospace;font-size:11px;font-weight:700;
+    letter-spacing:1.8px;text-transform:uppercase;color:var(--teal);
   }
   .mobile-menu a{
-    padding:14px 0;font-size:15px;font-weight:600;
+    display:flex;align-items:center;gap:12px;
+    padding:15px 4px;font-size:15px;font-weight:600;color:var(--paper);
     border-bottom:1px solid var(--line);
+    transition:color .2s ease, padding-left .2s ease;
   }
-  .mobile-menu .mobile-cta{display:flex;flex-direction:column;gap:12px;margin-top:16px;}
+  .mobile-menu a:hover,.mobile-menu a:active{color:var(--teal);padding-left:8px;}
+  .mobile-menu .mobile-cta{display:flex;flex-direction:column;gap:12px;margin-top:22px;padding-bottom:4px;}
   @media (max-width:1860px){
     .hamburger-btn{display:flex;}
-    .nav-toggle-input:checked ~ .mobile-menu{display:flex;}
+    header:has(#nav-toggle:checked){
+      position:fixed;inset:0;height:100dvh;
+      display:flex;flex-direction:column;
+      background:var(--steel);
+      z-index:500;
+    }
+    header:has(#nav-toggle:checked) .topbar,
+    header:has(#nav-toggle:checked) nav.wrap{flex:none;}
+    .nav-toggle-input:checked ~ .mobile-menu{display:flex;flex:1;min-height:0;}
+    .nav-toggle-input:checked ~ nav .hamburger-btn span:nth-child(1){transform:translateY(7px) rotate(45deg);}
+    .nav-toggle-input:checked ~ nav .hamburger-btn span:nth-child(2){opacity:0;}
+    .nav-toggle-input:checked ~ nav .hamburger-btn span:nth-child(3){transform:translateY(-7px) rotate(-45deg);}
   }
 
   /* ===== HERO ===== */
@@ -1712,12 +1735,20 @@
   .verify-form input::placeholder{color:var(--paper-dim);font-weight:500;text-transform:none;letter-spacing:0.3px;}
   .verify-form input:focus{outline:none;border-color:var(--teal);box-shadow:0 0 0 4px rgba(184,134,11,0.14);}
   .verify-form button{
-    background:linear-gradient(135deg, var(--teal), var(--gold-light));color:var(--ink-black);border:none;border-radius:10px;
-    padding:0 26px;font-family:'Inter',sans-serif;font-weight:800;font-size:14px;cursor:pointer;flex:none;
-    box-shadow:0 10px 22px -8px rgba(184,134,11,0.55);
-    transition:transform .2s ease, box-shadow .2s ease;
+    position:relative;overflow:hidden;
+    background:linear-gradient(120deg, var(--teal) 0%, var(--gold-light) 45%, var(--teal) 100%);
+    background-size:220% auto;background-position:0% center;
+    color:var(--ink-black);border:none;border-radius:12px;
+    min-height:54px;padding:0 32px;
+    display:inline-flex;align-items:center;justify-content:center;gap:9px;
+    font-family:'Inter',sans-serif;font-weight:800;font-size:14.5px;letter-spacing:0.8px;text-transform:uppercase;
+    cursor:pointer;flex:none;
+    box-shadow:0 16px 32px -10px rgba(184,134,11,0.6), inset 0 1px 0 rgba(255,255,255,0.4);
+    transition:transform .25s ease, box-shadow .25s ease, background-position .5s ease;
   }
-  .verify-form button:hover{transform:translateY(-2px);box-shadow:0 14px 26px -8px rgba(184,134,11,0.65);}
+  .verify-form button::before{content:'🛡';font-size:14px;line-height:1;flex:none;filter:drop-shadow(0 1px 1px rgba(0,0,0,0.15));}
+  .verify-form button:hover{transform:translateY(-2px);background-position:100% center;box-shadow:0 20px 38px -10px rgba(184,134,11,0.7), inset 0 1px 0 rgba(255,255,255,0.45);}
+  .verify-form button:active{transform:translateY(0);}
   .verify-form button:disabled{opacity:0.6;cursor:default;transform:none;box-shadow:none;}
   .verify-msg{font-size:13.5px;font-family:'Inter',sans-serif;font-weight:500;line-height:1.55;padding:12px 14px;border-radius:8px;display:none;margin-bottom:18px;}
   .verify-msg.err{display:block;background:rgba(194,63,63,0.08);border:1px solid rgba(194,63,63,0.3);color:#A93333;}
@@ -3408,6 +3439,7 @@
     </div>
   </nav>
   <div class="mobile-menu">
+    <div class="mobile-menu-head"><span>Menu</span><span>NF · Naseem Fitness</span></div>
     <a href="#" onclick="document.getElementById('nav-toggle').checked=false;openAccountEntry();return false;" id="mobile-menu-account-link">👤 My Account</a>
     <a href="#top" onclick="document.getElementById('nav-toggle').checked=false">Home</a>
     <a href="#authenticity" onclick="document.getElementById('nav-toggle').checked=false">Verify Product</a>
