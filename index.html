@@ -2391,22 +2391,27 @@
     position:relative;flex:none;-webkit-appearance:none;appearance:none;
     width:42px;height:42px;border-radius:50%;
     display:flex;align-items:center;justify-content:center;
-    background:linear-gradient(155deg, var(--iron) 0%, var(--ink-black) 100%);
-    border:1px solid var(--line-strong);
-    color:var(--teal);cursor:pointer;padding:0;
-    box-shadow:0 6px 16px rgba(0,0,0,0.45), inset 0 0 0 1px rgba(255,210,74,0.06);
-    transition:transform .25s cubic-bezier(.2,.8,.2,1), box-shadow .25s ease, border-color .25s ease;
+    background:linear-gradient(155deg, #1C1710 0%, var(--ink-black) 100%);
+    border:1.5px solid rgba(184,134,11,0.55);
+    color:var(--gold-light);cursor:pointer;padding:0;
+    box-shadow:0 8px 20px -6px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.06);
+    transition:transform .25s cubic-bezier(.2,.8,.2,1), box-shadow .25s ease, background .3s ease, color .25s ease, border-color .25s ease;
   }
   .nf-back-btn svg{width:19px;height:19px;transition:transform .25s ease;display:block;}
   .nf-back-btn::before{
     content:'';position:absolute;inset:-2px;border-radius:50%;pointer-events:none;
-    background:conic-gradient(from 0deg, transparent 0%, var(--teal) 10%, transparent 24%);
+    background:conic-gradient(from 0deg, transparent 0%, var(--gold-light) 10%, transparent 24%);
     opacity:0;transition:opacity .3s ease;
     animation:nfBackSpin 2.4s linear infinite;animation-play-state:paused;
     -webkit-mask:radial-gradient(farthest-side, transparent calc(100% - 3px), #000 calc(100% - 2px));
     mask:radial-gradient(farthest-side, transparent calc(100% - 3px), #000 calc(100% - 2px));
   }
-  .nf-back-btn:hover{transform:translateY(-2px);border-color:var(--teal);box-shadow:0 10px 22px rgba(255,210,74,0.22), inset 0 0 0 1px rgba(255,210,74,0.15);}
+  .nf-back-btn:hover{
+    transform:translateY(-2px);
+    background:linear-gradient(135deg, var(--teal) 0%, var(--gold-light) 100%);
+    color:var(--ink-black);border-color:transparent;
+    box-shadow:0 14px 28px -8px rgba(184,134,11,0.6), inset 0 1px 0 rgba(255,255,255,0.35);
+  }
   .nf-back-btn:hover svg{transform:translateX(-2px);}
   .nf-back-btn:hover::before{opacity:1;animation-play-state:running;}
   .nf-back-btn:active{transform:translateY(0) scale(0.94);}
