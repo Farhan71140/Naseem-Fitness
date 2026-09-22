@@ -2107,31 +2107,44 @@
   .visit-map iframe{
     position:absolute;inset:0;width:100%;height:100%;border:0;pointer-events:none;
     filter:invert(92%) hue-rotate(180deg) brightness(0.95) contrast(1.05) saturate(0.6);
-    transform:scale(1.04);
+    transform:scale(1.12);
     transition:transform .6s ease, filter .4s ease;
   }
   .visit-map:hover iframe{
-    transform:scale(1.1);
+    transform:scale(1.18);
     filter:invert(92%) hue-rotate(180deg) brightness(1.02) contrast(1.1) saturate(0.8);
+  }
+  /* Masks Google's own floating place-name chip baked into the embed (its
+     wording/width is outside our control and can render clipped) so our
+     own branded badge below is always the single source of truth. */
+  .visit-map::before{
+    content:"";position:absolute;inset:0 0 auto 0;height:92px;z-index:1;pointer-events:none;
+    background:linear-gradient(180deg, var(--ink-black) 0%, var(--ink-black) 38%, rgba(10,8,6,0) 100%);
   }
   .map-click-layer{
     position:absolute;inset:0;z-index:2;display:flex;flex-direction:column;justify-content:space-between;
     text-decoration:none;cursor:pointer;padding:22px;
-    background:linear-gradient(180deg, rgba(10,8,6,0.6) 0%, rgba(10,8,6,0) 26%, rgba(10,8,6,0) 66%, rgba(10,8,6,0.7) 100%);
+    background:linear-gradient(180deg, rgba(10,8,6,0.55) 0%, rgba(10,8,6,0) 34%, rgba(10,8,6,0) 66%, rgba(10,8,6,0.72) 100%);
     transition:background .35s ease;
   }
   .map-click-layer:hover{
-    background:linear-gradient(180deg, rgba(10,8,6,0.7) 0%, rgba(255,210,74,0.06) 26%, rgba(255,210,74,0.06) 66%, rgba(10,8,6,0.8) 100%);
+    background:linear-gradient(180deg, rgba(10,8,6,0.65) 0%, rgba(255,210,74,0.07) 34%, rgba(255,210,74,0.07) 66%, rgba(10,8,6,0.82) 100%);
   }
   .map-pin-badge{
-    align-self:flex-start;display:inline-flex;align-items:center;gap:9px;
-    background:rgba(10,8,6,0.8);backdrop-filter:blur(6px);
-    border:1px solid var(--line);border-radius:30px;padding:9px 18px 9px 13px;
-    font-family:'Space Mono',monospace;font-size:12px;color:var(--paper);letter-spacing:0.3px;
-    box-shadow:0 6px 20px rgba(20,16,10,0.09);
+    align-self:flex-start;max-width:100%;display:inline-flex;align-items:center;gap:10px;
+    background:linear-gradient(180deg, rgba(24,19,13,0.92), rgba(10,8,6,0.92));
+    backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);
+    border:1px solid rgba(255,210,74,0.35);border-radius:30px;padding:10px 20px 10px 14px;
+    font-family:'Space Mono',monospace;font-size:12.5px;color:var(--paper);letter-spacing:0.4px;
+    white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+    box-shadow:0 8px 24px rgba(0,0,0,0.35), 0 0 0 1px rgba(255,210,74,0.06) inset;
+  }
+  .map-pin-badge b{
+    font-family:inherit;font-weight:700;color:var(--teal);letter-spacing:0.3px;
   }
   .map-pin-dot{
     width:9px;height:9px;border-radius:50%;background:var(--teal);flex:none;
+    box-shadow:0 0 0 0 rgba(255,210,74,0.55);
     animation:mapPulse 2s infinite;
   }
   @keyframes mapPulse{
@@ -2141,7 +2154,7 @@
   }
   .map-cta{
     align-self:flex-end;display:inline-flex;align-items:center;gap:7px;
-    background:var(--teal);color:var(--ink-black);font-weight:700;font-size:13px;
+    background:linear-gradient(135deg, #ffe08a, var(--teal));color:var(--ink-black);font-weight:700;font-size:13px;
     padding:12px 20px;border-radius:8px;box-shadow:0 8px 24px rgba(255,210,74,0.25);
     transition:transform .25s ease, box-shadow .25s ease;
   }
@@ -2150,6 +2163,9 @@
     .visit{grid-template-columns:1fr;}
     .visit-info{padding:36px 24px;}
     .visit-map{min-height:260px;border-left:none;border-top:1px solid var(--line);}
+  }
+  @media (max-width:480px){
+    .map-pin-badge{max-width:calc(100% - 4px);font-size:11.5px;padding:9px 16px 9px 12px;gap:8px;}
   }
   /* On mobile: show video+badges, then Shop by Category, then Fitness
      Lifestyle slider, then Season's Bestsellers, then Combos/Products,
@@ -3951,7 +3967,7 @@
             title="NF Naseem Fitness store location map"
             aria-hidden="true"></iframe>
           <a class="map-click-layer" href="https://maps.app.goo.gl/fY2jFmmJDSi7Fisn6" target="_blank" rel="noopener" aria-label="Open NF Naseem Fitness location in Google Maps">
-            <span class="map-pin-badge"><span class="map-pin-dot"></span>NF Naseem Fitness</span>
+            <span class="map-pin-badge"><span class="map-pin-dot"></span><b>NF Naseem Fitness</b></span>
             <span class="map-cta">📍 Get Directions →</span>
           </a>
         </div>
