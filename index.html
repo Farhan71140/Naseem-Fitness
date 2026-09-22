@@ -7896,6 +7896,12 @@ function viewCartLineImage(lineId){
 }
 function viewCartLineProduct(lineId){
   const ref = resolveCartLineRef(lineId);
+  // Register the destination overlay on the navigation stack BEFORE closing
+  // the cart (same pattern openCheckout() uses) — otherwise the stack
+  // briefly empties, closeCart() fires a browser "back" navigation, and
+  // that stray back-step collides with the quick view's own history entry,
+  // which is what was bouncing people back to the homepage.
+  nfOverlayOpened(ref.type === 'combo' ? 'combo' : 'quickview');
   closeCart();
   if(ref.type === 'combo') openComboQuickView(ref.id);
   else openQuickView(ref.id);
