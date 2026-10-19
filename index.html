@@ -3413,6 +3413,70 @@
     .brand-logo-item{width:92px;height:60px;border-radius:11px;padding:9px;}
   }
 </style>
+
+<link rel="preconnect" href="https://checkout.razorpay.com" crossorigin>
+<style id="rzp-premium-css">
+/* ===== RAZORPAY PREMIUM PAYMENT ===== */
+.rzp-panel{margin-top:10px;position:relative;overflow:hidden;border-radius:16px;padding:18px 16px 14px;color:#F6EACB;
+  background:radial-gradient(120% 140% at 100% 0%,#2B2111 0%,#15100A 55%,#0A0806 100%);
+  border:1px solid rgba(233,200,104,.38);box-shadow:0 18px 38px -16px rgba(10,8,6,.6), inset 0 1px 0 rgba(255,255,255,.06);}
+.rzp-panel::before{content:"";position:absolute;left:0;right:0;top:0;height:1px;background:linear-gradient(90deg,transparent,#E9C868,transparent);}
+.rzp-panel-top{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;margin-bottom:14px;}
+.rzp-eyebrow{font-size:12.5px;color:rgba(246,234,203,.68);}
+.rzp-amount{font-family:'Space Mono',monospace;font-size:32px;font-weight:700;line-height:1.1;color:#E9C868;margin-top:4px;letter-spacing:-.5px;}
+.rzp-secure-chip{display:inline-flex;align-items:center;gap:6px;font-size:11px;padding:6px 10px;border-radius:999px;white-space:nowrap;
+  background:rgba(233,200,104,.1);border:1px solid rgba(233,200,104,.3);color:#E9C868;}
+.rzp-methods{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:14px;}
+.rzp-method{font-size:11.5px;font-weight:600;padding:6px 11px;border-radius:8px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.12);color:#F6EACB;}
+.rzp-pay-btn{position:relative;width:100%;display:flex;align-items:center;justify-content:center;gap:10px;border:0;cursor:pointer;overflow:hidden;
+  border-radius:12px;padding:16px 18px;font-size:15.5px;font-weight:700;font-family:inherit;color:#0A0806;
+  background:linear-gradient(135deg,#F6E39B 0%,#E9C868 38%,#B8860B 100%);
+  box-shadow:0 12px 26px -10px rgba(184,134,11,.8), inset 0 1px 0 rgba(255,255,255,.6);
+  transition:transform .15s ease, box-shadow .2s ease, filter .2s ease;}
+.rzp-pay-btn::after{content:"";position:absolute;top:0;left:-60%;width:36%;height:100%;pointer-events:none;
+  background:linear-gradient(100deg,transparent,rgba(255,255,255,.6),transparent);transform:skewX(-20deg);animation:rzpShine 3.6s ease-in-out infinite;}
+@keyframes rzpShine{0%,62%{left:-60%}100%{left:135%}}
+.rzp-pay-btn:hover{transform:translateY(-1px);box-shadow:0 16px 30px -10px rgba(184,134,11,.9), inset 0 1px 0 rgba(255,255,255,.6);}
+.rzp-pay-btn:active{transform:translateY(0) scale(.99);}
+.rzp-pay-btn:focus-visible{outline:2px solid #F6EACB;outline-offset:3px;}
+.rzp-pay-btn:disabled{cursor:progress;filter:saturate(.8) brightness(.95);transform:none;}
+.rzp-pay-btn.is-busy::after{animation-duration:1.2s;animation-iteration-count:infinite;}
+.rzp-trust{display:flex;gap:8px;align-items:flex-start;margin-top:12px;font-size:11px;line-height:1.5;color:rgba(246,234,203,.58);}
+.rzp-trust svg{flex:none;margin-top:1px;color:#E9C868;}
+/* processing overlay */
+#rzp-processing{position:fixed;inset:0;z-index:2147483000;display:none;align-items:center;justify-content:center;padding:24px;background:rgba(10,8,6,.82);backdrop-filter:blur(6px);}
+#rzp-processing.active{display:flex;}
+.rzp-proc-card{max-width:320px;width:100%;text-align:center;padding:30px 24px;border-radius:18px;color:#F6EACB;background:#15100A;border:1px solid rgba(233,200,104,.35);}
+.rzp-proc-card strong{display:block;font-size:17px;margin-top:18px;}
+.rzp-proc-card p{font-size:13px;color:rgba(246,234,203,.65);margin-top:6px;}
+.rzp-spinner{width:44px;height:44px;margin:0 auto;border-radius:50%;border:3px solid rgba(233,200,104,.2);border-top-color:#E9C868;animation:rzpSpin .9s linear infinite;}
+@keyframes rzpSpin{to{transform:rotate(360deg)}}
+/* success */
+.rzp-success{text-align:center;padding:26px 4px 8px;}
+.rzp-tick{width:84px;height:84px;margin:0 auto 18px;border-radius:50%;display:flex;align-items:center;justify-content:center;
+  background:radial-gradient(circle at 30% 25%,#2B2111,#0A0806);box-shadow:0 14px 34px -12px rgba(184,134,11,.7);}
+.rzp-tick svg{width:52px;height:52px;fill:none;stroke:#E9C868;stroke-width:3;stroke-linecap:round;stroke-linejoin:round;}
+.rzp-tick-ring{stroke-dasharray:151;stroke-dashoffset:151;animation:rzpDraw .7s ease forwards;}
+.rzp-tick-check{stroke-dasharray:44;stroke-dashoffset:44;animation:rzpDraw .45s .55s ease forwards;}
+@keyframes rzpDraw{to{stroke-dashoffset:0}}
+.rzp-success h4{font-size:21px;margin-bottom:8px;}
+.rzp-success-sub{font-size:13.5px;line-height:1.55;color:var(--paper-dim);max-width:340px;margin:0 auto 18px;}
+.rzp-receipt{text-align:left;border-radius:14px;padding:6px 16px;margin-bottom:16px;background:var(--teal-dim);border:1px solid rgba(184,134,11,.3);}
+.rzp-receipt-row{display:flex;justify-content:space-between;gap:12px;padding:11px 0;font-size:13px;border-bottom:1px dashed rgba(184,134,11,.3);}
+.rzp-receipt-row:last-child{border-bottom:0;}
+.rzp-receipt-row>span:first-child{color:var(--paper-dim);}
+.rzp-receipt-row>span:last-child{text-align:right;word-break:break-all;}
+.rzp-receipt .mono{font-family:'Space Mono',monospace;font-size:12px;}
+.rzp-reward{font-size:13px;margin:0 0 16px;}
+.rzp-done-btn{margin-top:4px;}
+.rzp-wa-link{display:inline-block;margin-top:14px;font-size:13px;color:var(--teal);font-weight:600;}
+@media (max-width:480px){.rzp-amount{font-size:27px;}.rzp-secure-chip{display:none;}}
+@media (prefers-reduced-motion:reduce){
+  .rzp-pay-btn::after{animation:none;display:none;}
+  .rzp-tick-ring,.rzp-tick-check{animation:none;stroke-dashoffset:0;}
+  .rzp-spinner{animation-duration:2.4s;}
+}
+</style>
 </head>
 <body>
 
@@ -4186,7 +4250,7 @@
               <span class="faq-icon"></span>
             </button>
             <div class="faq-a"><div class="faq-a-inner">
-              <p>We accept UPI, cards, and cash in-store, plus secure online payment options at checkout on this website.</p>
+              <p>Online we accept UPI, debit &amp; credit cards, net banking and wallets through Razorpay’s secure checkout. Cash on Delivery is available with a 15% advance. In-store you can also pay by cash.</p>
             </div></div>
           </div>
         </div>
@@ -4358,31 +4422,21 @@
           <div class="cod-summary-row"><span>Pay on Delivery (85%)</span><strong id="cod-remaining-amount">₹0</strong></div>
           <div class="cod-summary-note">🔒 A 15% advance confirms your COD order and helps us avoid fake/prank orders. The remaining 85% is paid in cash when your order is delivered.</div>
         </div>
-        <div class="upi-panel" id="cod-advance-panel" style="display:none;">
-          <div class="upi-panel-label">Tap your UPI app to pay the 15% advance — ₹<span id="cod-advance-panel-amount">0</span>:</div>
-          <div class="upi-apps-grid" id="cod-advance-apps-grid">
-            <div class="upi-app-btn" onclick="payWithUpiApp('gpay','cod')">
-              <div class="upi-app-icon gpay">G</div><span>Google Pay</span>
+        <div class="rzp-panel" id="cod-advance-panel" style="display:none;">
+          <div class="rzp-panel-top">
+            <div>
+              <div class="rzp-eyebrow">Advance to confirm your COD order</div>
+              <div class="rzp-amount">₹<span id="cod-advance-panel-amount">0</span></div>
             </div>
-            <div class="upi-app-btn" onclick="payWithUpiApp('phonepe','cod')">
-              <div class="upi-app-icon phonepe">P</div><span>PhonePe</span>
-            </div>
-            <div class="upi-app-btn" onclick="payWithUpiApp('paytm','cod')">
-              <div class="upi-app-icon paytm">₹</div><span>Paytm</span>
-            </div>
-            <div class="upi-app-btn" onclick="payWithUpiApp('navi','cod')">
-              <div class="upi-app-icon navi">N</div><span>Navi</span>
-            </div>
-            <div class="upi-app-btn" onclick="payWithUpiApp('other','cod')">
-              <div class="upi-app-icon other">⋯</div><span>Other UPI App</span>
-            </div>
+            <span class="rzp-secure-chip"><svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg> 256-bit secured</span>
           </div>
-          <div class="upi-confirm-step" id="cod-advance-confirm-step" style="display:none;">
-            <p>Opened <strong id="cod-advance-chosen-app-label"></strong> to pay ₹<span id="cod-advance-confirm-amount">0</span> advance?</p>
-            <button type="button" class="btn btn-primary" onclick="confirmCodAdvancePaid()">I've Paid the Advance</button>
-            <button type="button" class="btn btn-ghost" onclick="resetUpiChoice()">Choose a different app / try again</button>
-            <div class="upi-txn-ref" id="cod-advance-txn-ref-display"></div>
+          <div class="rzp-methods">
+            <span class="rzp-method">UPI</span><span class="rzp-method">Cards</span><span class="rzp-method">Net Banking</span><span class="rzp-method">Wallets</span>
           </div>
+          <button type="button" class="rzp-pay-btn" id="cod-pay-btn" onclick="startRazorpayPayment('cod')">
+            <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg><span class="rzp-btn-label">Pay advance securely</span>
+          </button>
+          <div class="rzp-trust"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="m9 12 2 2 4-4"/></svg><span>Payments processed by Razorpay · PCI DSS compliant. We never see or store your card or UPI details.</span></div>
         </div>
         <label class="payment-option" id="pm-upi-option" style="margin-top:20px;">
           <span class="payment-option-badge">Recommended</span>
@@ -4391,36 +4445,26 @@
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M13 2 4 14h7l-1 8 9-12h-7l1-8z"/></svg>
           </span>
           <span class="payment-option-main">
-            <strong>UPI Payment</strong>
+            <strong>Pay Online</strong>
+            <small>UPI, cards, net banking &amp; wallets. Instant confirmation.</small>
           </span>
           <span class="payment-option-check">✓</span>
         </label>
-        <div class="upi-panel" id="upi-panel" style="display:none;">
-          <div class="upi-panel-label">Total Payable — ₹<span id="upi-panel-amount">0</span><span id="upi-panel-amount-suffix"></span></div>
-          <button type="button" class="btn btn-primary" id="upi-checkout-btn" style="width:100%;justify-content:center;" onclick="showUpiAppsGrid()">Checkout →</button>
-          <div class="upi-apps-grid" id="upi-apps-grid" style="display:none;margin-top:14px;">
-            <div class="upi-app-btn" onclick="payWithUpiApp('gpay')">
-              <div class="upi-app-icon gpay">G</div><span>Google Pay</span>
+        <div class="rzp-panel" id="upi-panel" style="display:none;">
+          <div class="rzp-panel-top">
+            <div>
+              <div class="rzp-eyebrow">Total payable</div>
+              <div class="rzp-amount">₹<span id="upi-panel-amount">0</span></div>
             </div>
-            <div class="upi-app-btn" onclick="payWithUpiApp('phonepe')">
-              <div class="upi-app-icon phonepe">P</div><span>PhonePe</span>
-            </div>
-            <div class="upi-app-btn" onclick="payWithUpiApp('paytm')">
-              <div class="upi-app-icon paytm">₹</div><span>Paytm</span>
-            </div>
-            <div class="upi-app-btn" onclick="payWithUpiApp('navi')">
-              <div class="upi-app-icon navi">N</div><span>Navi</span>
-            </div>
-            <div class="upi-app-btn" onclick="payWithUpiApp('other')">
-              <div class="upi-app-icon other">⋯</div><span>Other UPI App</span>
-            </div>
+            <span class="rzp-secure-chip"><svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg> 256-bit secured</span>
           </div>
-          <div class="upi-confirm-step" id="upi-confirm-step" style="display:none;">
-            <p>Opened <strong id="upi-chosen-app-label"></strong> to pay ₹<span id="upi-confirm-amount">0</span><span id="upi-confirm-amount-suffix"></span>?</p>
-            <button type="button" class="btn btn-primary" onclick="confirmUpiPaid()">I've Completed the Payment</button>
-            <button type="button" class="btn btn-ghost" onclick="resetUpiChoice(true)">Choose a different app / try again</button>
-            <div class="upi-txn-ref" id="upi-txn-ref-display"></div>
+          <div class="rzp-methods">
+            <span class="rzp-method">UPI</span><span class="rzp-method">Cards</span><span class="rzp-method">Net Banking</span><span class="rzp-method">Wallets</span>
           </div>
+          <button type="button" class="rzp-pay-btn" id="upi-pay-btn" onclick="startRazorpayPayment('full')">
+            <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg><span class="rzp-btn-label">Pay securely</span>
+          </button>
+          <div class="rzp-trust"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="m9 12 2 2 4-4"/></svg><span>Payments processed by Razorpay · PCI DSS compliant. We never see or store your card or UPI details.</span></div>
         </div>
       </div>
       <div class="free-delivery-banner" id="checkout-delivery-banner"></div>
@@ -8465,119 +8509,232 @@ function useCurrentLocation(){
   }, { enableHighAccuracy: true, timeout: 10000 });
 }
 
-/* ---------- UPI payment (Google Pay / PhonePe / Paytm / Navi / any UPI app) ----------
-   NOTE: this is a static storefront with no payment-gateway backend, so there is no
-   automatic server-side confirmation of a UPI payment. We deep-link into the chosen
-   app with the amount pre-filled, then ask the customer to confirm they've paid.
-   The order is inserted with upi_paid:false and the admin verifies it manually in
-   the dashboard. Cash on Delivery orders do NOT go through UPI at all — they are
-   placed directly and paid in cash when the order arrives. */
-const UPI_VPA = 'Q484409357@ybl';
-const UPI_PAYEE_NAME = 'Nf Naseem Supplement Store';
-const UPI_APP_LABELS = { gpay:'Google Pay', phonepe:'PhonePe', paytm:'Paytm', navi:'Navi', other:'your UPI app' };
-
-function buildUpiLink(app, amount, ref){
-  const note = 'NF Order ' + ref;
-  const params = 'pa=' + encodeURIComponent(UPI_VPA)
-    + '&pn=' + encodeURIComponent(UPI_PAYEE_NAME)
-    + '&am=' + encodeURIComponent(amount)
-    + '&cu=INR'
-    + '&tn=' + encodeURIComponent(note)
-    + '&tr=' + encodeURIComponent(ref);
-  switch(app){
-    case 'gpay': return 'tez://upi/pay?' + params;
-    case 'phonepe': return 'phonepe://pay?' + params;
-    case 'paytm': return 'paytmmp://pay?' + params;
-    default: return 'upi://pay?' + params; // Navi, BHIM, Amazon Pay, Cred, etc. via the system UPI chooser
-  }
-}
-
-/* ---------- COD advance (15%) ----------
-   Cash on Delivery orders require a 15% advance paid online (via UPI) to confirm
-   the order and discourage fake/prank orders. The remaining 85% is collected in
-   cash when the order is delivered. */
+/* ---------- Razorpay payments ----------
+   Flow: browser sends cart ids + quantities to /api/create-razorpay-order (the server
+   re-prices everything from the database) -> Razorpay popup -> /api/verify-razorpay-payment
+   (signature + server-side payment check) -> order is created. /api/razorpay-webhook is the
+   safety net if the customer pays and then closes the tab.
+   Cash on Delivery still requires the 15% advance, now paid through the same secure popup. */
 const COD_ADVANCE_PCT = 15;
 function getCodAdvance(total){ return Math.round(total * COD_ADVANCE_PCT / 100); }
 function getCodRemaining(total){ return total - getCodAdvance(total); }
 
-function payWithUpiApp(app, context){
+const CHECKOUT_BODY_ORIGINAL = document.getElementById('checkout-body').innerHTML;
+function restoreCheckoutBodyIfNeeded(){
+  const body = document.getElementById('checkout-body');
+  if(body && !document.getElementById('chk-name')) body.innerHTML = CHECKOUT_BODY_ORIGINAL;
+}
+
+let RZP_BUSY = false;
+let RZP_SCRIPT_PROMISE = null;
+function loadRazorpayScript(){
+  if(window.Razorpay) return Promise.resolve();
+  if(RZP_SCRIPT_PROMISE) return RZP_SCRIPT_PROMISE;
+  RZP_SCRIPT_PROMISE = new Promise((resolve, reject)=>{
+    const s = document.createElement('script');
+    s.src = 'https://checkout.razorpay.com/v1/checkout.js';
+    s.async = true;
+    s.onload = resolve;
+    s.onerror = ()=>{ RZP_SCRIPT_PROMISE = null; reject(new Error('script')); };
+    document.head.appendChild(s);
+  });
+  return RZP_SCRIPT_PROMISE;
+}
+window.addEventListener('load', ()=> setTimeout(()=>{ loadRazorpayScript().catch(()=>{}); }, 2000));
+
+// Kept as a no-op so updatePaymentSummary() (which calls it when the method changes) keeps working.
+function resetUpiChoice(){}
+
+function showCheckoutError(msg){
+  const box = document.getElementById('checkout-error');
+  if(!box) return;
+  box.textContent = msg;
+  box.style.display = 'block';
+  box.scrollIntoView({ behavior:'smooth', block:'nearest' });
+}
+function setPayBusy(busy){
+  RZP_BUSY = busy;
+  document.querySelectorAll('.rzp-pay-btn').forEach(b=>{
+    b.disabled = busy;
+    b.classList.toggle('is-busy', busy);
+    const l = b.querySelector('.rzp-btn-label');
+    if(!l) return;
+    if(busy){ if(!l.dataset.idle) l.dataset.idle = l.textContent; l.textContent = 'Opening secure payment…'; }
+    else if(l.dataset.idle){ l.textContent = l.dataset.idle; }
+  });
+}
+function showPaymentProcessing(title, sub){
+  let el = document.getElementById('rzp-processing');
+  if(!el){
+    el = document.createElement('div');
+    el.id = 'rzp-processing';
+    el.setAttribute('role','status');
+    el.innerHTML = '<div class="rzp-proc-card"><div class="rzp-spinner"></div><strong id="rzp-proc-title"></strong><p id="rzp-proc-sub"></p></div>';
+    document.body.appendChild(el);
+  }
+  document.getElementById('rzp-proc-title').textContent = title;
+  document.getElementById('rzp-proc-sub').textContent = sub || '';
+  el.classList.add('active');
+}
+function hidePaymentProcessing(){
+  const el = document.getElementById('rzp-processing');
+  if(el) el.classList.remove('active');
+}
+
+async function startRazorpayPayment(context){
+  if(RZP_BUSY) return;
   context = context === 'cod' ? 'cod' : 'full';
-  if(CART.length===0) return;
+  if(CART.length === 0) return;
+
   const name = document.getElementById('chk-name').value.trim();
-  const phone = document.getElementById('chk-phone').value.trim();
+  const phone = document.getElementById('chk-phone').value.replace(/\D/g,'').slice(-10);
+  const address = document.getElementById('chk-address').value.trim();
+  const pincode = document.getElementById('chk-pincode').value.trim();
   const errBox = document.getElementById('checkout-error');
-  if(!name || !phone){
-    errBox.textContent = 'Please enter your name and phone number before paying.';
-    errBox.style.display = 'block';
-    return;
+
+  if(!name){ return showCheckoutError('Please enter your full name.'); }
+  if(!/^\d{10}$/.test(phone)){ return showCheckoutError('Please enter a valid 10-digit phone number.'); }
+  if(address.length < 6){ return showCheckoutError('Please enter your full delivery address.'); }
+  if(!/^\d{6}$/.test(pincode)){ return showCheckoutError('Please enter a valid 6-digit delivery PIN code.'); }
+  const picked = document.querySelector('input[name="payment-method"]:checked');
+  if(!picked || (context === 'cod' && picked.value !== 'cod') || (context === 'full' && picked.value !== 'upi')){
+    return showCheckoutError('Please select a payment method.');
   }
   errBox.style.display = 'none';
+  setPayBusy(true);
 
-  const total = getOrderTotal(cartTotal());
-  const amount = context === 'cod' ? getCodAdvance(total) : total;
-  const ref = 'NF' + Date.now();
-  window.selectedUpiApp = app;
-  window.upiTxnRef = ref;
-  window.upiPaymentContext = context;
+  // Make sure a Lucky Spin reward is current before the server prices the order.
+  try{ await checkCheckoutReward(); }catch(e){}
 
-  const amountEl = document.getElementById(context === 'cod' ? 'cod-advance-confirm-amount' : 'upi-confirm-amount');
-  const labelEl = document.getElementById(context === 'cod' ? 'cod-advance-chosen-app-label' : 'upi-chosen-app-label');
-  const refEl = document.getElementById(context === 'cod' ? 'cod-advance-txn-ref-display' : 'upi-txn-ref-display');
-  const stepEl = document.getElementById(context === 'cod' ? 'cod-advance-confirm-step' : 'upi-confirm-step');
-  if(amountEl) amountEl.textContent = amount.toLocaleString('en-IN');
-  if(labelEl) labelEl.textContent = UPI_APP_LABELS[app] || 'your UPI app';
-  if(refEl) refEl.textContent = 'Ref: ' + ref;
-  if(stepEl) stepEl.style.display = 'block';
-
-  const link = buildUpiLink(app, amount, ref);
-  window.location.href = link;
-}
-
-function showUpiAppsGrid(){
-  const grid = document.getElementById('upi-apps-grid');
-  const btn = document.getElementById('upi-checkout-btn');
-  if(grid) grid.style.display = 'grid';
-  if(btn) btn.style.display = 'none';
-}
-
-function resetUpiChoice(keepAppsVisible){
-  window.selectedUpiApp = null;
-  window.upiTxnRef = null;
-  window.upiPaymentContext = null;
-  const step = document.getElementById('upi-confirm-step');
-  if(step) step.style.display = 'none';
-  const codStep = document.getElementById('cod-advance-confirm-step');
-  if(codStep) codStep.style.display = 'none';
-  // Full reset (payment method switched, or checkout drawer just opened) also
-  // collapses the UPI apps grid back behind the "Checkout" button. "Try again"
-  // from the confirm step passes keepAppsVisible=true so the grid stays open.
-  if(!keepAppsVisible){
-    const upiGrid = document.getElementById('upi-apps-grid');
-    if(upiGrid) upiGrid.style.display = 'none';
-    const upiCheckoutBtn = document.getElementById('upi-checkout-btn');
-    if(upiCheckoutBtn) upiCheckoutBtn.style.display = '';
-  }
-}
-
-async function confirmUpiPaid(){
-  if(!window.upiTxnRef){
-    const errBox = document.getElementById('checkout-error');
-    errBox.textContent = 'Please tap a UPI app above and complete the payment first.';
-    errBox.style.display = 'block';
+  let data;
+  try{
+    const resp = await fetch('/api/create-razorpay-order', {
+      method:'POST',
+      headers:{ 'Content-Type':'application/json' },
+      body: JSON.stringify({
+        context, name, phone, address, pincode,
+        delivery: FAST_DELIVERY.selected ? 'fast' : 'standard',
+        items: CART.map(l => ({ id:l.id, qty:l.qty, name:l.name }))
+      })
+    });
+    data = await resp.json().catch(()=>({}));
+    if(!resp.ok){ const e = new Error(data.error || 'Could not start the payment.'); e.userFacing = true; throw e; }
+    await loadRazorpayScript();
+  }catch(err){
+    setPayBusy(false);
+    showCheckoutError(err && err.userFacing ? err.message : 'We couldn’t reach the secure payment gateway. Check your connection and try again.');
     return;
   }
-  await submitOrder();
+
+  let paid = false;
+  const rzp = new Razorpay({
+    key: data.keyId,
+    amount: data.amountPaise,
+    currency: 'INR',
+    order_id: data.razorpayOrderId,
+    name: 'NF Naseem Fitness',
+    description: context === 'cod' ? 'Advance to confirm your COD order' : 'Secure order payment',
+    image: location.origin + '/assets/icon-192.png',
+    prefill: { name, contact: '+91' + phone },
+    notes: { context },
+    theme: { color:'#B8860B', backdrop_color:'rgba(10,8,6,0.78)' },
+    retry: { enabled:true, max_count:3 },
+    timeout: 900,
+    config: { display: {
+      blocks: {
+        upi:   { name:'Pay with UPI', instruments:[{ method:'upi' }] },
+        other: { name:'Cards, Net Banking & Wallets', instruments:[{ method:'card' },{ method:'netbanking' },{ method:'wallet' }] }
+      },
+      sequence: ['block.upi','block.other'],
+      preferences: { show_default_blocks:false }
+    }},
+    modal: {
+      confirm_close: true,
+      ondismiss: function(){
+        if(paid) return;
+        setPayBusy(false);
+        showCheckoutError('Payment cancelled. Your cart is safe, so you can try again whenever you’re ready.');
+      }
+    },
+    handler: function(r){ paid = true; finishRazorpayPayment(r, name); }
+  });
+  rzp.on('payment.failed', function(r){
+    const why = r && r.error && r.error.description ? r.error.description : 'The payment didn’t go through.';
+    showCheckoutError(why + ' You can retry in the payment window.');
+  });
+  rzp.open();
 }
 
-async function confirmCodAdvancePaid(){
-  if(!window.upiTxnRef || window.upiPaymentContext !== 'cod'){
-    const errBox = document.getElementById('checkout-error');
-    errBox.textContent = 'Please tap a UPI app above and pay the 15% advance first.';
-    errBox.style.display = 'block';
-    return;
+async function finishRazorpayPayment(r, customerName){
+  showPaymentProcessing('Confirming your payment…', 'Please don’t close or refresh this page.');
+  let result = null;
+  for(let i = 0; i < 4 && !result; i++){
+    try{
+      const resp = await fetch('/api/verify-razorpay-payment', {
+        method:'POST',
+        headers:{ 'Content-Type':'application/json' },
+        body: JSON.stringify({
+          razorpay_order_id: r.razorpay_order_id,
+          razorpay_payment_id: r.razorpay_payment_id,
+          razorpay_signature: r.razorpay_signature
+        })
+      });
+      const j = await resp.json().catch(()=>({}));
+      if(resp.ok && j.ok){ result = j; }
+      else if(resp.status === 400){ break; }   // signature/amount problem: retrying won't help
+    }catch(e){ /* network blip: retry */ }
+    if(!result) await new Promise(res => setTimeout(res, 1500 * (i + 1)));
   }
-  await submitOrder();
+  hidePaymentProcessing();
+  setPayBusy(false);
+  CART = [];
+  renderCart();
+  resetFastDeliveryUI();
+  CHECKOUT_REWARD = null;
+  if(result) renderPaymentSuccess(result, customerName);
+  else renderPaymentPending(r.razorpay_payment_id, customerName);
 }
+
+const RZP_METHOD_LABELS = { upi:'UPI', card:'Card', netbanking:'Net Banking', wallet:'Wallet', emi:'EMI', paylater:'Pay Later' };
+function renderPaymentSuccess(res, customerName){
+  if(window.fbq) fbq('track', 'Purchase', { value: res.total, currency: 'INR' });
+  const inr = n => '₹' + Number(n).toLocaleString('en-IN');
+  const rewardLine = res.reward
+    ? `<p class="rzp-reward">🎁 Lucky Spin reward applied: <strong>${res.reward.type === 'discount' ? inr(res.reward.value) + ' OFF' : 'FREE ' + escapeHtml(res.reward.label)}</strong></p>` : '';
+  const rows = [
+    ['Order ID', `<span class="mono">${escapeHtml(res.orderRef)}</span>`],
+    [res.isCod ? 'Advance paid' : 'Amount paid', `<strong>${inr(res.amountPaid)}</strong>`],
+    res.isCod ? ['Pay on delivery', `<strong>${inr(res.remaining)}</strong> in cash`] : null,
+    res.method ? ['Paid via', escapeHtml(RZP_METHOD_LABELS[res.method] || res.method)] : null,
+    ['Payment ID', `<span class="mono">${escapeHtml(res.paymentId)}</span>`]
+  ].filter(Boolean).map(r => `<div class="rzp-receipt-row"><span>${r[0]}</span><span>${r[1]}</span></div>`).join('');
+  document.getElementById('checkout-body').innerHTML = `
+    <div class="rzp-success">
+      <div class="rzp-tick"><svg viewBox="0 0 52 52" aria-hidden="true"><circle class="rzp-tick-ring" cx="26" cy="26" r="24"/><path class="rzp-tick-check" d="M14 27l8 8 16-17"/></svg></div>
+      <h4>Payment received</h4>
+      <p class="rzp-success-sub">Thanks, ${escapeHtml(customerName)}. Your order is confirmed and we’re getting it ready to ship.</p>
+      <div class="rzp-receipt">${rows}</div>
+      ${rewardLine}
+      <button type="button" class="rzp-pay-btn rzp-done-btn" onclick="closeCheckout()"><span class="rzp-btn-label">Continue shopping</span></button>
+      <a class="rzp-wa-link" href="https://wa.me/917738242258?text=${encodeURIComponent('Hi NF Naseem Fitness, my order ID is ' + res.orderRef)}" target="_blank" rel="noopener">Questions? Message us on WhatsApp</a>
+    </div>`;
+  const foot = document.querySelector('#checkout-overlay .drawer-foot');
+  if(foot) foot.style.display = 'none';
+}
+function renderPaymentPending(paymentId, customerName){
+  document.getElementById('checkout-body').innerHTML = `
+    <div class="rzp-success">
+      <div class="rzp-tick rzp-tick-wait"><svg viewBox="0 0 52 52" aria-hidden="true"><circle class="rzp-tick-ring" cx="26" cy="26" r="24"/><path class="rzp-tick-check" d="M26 14v13l8 5"/></svg></div>
+      <h4>Payment received, confirming your order</h4>
+      <p class="rzp-success-sub">Thanks, ${escapeHtml(customerName)}. Your payment went through but our confirmation is taking longer than usual. <strong>Please don’t pay again.</strong> Your order will appear within a few minutes.</p>
+      <div class="rzp-receipt"><div class="rzp-receipt-row"><span>Payment ID</span><span class="mono">${escapeHtml(paymentId || '')}</span></div></div>
+      <a class="rzp-pay-btn rzp-done-btn" style="text-decoration:none;" href="https://wa.me/917738242258?text=${encodeURIComponent('Hi NF Naseem Fitness, I paid online (Payment ID ' + (paymentId || '') + ') but did not get an order confirmation.')}" target="_blank" rel="noopener"><span class="rzp-btn-label">Message us on WhatsApp</span></a>
+    </div>`;
+  const foot = document.querySelector('#checkout-overlay .drawer-foot');
+  if(foot) foot.style.display = 'none';
+}
+// Old entry point, kept so any leftover reference still works.
+function submitOrder(){ const m = document.querySelector('input[name="payment-method"]:checked'); return startRazorpayPayment(m && m.value === 'cod' ? 'cod' : 'full'); }
 
 function updatePaymentSummary(){
   const total = getOrderTotal(cartTotal());
@@ -8627,6 +8784,7 @@ function updatePaymentSummary(){
 
 function openCheckout(){
   if(CART.length===0) return;
+  restoreCheckoutBodyIfNeeded();
   nfOverlayOpened('checkout');
   closeCart();
   const subtotal = cartTotal();
@@ -8645,154 +8803,7 @@ function openCheckout(){
 }
 function closeCheckout(){ nfOverlayClosed('checkout'); document.getElementById('checkout-overlay').classList.remove('active'); }
 
-async function submitOrder(){
-  const name = document.getElementById('chk-name').value.trim();
-  const phone = document.getElementById('chk-phone').value.trim();
-  const address = document.getElementById('chk-address').value.trim();
-  const pincode = document.getElementById('chk-pincode').value.trim();
-  const errBox = document.getElementById('checkout-error');
-
-  if(!name || !phone){
-    errBox.textContent = 'Please enter your name and phone number.';
-    errBox.style.display = 'block';
-    return;
-  }
-  if(!/^\d{6}$/.test(pincode)){
-    errBox.textContent = 'Please enter a valid 6-digit delivery PIN code.';
-    errBox.style.display = 'block';
-    return;
-  }
-  if(CART.length===0) return;
-
-  const paymentMethodInput = document.querySelector('input[name="payment-method"]:checked');
-  if(!paymentMethodInput){
-    errBox.textContent = 'Please select a payment method.';
-    errBox.style.display = 'block';
-    return;
-  }
-  const paymentMethod = paymentMethodInput.value;
-
-  // UPI orders require a tap-to-pay confirmation for the full amount first. COD
-  // orders require a tap-to-pay confirmation for the 15% advance first — the
-  // remaining 85% is paid in cash on delivery.
-  if(paymentMethod === 'upi' && (!window.upiTxnRef || window.upiPaymentContext !== 'full')){
-    errBox.textContent = 'Please tap a UPI app above and complete the payment first.';
-    errBox.style.display = 'block';
-    return;
-  }
-  if(paymentMethod === 'cod' && (!window.upiTxnRef || window.upiPaymentContext !== 'cod')){
-    errBox.textContent = 'Please tap a UPI app above and pay the 15% advance first.';
-    errBox.style.display = 'block';
-    return;
-  }
-  errBox.style.display = 'none';
-
-  const btn = paymentMethod === 'cod'
-    ? document.querySelector('#cod-advance-confirm-step .btn-primary')
-    : document.querySelector('#upi-confirm-step .btn-primary');
-  if(btn){ btn.disabled = true; btn.textContent = 'Placing order…'; }
-
-  // Ground-truth re-check: never trust whatever CHECKOUT_REWARD happens to
-  // hold from earlier in the session. It may be stale (phone digit corrected
-  // after the banner last ran) or simply never populated (blur never fired).
-  // Re-fetch directly from the database for the exact phone number being
-  // submitted, right before the order is built, so a valid reward is never
-  // silently missed and total displayed above is what's actually written.
-  if(/^\d{10}$/.test(phone)){
-    const today = todayDateStr();
-    const { data: verifiedReward } = await sb.from('lucky_spins').select('*')
-      .eq('mobile_number', phone).eq('spin_date', today).eq('status', 'active').maybeSingle();
-    // A reward only rides along on the order if the cart, right now, still
-    // meets the ₹1500 unlock threshold — even if the reward is otherwise
-    // still valid in the database.
-    CHECKOUT_REWARD = (verifiedReward && cartTotal() >= SPIN_UNLOCK_THRESHOLD) ? verifiedReward : null;
-  } else {
-    CHECKOUT_REWARD = null;
-  }
-
-  const items = CART.map(l=>({ name:l.name, price:l.price, qty:l.qty }));
-  // Lucky Spin free-item reward (if any) rides along as a ₹0 line item —
-  // it never affects amount/payment totals, only what's shown/fulfilled.
-  if(CHECKOUT_REWARD && CHECKOUT_REWARD.reward_type === 'free_item' && CHECKOUT_REWARD.mobile_number === phone){
-    items.push({ name: `🎁 FREE ${CHECKOUT_REWARD.reward_label} (Lucky Spin Reward)`, price: 0, qty: 1 });
-  }
-  const subtotal = cartTotal();
-  const usingFastDelivery = FAST_DELIVERY.selected;
-  const deliveryFee = getEffectiveDeliveryFee(subtotal);
-  const amount = getOrderTotal(subtotal);
-  const advanceAmount = paymentMethod === 'cod' ? getCodAdvance(amount) : 0;
-  const remainingAmount = paymentMethod === 'cod' ? getCodRemaining(amount) : amount;
-
-  const orderPayload = {
-    customer_name: name,
-    phone,
-    address,
-    items,
-    amount,
-    status: 'pending',
-    payment_method: paymentMethod,
-    advance_amount: advanceAmount,
-    remaining_amount: remainingAmount,
-    advance_paid: false,
-    delivery_type: usingFastDelivery ? 'fast' : 'standard',
-    delivery_pincode: pincode,
-    delivery_fee: deliveryFee,
-    order_weight_kg: cartWeightKg() || null
-  };
-  // TODO: once a real payment-gateway backend (Razorpay/Cashfree etc.) is wired up,
-  // verify the UPI payment here BEFORE inserting the order. For now, both the full
-  // UPI payment and the COD 15% advance are logged with the app + reference the
-  // customer used, and paid:false, to be verified manually in the admin dashboard.
-  // The COD order's remaining 85% is collected in cash when it's delivered.
-  if(paymentMethod === 'upi'){
-    orderPayload.upi_app = window.selectedUpiApp || null;
-    orderPayload.upi_ref = window.upiTxnRef || null;
-    orderPayload.upi_paid = false;
-  }
-  if(paymentMethod === 'cod'){
-    orderPayload.upi_app = window.selectedUpiApp || null;
-    orderPayload.upi_ref = window.upiTxnRef || null;
-  }
-
-  const { data: insertedOrder, error } = await sb.from('orders').insert(orderPayload).select('id, created_at').single();
-
-  if(btn){ btn.disabled = false; btn.textContent = paymentMethod === 'cod' ? "I've Paid the Advance" : "I've Completed the Payment"; }
-
-  if(error){
-    errBox.textContent = "Something went wrong placing your order. Please try again or message us on WhatsApp.";
-    errBox.style.display = 'block';
-    return;
-  }
-
-  if(window.fbq) fbq('track', 'Purchase', { value: amount, currency: 'INR' });
-  const orderRef = insertedOrder && insertedOrder.id ? 'NF-' + insertedOrder.id.slice(0, 8).toUpperCase() : '';
-  // Mark today's Lucky Spin reward as used against this order, if one was applied.
-  const appliedReward = (CHECKOUT_REWARD && CHECKOUT_REWARD.mobile_number === phone) ? CHECKOUT_REWARD : null;
-  if(appliedReward){
-    sb.from('lucky_spins').update({ status:'used', order_number: orderRef }).eq('id', appliedReward.id).then(()=>{});
-    CHECKOUT_REWARD = null;
-  }
-  CART = [];
-  renderCart();
-  resetFastDeliveryUI();
-  let paymentNote = '';
-  if(paymentMethod === 'cod'){
-    paymentNote = `<p style="margin-top:10px;">We're verifying your 15% advance of <strong>₹${advanceAmount.toLocaleString('en-IN')}</strong> (Ref: ${escapeHtml(window.upiTxnRef || '')}). Pay the remaining <strong>₹${remainingAmount.toLocaleString('en-IN')}</strong> in cash when your order is delivered.</p>`;
-  }else if(paymentMethod === 'upi'){
-    paymentNote = `<p style="margin-top:10px;">We're verifying your UPI payment of <strong>₹${amount.toLocaleString('en-IN')}</strong> (Ref: ${escapeHtml(window.upiTxnRef || '')}). You'll get a confirmation shortly — message us on WhatsApp with a screenshot to speed it up.</p>`;
-  }
-  document.getElementById('checkout-body').innerHTML = `
-    <div class="checkout-success">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><path d="M22 4L12 14.01l-3-3"/></svg>
-      <h4>Order placed!</h4>
-      ${orderRef ? `<p style="margin-top:6px;"><span style="font-family:'Space Mono',monospace;color:var(--teal);">Order ID: ${orderRef}</span></p>` : ''}
-      <p>Thanks, ${escapeHtml(name)} — we've received your order and will confirm it shortly. You can also message us on WhatsApp to speed things up.</p>
-      ${appliedReward ? `<p style="margin-top:10px;">🎁 Your Lucky Spin reward — <strong>${appliedReward.reward_type==='discount' ? '₹'+appliedReward.reward_value+' OFF' : 'FREE '+escapeHtml(appliedReward.reward_label)}</strong> — has been applied to this order.</p>` : ''}
-      ${paymentNote}
-    </div>`;
-  document.querySelector('#checkout-overlay .drawer-foot').style.display = 'none';
-  resetUpiChoice();
-}
+/* submitOrder() now lives in the Razorpay block above. */
 
 document.querySelectorAll('.drawer-overlay').forEach(ov=>{
   ov.addEventListener('click', e=>{ if(e.target===ov) ov.classList.remove('active'); });
