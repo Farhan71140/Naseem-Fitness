@@ -2611,6 +2611,7 @@ async function renderOrders(){
       <td data-label="Payment">
         ${String(o.payment_method||'').toLowerCase() === 'cod' ? `
           <div class="cod-cell" style="font-size:12px;line-height:1.5;">
+            ${rzpBadge(o)}
             <div style="color:var(--paper-dim);">COD · Advance ₹${Number(o.advance_amount||0).toLocaleString('en-IN')}</div>
             <div style="color:var(--paper-dim);">Balance ₹${Number(o.remaining_amount||0).toLocaleString('en-IN')} on delivery</div>
             <label style="display:flex;align-items:center;gap:6px;margin-top:4px;cursor:pointer;">
@@ -2620,6 +2621,7 @@ async function renderOrders(){
           </div>
         ` : String(o.payment_method||'').toLowerCase() === 'upi' ? `
           <div class="cod-cell" style="font-size:12px;line-height:1.5;">
+            ${rzpBadge(o)}
             <div style="color:var(--paper-dim);">UPI${o.upi_app ? ' · ' + escapeHtml(upiAppLabel(o.upi_app)) : ''}</div>
             ${o.upi_ref ? `<div class="mono" style="color:var(--paper-dim);">Ref: ${escapeHtml(o.upi_ref)}</div>` : ''}
             <label style="display:flex;align-items:center;gap:6px;margin-top:4px;cursor:pointer;">
@@ -4677,6 +4679,13 @@ async function updateAdvancePaid(id, paid){
 // UPI app for the matching amount + reference, then tick this box to mark it verified.
 const UPI_APP_LABELS = { gpay:'Google Pay', phonepe:'PhonePe', paytm:'Paytm', navi:'Navi', other:'Other UPI app' };
 function upiAppLabel(app){ return UPI_APP_LABELS[app] || app || ''; }
+// Razorpay: shows a verified-payment badge on orders paid through the website checkout.
+function rzpBadge(o){
+  if(!o.razorpay_payment_id) return '';
+  const ch = o.payment_channel ? ' · ' + escapeHtml(String(o.payment_channel).toUpperCase()) : '';
+  return `<div style="display:inline-flex;align-items:center;gap:5px;margin-bottom:4px;padding:2px 8px;border-radius:999px;background:rgba(46,160,67,.14);color:#2EA043;font-weight:700;font-size:11px;">✓ Paid via Razorpay${ch}</div>
+          <div class="mono" style="color:var(--paper-dim);font-size:11px;word-break:break-all;">${escapeHtml(o.razorpay_payment_id)}</div>`;
+}
 async function updateUpiPaid(id, paid){
   const { error } = await sb.from('orders').update({ upi_paid: paid }).eq('id', id);
   if(error){ showToast('Error: ' + error.message); return; }
@@ -4815,6 +4824,7 @@ function billFulfilmentLabel(o){
 }
 function billPaymentLabel(o){
   const method = String(o.payment_method || '').toLowerCase();
+  if(o.razorpay_payment_id) return method === 'cod' ? 'Advance paid online (Razorpay)' : 'Paid online (Razorpay)';
   if(method === 'cod') return o.advance_paid ? 'Advance paid' : 'Advance pending';
   if(method === 'upi') return o.upi_paid ? 'Paid via UPI' : 'UPI — pending verification';
   return o.payment_method || 'COD';

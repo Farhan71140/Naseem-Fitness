@@ -1,6 +1,9 @@
 {
   "rewrites": [
     { "source": "/sitemap.xml", "destination": "/api/sitemap" },
-    { "source": "/product/:id", "destination": "/api/product?id=:id" }
+    { "source": "/product/:id", "destination": "/api/product?id=:id" },
+    { "source": "/api/create-razorpay-order", "destination": "/api/razorpay?action=create" },
+    { "source": "/api/verify-razorpay-payment", "destination": "/api/razorpay?action=verify" },
+    { "source": "/api/razorpay-webhook", "destination": "/api/razorpay?action=webhook" }
   ]
 }
