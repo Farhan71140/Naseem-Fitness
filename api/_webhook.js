@@ -10,20 +10,6 @@
 const crypto = require('crypto');
 const { SUPABASE_URL, svcHeaders, configured, safeEqualHex, finalizeOrder } = require('./_razorpay');
 
-// We need the exact raw bytes to check the signature.
-module.exports.config = { api: { bodyParser: false } };
-
-function readRaw(req) {
-  return new Promise((resolve, reject) => {
-    if (req.readableEnded && req.body) {
-      return resolve(typeof req.body === 'string' ? req.body : JSON.stringify(req.body));
-    }
-    const chunks = [];
-    req.on('data', c => chunks.push(c));
-    req.on('end', () => resolve(Buffer.concat(chunks).toString('utf8')));
-    req.on('error', reject);
-  });
-}
 
 module.exports = async function handler(req, res) {
   if (req.method !== 'POST') { res.statusCode = 405; return res.end('Method not allowed'); }
@@ -31,7 +17,8 @@ module.exports = async function handler(req, res) {
   if (!configured() || !secret) { res.statusCode = 500; return res.end('Not configured'); }
 
   let raw;
-  try { raw = await readRaw(req); } catch (e) { res.statusCode = 400; return res.end('Bad body'); }
+  raw = req.rawBody;
+  if (typeof raw !== 'string') { res.statusCode = 400; return res.end('Bad body'); }
 
   const expected = crypto.createHmac('sha256', secret).update(raw).digest('hex');
   if (!safeEqualHex(expected, req.headers['x-razorpay-signature'])) {
