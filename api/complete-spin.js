@@ -1,32 +1,28 @@
 // /api/complete-spin.js — Vercel Serverless Function
 //
-// Step 3 of the OTP-gated Lucky Spin, and the actual security boundary.
+// The Lucky Spin endpoint, and the actual security boundary.
 //
-// Previously the browser itself picked the winning reward and inserted
-// directly into Supabase's `lucky_spins` table using the public anon key.
-// That meant anyone could open devtools and call
-// `sb.from('lucky_spins').insert(...)` with ANY phone number and ANY
-// reward, completely bypassing the wheel UI. Requiring a valid OTP token
-// here — checked server-side against a secret only this function holds —
-// means a reward can only ever be written for a phone number that just
-// proved (via real SMS OTP) that it's reachable, and the reward itself is
-// chosen server-side too, so the odds in REWARD_WEIGHTS can't be gamed
-// from the client either.
+// Members only: the phone number must belong to a registered customer
+// (someone who signed up with name + mobile — no OTP). The reward is picked
+// server-side using REWARD_WEIGHTS and written with the service-role key,
+// so the browser can never choose a reward or insert into `lucky_spins`
+// directly, and one number can only spin once per IST day.
 //
 // Required environment variables:
-//   OTP_TOKEN_SECRET          — same secret as verify-otp.js
 //   SUPABASE_SERVICE_ROLE_KEY — Supabase → Project Settings → API →
-//                                service_role key. NEVER expose this to
-//                                the browser; it bypasses Row Level
-//                                Security, which is exactly why the write
-//                                needs to happen here instead of client-side.
-
-const crypto = require('crypto');
+//                                service_role key. NEVER expose this to the
+//                                browser; it bypasses Row Level Security.
+//
+// No longer needed here: OTP_TOKEN_SECRET.
 
 const SUPABASE_URL = 'https://rzibqgnhzphlmjkzwota.supabase.co';
 const SUPABASE_ANON_KEY = 'sb_publishable_CQawBi0OPWWHKBIUnHr1Dg_OK4cuKIh';
 const SUPABASE_SERVICE_ROLE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY;
-const OTP_TOKEN_SECRET = process.env.OTP_TOKEN_SECRET;
+
+// Table + column that store signed-up customers (the ones /api/customer/login
+// creates). If yours are named differently, change these two lines.
+const CUSTOMERS_TABLE = 'customers';
+const CUSTOMERS_PHONE_COLUMN = 'mobile_number';
 
 // Keep in sync with the DEFAULT_REWARD_CATALOG / REWARD_WEIGHTS in index.html.
 // If you change the odds or catalog in one place, change it in both, or
@@ -49,29 +45,6 @@ function todayDateStr() {
   return new Date().toLocaleString('en-CA', { timeZone: 'Asia/Kolkata' }).slice(0, 10);
 }
 
-function verifyToken(token, phone) {
-  let decoded;
-  try {
-    decoded = Buffer.from(token, 'base64url').toString('utf8');
-  } catch (e) {
-    return false;
-  }
-  const parts = decoded.split('.');
-  if (parts.length !== 3) return false;
-  const [tokenPhone, expiresAtStr, sig] = parts;
-  const expiresAt = Number(expiresAtStr);
-  if (tokenPhone !== phone) return false;
-  if (!expiresAt || Date.now() > expiresAt) return false;
-
-  const expectedSig = crypto.createHmac('sha256', OTP_TOKEN_SECRET)
-    .update(`${tokenPhone}.${expiresAtStr}`).digest('hex');
-  // constant-time compare
-  const a = Buffer.from(sig);
-  const b = Buffer.from(expectedSig);
-  if (a.length !== b.length) return false;
-  return crypto.timingSafeEqual(a, b);
-}
-
 function pickWeightedWinner(catalog) {
   const weights = catalog.map(r => REWARD_WEIGHTS[r.id] ?? 1);
   const total = weights.reduce((a, b) => a + b, 0);
@@ -89,7 +62,7 @@ module.exports = async function handler(req, res) {
     return res.json({ error: 'Method not allowed' });
   }
 
-  if (!SUPABASE_SERVICE_ROLE_KEY || !OTP_TOKEN_SECRET) {
+  if (!SUPABASE_SERVICE_ROLE_KEY) {
     res.statusCode = 500;
     return res.json({ error: 'Spin service is not configured yet. Please contact support.' });
   }
@@ -103,23 +76,38 @@ module.exports = async function handler(req, res) {
   }
 
   const phone = String(body.phone || '').trim();
-  const token = String(body.token || '');
 
   if (!/^\d{10}$/.test(phone)) {
     res.statusCode = 400;
     return res.json({ error: 'Invalid phone number.' });
   }
-  if (!verifyToken(token, phone)) {
-    res.statusCode = 401;
-    return res.json({ error: 'Your OTP session expired or is invalid. Please verify again.' });
-  }
-
   const today = todayDateStr();
   const serviceHeaders = {
     apikey: SUPABASE_SERVICE_ROLE_KEY,
     Authorization: `Bearer ${SUPABASE_SERVICE_ROLE_KEY}`,
     'Content-Type': 'application/json'
   };
+
+  // Must be a registered customer — anyone who hasn't signed up is turned away.
+  try {
+    const custResp = await fetch(
+      `${SUPABASE_URL}/rest/v1/${CUSTOMERS_TABLE}?${CUSTOMERS_PHONE_COLUMN}=eq.${phone}&select=${CUSTOMERS_PHONE_COLUMN}&limit=1`,
+      { headers: serviceHeaders }
+    );
+    if (!custResp.ok) {
+      console.error('complete-spin: customer lookup failed', custResp.status, await custResp.text().catch(() => ''));
+      res.statusCode = 502;
+      return res.json({ error: 'Could not verify your account. Please try again.' });
+    }
+    const custRows = await custResp.json();
+    if (!custRows || !custRows[0]) {
+      res.statusCode = 403;
+      return res.json({ error: 'Please sign up first to use the Lucky Spin.', needsSignup: true });
+    }
+  } catch (e) {
+    res.statusCode = 502;
+    return res.json({ error: 'Could not verify your account. Please try again.' });
+  }
 
   // Re-check "already spun today" right before writing — the earlier check
   // in send-otp.js was only a courtesy to save an SMS, not a guarantee.
