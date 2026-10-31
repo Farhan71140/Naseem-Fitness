@@ -2551,10 +2551,6 @@
     -webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;
   }
   .auth-sub{color:var(--paper-dim);font-size:13.5px;margin-bottom:26px;}
-  .auth-otp-note{
-    font-size:12.5px;color:var(--paper-dim);text-align:left;margin:-4px 0 16px;line-height:1.6;
-  }
-  .auth-otp-note .mono{color:var(--teal);font-family:'Space Mono',monospace;}
   .auth-go-btn{width:100%;justify-content:center;margin-top:8px;}
   .auth-skip-link{
     display:block;margin-top:18px;font-family:'Space Mono',monospace;font-size:11.5px;
@@ -2568,6 +2564,115 @@
     letter-spacing:1px;color:var(--paper-dim);text-transform:uppercase;
   }
   .auth-back-link:hover{color:var(--teal);}
+
+
+  /* ===== PREMIUM SIGN-UP & LUCKY SPIN SKIN ===== */
+  .auth-modal.auth-premium, .spin-modal.spin-premium{
+    --paper:#F6EEDB; --paper-dim:#B3A582; --line:rgba(233,200,104,0.18);
+    color:var(--paper);
+    background:
+      radial-gradient(90% 55% at 50% -6%, rgba(233,200,104,0.22) 0%, transparent 62%),
+      linear-gradient(170deg,#18120A 0%,#0B0805 100%);
+    border:1px solid rgba(233,200,104,0.38);
+    box-shadow:0 34px 90px rgba(0,0,0,0.6), inset 0 1px 0 rgba(255,236,170,0.12);
+  }
+  .auth-modal.auth-premium{max-width:410px;padding:38px 26px 26px;}
+  .auth-premium::before, .spin-premium::before{
+    content:"";position:absolute;left:28px;right:28px;top:0;height:2px;border-radius:2px;
+    background:linear-gradient(90deg,transparent,#E9C868,transparent);
+  }
+  .auth-close{
+    position:absolute;top:14px;right:14px;width:34px;height:34px;border-radius:50%;
+    border:1px solid rgba(233,200,104,0.28);background:rgba(255,255,255,0.04);color:#E9C868;
+    display:flex;align-items:center;justify-content:center;cursor:pointer;padding:0;
+    transition:background .2s ease, border-color .2s ease;
+  }
+  .auth-close:hover{background:rgba(233,200,104,0.14);border-color:rgba(233,200,104,0.6);}
+  .auth-close svg{width:15px;height:15px;}
+  .auth-emblem{
+    width:78px;height:78px;margin:0 auto 18px;border-radius:50%;padding:3px;
+    background:conic-gradient(from 210deg,#F7E3A0,#B8860B,#F3D982,#8A6508,#F7E3A0);
+    box-shadow:0 0 36px rgba(233,200,104,0.30);
+  }
+  .auth-emblem img{width:100%;height:100%;display:block;border-radius:50%;object-fit:contain;background:#FAF5E8;padding:9px;}
+  .auth-premium .auth-heading, .spin-premium .spin-heading{
+    font-size:27px;letter-spacing:0.7px;line-height:1.2;margin:0 0 8px;
+    background:linear-gradient(180deg,#FFF3CC 0%,#E9C868 55%,#B8860B 100%);
+    -webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;
+  }
+  .auth-premium .auth-sub, .spin-premium .spin-sub{color:#B3A582;font-size:13.5px;line-height:1.55;margin-bottom:22px;}
+  .auth-context{
+    display:flex;gap:11px;align-items:center;text-align:left;margin:0 0 20px;padding:12px 14px;
+    border-radius:12px;background:rgba(233,200,104,0.10);border:1px solid rgba(233,200,104,0.38);
+    font-size:13px;line-height:1.45;color:#F6EEDB;font-weight:600;
+  }
+  .auth-context svg{flex:none;width:21px;height:21px;color:#E9C868;}
+  .auth-premium .checkout-field{margin-bottom:16px;}
+  .auth-premium .checkout-field label{color:#CDBE97;font-size:10.5px;letter-spacing:1.4px;margin-bottom:8px;}
+  .auth-premium .checkout-field input{
+    background:rgba(255,255,255,0.045);border:1px solid rgba(233,200,104,0.22);color:#FFF8E6;
+    border-radius:12px;padding:14px 15px;font-size:15px;
+    transition:border-color .2s ease, box-shadow .2s ease, background .2s ease;
+  }
+  .auth-premium .checkout-field input::placeholder{color:#8F8366;}
+  .auth-premium .checkout-field input:focus{border-color:#E9C868;background:rgba(255,255,255,0.075);box-shadow:0 0 0 4px rgba(233,200,104,0.15);}
+  .auth-premium .checkout-field input:-webkit-autofill{-webkit-text-fill-color:#FFF8E6;box-shadow:0 0 0 1000px #17110A inset;caret-color:#FFF8E6;}
+  .auth-phone-wrap{display:flex;align-items:stretch;}
+  .auth-phone-prefix{
+    display:flex;align-items:center;padding:0 14px;font-family:'Space Mono',monospace;font-size:14px;color:#E9C868;
+    background:rgba(233,200,104,0.09);border:1px solid rgba(233,200,104,0.22);border-right:none;border-radius:12px 0 0 12px;
+  }
+  .auth-phone-wrap input{border-radius:0 12px 12px 0 !important;}
+  .auth-premium .auth-go-btn, .spin-premium .spin-cta{
+    position:relative;overflow:hidden;border:none;border-radius:12px;padding:15px 18px;margin-top:6px;
+    background:linear-gradient(135deg,#F6DE8E 0%,#D4A62A 50%,#B8860B 100%);
+    color:#1A1205;font-weight:800;font-size:14.5px;letter-spacing:0.6px;cursor:pointer;
+    box-shadow:0 12px 30px rgba(184,134,11,0.40), inset 0 1px 0 rgba(255,255,255,0.55);
+    transition:transform .15s ease, box-shadow .2s ease, filter .2s ease;
+  }
+  .auth-premium .auth-go-btn::after, .spin-premium .spin-cta::after{
+    content:"";position:absolute;top:0;left:-70%;width:45%;height:100%;
+    background:linear-gradient(100deg,transparent,rgba(255,255,255,0.55),transparent);transform:skewX(-20deg);
+  }
+  .auth-premium .auth-go-btn:hover:not(:disabled), .spin-premium .spin-cta:hover:not(:disabled){transform:translateY(-1px);filter:brightness(1.06);}
+  .auth-premium .auth-go-btn:hover:not(:disabled)::after, .spin-premium .spin-cta:hover:not(:disabled)::after{left:130%;transition:left .7s ease;}
+  .auth-premium .auth-go-btn:active:not(:disabled), .spin-premium .spin-cta:active:not(:disabled){transform:scale(0.99);}
+  .auth-premium .auth-go-btn:disabled, .spin-premium .spin-cta:disabled{opacity:0.7;cursor:wait;}
+  .auth-premium .auth-go-btn:focus-visible, .spin-premium .spin-cta:focus-visible, .auth-close:focus-visible{outline:2px solid #FFF3CC;outline-offset:3px;}
+  .auth-perks{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin-top:24px;padding-top:20px;border-top:1px solid rgba(233,200,104,0.16);}
+  .auth-perk{text-align:center;font-size:11.5px;line-height:1.35;color:#CDBE97;font-weight:600;}
+  .auth-perk svg{display:block;margin:0 auto 7px;width:21px;height:21px;color:#E9C868;}
+  .auth-premium .auth-skip-link{margin-top:20px;color:#8F8366;}
+  .auth-premium .auth-skip-link:hover{color:#E9C868;}
+
+  /* Lucky spin — member view */
+  .spin-premium .spin-modal-close{color:#E9C868;}
+  .spin-premium .spin-locked-msg{color:#E9C868;}
+  .spin-premium .spin-result-label{color:#F3D982;}
+  .spin-premium .spin-result-card{border-color:rgba(233,200,104,0.45);}
+  .spin-premium .spin-heading{font-size:26px;}
+  .spin-player{
+    display:inline-flex;align-items:center;gap:10px;margin:0 auto 4px;padding:6px 16px 6px 6px;border-radius:999px;
+    background:rgba(233,200,104,0.08);border:1px solid rgba(233,200,104,0.28);
+  }
+  .spin-player-avatar{
+    width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;flex:none;
+    background:linear-gradient(135deg,#F6DE8E,#B8860B);color:#1A1205;font-family:'Anton',sans-serif;font-size:12.5px;letter-spacing:0.5px;
+  }
+  .spin-player-text{display:flex;flex-direction:column;text-align:left;line-height:1.2;}
+  .spin-player-name{font-size:13px;font-weight:700;color:#F6EEDB;max-width:170px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+  .spin-player-phone{font-family:'Space Mono',monospace;font-size:10.5px;color:#B3A582;}
+  .spin-premium .spin-wheel-wrap::before{
+    content:"";position:absolute;inset:-26px;border-radius:50%;z-index:0;
+    background:radial-gradient(circle,rgba(233,200,104,0.30) 0%,rgba(233,200,104,0.08) 55%,transparent 72%);
+  }
+  .spin-premium .spin-wheel{z-index:1;}
+  .spin-premium .spin-wheel-wrap{margin:38px auto 22px;}
+  .spin-fineprint{margin-top:14px;font-size:11.5px;color:#8F8366;line-height:1.5;}
+  @media (prefers-reduced-motion:reduce){
+    .auth-premium .auth-go-btn::after, .spin-premium .spin-cta::after{display:none;}
+    .auth-modal, .spin-modal{animation:none !important;}
+  }
 
   /* ===== ACCOUNT / PROFILE ===== */
   .account-nav-btn{
@@ -4645,43 +4750,55 @@
   </div>
 </div>
 
-<!-- ===== CUSTOMER WELCOME / LOGIN GATE ===== -->
+<!-- ===== CUSTOMER SIGN-UP GATE (name + mobile, no OTP) ===== -->
 <div class="auth-modal-overlay" id="auth-modal-overlay">
-  <div class="auth-modal" id="auth-modal" role="dialog" aria-modal="true" aria-labelledby="auth-modal-title">
+  <div class="auth-modal auth-premium" id="auth-modal" role="dialog" aria-modal="true" aria-labelledby="auth-modal-title">
+    <button type="button" class="auth-close" onclick="dismissAuthGate()" aria-label="Close">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg>
+    </button>
 
     <div id="auth-view-details">
-      <img class="auth-logo" src="assets/logo.png" alt="NF Naseem Fitness">
+      <div class="auth-emblem"><img src="assets/logo.png" alt="NF Naseem Fitness"></div>
+
+      <div class="auth-context" id="auth-context" style="display:none;">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg>
+        <span>Please sign up first to use the Daily Lucky Spin.</span>
+      </div>
+
       <h2 id="auth-modal-title" class="auth-heading">Welcome to<br>NF Naseem Fitness™</h2>
-      <p class="auth-sub">Your Fitness Journey Starts Here</p>
+      <p class="auth-sub" id="auth-sub">Create your free account in 10 seconds.</p>
 
       <div class="checkout-field" style="text-align:left;">
         <label for="auth-name">Full Name</label>
-        <input type="text" id="auth-name" placeholder="Enter Your Full Name" autocomplete="off" onkeydown="if(event.key==='Enter'){document.getElementById('auth-phone').focus();}">
+        <input type="text" id="auth-name" placeholder="Your full name" autocomplete="name" onkeydown="if(event.key==='Enter'){document.getElementById('auth-phone').focus();}">
       </div>
       <div class="checkout-field" style="text-align:left;">
         <label for="auth-phone">Mobile Number</label>
-        <input type="tel" id="auth-phone" placeholder="Enter Your Mobile Number" maxlength="10" autocomplete="off" onkeydown="if(event.key==='Enter'){sendAuthOtp();}">
+        <div class="auth-phone-wrap">
+          <span class="auth-phone-prefix">+91</span>
+          <input type="tel" id="auth-phone" placeholder="10-digit mobile number" maxlength="14" inputmode="numeric" autocomplete="tel-national" oninput="normalizePhoneInput(this)" onkeydown="if(event.key==='Enter'){submitSignup();}">
+        </div>
       </div>
 
-      <button type="button" class="btn btn-primary auth-go-btn" id="auth-continue-btn" onclick="sendAuthOtp()">Continue &amp; Verify with OTP</button>
+      <button type="button" class="btn btn-primary auth-go-btn" id="auth-continue-btn" onclick="submitSignup()">Continue</button>
       <div class="track-error" id="auth-error"></div>
-      <a href="#" class="auth-skip-link" onclick="event.preventDefault();skipAuthGuest();">Continue browsing as guest →</a>
-    </div>
 
-    <div id="auth-view-otp" style="display:none;">
-      <a href="#" class="auth-back-link" onclick="event.preventDefault();showAuthDetailsView();">← Back</a>
-      <img class="auth-logo" src="assets/logo.png" alt="NF Naseem Fitness">
-      <h2 class="auth-heading">Verify Your Number</h2>
-      <p class="auth-otp-note">Enter the 6-digit OTP sent to <span class="mono" id="auth-otp-phone-display"></span></p>
-
-      <div class="checkout-field" style="text-align:left;">
-        <label for="auth-otp">OTP</label>
-        <input type="tel" id="auth-otp" placeholder="6-digit OTP" maxlength="6" inputmode="numeric" autocomplete="off" onkeydown="if(event.key==='Enter'){verifyAuthOtp();}">
+      <div class="auth-perks">
+        <div class="auth-perk">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 3v9l6 3.5"/><circle cx="12" cy="12" r="1.2" fill="currentColor"/></svg>
+          Daily Lucky Spin
+        </div>
+        <div class="auth-perk">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M21 8l-9-5-9 5v8l9 5 9-5z"/><path d="M3 8l9 5 9-5M12 13v8"/></svg>
+          Track your orders
+        </div>
+        <div class="auth-perk">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2L4 14h7l-1 8 9-12h-7z"/></svg>
+          Faster checkout
+        </div>
       </div>
 
-      <button type="button" class="btn btn-primary auth-go-btn" id="auth-verify-btn" onclick="verifyAuthOtp()">Verify &amp; Create Account</button>
-      <div class="track-error" id="auth-otp-error"></div>
-      <p class="auth-resend-row">Didn't get it? <a href="#" id="auth-resend-link" onclick="event.preventDefault();sendAuthOtp(true);">Resend OTP</a></p>
+      <a href="#" class="auth-skip-link" id="auth-skip-link" onclick="event.preventDefault();skipAuthGuest();">Continue browsing as guest</a>
     </div>
 
   </div>
@@ -4735,27 +4852,14 @@
 
       <div id="account-view-change-number" style="display:none;">
         <a href="#" class="auth-back-link" onclick="event.preventDefault();showAccountMainView();">← Back to Account</a>
-        <p class="track-intro">Enter your new mobile number. We'll send an OTP to verify it belongs to you before updating your account.</p>
+        <p class="track-intro">Enter your new mobile number. Your account will use it from now on.</p>
 
-        <div id="acn-view-phone">
-          <div class="checkout-field">
-            <label for="acn-new-phone">New Mobile Number</label>
-            <input type="tel" id="acn-new-phone" placeholder="10-digit mobile number" maxlength="10" autocomplete="off" onkeydown="if(event.key==='Enter'){sendChangeNumberOtp();}">
-          </div>
-          <button type="button" class="btn btn-primary track-submit-btn" id="acn-send-btn" onclick="sendChangeNumberOtp()">Send OTP</button>
-          <div class="track-error" id="acn-error"></div>
+        <div class="checkout-field">
+          <label for="acn-new-phone">New Mobile Number</label>
+          <input type="tel" id="acn-new-phone" placeholder="10-digit mobile number" maxlength="14" inputmode="numeric" autocomplete="off" oninput="normalizePhoneInput(this)" onkeydown="if(event.key==='Enter'){changeMobileNumber();}">
         </div>
-
-        <div id="acn-view-otp" style="display:none;">
-          <p class="auth-otp-note">Enter the 6-digit OTP sent to <span class="mono" id="acn-otp-phone-display"></span></p>
-          <div class="checkout-field">
-            <label for="acn-otp">OTP</label>
-            <input type="tel" id="acn-otp" placeholder="6-digit OTP" maxlength="6" inputmode="numeric" autocomplete="off" onkeydown="if(event.key==='Enter'){verifyChangeNumberOtp();}">
-          </div>
-          <button type="button" class="btn btn-primary track-submit-btn" id="acn-verify-btn" onclick="verifyChangeNumberOtp()">Verify &amp; Update Number</button>
-          <div class="track-error" id="acn-otp-error"></div>
-          <p class="auth-resend-row">Didn't get it? <a href="#" onclick="event.preventDefault();sendChangeNumberOtp(true);">Resend OTP</a></p>
-        </div>
+        <button type="button" class="btn btn-primary track-submit-btn" id="acn-send-btn" onclick="changeMobileNumber()">Update Number</button>
+        <div class="track-error" id="acn-error"></div>
       </div>
 
       <div id="account-view-delete" style="display:none;">
@@ -4775,7 +4879,7 @@
 
 <!-- ===== LUCKY SPIN WHEEL MODAL ===== -->
 <div class="spin-modal-overlay" id="spin-modal-overlay" onclick="if(event.target===this) closeSpinModal();">
-  <div class="spin-modal" id="spin-modal" role="dialog" aria-modal="true" aria-labelledby="spin-modal-title">
+  <div class="spin-modal spin-premium" id="spin-modal" role="dialog" aria-modal="true" aria-labelledby="spin-modal-title">
     <button type="button" class="trust-modal-close spin-modal-close" onclick="closeSpinModal()" aria-label="Close">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg>
     </button>
@@ -4789,8 +4893,9 @@
     </div>
 
     <div id="spin-view-wheel" style="display:none;">
-      <h3 class="spin-heading">🎡 Daily Lucky Spin</h3>
-      <p class="spin-sub">You've unlocked today's Lucky Spin — good luck!</p>
+      <h3 class="spin-heading">Daily Lucky Spin</h3>
+      <p class="spin-sub">You've unlocked today's spin. Good luck!</p>
+      <div class="spin-player" id="spin-player"></div>
 
       <div class="spin-wheel-wrap">
         <img class="spin-pointer-img" src="assets/spin-wheel-pointer.webp" alt="">
@@ -4799,22 +4904,8 @@
         </div>
       </div>
 
-      <div class="checkout-field" style="margin-top:10px;" id="spin-phone-field">
-        <label for="spin-phone">Enter Mobile Number to Spin</label>
-        <input type="tel" id="spin-phone" placeholder="10-digit mobile number" maxlength="10" autocomplete="off">
-      </div>
-      <button type="button" class="btn btn-primary spin-go-btn" id="spin-send-otp-btn" onclick="sendSpinOtp()">SEND OTP</button>
-
-      <div class="checkout-field" style="margin-top:14px;display:none;" id="spin-otp-field">
-        <label for="spin-otp">Enter the 6-digit OTP sent to <span id="spin-otp-phone-display" class="mono"></span> &nbsp;<a href="#" onclick="event.preventDefault();resetSpinPhone();" style="color:var(--teal);font-weight:600;">Change</a></label>
-        <input type="tel" id="spin-otp" placeholder="6-digit OTP" maxlength="6" autocomplete="off" inputmode="numeric">
-      </div>
-      <div id="spin-otp-actions" style="display:none;">
-        <button type="button" class="btn btn-primary spin-go-btn" id="spin-verify-btn" onclick="verifySpinOtp()">VERIFY &amp; SPIN</button>
-        <p class="spin-sub" style="margin-top:10px;margin-bottom:0;text-align:center;">
-          Didn't get it? <a href="#" id="spin-resend-link" onclick="event.preventDefault();sendSpinOtp(true);" style="color:var(--teal);font-weight:600;">Resend OTP</a>
-        </p>
-      </div>
+      <button type="button" class="btn btn-primary spin-go-btn spin-cta" id="spin-go-btn" onclick="startSpin()">Spin the wheel</button>
+      <p class="spin-fineprint">One spin per day, linked to your mobile number.</p>
       <div class="track-error" id="spin-error"></div>
     </div>
 
@@ -7221,6 +7312,9 @@ function renderSpinWheelGraphic(){
   wheel.style.transition = '';
 }
 async function openSpinModal(){
+  // Members only: anyone who hasn't signed up is sent to the sign-up page
+  // first, and the wheel opens automatically once they finish.
+  if(!CUSTOMER){ requireSignupForSpin(); return; }
   nfOverlayOpened('spin');
   await loadSpinCatalog();
   const overlay = document.getElementById('spin-modal-overlay');
@@ -7230,7 +7324,7 @@ async function openSpinModal(){
   const resultView = document.getElementById('spin-view-result');
   [lockedView, wheelView, alreadyView, resultView].forEach(v=> v.style.display = 'none');
   document.getElementById('spin-error').style.display = 'none';
-  resetSpinPhone(); // always start each visit at "enter phone number", never a stale OTP state
+  resetSpinButton();
 
   const subtotal = cartTotal();
   if(subtotal < SPIN_UNLOCK_THRESHOLD){
@@ -7240,7 +7334,21 @@ async function openSpinModal(){
     overlay.classList.add('active');
     return;
   }
+
+  // Already spun today? Go straight to the reward view instead of showing a wheel they can't use.
+  try{
+    const { data } = await sb.from('lucky_spins').select('*')
+      .eq('mobile_number', CUSTOMER.mobile_number).eq('spin_date', todayDateStr()).maybeSingle();
+    if(data){
+      renderAlreadySpunView(data);
+      alreadyView.style.display = 'block';
+      overlay.classList.add('active');
+      return;
+    }
+  }catch(e){ /* fall through — the server re-checks before writing anyway */ }
+
   renderSpinWheelGraphic();
+  renderSpinPlayer();
   wheelView.style.display = 'block';
   overlay.classList.add('active');
 }
@@ -7281,200 +7389,69 @@ function spinResultCardHtml(reward){
     <span class="reward-status-pill status-active">🟢 Active — Valid Today Only</span>
   `;
 }
-// ===== OTP-gated spin =====
-// Why this exists: the old flow let anyone type ANY 10 digits and spin
-// immediately — no proof they actually own that number. That let one
-// person farm unlimited rewards under fake/other people's numbers just by
-// typing random digits repeatedly. Now: (1) an OTP is texted to the number
-// via /api/send-otp, (2) the code is checked server-side via
-// /api/verify-otp (never in the browser — a client-side check can always
-// be bypassed from devtools), and only then (3) /api/complete-spin — which
-// re-checks the verification token, picks the reward, and writes to
-// Supabase using a service-role key — is allowed to run. The browser never
-// gets to call the Supabase insert directly for lucky_spins any more.
-let spinOtpSentTo = null;   // phone the last OTP was sent to
-let spinVerifyToken = null; // short-lived token proving OTP was verified for spinOtpSentTo
-let spinResendCooldown = 0;
-let spinResendTimer = null;
-
-function resetSpinPhone(){
-  spinOtpSentTo = null;
-  spinVerifyToken = null;
-  clearInterval(spinResendTimer);
-  document.getElementById('spin-phone-field').style.display = 'block';
-  document.getElementById('spin-send-otp-btn').style.display = 'block';
-  document.getElementById('spin-otp-field').style.display = 'none';
-  document.getElementById('spin-otp-actions').style.display = 'none';
-  document.getElementById('spin-otp').value = '';
-  document.getElementById('spin-error').style.display = 'none';
-  const sendBtn = document.getElementById('spin-send-otp-btn');
-  sendBtn.disabled = false; sendBtn.textContent = 'SEND OTP';
+// ===== Member-only spin =====
+// Only signed-in customers (name + mobile, no OTP) can spin. The browser
+// never picks or writes the reward: /api/complete-spin confirms the number
+// belongs to a registered customer, picks the reward server-side using the
+// odds in REWARD_WEIGHTS, and writes it with the service-role key.
+function requireSignupForSpin(){
+  showAuthGate('spin');
+}
+function resetSpinButton(){
+  const btn = document.getElementById('spin-go-btn');
+  if(btn){ btn.disabled = false; btn.textContent = 'Spin the wheel'; }
+}
+function renderSpinPlayer(){
+  const el = document.getElementById('spin-player');
+  if(!el || !CUSTOMER) return;
+  el.innerHTML = `<span class="spin-player-avatar">${escapeHtml(customerInitials(CUSTOMER.full_name))}</span>
+    <span class="spin-player-text"><span class="spin-player-name">${escapeHtml(CUSTOMER.full_name)}</span><span class="spin-player-phone">+91 ${escapeHtml(CUSTOMER.mobile_number)}</span></span>`;
 }
 
-async function sendSpinOtp(isResend){
-  const phoneInput = document.getElementById('spin-phone');
-  const phone = phoneInput.value.trim();
+async function startSpin(){
+  if(SPINNING) return;
+  if(!CUSTOMER){ requireSignupForSpin(); closeSpinModal(); return; }
+  SPINNING = true;
+  const phone = CUSTOMER.mobile_number;
   const errBox = document.getElementById('spin-error');
+  const btn = document.getElementById('spin-go-btn');
   errBox.style.display = 'none';
-  if(!/^\d{10}$/.test(phone)){
-    errBox.textContent = 'Please enter a valid 10-digit mobile number.';
-    errBox.style.display = 'block';
-    return;
-  }
-  if(isResend && spinResendCooldown > 0) return;
-
-  const sendBtn = document.getElementById('spin-send-otp-btn');
-  const resendLink = document.getElementById('spin-resend-link');
-  if(isResend){ resendLink.textContent = 'Sending…'; } else { sendBtn.disabled = true; sendBtn.textContent = 'Sending OTP…'; }
+  btn.disabled = true; btn.textContent = 'Spinning…';
 
   let resp, body;
   try{
-    resp = await fetch('/api/send-otp', {
+    resp = await fetch('/api/complete-spin', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ phone })
     });
     body = await resp.json();
   }catch(e){
-    sendBtn.disabled = false; sendBtn.textContent = 'SEND OTP';
-    if(isResend) resendLink.textContent = 'Resend OTP';
-    errBox.textContent = 'Could not send OTP right now. Check your connection and try again.';
-    errBox.style.display = 'block';
-    return;
-  }
-
-  sendBtn.disabled = false; sendBtn.textContent = 'SEND OTP';
-  if(isResend) resendLink.textContent = 'Resend OTP';
-
-  if(!resp.ok){
-    errBox.textContent = body.error || 'Could not send OTP. Please try again.';
-    errBox.style.display = 'block';
-    return;
-  }
-
-  // Server already knows this number spun today — no point sending an OTP,
-  // just show the same "already spun" view immediately.
-  if(body.alreadySpun){
-    document.getElementById('spin-view-wheel').style.display = 'none';
-    renderAlreadySpunView(body.record);
-    document.getElementById('spin-view-already').style.display = 'block';
-    return;
-  }
-
-  spinOtpSentTo = phone;
-  spinVerifyToken = null;
-  document.getElementById('spin-phone-field').style.display = 'none';
-  document.getElementById('spin-send-otp-btn').style.display = 'none';
-  document.getElementById('spin-otp-field').style.display = 'block';
-  document.getElementById('spin-otp-actions').style.display = 'block';
-  document.getElementById('spin-otp-phone-display').textContent = phone;
-  document.getElementById('spin-otp').value = '';
-  document.getElementById('spin-otp').focus();
-
-  // 30s resend cooldown so the same button can't be spammed for free SMS
-  spinResendCooldown = 30;
-  clearInterval(spinResendTimer);
-  const link = document.getElementById('spin-resend-link');
-  link.style.pointerEvents = 'none'; link.style.opacity = '0.5';
-  link.textContent = `Resend OTP (${spinResendCooldown}s)`;
-  spinResendTimer = setInterval(()=>{
-    spinResendCooldown--;
-    if(spinResendCooldown <= 0){
-      clearInterval(spinResendTimer);
-      link.style.pointerEvents = ''; link.style.opacity = '';
-      link.textContent = 'Resend OTP';
-    } else {
-      link.textContent = `Resend OTP (${spinResendCooldown}s)`;
-    }
-  }, 1000);
-}
-
-async function verifySpinOtp(){
-  if(SPINNING) return;
-  const errBox = document.getElementById('spin-error');
-  errBox.style.display = 'none';
-  const otp = document.getElementById('spin-otp').value.trim();
-  if(!spinOtpSentTo){
-    errBox.textContent = 'Please request an OTP first.';
-    errBox.style.display = 'block';
-    return;
-  }
-  if(!/^\d{6}$/.test(otp)){
-    errBox.textContent = 'Please enter the 6-digit OTP.';
-    errBox.style.display = 'block';
-    return;
-  }
-
-  const verifyBtn = document.getElementById('spin-verify-btn');
-  verifyBtn.disabled = true; verifyBtn.textContent = 'Verifying…';
-
-  let resp, body;
-  try{
-    resp = await fetch('/api/verify-otp', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ phone: spinOtpSentTo, otp })
-    });
-    body = await resp.json();
-  }catch(e){
-    verifyBtn.disabled = false; verifyBtn.textContent = 'VERIFY & SPIN';
-    errBox.textContent = 'Could not verify OTP right now. Please try again.';
-    errBox.style.display = 'block';
-    return;
-  }
-
-  if(!resp.ok || !body.token){
-    verifyBtn.disabled = false; verifyBtn.textContent = 'VERIFY & SPIN';
-    errBox.textContent = body.error || 'Incorrect or expired OTP. Please try again.';
-    errBox.style.display = 'block';
-    return;
-  }
-
-  spinVerifyToken = body.token;
-  await runSpinAndComplete(spinOtpSentTo, spinVerifyToken);
-}
-
-async function runSpinAndComplete(phone, token){
-  if(SPINNING) return;
-  SPINNING = true;
-  const errBox = document.getElementById('spin-error');
-  const verifyBtn = document.getElementById('spin-verify-btn');
-  errBox.style.display = 'none';
-
-  // Ask the server to actually perform the spin: it re-checks the OTP
-  // token, picks the reward (server-side, so the odds in REWARD_WEIGHTS
-  // can't be tampered with from the browser either), and writes the
-  // result with a service-role key. We only animate locally using the
-  // winning id it returns.
-  let resp, body;
-  try{
-    resp = await fetch('/api/complete-spin', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ phone, token })
-    });
-    body = await resp.json();
-  }catch(e){
-    SPINNING = false;
-    verifyBtn.disabled = false; verifyBtn.textContent = 'VERIFY & SPIN';
+    SPINNING = false; resetSpinButton();
     errBox.textContent = 'Something went wrong starting your spin. Please try again.';
     errBox.style.display = 'block';
     return;
   }
 
   if(!resp.ok || !body.reward){
-    SPINNING = false;
-    verifyBtn.disabled = false; verifyBtn.textContent = 'VERIFY & SPIN';
+    SPINNING = false; resetSpinButton();
     if(body.alreadySpun){
       document.getElementById('spin-view-wheel').style.display = 'none';
       renderAlreadySpunView(body.record);
       document.getElementById('spin-view-already').style.display = 'block';
       return;
     }
-    errBox.textContent = body.error || 'Your OTP session expired. Please verify again.';
+    if(body.needsSignup){
+      // Account no longer exists on the server (e.g. deleted) — ask them to sign up again.
+      localStorage.removeItem('nf_customer_session');
+      CUSTOMER = null; CUSTOMER_SESSION_TOKEN = null;
+      renderAccountChip();
+      requireSignupForSpin();
+      closeSpinModal();
+      return;
+    }
+    errBox.textContent = body.error || 'Could not start your spin. Please try again.';
     errBox.style.display = 'block';
-    // token is one-shot / short-lived — make them re-verify rather than retry silently
-    spinVerifyToken = null;
     return;
   }
 
@@ -7490,7 +7467,7 @@ async function runSpinAndComplete(phone, token){
 
   setTimeout(()=>{
     SPINNING = false;
-    verifyBtn.disabled = false; verifyBtn.textContent = 'VERIFY & SPIN';
+    resetSpinButton();
     document.getElementById('spin-view-wheel').style.display = 'none';
     document.getElementById('spin-result-card').innerHTML = spinResultCardHtml(winner);
     document.getElementById('spin-view-result').style.display = 'block';
@@ -9531,12 +9508,12 @@ function injectProductSchema(){
 }
 
 /* =====================================================================
-   CUSTOMER ACCOUNT SYSTEM (Welcome → Name+Mobile → OTP → Account)
+   CUSTOMER ACCOUNT SYSTEM (Welcome → Name+Mobile → Account, no OTP)
    =====================================================================
    Session is a signed, stateless token (see /api/customer/_tokens.js)
    stored in localStorage. On every page load we silently POST it to
    /api/customer/session — if it's still valid the customer is logged in
-   immediately with no OTP prompt ("remembered" login). If there's no
+   immediately ("remembered" login). If there's no
    token, or it's expired/invalid, the Welcome gate is shown. A guest can
    dismiss the gate ("Continue browsing as guest") without losing the
    ability to shop — we don't want to hard-block browsing just because
@@ -9545,9 +9522,8 @@ function injectProductSchema(){
 let CUSTOMER = null;          // { id, full_name, mobile_number } when logged in
 let CUSTOMER_SESSION_TOKEN = null;
 
-let authOtpSentTo = null;
-let authResendCooldown = 0;
-let authResendTimer = null;
+let AUTH_CONTEXT = 'default';      // 'default' (welcome) or 'spin' (opened because someone tried the Lucky Spin)
+let AUTH_PENDING_SPIN = false;     // open the wheel automatically right after sign-up
 
 function customerInitials(name){
   const parts = String(name||'').trim().split(/\s+/).filter(Boolean);
@@ -9600,154 +9576,107 @@ async function initCustomerAuth(){
   }
 }
 
-function showAuthGate(){
+function setAuthContext(ctx){
+  AUTH_CONTEXT = ctx;
+  const spin = ctx === 'spin';
+  document.getElementById('auth-context').style.display = spin ? 'flex' : 'none';
+  document.getElementById('auth-modal-title').innerHTML = spin ? 'Sign up<br>to spin' : 'Welcome to<br>NF Naseem Fitness™';
+  document.getElementById('auth-sub').innerHTML = spin
+    ? 'Just your name and mobile number.<br>It takes 10 seconds.'
+    : 'Create your free account in 10 seconds.';
+  document.getElementById('auth-skip-link').style.display = spin ? 'none' : 'block';
+}
+function showAuthGate(ctx){
+  AUTH_PENDING_SPIN = (ctx === 'spin');
+  setAuthContext(AUTH_PENDING_SPIN ? 'spin' : 'default');
   showAuthDetailsView();
   document.getElementById('auth-modal-overlay').classList.add('active');
   nfOverlayOpened('authGate');
+  setTimeout(()=>{ const el = document.getElementById('auth-name'); if(el) el.focus(); }, 120);
 }
 function hideAuthGate(){
   nfOverlayClosed('authGate');
   document.getElementById('auth-modal-overlay').classList.remove('active');
+}
+function dismissAuthGate(){
+  // X button: in the spin flow it simply closes; in the welcome flow it counts as "browse as guest".
+  const wasSpin = AUTH_CONTEXT === 'spin';
+  AUTH_PENDING_SPIN = false;
+  if(wasSpin) hideAuthGate(); else skipAuthGuest();
 }
 function skipAuthGuest(){
   localStorage.setItem('nf_guest_skip', '1');
   hideAuthGate();
 }
 function showAuthDetailsView(){
-  document.getElementById('auth-view-details').style.display = 'block';
-  document.getElementById('auth-view-otp').style.display = 'none';
   document.getElementById('auth-error').style.display = 'none';
-  clearInterval(authResendTimer);
+  const btn = document.getElementById('auth-continue-btn');
+  btn.disabled = false; btn.textContent = 'Continue';
 }
 
-async function sendAuthOtp(isResend){
+// Accepts pasted numbers like "+91 98765 43210" and keeps just the 10 digits.
+function normalizePhoneInput(el){
+  let d = el.value.replace(/\D/g, '');
+  if(d.length > 10 && d.startsWith('91')) d = d.slice(2);
+  el.value = d.slice(0, 10);
+}
+
+// No OTP: the account is created from name + mobile alone. /api/issue-token
+// hands back the same short-lived signed token /api/customer/login already
+// expects, so the login endpoint itself keeps working unchanged.
+async function submitSignup(){
   const errBox = document.getElementById('auth-error');
   errBox.style.display = 'none';
-  const name = document.getElementById('auth-name').value.trim();
+  const name = document.getElementById('auth-name').value.trim().replace(/\s+/g, ' ');
   const phone = document.getElementById('auth-phone').value.trim();
 
-  if(!isResend){
-    if(name.length < 2){
-      errBox.textContent = 'Please enter your full name.';
-      errBox.style.display = 'block';
-      return;
-    }
-    if(!/^\d{10}$/.test(phone)){
-      errBox.textContent = 'Please enter a valid 10-digit mobile number.';
-      errBox.style.display = 'block';
-      return;
-    }
+  if(name.length < 2){
+    errBox.textContent = 'Please enter your full name.';
+    errBox.style.display = 'block';
+    document.getElementById('auth-name').focus();
+    return;
   }
-  if(isResend && authResendCooldown > 0) return;
+  if(!/^\d{10}$/.test(phone)){
+    errBox.textContent = 'Please enter a valid 10-digit mobile number.';
+    errBox.style.display = 'block';
+    document.getElementById('auth-phone').focus();
+    return;
+  }
 
   const btn = document.getElementById('auth-continue-btn');
-  const resendLink = document.getElementById('auth-resend-link');
-  if(isResend){ resendLink.textContent = 'Sending…'; } else { btn.disabled = true; btn.textContent = 'Sending OTP…'; }
+  btn.disabled = true; btn.textContent = 'Creating your account…';
+  const fail = (msg)=>{
+    btn.disabled = false; btn.textContent = 'Continue';
+    errBox.textContent = msg;
+    errBox.style.display = 'block';
+  };
 
-  let resp, body;
+  let tokResp, tokBody;
   try{
-    resp = await fetch('/api/send-otp', {
+    tokResp = await fetch('/api/issue-token', {
       method:'POST', headers:{'Content-Type':'application/json'},
-      body: JSON.stringify({ phone: isResend ? authOtpSentTo : phone, purpose:'login' })
+      body: JSON.stringify({ phone, purpose:'login', fullName: name })
     });
-    body = await resp.json();
+    tokBody = await tokResp.json();
   }catch(e){
-    if(!isResend){ btn.disabled = false; btn.textContent = 'Continue & Verify with OTP'; }
-    else resendLink.textContent = 'Resend OTP';
-    errBox.textContent = 'Could not send OTP right now. Check your connection and try again.';
-    errBox.style.display = 'block';
-    return;
+    return fail('Could not reach the server. Check your connection and try again.');
+  }
+  if(!tokResp.ok || !tokBody.token){
+    return fail(tokBody.error || 'Could not create your account. Please try again.');
   }
 
-  if(!isResend){ btn.disabled = false; btn.textContent = 'Continue & Verify with OTP'; }
-  else resendLink.textContent = 'Resend OTP';
-
-  if(!resp.ok){
-    errBox.textContent = body.error || 'Could not send OTP. Please try again.';
-    errBox.style.display = 'block';
-    return;
-  }
-
-  authOtpSentTo = isResend ? authOtpSentTo : phone;
-  document.getElementById('auth-view-details').style.display = 'none';
-  document.getElementById('auth-view-otp').style.display = 'block';
-  document.getElementById('auth-otp-phone-display').textContent = authOtpSentTo;
-  document.getElementById('auth-otp').value = '';
-  document.getElementById('auth-otp-error').style.display = 'none';
-  document.getElementById('auth-otp').focus();
-
-  authResendCooldown = 30;
-  clearInterval(authResendTimer);
-  const link = document.getElementById('auth-resend-link');
-  link.style.pointerEvents = 'none'; link.style.opacity = '0.5';
-  link.textContent = `Resend OTP (${authResendCooldown}s)`;
-  authResendTimer = setInterval(()=>{
-    authResendCooldown--;
-    if(authResendCooldown <= 0){
-      clearInterval(authResendTimer);
-      link.style.pointerEvents = ''; link.style.opacity = '';
-      link.textContent = 'Resend OTP';
-    } else {
-      link.textContent = `Resend OTP (${authResendCooldown}s)`;
-    }
-  }, 1000);
-}
-
-async function verifyAuthOtp(){
-  const errBox = document.getElementById('auth-otp-error');
-  errBox.style.display = 'none';
-  const otp = document.getElementById('auth-otp').value.trim();
-  if(!/^\d{6}$/.test(otp)){
-    errBox.textContent = 'Please enter the 6-digit OTP.';
-    errBox.style.display = 'block';
-    return;
-  }
-
-  const btn = document.getElementById('auth-verify-btn');
-  btn.disabled = true; btn.textContent = 'Verifying…';
-
-  let resp, body;
-  try{
-    resp = await fetch('/api/verify-otp', {
-      method:'POST', headers:{'Content-Type':'application/json'},
-      body: JSON.stringify({ phone: authOtpSentTo, otp })
-    });
-    body = await resp.json();
-  }catch(e){
-    btn.disabled = false; btn.textContent = 'Verify & Create Account';
-    errBox.textContent = 'Could not verify OTP right now. Please try again.';
-    errBox.style.display = 'block';
-    return;
-  }
-
-  if(!resp.ok || !body.token){
-    btn.disabled = false; btn.textContent = 'Verify & Create Account';
-    errBox.textContent = body.error || 'Incorrect or expired OTP. Please try again.';
-    errBox.style.display = 'block';
-    return;
-  }
-
-  const name = document.getElementById('auth-name').value.trim();
   let loginResp, loginBody;
   try{
     loginResp = await fetch('/api/customer/login', {
       method:'POST', headers:{'Content-Type':'application/json'},
-      body: JSON.stringify({ phone: authOtpSentTo, fullName: name, token: body.token })
+      body: JSON.stringify({ phone, fullName: name, token: tokBody.token })
     });
     loginBody = await loginResp.json();
   }catch(e){
-    btn.disabled = false; btn.textContent = 'Verify & Create Account';
-    errBox.textContent = 'Something went wrong creating your account. Please try again.';
-    errBox.style.display = 'block';
-    return;
+    return fail('Something went wrong creating your account. Please try again.');
   }
-
-  btn.disabled = false; btn.textContent = 'Verify & Create Account';
-
   if(!loginResp.ok || !loginBody.token){
-    errBox.textContent = loginBody.error || 'Could not sign you in. Please try again.';
-    errBox.style.display = 'block';
-    return;
+    return fail(loginBody.error || 'Could not sign you in. Please try again.');
   }
 
   CUSTOMER = loginBody.customer;
@@ -9755,6 +9684,13 @@ async function verifyAuthOtp(){
   localStorage.setItem('nf_customer_session', CUSTOMER_SESSION_TOKEN);
   localStorage.removeItem('nf_guest_skip');
   renderAccountChip();
+
+  const openWheel = AUTH_PENDING_SPIN;
+  AUTH_PENDING_SPIN = false;
+  btn.disabled = false; btn.textContent = 'Continue';
+  // Open the wheel BEFORE closing the gate so the overlay stack never empties
+  // in between (an empty stack triggers history.back() and would close the wheel).
+  if(openWheel) openSpinModal();
   hideAuthGate();
   showShareToast(`Welcome, ${CUSTOMER.full_name.split(' ')[0]}! 🎉`);
 }
@@ -9851,132 +9787,69 @@ async function openAccountOrders(){
   }).join('');
 }
 
-/* Change Mobile Number */
-let acnOtpSentTo = null;
-let acnResendCooldown = 0;
-let acnResendTimer = null;
-
+/* Change Mobile Number (no OTP) */
 function openChangeNumberView(){
   document.getElementById('account-view-main').style.display = 'none';
   document.getElementById('account-view-change-number').style.display = 'block';
   document.getElementById('account-drawer-title').textContent = 'Change Mobile Number';
-  document.getElementById('acn-view-phone').style.display = 'block';
-  document.getElementById('acn-view-otp').style.display = 'none';
   document.getElementById('acn-new-phone').value = '';
   document.getElementById('acn-error').style.display = 'none';
-  acnOtpSentTo = null;
+  const btn = document.getElementById('acn-send-btn');
+  btn.disabled = false; btn.textContent = 'Update Number';
 }
 
-async function sendChangeNumberOtp(isResend){
+async function changeMobileNumber(){
   const errBox = document.getElementById('acn-error');
   errBox.style.display = 'none';
-  const newPhone = isResend ? acnOtpSentTo : document.getElementById('acn-new-phone').value.trim();
-
-  if(!isResend){
-    if(!/^\d{10}$/.test(newPhone)){
-      errBox.textContent = 'Please enter a valid 10-digit mobile number.';
-      errBox.style.display = 'block';
-      return;
-    }
-    if(newPhone === CUSTOMER.mobile_number){
-      errBox.textContent = 'That is already your current number.';
-      errBox.style.display = 'block';
-      return;
-    }
+  const newPhone = document.getElementById('acn-new-phone').value.trim();
+  if(!/^\d{10}$/.test(newPhone)){
+    errBox.textContent = 'Please enter a valid 10-digit mobile number.';
+    errBox.style.display = 'block';
+    return;
   }
-  if(isResend && acnResendCooldown > 0) return;
+  if(newPhone === CUSTOMER.mobile_number){
+    errBox.textContent = 'That is already your current number.';
+    errBox.style.display = 'block';
+    return;
+  }
 
   const btn = document.getElementById('acn-send-btn');
-  if(!isResend){ btn.disabled = true; btn.textContent = 'Sending OTP…'; }
+  btn.disabled = true; btn.textContent = 'Updating…';
+  const fail = (msg)=>{
+    btn.disabled = false; btn.textContent = 'Update Number';
+    errBox.textContent = msg;
+    errBox.style.display = 'block';
+  };
 
-  let resp, body;
+  let tokResp, tokBody;
   try{
-    resp = await fetch('/api/send-otp', {
+    tokResp = await fetch('/api/issue-token', {
       method:'POST', headers:{'Content-Type':'application/json'},
       body: JSON.stringify({ phone: newPhone, purpose:'change-number' })
     });
-    body = await resp.json();
+    tokBody = await tokResp.json();
   }catch(e){
-    if(!isResend){ btn.disabled = false; btn.textContent = 'Send OTP'; }
-    errBox.textContent = 'Could not send OTP right now. Please try again.';
-    errBox.style.display = 'block';
-    return;
+    return fail('Could not reach the server. Please try again.');
   }
-  if(!isResend){ btn.disabled = false; btn.textContent = 'Send OTP'; }
-
-  if(!resp.ok){
-    errBox.textContent = body.error || 'Could not send OTP.';
-    errBox.style.display = 'block';
-    return;
-  }
-
-  acnOtpSentTo = newPhone;
-  document.getElementById('acn-view-phone').style.display = 'none';
-  document.getElementById('acn-view-otp').style.display = 'block';
-  document.getElementById('acn-otp-phone-display').textContent = newPhone;
-  document.getElementById('acn-otp').value = '';
-  document.getElementById('acn-otp-error').style.display = 'none';
-
-  acnResendCooldown = 30;
-  clearInterval(acnResendTimer);
-  acnResendTimer = setInterval(()=>{ if(--acnResendCooldown <= 0) clearInterval(acnResendTimer); }, 1000);
-}
-
-async function verifyChangeNumberOtp(){
-  const errBox = document.getElementById('acn-otp-error');
-  errBox.style.display = 'none';
-  const otp = document.getElementById('acn-otp').value.trim();
-  if(!/^\d{6}$/.test(otp)){
-    errBox.textContent = 'Please enter the 6-digit OTP.';
-    errBox.style.display = 'block';
-    return;
-  }
-
-  const btn = document.getElementById('acn-verify-btn');
-  btn.disabled = true; btn.textContent = 'Verifying…';
-
-  let resp, body;
-  try{
-    resp = await fetch('/api/verify-otp', {
-      method:'POST', headers:{'Content-Type':'application/json'},
-      body: JSON.stringify({ phone: acnOtpSentTo, otp })
-    });
-    body = await resp.json();
-  }catch(e){
-    btn.disabled = false; btn.textContent = 'Verify & Update Number';
-    errBox.textContent = 'Could not verify OTP. Please try again.';
-    errBox.style.display = 'block';
-    return;
-  }
-  if(!resp.ok || !body.token){
-    btn.disabled = false; btn.textContent = 'Verify & Update Number';
-    errBox.textContent = body.error || 'Incorrect or expired OTP.';
-    errBox.style.display = 'block';
-    return;
+  if(!tokResp.ok || !tokBody.token){
+    return fail(tokBody.error || 'Could not update your number.');
   }
 
   let cnResp, cnBody;
   try{
     cnResp = await fetch('/api/customer/change-number', {
       method:'POST', headers:{'Content-Type':'application/json'},
-      body: JSON.stringify({ sessionToken: CUSTOMER_SESSION_TOKEN, newPhone: acnOtpSentTo, otpToken: body.token })
+      body: JSON.stringify({ sessionToken: CUSTOMER_SESSION_TOKEN, newPhone, otpToken: tokBody.token })
     });
     cnBody = await cnResp.json();
   }catch(e){
-    btn.disabled = false; btn.textContent = 'Verify & Update Number';
-    errBox.textContent = 'Something went wrong. Please try again.';
-    errBox.style.display = 'block';
-    return;
+    return fail('Something went wrong. Please try again.');
   }
-
-  btn.disabled = false; btn.textContent = 'Verify & Update Number';
-
   if(!cnResp.ok || !cnBody.token){
-    errBox.textContent = cnBody.error || 'Could not update your number.';
-    errBox.style.display = 'block';
-    return;
+    return fail(cnBody.error || 'Could not update your number.');
   }
 
+  btn.disabled = false; btn.textContent = 'Update Number';
   CUSTOMER = cnBody.customer;
   CUSTOMER_SESSION_TOKEN = cnBody.token;
   localStorage.setItem('nf_customer_session', CUSTOMER_SESSION_TOKEN);
