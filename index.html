@@ -2525,6 +2525,14 @@
     border-radius:6px;padding:11px 12px;font-size:14px;font-family:'Inter',sans-serif;
   }
   .checkout-field input:focus, .checkout-field textarea:focus{outline:none;border-color:var(--teal);}
+  /* +91 prefix for the checkout phone field */
+  .chk-phone-wrap{display:flex;align-items:stretch;}
+  .chk-phone-prefix{
+    display:flex;align-items:center;padding:0 14px;font-family:'Space Mono',monospace;font-size:14px;color:var(--teal);
+    background:rgba(184,134,11,0.10);border:1px solid var(--line);border-right:none;border-radius:6px 0 0 6px;
+  }
+  .chk-phone-wrap input{flex:1;min-width:0;width:auto;border-radius:0 6px 6px 0 !important;}
+  .chk-phone-wrap:focus-within .chk-phone-prefix{border-color:var(--teal);}
 
   /* ===== CUSTOMER AUTH (Welcome / Login gate) ===== */
   .auth-modal-overlay{
@@ -4488,7 +4496,10 @@
       </div>
       <div class="checkout-field">
         <label for="chk-phone">Phone Number</label>
-        <input type="tel" id="chk-phone" placeholder="Your phone number" onblur="checkCheckoutReward()" oninput="scheduleCheckoutRewardCheck()">
+        <div class="chk-phone-wrap">
+          <span class="chk-phone-prefix">+91</span>
+          <input type="tel" id="chk-phone" placeholder="10-digit mobile number" maxlength="14" inputmode="numeric" autocomplete="tel-national" onblur="normalizePhoneInput(this); checkCheckoutReward()" oninput="normalizePhoneInput(this); scheduleCheckoutRewardCheck()">
+        </div>
         <div id="checkout-reward-banner"></div>
       </div>
       <div class="checkout-field">
