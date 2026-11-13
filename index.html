@@ -1246,6 +1246,24 @@
   }
   @keyframes nf-gold-revolve{ to { transform:rotate(360deg); } }
 
+  /* The gold gradient above is oversized so the rotating beam always covers
+     the corners, and a solid "cover" plate (same colour as the photo area)
+     sits on top of it, inset by the 3px frame. That means the light can only
+     ever show as a thin ring around the edge, even while the photo is still
+     loading or has failed to load. (Before, with no photo painted yet, the
+     bare gradient was visible as a big gold triangle.) */
+  .prod-photo::before, .qv-photo::before, .combo-qv-photo::before{ inset:-30%; border-radius:0; }
+  .prod-photo::after, .qv-photo::after, .combo-qv-photo::after{
+    content:'';position:absolute;inset:3px;z-index:0;pointer-events:none;
+    border-radius:7px;
+    background:linear-gradient(135deg, var(--iron) 0%, var(--steel) 60%);
+  }
+  .prod-photo .ph-label, .prod-photo > svg, .qv-photo .ph-label{ position:relative; z-index:1; }
+  /* badges, share button, photo counter etc. must stay above the cover plate */
+  .prod-photo > :not(img){ z-index:2; }
+  .prod-photo > img{ z-index:1; }
+  .qv-photo-track{ position:relative; z-index:1; }
+
   /* Force the actual product photo to paint ABOVE the revolving gold
      gradient above. Without this, the <img> (which has no position/
      z-index of its own) sits BEHIND the absolutely-positioned ::before
