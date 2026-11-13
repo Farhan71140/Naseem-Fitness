@@ -5958,7 +5958,7 @@ function addComboToCart(id, stayOpen){
   else CART.push({ id:lineId, name:c.name + ' (Combo)', price:Number(c.offer_price), unit:'', qty:1, image:c.image_url||'', compare:(Number(c.original_price)>Number(c.offer_price)?Number(c.original_price):0) });
   renderCart();
   if(!stayOpen) openCart();
-  if(window.fbq) fbq('track', 'AddToCart', { content_name: c.name, value: Number(c.offer_price), currency: 'INR' });
+  nfTrackEcom('add', [nfTrackItem(lineId, c.name, c.offer_price, 1)], Number(c.offer_price));
 }
 
 /* ---------- pricing (accounts for store-wide sale) ---------- */
@@ -7851,7 +7851,7 @@ function addToCart(id){
   }
   renderCart();
   openCart();
-  if(window.fbq) fbq('track', 'AddToCart', { content_name: p.name, value: Number(p.price), currency: 'INR' });
+  nfTrackEcom('add', [nfTrackItem(p.id, p.name, p.price, 1)], Number(p.price));
 }
 function changeQty(id, delta){
   const line = CART.find(x=>x.id===id);
@@ -8377,7 +8377,7 @@ function openQuickView(id){
   renderQvRelatedProducts(p);
   document.getElementById('quickview-overlay').classList.add('active');
   nfOverlayOpened('quickview');
-  if(window.fbq) fbq('track', 'ViewContent', { content_name: p.name, value: Number(p.price), currency: 'INR' });
+  nfTrackEcom('view', [nfTrackItem(p.id, p.name, p.price, 1)], Number(p.price));
 }
 /* ---------- "More from [category]" — horizontal related-products row in Quick View ---------- */
 function renderQvRelatedProducts(p){
@@ -8549,7 +8549,7 @@ function qvAddToCart(){
   }
   renderCart();
 
-  if(window.fbq) fbq('track', 'AddToCart', { content_name: lineName, value: Number(p.price), currency: 'INR' });
+  nfTrackEcom('add', [nfTrackItem(p.id, lineName, p.price, QV_QTY)], Number(p.price) * QV_QTY);
   return true;
 }
 
@@ -8800,6 +8800,7 @@ async function startRazorpayPayment(context){
 }
 
 async function finishRazorpayPayment(r, customerName){
+  window.NF_PURCHASE_ITEMS = CART.map(l => nfTrackItem(l.id, l.name, l.price, l.qty));  // for purchase tracking (cart is cleared below)
   showPaymentProcessing('Confirming your payment…', 'Please don’t close or refresh this page.');
   let result = null;
   for(let i = 0; i < 4 && !result; i++){
@@ -8831,7 +8832,12 @@ async function finishRazorpayPayment(r, customerName){
 
 const RZP_METHOD_LABELS = { upi:'UPI', card:'Card', netbanking:'Net Banking', wallet:'Wallet', emi:'EMI', paylater:'Pay Later' };
 function renderPaymentSuccess(res, customerName){
-  if(window.fbq) fbq('track', 'Purchase', { value: res.total, currency: 'INR' });
+  {
+    const _items = window.NF_PURCHASE_ITEMS || [];
+    const _sum = _items.reduce((n,i)=>n + i.price*i.quantity, 0);
+    const _value = Number(res.total) || (Number(res.amountPaid) + Number(res.remaining || 0)) || _sum;
+    nfTrackEcom('purchase', _items, _value, { transaction_id: res.orderRef || res.paymentId });
+  }
   const inr = n => '₹' + Number(n).toLocaleString('en-IN');
   const rewardLine = res.reward
     ? `<p class="rzp-reward">🎁 Lucky Spin reward applied: <strong>${res.reward.type === 'discount' ? inr(res.reward.value) + ' OFF' : 'FREE ' + escapeHtml(res.reward.label)}</strong></p>` : '';
@@ -8856,6 +8862,10 @@ function renderPaymentSuccess(res, customerName){
   if(foot) foot.style.display = 'none';
 }
 function renderPaymentPending(paymentId, customerName){
+  {
+    const _items = window.NF_PURCHASE_ITEMS || [];
+    nfTrackEcom('purchase', _items, _items.reduce((n,i)=>n + i.price*i.quantity, 0), { transaction_id: paymentId });
+  }
   document.getElementById('checkout-body').innerHTML = `
     <div class="rzp-success">
       <div class="rzp-tick rzp-tick-wait"><svg viewBox="0 0 52 52" aria-hidden="true"><circle class="rzp-tick-ring" cx="26" cy="26" r="24"/><path class="rzp-tick-check" d="M26 14v13l8 5"/></svg></div>
@@ -8933,7 +8943,7 @@ function openCheckout(){
   resetUpiChoice();
   document.getElementById('checkout-overlay').classList.add('active');
   updatePaymentSummary();
-  if(window.fbq) fbq('track', 'InitiateCheckout', { value: getOrderTotal(subtotal), currency: 'INR' });
+  nfTrackEcom('checkout', CART.map(l => nfTrackItem(l.id, l.name, l.price, l.qty)), getOrderTotal(subtotal));
 }
 function closeCheckout(){ nfOverlayClosed('checkout'); document.getElementById('checkout-overlay').classList.remove('active'); }
 
@@ -9352,6 +9362,38 @@ function renderLiveMap(lat, lng, accuracy){
     liveTrackMap.panTo([lat,lng]);
     liveTrackMap.invalidateSize();
   }
+}
+
+/* ---------- E-commerce tracking (GA4 + Meta Pixel) ----------
+   One helper sends the same event to both: GA4 (view_item, add_to_cart,
+   begin_checkout, purchase) and Meta Pixel (ViewContent, AddToCart,
+   InitiateCheckout, Purchase) with item details, so reports are not empty. */
+function nfTrackItem(id, name, price, qty){
+  return { item_id:String(id).split('::')[0], item_name:name, price:Number(price)||0, quantity:Number(qty)||1 };
+}
+function nfTrackEcom(kind, items, value, extra){
+  try{
+    items = items || []; extra = extra || {};
+    value = Number(value) || 0;
+    const ga   = { view:'view_item', add:'add_to_cart', checkout:'begin_checkout', purchase:'purchase' }[kind];
+    const meta = { view:'ViewContent', add:'AddToCart', checkout:'InitiateCheckout', purchase:'Purchase' }[kind];
+    if(window.gtag && ga){
+      const gp = { currency:'INR', value:value, items:items };
+      if(extra.transaction_id) gp.transaction_id = String(extra.transaction_id);
+      window.gtag('event', ga, gp);
+    }
+    if(window.fbq && meta){
+      const mp = {
+        currency:'INR', value:value, content_type:'product',
+        content_ids: items.map(i=>i.item_id),
+        contents: items.map(i=>({ id:i.item_id, quantity:i.quantity, item_price:i.price })),
+        num_items: items.reduce((n,i)=>n+i.quantity,0)
+      };
+      if(items.length === 1) mp.content_name = items[0].item_name;
+      if(extra.transaction_id) window.fbq('track', meta, mp, { eventID:String(extra.transaction_id) });
+      else window.fbq('track', meta, mp);
+    }
+  }catch(e){ /* tracking must never break the store */ }
 }
 
 /* ---------- store settings (Marketing & SEO) ---------- */
