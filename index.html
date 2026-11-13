@@ -8471,8 +8471,8 @@ function nfAddedFeedback(btnId, restoreFn, normalLabel){
     b.classList.remove('pulse'); void b.offsetWidth; b.classList.add('pulse');
   });
 }
-function qvGoToCart(){ if(!qvAddToCart()) return; closeQuickView(); openCart(); }
-function cqvGoToCart(){ cqvEnsureInCart(); closeComboQuickView(); openCart(); }
+function qvGoToCart(){ if(!qvAddToCart()) return; openCart(); closeQuickView(); }
+function cqvGoToCart(){ cqvEnsureInCart(); openCart(); closeComboQuickView(); }
 
 function qvAddToCart(){
   if(!QV_PRODUCT_ID) return false;
@@ -8549,8 +8549,8 @@ function updateCqvBuyButton(){
 }
 function qvBuyNow(){
   if(!qvAddToCart()) return;      // validates size / flavor / stock, adds to cart
+  openCheckout();                 // open first so the overlay stack never empties
   closeQuickView();
-  openCheckout();
 }
 function cqvEnsureInCart(){
   if(!CQV_COMBO_ID) return;
@@ -8560,8 +8560,8 @@ function cqvEnsureInCart(){
 function cqvBuyNow(){
   if(!CQV_COMBO_ID) return;
   cqvEnsureInCart();
-  closeComboQuickView();
   openCheckout();
+  closeComboQuickView();
 }
 
 /* ---------- checkout ---------- */
