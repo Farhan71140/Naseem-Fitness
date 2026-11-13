@@ -1717,6 +1717,41 @@
   .qv-qty-row{display:flex;align-items:center;justify-content:space-between;margin-top:24px;padding-top:20px;border-top:1px solid var(--line);}
   .qv-qty-row .qty-ctrl button{width:32px;height:32px;font-size:16px;}
 
+  /* ===== GO TO CART BUTTON (product + combo quick view) ===== */
+  .qv-foot{padding:16px 20px calc(16px + env(safe-area-inset-bottom,0px));display:flex;flex-direction:column;gap:12px;background:linear-gradient(180deg,#fff,var(--steel));box-shadow:0 -10px 30px rgba(23,19,12,0.06);}
+  .qv-foot .qv-qty-row{margin-top:0;padding-top:0;border-top:0;gap:12px;}
+  .qv-foot #quickview-add-btn{flex:1;justify-content:center;}
+  .qv-foot .btn-primary,.qv-foot #combo-quickview-add-btn{background:linear-gradient(135deg,var(--gold-light),var(--amber) 55%,var(--teal));color:var(--ink-black);font-weight:800;letter-spacing:.3px;box-shadow:0 6px 18px rgba(184,134,11,.28);border-radius:12px;padding:14px 18px;}
+  .qv-foot .btn-primary:hover{background:linear-gradient(135deg,#F3D882,var(--amber) 55%,var(--teal));}
+  .qv-foot .btn-primary.is-added{background:linear-gradient(135deg,#2f9e5b,#1f7a3d);color:#fff;box-shadow:0 6px 18px rgba(31,122,61,.35);}
+  .qv-foot .qty-ctrl{border-radius:14px;padding:4px;}
+  .nf-gotocart{
+    position:relative;overflow:hidden;width:100%;display:flex;align-items:center;justify-content:space-between;gap:12px;
+    padding:12px 14px 12px 12px;border-radius:14px;cursor:pointer;text-align:left;font-family:'Inter',sans-serif;color:var(--gold-light);
+    border:1px solid transparent;
+    background:linear-gradient(135deg,#1c160a,#0A0806 60%,#17110a) padding-box,
+               linear-gradient(135deg,var(--gold-light),var(--teal) 50%,var(--gold-light)) border-box;
+    box-shadow:0 10px 26px rgba(10,8,6,.35),inset 0 1px 0 rgba(233,200,104,.18);
+    transition:transform .18s ease,box-shadow .2s ease;
+  }
+  .nf-gotocart:hover{transform:translateY(-2px);box-shadow:0 14px 32px rgba(10,8,6,.42),0 0 0 3px rgba(184,134,11,.12);}
+  .nf-gotocart:active{transform:translateY(0) scale(.985);}
+  .nf-gotocart .gtc-left{display:flex;align-items:center;gap:12px;min-width:0;}
+  .nf-gotocart .gtc-icon{position:relative;flex:none;width:40px;height:40px;border-radius:12px;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,var(--gold-light),var(--amber) 60%,var(--teal));color:var(--ink-black);box-shadow:0 4px 12px rgba(184,134,11,.4);}
+  .nf-gotocart .gtc-icon svg{width:19px;height:19px;}
+  .nf-gotocart .gtc-badge{position:absolute;top:-7px;right:-7px;font-style:normal;font-family:'Space Mono',monospace;font-size:10px;font-weight:700;min-width:19px;height:19px;padding:0 5px;border-radius:10px;align-items:center;justify-content:center;background:#fff;color:var(--ink-black);border:2px solid #0A0806;}
+  .nf-gotocart .gtc-text{display:flex;flex-direction:column;line-height:1.2;min-width:0;}
+  .nf-gotocart .gtc-text b{font-size:15px;font-weight:800;letter-spacing:.4px;color:#FFF2B5;}
+  .nf-gotocart .gtc-text small{font-family:'Space Mono',monospace;font-size:10.5px;letter-spacing:.3px;color:rgba(233,200,104,.78);margin-top:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+  .nf-gotocart .gtc-arrow{flex:none;width:34px;height:34px;border-radius:50%;display:flex;align-items:center;justify-content:center;border:1px solid rgba(233,200,104,.45);color:var(--gold-light);transition:transform .2s ease,background .2s ease,color .2s ease;}
+  .nf-gotocart .gtc-arrow svg{width:16px;height:16px;}
+  .nf-gotocart:hover .gtc-arrow{transform:translateX(3px);background:var(--gold-light);color:var(--ink-black);}
+  .nf-gotocart .gtc-shine{position:absolute;top:0;left:-60%;width:40%;height:100%;pointer-events:none;background:linear-gradient(100deg,transparent,rgba(255,242,181,.22),transparent);transform:skewX(-18deg);animation:gtcShine 4.2s ease-in-out infinite;}
+  @keyframes gtcShine{0%,55%{left:-60%;}100%{left:130%;}}
+  .nf-gotocart.pulse{animation:gtcPulse .7s ease;}
+  @keyframes gtcPulse{0%{box-shadow:0 0 0 0 rgba(233,200,104,.7);}60%{box-shadow:0 0 0 14px rgba(233,200,104,0);}100%{box-shadow:0 10px 26px rgba(10,8,6,.35);}}
+  @media (prefers-reduced-motion:reduce){.nf-gotocart .gtc-shine,.nf-gotocart.pulse{animation:none;}}
+
   /* ===== AUTHENTICITY STORY — ultra premium ===== */
   .authentic{
     position:relative;overflow:hidden;
@@ -4618,7 +4653,7 @@
       </div>
     </div>
     <div class="drawer-body" id="quickview-body"></div>
-    <div class="drawer-foot" id="quickview-foot">
+    <div class="drawer-foot qv-foot" id="quickview-foot">
       <div class="qv-qty-row">
         <div class="qty-ctrl">
           <button onclick="qvChangeQty(-1)">−</button>
@@ -4627,6 +4662,14 @@
         </div>
         <button class="btn btn-primary" id="quickview-add-btn" onclick="qvAddToCart()">Add to Cart</button>
       </div>
+      <button type="button" class="nf-gotocart" onclick="qvGoToCart()" aria-label="Go to cart">
+        <span class="gtc-shine"></span>
+        <span class="gtc-left">
+          <span class="gtc-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><path d="M3 6h18"/><path d="M16 10a4 4 0 0 1-8 0"/></svg><em class="gtc-badge" data-gtc-count style="display:none;">0</em></span>
+          <span class="gtc-text"><b>Go to Cart</b><small data-gtc-sub>Your cart is empty</small></span>
+        </span>
+        <span class="gtc-arrow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span>
+      </button>
     </div>
   </div>
 </div>
@@ -4646,8 +4689,16 @@
       <button class="drawer-close" onclick="closeComboQuickView()">✕</button>
     </div>
     <div class="drawer-body" id="combo-quickview-body"></div>
-    <div class="drawer-foot">
+    <div class="drawer-foot qv-foot">
       <button class="btn btn-primary" id="combo-quickview-add-btn" style="width:100%;justify-content:center;" onclick="cqvAddToCart()">Add Combo to Cart</button>
+      <button type="button" class="nf-gotocart" onclick="cqvGoToCart()" aria-label="Go to cart">
+        <span class="gtc-shine"></span>
+        <span class="gtc-left">
+          <span class="gtc-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><path d="M3 6h18"/><path d="M16 10a4 4 0 0 1-8 0"/></svg><em class="gtc-badge" data-gtc-count style="display:none;">0</em></span>
+          <span class="gtc-text"><b>Go to Cart</b><small data-gtc-sub>Your cart is empty</small></span>
+        </span>
+        <span class="gtc-arrow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span>
+      </button>
     </div>
   </div>
 </div>
@@ -5863,10 +5914,10 @@ function closeComboQuickView(){
 }
 function cqvAddToCart(){
   if(!CQV_COMBO_ID) return;
-  addComboToCart(CQV_COMBO_ID);
-  closeComboQuickView();
+  addComboToCart(CQV_COMBO_ID, true);
+  nfAddedFeedback('combo-quickview-add-btn', null, 'Add Combo to Cart');
 }
-function addComboToCart(id){
+function addComboToCart(id, stayOpen){
   const c = COMBOS.find(x=>x.id===id);
   if(!c) return;
   const lineId = 'combo-' + c.id;
@@ -5874,7 +5925,7 @@ function addComboToCart(id){
   if(line) line.qty += 1;
   else CART.push({ id:lineId, name:c.name + ' (Combo)', price:Number(c.offer_price), unit:'', qty:1, image:c.image_url||'', compare:(Number(c.original_price)>Number(c.offer_price)?Number(c.original_price):0) });
   renderCart();
-  openCart();
+  if(!stayOpen) openCart();
   if(window.fbq) fbq('track', 'AddToCart', { content_name: c.name, value: Number(c.offer_price), currency: 'INR' });
 }
 
@@ -7947,6 +7998,7 @@ function renderCart(){
   document.getElementById('cart-count-icon').style.display = count>0 ? 'flex' : 'none';
   document.getElementById('cart-count-icon').textContent = count;
   document.getElementById('cart-count-mobile').textContent = '('+count+')';
+  if(typeof updateGoCartButtons === 'function') updateGoCartButtons();
 
   const body = document.getElementById('cart-body');
   const foot = document.getElementById('cart-foot');
@@ -8207,6 +8259,7 @@ function openQuickView(id){
   }
   QV_SELECTED_SIZE = null;
   document.getElementById('qv-qty').textContent = QV_QTY;
+  if(typeof updateGoCartButtons === 'function') updateGoCartButtons();
 
   const effQv = getEffectivePricing(p);
   const price = effQv.price;
@@ -8407,6 +8460,39 @@ function qvChangeQty(delta){
   QV_QTY = Math.max(1, QV_QTY + delta);
   document.getElementById('qv-qty').textContent = QV_QTY;
 }
+/* ---------- "Go to Cart" button (quick view drawers) ---------- */
+function updateGoCartButtons(){
+  const count = CART.reduce((s,l)=>s+l.qty,0);
+  const total = (typeof cartTotal === 'function') ? cartTotal() : 0;
+  document.querySelectorAll('.nf-gotocart').forEach(function(b){
+    const badge = b.querySelector('[data-gtc-count]');
+    const sub = b.querySelector('[data-gtc-sub]');
+    if(badge){ badge.style.display = count>0 ? 'flex' : 'none'; badge.textContent = count; }
+    if(sub) sub.textContent = count>0
+      ? count + (count===1?' item':' items') + ' · ₹' + Number(total).toLocaleString('en-IN')
+      : 'Your cart is empty';
+  });
+}
+function nfAddedFeedback(btnId, restoreFn, normalLabel){
+  const btn = document.getElementById(btnId);
+  if(btn){
+    btn.disabled = false;
+    btn.style.opacity = ''; btn.style.cursor = '';
+    btn.textContent = '✓ Added to Cart';
+    btn.classList.add('is-added');
+    clearTimeout(btn._addedT);
+    btn._addedT = setTimeout(function(){
+      btn.classList.remove('is-added');
+      if(restoreFn) restoreFn(); else btn.textContent = normalLabel || 'Add to Cart';
+    }, 1600);
+  }
+  document.querySelectorAll('.nf-gotocart').forEach(function(b){
+    b.classList.remove('pulse'); void b.offsetWidth; b.classList.add('pulse');
+  });
+}
+function qvGoToCart(){ openCart(); closeQuickView(); }
+function cqvGoToCart(){ openCart(); closeComboQuickView(); }
+
 function qvAddToCart(){
   if(!QV_PRODUCT_ID) return;
   const p = PRODUCTS.find(x=>x.id===QV_PRODUCT_ID);
@@ -8445,8 +8531,10 @@ function qvAddToCart(){
     CART.push({ id:lineId, name:lineName, price:Number(p.price), unit:p.unit, qty:QV_QTY, image:imgs[0]||'', compare:(eff.hasDiscount?eff.compare:0), pct:(eff.hasDiscount?eff.pct:0) });
   }
   renderCart();
-  closeQuickView();
-  openCart();
+  nfAddedFeedback('quickview-add-btn', function(){
+    const pp = PRODUCTS.find(x=>x.id===QV_PRODUCT_ID);
+    if(pp) updateQvAddButtonState(pp);
+  }, 'Add to Cart');
   if(window.fbq) fbq('track', 'AddToCart', { content_name: lineName, value: Number(p.price), currency: 'INR' });
 }
 
