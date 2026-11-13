@@ -1765,6 +1765,8 @@
   .qv-actions .qv-buy-btn:hover{filter:brightness(1.04);}
   .qv-actions .qv-buy-btn:disabled{opacity:.5;cursor:not-allowed;box-shadow:none;}
   .qv-actions .qv-gotocart-btn.pulse{animation:gtcPulse .7s ease;}
+  .qv-foot .qv-qty-label{font-family:'Space Mono',monospace;font-size:11px;letter-spacing:1.4px;text-transform:uppercase;color:var(--paper-dim);}
+  .qv-actions .qv-buy-btn{flex:1.15 1 0;}
 
   /* ===== AUTHENTICITY STORY — ultra premium ===== */
   .authentic{
@@ -4669,12 +4671,12 @@
     <div class="drawer-body" id="quickview-body"></div>
     <div class="drawer-foot qv-foot" id="quickview-foot">
       <div class="qv-qty-row">
+        <span class="qv-qty-label">Quantity</span>
         <div class="qty-ctrl">
           <button onclick="qvChangeQty(-1)">−</button>
           <span id="qv-qty">1</span>
           <button onclick="qvChangeQty(1)">+</button>
         </div>
-        <button class="btn btn-primary" id="quickview-add-btn" onclick="qvAddToCart()">Add to Cart</button>
       </div>
       <div class="qv-actions">
         <button type="button" class="qv-gotocart-btn" onclick="qvGoToCart()" aria-label="Go to cart"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><path d="M3 6h18"/><path d="M16 10a4 4 0 0 1-8 0"/></svg><span>Go to cart</span><em class="gtc-badge" data-gtc-count>0</em></button>
@@ -4700,7 +4702,6 @@
     </div>
     <div class="drawer-body" id="combo-quickview-body"></div>
     <div class="drawer-foot qv-foot">
-      <button class="btn btn-primary" id="combo-quickview-add-btn" style="width:100%;justify-content:center;" onclick="cqvAddToCart()">Add Combo to Cart</button>
       <div class="qv-actions">
         <button type="button" class="qv-gotocart-btn" onclick="cqvGoToCart()" aria-label="Go to cart"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><path d="M3 6h18"/><path d="M16 10a4 4 0 0 1-8 0"/></svg><span>Go to cart</span><em class="gtc-badge" data-gtc-count>0</em></button>
         <button type="button" class="qv-buy-btn" id="combo-quickview-buy-btn" onclick="cqvBuyNow()">Buy at ₹0</button>
@@ -8080,6 +8081,7 @@ function closeCart(){ nfOverlayClosed('cart'); document.getElementById('cart-ove
 /* ---------- product quick view ---------- */
 let QV_PRODUCT_ID = null;
 let QV_QTY = 1;
+let QV_LAST_ADDED = null;
 let QV_IMAGES = [];
 let QV_IMG_INDEX = 0;
 let QV_BASE_IMAGES = [];
@@ -8192,29 +8194,6 @@ function selectQvFlavor(flavorId){
 }
 function updateQvAddButtonState(p){
   updateQvBuyButton();
-  const qvAddBtn = document.getElementById('quickview-add-btn');
-  if(!qvAddBtn) return;
-  const outOfStock = (p.stock !== undefined && p.stock !== null && Number(p.stock) <= 0);
-  const hasFlavors = Array.isArray(p.flavors) && p.flavors.length > 0;
-  const hasSizes = Array.isArray(p.sizes) && p.sizes.length > 0;
-  let disabled = outOfStock;
-  let label = 'Add to Cart';
-  if(outOfStock){
-    label = 'Out of Stock';
-  } else if(hasFlavors && !QV_SELECTED_FLAVOR){
-    disabled = true;
-    label = 'Select a Flavor';
-  } else if(hasFlavors && QV_SELECTED_FLAVOR && QV_SELECTED_FLAVOR.in_stock === false){
-    disabled = true;
-    label = 'Flavor Out of Stock';
-  } else if(hasSizes && !QV_SELECTED_SIZE){
-    disabled = true;
-    label = 'Select a Size';
-  }
-  qvAddBtn.disabled = disabled;
-  qvAddBtn.textContent = label;
-  qvAddBtn.style.opacity = disabled ? '0.5' : '';
-  qvAddBtn.style.cursor = disabled ? 'not-allowed' : '';
 }
 
 /* ---------- size selector (apparel — T-Shirts / Shorts / Track Pants) ---------- */
@@ -8255,6 +8234,7 @@ function openQuickView(id){
   if(!p) return;
   QV_PRODUCT_ID = id;
   QV_QTY = 1;
+  QV_LAST_ADDED = null;
   QV_BASE_IMAGES = getProductImages(p);
   QV_IMAGES = QV_BASE_IMAGES.slice();
   QV_IMG_INDEX = 0;
@@ -8499,8 +8479,8 @@ function nfAddedFeedback(btnId, restoreFn, normalLabel){
     b.classList.remove('pulse'); void b.offsetWidth; b.classList.add('pulse');
   });
 }
-function qvGoToCart(){ openCart(); closeQuickView(); }
-function cqvGoToCart(){ openCart(); closeComboQuickView(); }
+function qvGoToCart(){ if(!qvAddToCart()) return; closeQuickView(); openCart(); }
+function cqvGoToCart(){ cqvEnsureInCart(); closeComboQuickView(); openCart(); }
 
 function qvAddToCart(){
   if(!QV_PRODUCT_ID) return false;
@@ -8533,6 +8513,10 @@ function qvAddToCart(){
   if(hasSizes) nameParts.push(`Size ${QV_SELECTED_SIZE}`);
   const lineName = nameParts.length ? `${p.name} — ${nameParts.join(', ')}` : p.name;
   const line = CART.find(x=>x.id===lineId);
+  const addKey = lineId + '|' + QV_QTY;
+  // already added from this drawer (or already in cart at qty 1) -> don't double-add
+  if(QV_LAST_ADDED === addKey || (line && QV_QTY === 1)) { QV_LAST_ADDED = addKey; return true; }
+  QV_LAST_ADDED = addKey;
   if(line) line.qty += QV_QTY;
   else {
     const eff = getEffectivePricing(p);
@@ -8540,10 +8524,7 @@ function qvAddToCart(){
     CART.push({ id:lineId, name:lineName, price:Number(p.price), unit:p.unit, qty:QV_QTY, image:imgs[0]||'', compare:(eff.hasDiscount?eff.compare:0), pct:(eff.hasDiscount?eff.pct:0) });
   }
   renderCart();
-  nfAddedFeedback('quickview-add-btn', function(){
-    const pp = PRODUCTS.find(x=>x.id===QV_PRODUCT_ID);
-    if(pp) updateQvAddButtonState(pp);
-  }, 'Add to Cart');
+
   if(window.fbq) fbq('track', 'AddToCart', { content_name: lineName, value: Number(p.price), currency: 'INR' });
   return true;
 }
@@ -8555,9 +8536,17 @@ function updateQvBuyButton(){
   if(!btn) return;
   const p = PRODUCTS.find(x=>x.id===QV_PRODUCT_ID);
   if(!p) return;
-  btn.textContent = 'Buy at ₹' + (Number(p.price) * QV_QTY).toLocaleString('en-IN');
   const out = (p.stock !== undefined && p.stock !== null && Number(p.stock) <= 0);
-  btn.disabled = out;
+  const hasFlavors = Array.isArray(p.flavors) && p.flavors.length > 0;
+  const hasSizes = Array.isArray(p.sizes) && p.sizes.length > 0;
+  let label = 'Buy at ₹' + (Number(p.price) * QV_QTY).toLocaleString('en-IN');
+  let disabled = false;
+  if(out){ label = 'Out of Stock'; disabled = true; }
+  else if(hasFlavors && !QV_SELECTED_FLAVOR){ label = 'Select a Flavor'; disabled = true; }
+  else if(hasFlavors && QV_SELECTED_FLAVOR && QV_SELECTED_FLAVOR.in_stock === false){ label = 'Flavor Out of Stock'; disabled = true; }
+  else if(hasSizes && !QV_SELECTED_SIZE){ label = 'Select a Size'; disabled = true; }
+  btn.textContent = label;
+  btn.disabled = disabled;
 }
 function updateCqvBuyButton(){
   const btn = document.getElementById('combo-quickview-buy-btn');
@@ -8571,9 +8560,14 @@ function qvBuyNow(){
   closeQuickView();
   openCheckout();
 }
+function cqvEnsureInCart(){
+  if(!CQV_COMBO_ID) return;
+  if(CART.some(x=>x.id==='combo-'+CQV_COMBO_ID)) return;   // already there
+  addComboToCart(CQV_COMBO_ID, true);
+}
 function cqvBuyNow(){
   if(!CQV_COMBO_ID) return;
-  addComboToCart(CQV_COMBO_ID, true);
+  cqvEnsureInCart();
   closeComboQuickView();
   openCheckout();
 }
