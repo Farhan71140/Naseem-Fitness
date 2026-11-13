@@ -4670,14 +4670,6 @@
     </div>
     <div class="drawer-body" id="quickview-body"></div>
     <div class="drawer-foot qv-foot" id="quickview-foot">
-      <div class="qv-qty-row">
-        <span class="qv-qty-label">Quantity</span>
-        <div class="qty-ctrl">
-          <button onclick="qvChangeQty(-1)">−</button>
-          <span id="qv-qty">1</span>
-          <button onclick="qvChangeQty(1)">+</button>
-        </div>
-      </div>
       <div class="qv-actions">
         <button type="button" class="qv-gotocart-btn" onclick="qvGoToCart()" aria-label="Go to cart"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><path d="M3 6h18"/><path d="M16 10a4 4 0 0 1-8 0"/></svg><span>Go to cart</span><em class="gtc-badge" data-gtc-count>0</em></button>
         <button type="button" class="qv-buy-btn" id="quickview-buy-btn" onclick="qvBuyNow()">Buy at ₹0</button>
@@ -8246,7 +8238,7 @@ function openQuickView(id){
     }
   }
   QV_SELECTED_SIZE = null;
-  document.getElementById('qv-qty').textContent = QV_QTY;
+  const _q=document.getElementById('qv-qty'); if(_q) _q.textContent = QV_QTY;
   updateQvBuyButton();
   if(typeof updateGoCartButtons === 'function') updateGoCartButtons();
 
